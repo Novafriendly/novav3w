@@ -588,7 +588,17 @@
             genre: classifyGenre(game.name)
           }));
         
-        // Load custom games from localStorage
+        // Load proxied games from proxied-games.json (dev-added games)
+        try {
+          const proxiedResponse = await fetch('proxied-games.json');
+          const proxiedGames = await proxiedResponse.json();
+          allGames = [...allGames, ...proxiedGames];
+          console.log('✅ Loaded', proxiedGames.length, 'proxied games');
+        } catch (err) {
+          console.log('ℹ️ No proxied-games.json found or error loading:', err.message);
+        }
+        
+        // Load custom games from localStorage (user-added games)
         const savedCustomGames = JSON.parse(localStorage.getItem('nova_custom_games') || '[]');
         allGames = [...allGames, ...savedCustomGames];
         

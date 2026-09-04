@@ -1,0 +1,29 @@
+[
+  {
+    "id": "proxy_shellshockers",
+    "name": "Shell Shockers",
+    "url": "https://shellshock.io",
+    "cover": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/9c11ff98cc8ef1391d9c2e6df8e66c38.png",
+    "author": "Blue Wizard Digital",
+    "genre": "shooting",
+    "isProxied": true
+  },
+  {
+    "id": "proxy_krunker",
+    "name": "Krunker.io",
+    "url": "https://krunker.io",
+    "cover": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/f4548d7d29c0b2c7607b0a4df4caab25.png",
+    "author": "Yendis Entertainment",
+    "genre": "shooting",
+    "isProxied": true
+  },
+  {
+    "id": "proxy_1v1lol",
+    "name": "1v1.LOL",
+    "url": "https://1v1.lol",
+    "cover": "https://img.poki.com/cdn-cgi/image/quality=78,width=600,height=600,fit=cover,f=auto/902c845a2e6c415ce894e831ded35be8.png",
+    "author": "JustPlay.LOL",
+    "genre": "shooting",
+    "isProxied": true
+  }
+]
