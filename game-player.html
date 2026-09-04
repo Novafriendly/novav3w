@@ -460,6 +460,14 @@
       currentGameUrl = params.get('url') || '';
       currentGameName = params.get('name') || 'Game';
       currentGameIcon = params.get('icon') || '';
+      const useProxy = params.get('proxy') === 'true';
+      
+      // If proxy is requested, route through Scramjet proxy
+      if (useProxy && currentGameUrl) {
+        const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl) + '&transport=libcurl';
+        currentGameUrl = proxyUrl;
+        console.log('🔒 Using proxy for custom game:', currentGameUrl);
+      }
       
       // Detect Retro Bowl games
       const nameLower = currentGameName.toLowerCase();

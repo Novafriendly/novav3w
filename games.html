@@ -439,6 +439,13 @@
         Random
       </button>
       
+      <button class="btn-rand" onclick="openAddGameModal()" style="background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.3);color:#a78bfa;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Add Custom Game
+      </button>
+      
       <div class="genre-dropdown" id="genreDropdown">
         <button class="genre-btn" onclick="toggleGenreDropdown()">
           <span id="genreLabel">All Games</span>
@@ -448,6 +455,7 @@
         </button>
         <div class="genre-menu">
           <button class="genre-item active" data-genre="all" onclick="selectGenre('all', 'All Games')">All Games</button>
+          <button class="genre-item" data-genre="custom" onclick="selectGenre('custom', 'Custom Games')">Custom Games</button>
           <button class="genre-item" data-genre="action" onclick="selectGenre('action', 'Action')">Action</button>
           <button class="genre-item" data-genre="shooting" onclick="selectGenre('shooting', 'Shooting')">Shooting</button>
           <button class="genre-item" data-genre="racing" onclick="selectGenre('racing', 'Racing')">Racing</button>
@@ -546,6 +554,9 @@
       
       if (genre === 'all') {
         displayedGames = allGames;
+      } else if (genre === 'custom') {
+        // Show only custom games
+        displayedGames = allGames.filter(game => game.isCustom === true);
       } else {
         displayedGames = allGames.filter(game => game.genre === genre);
       }
@@ -576,6 +587,10 @@
             url: game.url.replace('{HTML_URL}', HTML_URL),
             genre: classifyGenre(game.name)
           }));
+        
+        // Load custom games from localStorage
+        const savedCustomGames = JSON.parse(localStorage.getItem('nova_custom_games') || '[]');
+        allGames = [...allGames, ...savedCustomGames];
         
         displayedGames = [...allGames];
         renderGames();
@@ -627,7 +642,7 @@
     function createGameCard(game) {
       const card = document.createElement('div');
       card.className = 'game-card';
-      card.onclick = () => openGame(game.url, game.name, game.cover);
+      card.onclick = () => openGame(game.url, game.name, game.cover, game.isProxied);
       
       card.innerHTML = `
         <div class="game-card-placeholder">?</div>
@@ -636,6 +651,7 @@
           <div class="game-card-title">${game.name}</div>
           <div class="game-card-author">${game.author || 'Unknown'}</div>
         </div>
+        ${game.isCustom ? '<button class="delete-custom-game" onclick="event.stopPropagation(); deleteCustomGame(\'' + game.id + '\');" style="position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(220,38,38,0.9);border:none;border-radius:6px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>' : ''}
       `;
       
       return card;
@@ -729,8 +745,8 @@
     }
 
     // Open game
-    function openGame(url, name, coverImage) {
-      console.log('🎮 Opening game:', name, coverImage);
+    function openGame(url, name, coverImage, isProxied = false) {
+      console.log('🎮 Opening game:', name, coverImage, 'Proxied:', isProxied);
       
       // Track the game being played
       try {
@@ -744,18 +760,22 @@
         console.error('❌ Failed to send tracking message:', e);
       }
       
-      // Build player URL with parameters
-      const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}`;
-      
-      // Open in new window/tab or navigate
-      window.location.href = playerUrl;
+      // If it's a proxied custom game, open through game-player.html with proxy
+      if (isProxied) {
+        const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=true`;
+        window.location.href = playerUrl;
+      } else {
+        // Regular game - open normally
+        const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}`;
+        window.location.href = playerUrl;
+      }
     }
 
     // Random game
     function openRandomGame() {
       if (displayedGames.length > 0) {
         const randomGame = displayedGames[Math.floor(Math.random() * displayedGames.length)];
-        openGame(randomGame.url, randomGame.name, randomGame.cover);
+        openGame(randomGame.url, randomGame.name, randomGame.cover, randomGame.isProxied);
       }
     }
 
@@ -795,6 +815,111 @@
       document.addEventListener('keydown', window._panicKeyHandler);
       console.log('🔐 Panic key active:', savedKey);
     });
+    
+    // ═══════════════════════════════════════════════════════
+    // CUSTOM GAMES - Add proxied games
+    // ═══════════════════════════════════════════════════════
+    let customGames = JSON.parse(localStorage.getItem('nova_custom_games') || '[]');
+    
+    function openAddGameModal() {
+      document.getElementById('addGameModal').style.display = 'flex';
+    }
+    
+    function closeAddGameModal() {
+      document.getElementById('addGameModal').style.display = 'none';
+      document.getElementById('customGameName').value = '';
+      document.getElementById('customGameUrl').value = '';
+      document.getElementById('customGameCover').value = '';
+      document.getElementById('customGameGenre').value = 'action';
+    }
+    
+    function addCustomGame() {
+      const name = document.getElementById('customGameName').value.trim();
+      const url = document.getElementById('customGameUrl').value.trim();
+      const cover = document.getElementById('customGameCover').value.trim();
+      const genre = document.getElementById('customGameGenre').value;
+      
+      if (!name || !url) {
+        alert('Please enter a game name and URL');
+        return;
+      }
+      
+      const newGame = {
+        id: 'custom_' + Date.now(),
+        name: name,
+        url: url,
+        cover: cover || 'https://via.placeholder.com/300x400/8b5cf6/ffffff?text=' + encodeURIComponent(name),
+        genre: genre,
+        isCustom: true,
+        isProxied: true
+      };
+      
+      customGames.push(newGame);
+      localStorage.setItem('nova_custom_games', JSON.stringify(customGames));
+      
+      // Reload games to include custom games
+      allGames.push(newGame);
+      displayedGames = [...allGames];
+      renderGames();
+      
+      closeAddGameModal();
+      alert('✅ Custom game added!');
+    }
+    
+    function deleteCustomGame(gameId) {
+      if (!confirm('Delete this custom game?')) return;
+      
+      customGames = customGames.filter(g => g.id !== gameId);
+      localStorage.setItem('nova_custom_games', JSON.stringify(customGames));
+      
+      allGames = allGames.filter(g => g.id !== gameId);
+      displayedGames = displayedGames.filter(g => g.id !== gameId);
+      renderGames();
+    }
   </script>
+  
+  <!-- ADD CUSTOM GAME MODAL -->
+  <div id="addGameModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:90%;max-width:480px;box-shadow:0 24px 80px rgba(0,0,0,0.7);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h2 style="font-size:18px;font-weight:700;color:#fff;margin:0;">Add Custom Game</h2>
+        <button onclick="closeAddGameModal()" style="width:32px;height:32px;background:rgba(255,255,255,0.06);border:none;border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">✕</button>
+      </div>
+      
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Game Name</label>
+          <input id="customGameName" type="text" placeholder="e.g. Shell Shockers" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;" />
+        </div>
+        
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Game URL (will be proxied)</label>
+          <input id="customGameUrl" type="text" placeholder="https://shellshock.io" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;" />
+        </div>
+        
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Cover Image URL (optional)</label>
+          <input id="customGameCover" type="text" placeholder="https://example.com/cover.jpg" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;" />
+        </div>
+        
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Genre</label>
+          <select id="customGameGenre" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;">
+            <option value="action">Action</option>
+            <option value="shooting">Shooting</option>
+            <option value="racing">Racing</option>
+            <option value="puzzle">Puzzle</option>
+            <option value="sports">Sports</option>
+            <option value="io">IO Games</option>
+            <option value="adventure">Adventure</option>
+            <option value="strategy">Strategy</option>
+            <option value="arcade">Arcade</option>
+          </select>
+        </div>
+        
+        <button onclick="addCustomGame()" style="width:100%;background:#8b5cf6;border:none;border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;margin-top:8px;">Add Game</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
