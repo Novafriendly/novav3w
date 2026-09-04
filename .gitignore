@@ -1,11 +1,17 @@
-# Video files - hosted on GitHub Releases CDN
+# Video files - hosted on Cloudinary CDN
 *.mp4
 *.webm
 *.mov
 *.avi
 
-# Node modules
+# Node modules and package files (static site, no build needed)
 node_modules/
+package.json.unused
+package-lock.json.unused
+
+# Service worker files (auto-generated)
+sw.js
+register-sw.js
 
 # Environment files
 .env
