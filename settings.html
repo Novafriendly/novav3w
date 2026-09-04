@@ -1475,6 +1475,52 @@
 
       <div class="scard" style="margin-top: 20px;">
         <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Game Performance
+        </div>
+        <div style="margin-top:16px;">
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;margin-bottom:12px;">
+            <input type="checkbox" id="performanceMode" onchange="saveGamePerformanceSettings()" />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Performance mode</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Reduce quality for better FPS</div>
+            </div>
+          </label>
+          
+          <div style="padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);">Field of View (Zoom)</div>
+                <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Adjust game zoom level</div>
+              </div>
+              <div id="fovValue" style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);min-width:50px;text-align:right;">100%</div>
+            </div>
+            <input type="range" id="fovSlider" min="50" max="150" value="100" step="5" onchange="saveGamePerformanceSettings()" oninput="updateFOVDisplay(this.value)" style="width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none;-webkit-appearance:none;">
+            <style>
+              #fovSlider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #8b5cf6;
+                cursor: pointer;
+              }
+              #fovSlider::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #8b5cf6;
+                cursor: pointer;
+                border: none;
+              }
+            </style>
+          </div>
+        </div>
+      </div>
+
+      <div class="scard" style="margin-top: 20px;">
+        <div class="scard-head">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
           Ad Blocker
         </div>
@@ -3640,6 +3686,15 @@ function loadBehaviorSettings() {
   // Load ad blocker settings
   const blockGameAds = localStorage.getItem('nova_block_game_ads') !== 'false'; // default true
   if (document.getElementById('blockGameAds')) document.getElementById('blockGameAds').checked = blockGameAds;
+  
+  // Load game performance settings
+  const performanceMode = localStorage.getItem('nova_performance_mode') === 'true';
+  const fovValue = parseInt(localStorage.getItem('nova_fov') || '100');
+  if (document.getElementById('performanceMode')) document.getElementById('performanceMode').checked = performanceMode;
+  if (document.getElementById('fovSlider')) {
+    document.getElementById('fovSlider').value = fovValue;
+    document.getElementById('fovValue').textContent = fovValue + '%';
+  }
 }
 
 function savePerformanceSettings() {
@@ -3651,6 +3706,21 @@ function savePerformanceSettings() {
   
   emit('performanceChanged', { showFPS, showPing });
   showToast('Performance overlay settings saved', 'green');
+}
+
+function saveGamePerformanceSettings() {
+  const performanceMode = document.getElementById('performanceMode').checked;
+  const fovValue = parseInt(document.getElementById('fovSlider').value);
+  
+  localStorage.setItem('nova_performance_mode', performanceMode ? 'true' : 'false');
+  localStorage.setItem('nova_fov', fovValue.toString());
+  
+  emit('gamePerformanceChanged', { performanceMode, fovValue });
+  showToast('Game performance settings saved', 'green');
+}
+
+function updateFOVDisplay(value) {
+  document.getElementById('fovValue').textContent = value + '%';
 }
 
 function saveAdBlockerSettings() {

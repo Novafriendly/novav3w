@@ -43,6 +43,15 @@
       border: none;
       background: #000;
       z-index: 0;
+      transition: transform 0.3s ease;
+      transform-origin: center center;
+    }
+    
+    /* Performance mode - reduce rendering quality */
+    .game-frame.performance-mode {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
     }
     
     /* CONTROL BAR - Floating dock style */
@@ -677,6 +686,9 @@
     // PANIC KEY GLOBAL HANDLER
     // ═══════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', function() {
+      // Apply FOV and performance mode
+      applyGameSettings();
+      
       const savedKey = localStorage.getItem('nova_panic_key');
       const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
       const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
@@ -706,6 +718,28 @@
       document.addEventListener('keydown', window._panicKeyHandler);
       console.log('🔐 Panic key active:', savedKey);
     });
+    
+    // Apply game performance settings (FOV, performance mode)
+    function applyGameSettings() {
+      const gameFrame = document.getElementById('gameFrame');
+      if (!gameFrame) return;
+      
+      // Apply FOV (zoom)
+      const fov = parseInt(localStorage.getItem('nova_fov') || '100');
+      const scale = fov / 100;
+      gameFrame.style.transform = `scale(${scale})`;
+      
+      // Apply performance mode
+      const performanceMode = localStorage.getItem('nova_performance_mode') === 'true';
+      if (performanceMode) {
+        gameFrame.classList.add('performance-mode');
+        console.log('⚡ Performance mode enabled');
+      } else {
+        gameFrame.classList.remove('performance-mode');
+      }
+      
+      console.log(`🎮 Game settings applied - FOV: ${fov}%, Performance: ${performanceMode ? 'ON' : 'OFF'}`);
+    }
   </script>
 </body>
 </html>
