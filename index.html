@@ -1,78 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=home.html">
-  <title>Nova - Loading...</title>
-  <link rel="icon" type="image/png" href="Nova12.png">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f0f14 0%, #1a1a2e 100%);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: #fff;
-    }
-    .loader {
-      text-align: center;
-    }
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    .logo img {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 0 20px rgba(102,126,234,0.5));
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.5);
-    }
-    .dots {
-      display: inline-block;
-      animation: dots 1.5s steps(4, end) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.1); opacity: 1; }
-    }
-    @keyframes dots {
-      0%, 20% { content: '.'; }
-      40% { content: '..'; }
-      60%, 100% { content: '...'; }
-    }
-  </style>
+  <meta http-equiv="refresh" content="0;url=/home.html">
+  <title>Nova - Redirecting...</title>
 </head>
 <body>
-  <div class="loader">
-    <div class="logo">
-      <img src="Nova12.png" alt="Nova">
-    </div>
-    <h1>Nova</h1>
-    <p>Loading<span class="dots">...</span></p>
-  </div>
-
-  <script>
-    // Fallback redirect if meta refresh doesn't work
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 100);
-  </script>
+  <script>window.location.href = '/home.html';</script>
 </body>
 </html>
