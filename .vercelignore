@@ -4,3 +4,6 @@ node_modules
 .DS_Store
 package.json.unused
 package-lock.json.unused
+server.js.unused
+api.unused/
+api/
