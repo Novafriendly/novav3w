@@ -1768,36 +1768,36 @@
         <span>Browser</span>
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://discord.com/app', '_blank')">
+      <button class="dock-btn" onclick="openProxiedApp('Discord', 'https://discord.com', 'https://www.google.com/s2/favicons?domain=discord.com&sz=128')">
         <img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://open.spotify.com/', '_blank')">
-        <img src="https://www.google.com/s2/favicons?domain=spotify.com&sz=128" alt="Spotify">
+      <button class="dock-btn" onclick="openProxiedApp('SoundCloud', 'https://soundcloud.com/', 'https://www.google.com/s2/favicons?domain=soundcloud.com&sz=128')">
+        <img src="https://www.google.com/s2/favicons?domain=soundcloud.com&sz=128" alt="SoundCloud">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://www.crunchyroll.com/', '_blank')">
-        <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="Crunchyroll">
+      <button class="dock-btn" onclick="openProxiedApp('AniWatch', 'https://aniwatch9.com.ro/', 'https://www.google.com/s2/favicons?domain=aniwatch9.com.ro&sz=128')">
+        <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="AniWatch">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://www.netflix.com/', '_blank')">
-        <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="Netflix">
+      <button class="dock-btn" onclick="openProxiedApp('GaiaFlix', 'https://gaiaflix.live/', 'https://www.google.com/s2/favicons?domain=netflix.com&sz=128')">
+        <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="GaiaFlix">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://www.roblox.com/', '_blank')">
+      <button class="dock-btn" onclick="openProxiedApp('Roblox', 'https://nowgg.lol/apps/a/19900/b.html', 'https://www.google.com/s2/favicons?domain=roblox.com&sz=128')">
         <img src="https://www.google.com/s2/favicons?domain=roblox.com&sz=128" alt="Roblox">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://www.fortnite.com/', '_blank')">
+      <button class="dock-btn" onclick="openProxiedApp('Fortnite', 'https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.epicgames.fortnite', 'Img/app/fortnite.jpg')">
         <img src="Img/app/fortnite.jpg" alt="Fortnite">
       </button>
 
-      <button class="dock-btn" onclick="window.open('https://www.minecraft.net/', '_blank')">
+      <button class="dock-btn" onclick="openProxiedApp('Minecraft', 'https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.mojang.minecrafttrialpe', 'Img/app/images (1).jpg')">
         <img src="Img/app/images (1).jpg" alt="Minecraft">
       </button>
 
-      <button class="dock-btn" onclick="window.open('#', '_blank')">
-        <img src="Img/app/Fcloud.jpg" alt="Fcloud">
+      <button class="dock-btn" onclick="openProxiedApp('Figure', 'https://figurecc.cine-softwares.workers.dev/', 'Img/app/Fcloud.jpg')">
+        <img src="Img/app/Fcloud.jpg" alt="Figure">
       </button>
 
       <div class="dock-divider"></div>
@@ -3209,6 +3209,12 @@ brRenderBmBar();
     if (btn) btn.classList.add('active','app-open');
     // show dock briefly then let it hide
     if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
+  }
+  
+  // Open proxied app (Discord, Netflix, etc.) in app-player
+  function openProxiedApp(name, url, icon) {
+    const appUrl = `app-player.html?name=${encodeURIComponent(name)}&url=${encodeURIComponent(url)}&icon=${encodeURIComponent(icon)}`;
+    window.open(appUrl, '_blank');
   }
 
   function closePanel(name) {
