@@ -8,6 +8,15 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Nova — Settings</title>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-BMCLEN1ZWQ');
+  </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1459,6 +1468,22 @@
             <div>
               <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Warn before closing</div>
               <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Confirm before you leave the tab</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="scard" style="margin-top: 20px;">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+          Ad Blocker
+        </div>
+        <div style="margin-top:16px;">
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;">
+            <input type="checkbox" id="blockGameAds" onchange="saveAdBlockerSettings()" checked />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Block game ads</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Remove advertisements from embedded games</div>
             </div>
           </label>
         </div>
@@ -3611,6 +3636,10 @@ function loadBehaviorSettings() {
   
   if (document.getElementById('showFPS')) document.getElementById('showFPS').checked = showFPS;
   if (document.getElementById('showPing')) document.getElementById('showPing').checked = showPing;
+  
+  // Load ad blocker settings
+  const blockGameAds = localStorage.getItem('nova_block_game_ads') !== 'false'; // default true
+  if (document.getElementById('blockGameAds')) document.getElementById('blockGameAds').checked = blockGameAds;
 }
 
 function savePerformanceSettings() {
@@ -3622,6 +3651,13 @@ function savePerformanceSettings() {
   
   emit('performanceChanged', { showFPS, showPing });
   showToast('Performance overlay settings saved', 'green');
+}
+
+function saveAdBlockerSettings() {
+  const blockGameAds = document.getElementById('blockGameAds').checked;
+  localStorage.setItem('nova_block_game_ads', blockGameAds ? 'true' : 'false');
+  emit('adBlockerChanged', { blockGameAds });
+  showToast(blockGameAds ? 'Ad blocker enabled' : 'Ad blocker disabled', 'green');
 }
 
 /* ══════════════════════════════════
