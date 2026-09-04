@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova — Games</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .library { 
+      display: flex; 
+      flex-direction: column; 
+      width: 100%; 
+      height: 100%; 
+    }
+    
+    /* TOP BAR */
+    .topbar {
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 60px 12px 20px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .btn-rand {
+      display: flex; 
+      align-items: center; 
+      gap: 6px;
+      background: rgba(255,255,255,0.06); 
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; 
+      padding: 9px 14px;
+      font-size: 12px; 
+      font-weight: 600; 
+      color: rgba(255,255,255,0.7);
+      cursor: pointer; 
+      font-family: inherit;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    
+    .btn-rand:hover { 
+      background: rgba(255,255,255,0.12); 
+      color: #fff; 
+      transform: translateY(-1px);
+    }
+    
+    .btn-rand svg { 
+      width: 14px; 
+      height: 14px; 
+      stroke-width: 2; 
+    }
+    
+    .search-wrap { 
+      position: relative; 
+      width: 320px;
+      transition: width 0.3s ease;
+      z-index: 1;
+    }
+    
+    .search-wrap.expanded {
+      width: 480px;
+    }
+    
+    .search-ico { 
+      position: absolute; 
+      left: 12px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      color: rgba(255,255,255,0.3); 
+      pointer-events: none; 
+      display: flex; 
+    }
+    
+    .search-ico svg { 
+      width: 14px; 
+      height: 14px; 
+      stroke-width: 2.5; 
+    }
+    
+    .search-inp {
+      width: 100%; 
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 10px;
+      padding: 9px 32px 9px 38px;
+      font-size: 12px; 
+      color: #fff; 
+      outline: none; 
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    .search-inp::placeholder { 
+      color: rgba(255,255,255,0.3); 
+    }
+    
+    .search-inp:focus { 
+      border-color: rgba(255,255,255,0.25); 
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .search-clr {
+      position: absolute; 
+      right: 8px; 
+      top: 50%; 
+      transform: translateY(-50%);
+      background: none; 
+      border: none; 
+      color: rgba(255,255,255,0.25);
+      cursor: pointer; 
+      font-size: 11px; 
+      display: none; 
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+    
+    .search-clr.show { 
+      display: block; 
+    }
+    
+    .search-clr:hover { 
+      color: rgba(255,255,255,0.6); 
+    }
+    
+    /* GENRE DROPDOWN */
+    .genre-dropdown {
+      position: relative;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    
+    .genre-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      min-width: 120px;
+      justify-content: space-between;
+    }
+    
+    .genre-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    
+    .genre-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.5;
+      transition: transform 0.2s;
+    }
+    
+    .genre-dropdown.open .genre-btn svg {
+      transform: rotate(180deg);
+    }
+    
+    .genre-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: rgba(20,20,24,0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 6px;
+      min-width: 160px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    
+    .genre-dropdown.open .genre-menu {
+      display: flex;
+    }
+    
+    .genre-item {
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    
+    .genre-item:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    
+    .genre-item.active {
+      background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+      color: #fff;
+    }
+    
+    .btn-x {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px; 
+      height: 28px; 
+      border-radius: 7px;
+      background: rgba(255,60,60,0.1); 
+      border: 1px solid rgba(255,60,60,0.15);
+      color: rgba(255,100,100,0.6); 
+      cursor: pointer;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .btn-x:hover { 
+      background: rgba(255,60,60,0.25); 
+      border-color: rgba(255,60,60,0.3);
+      color: #ff6060; 
+      transform: translateY(-50%) scale(1.05);
+    }
+    
+    .btn-x svg { 
+      width: 11px; 
+      height: 11px; 
+      stroke-width: 2.5; 
+    }
+    
+    /* GAME COUNTER */
+    .game-counter {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.02em;
+    }
+    
+    /* GAME GRID */
+    .grid-scroll {
+      flex: 1; 
+      overflow-y: auto; 
+      overflow-x: hidden;
+      padding: 24px 24px 32px;
+      background: transparent;
+    }
+    
+    .grid-scroll::-webkit-scrollbar { 
+      width: 8px; 
+    }
+    
+    .grid-scroll::-webkit-scrollbar-track { 
+      background: rgba(255,255,255,0.02); 
+    }
+    
+    .grid-scroll::-webkit-scrollbar-thumb { 
+      background: rgba(255,255,255,0.08); 
+      border-radius: 4px; 
+    }
+    
+    .grid-scroll::-webkit-scrollbar-thumb:hover { 
+      background: rgba(255,255,255,0.15); 
+    }
+    
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* GAME CARD - Clean image only */
+    .game-card {
+      position: relative;
+      aspect-ratio: 198/128;
+      background: rgba(0,0,0,0.4);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .game-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+    
+    .game-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .game-card-img.loaded {
+      opacity: 1;
+    }
+    
+    .game-card-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+      color: rgba(255,255,255,0.15);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Overlay with title - only shows on hover */
+    .game-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    
+    .game-card:hover .game-card-overlay {
+      opacity: 1;
+    }
+    
+    .game-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      margin-bottom: 2px;
+    }
+    
+    .game-card-author {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 80px 20px;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .game-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .game-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .game-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      
+      .search-wrap {
+        width: 200px;
+      }
+      
+      .search-wrap.expanded {
+        width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="library">
+    <div class="topbar">
+      <div class="game-counter" id="gameCounter">0 games</div>
+      
+      <button class="btn-rand" onclick="openRandomGame()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M18 3h-7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Z"/>
+          <path d="M10 8H5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h5"/>
+          <path d="M4 3h6"/>
+          <circle cx="15" cy="6" r=".5" fill="currentColor"/>
+          <circle cx="15" cy="18" r=".5" fill="currentColor"/>
+        </svg>
+        Random
+      </button>
+      
+      <div class="genre-dropdown" id="genreDropdown">
+        <button class="genre-btn" onclick="toggleGenreDropdown()">
+          <span id="genreLabel">All Games</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="genre-menu">
+          <button class="genre-item active" data-genre="all" onclick="selectGenre('all', 'All Games')">All Games</button>
+          <button class="genre-item" data-genre="action" onclick="selectGenre('action', 'Action')">Action</button>
+          <button class="genre-item" data-genre="shooting" onclick="selectGenre('shooting', 'Shooting')">Shooting</button>
+          <button class="genre-item" data-genre="racing" onclick="selectGenre('racing', 'Racing')">Racing</button>
+          <button class="genre-item" data-genre="puzzle" onclick="selectGenre('puzzle', 'Puzzle')">Puzzle</button>
+          <button class="genre-item" data-genre="sports" onclick="selectGenre('sports', 'Sports')">Sports</button>
+          <button class="genre-item" data-genre="io" onclick="selectGenre('io', 'IO Games')">IO Games</button>
+          <button class="genre-item" data-genre="adventure" onclick="selectGenre('adventure', 'Adventure')">Adventure</button>
+          <button class="genre-item" data-genre="strategy" onclick="selectGenre('strategy', 'Strategy')">Strategy</button>
+          <button class="genre-item" data-genre="arcade" onclick="selectGenre('arcade', 'Arcade')">Arcade</button>
+        </div>
+      </div>
+      
+      <div class="search-wrap" id="searchWrap">
+        <div class="search-ico">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <input type="text" class="search-inp" id="searchInput" placeholder="Search games..." autocomplete="off" />
+        <button class="search-clr" id="clearBtn" onclick="clearSearch()">✕</button>
+      </div>
+      
+      <button class="btn-x" onclick="closeGamesPage()" title="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="grid-scroll" id="scrollContainer">
+      <div class="game-grid" id="gameGrid"></div>
+      <div class="no-results" id="noResults" style="display:none;">No games found</div>
+    </div>
+  </div>
+
+  <script>
+    let allGames = [];
+    let displayedGames = [];
+    let currentGenre = 'all';
+    const COVER_URL = 'covers-main/covers-main';
+    const HTML_URL = 'html-main/html-main';
+
+    // Genre keywords for classification
+    const genreKeywords = {
+      shooting: ['shoot', 'gun', 'sniper', 'warfare', 'battle', 'combat', 'strike', 'fps', 'bullet', 'zombie'],
+      racing: ['race', 'racing', 'car', 'drive', 'drift', 'speed', 'rider', 'moto', 'bike', 'vehicle', 'nascar'],
+      io: ['.io', 'agario', 'slither', 'agar'],
+      puzzle: ['puzzle', 'sudoku', 'match', '2048', 'tile', 'sort', 'swap', 'connect', 'block'],
+      sports: ['football', 'soccer', 'basketball', 'tennis', 'golf', 'hockey', 'sport', 'baseball'],
+      adventure: ['adventure', 'quest', 'explore', 'journey', 'parkour', 'run', 'temple'],
+      strategy: ['strategy', 'tower', 'defense', 'war', 'empire', 'civilization', 'tycoon'],
+      arcade: ['arcade', 'classic', 'retro', 'pac', 'breakout', 'snake'],
+      action: ['action', 'fight', 'ninja', 'battle', 'hero', 'attack', 'brawl', 'stickman']
+    };
+
+    // Classify game by genre
+    function classifyGenre(gameName) {
+      const name = gameName.toLowerCase();
+      for (const [genre, keywords] of Object.entries(genreKeywords)) {
+        if (keywords.some(keyword => name.includes(keyword))) {
+          return genre;
+        }
+      }
+      return 'arcade'; // default
+    }
+
+    // Toggle genre dropdown
+    function toggleGenreDropdown() {
+      const dropdown = document.getElementById('genreDropdown');
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('genreDropdown');
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Select genre
+    function selectGenre(genre, label) {
+      currentGenre = genre;
+      document.getElementById('genreLabel').textContent = label;
+      
+      // Update active genre item
+      document.querySelectorAll('.genre-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.genre === genre);
+      });
+      
+      // Close dropdown
+      document.getElementById('genreDropdown').classList.remove('open');
+      
+      // Filter games
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+      
+      if (genre === 'all') {
+        displayedGames = allGames;
+      } else {
+        displayedGames = allGames.filter(game => game.genre === genre);
+      }
+      
+      // Apply search filter if active
+      if (searchQuery) {
+        displayedGames = displayedGames.filter(game =>
+          game.name.toLowerCase().includes(searchQuery) ||
+          (game.author && game.author.toLowerCase().includes(searchQuery))
+        );
+      }
+      
+      renderGames();
+    }
+
+    // Fetch games from zones.json
+    async function loadGames() {
+      try {
+        const response = await fetch('assets-main/assets-main/zones.json');
+        const data = await response.json();
+        
+        // Filter out the Discord suggestion entry (id: -1) and process URLs
+        allGames = data
+          .filter(game => game.id >= 0)
+          .map(game => ({
+            ...game,
+            cover: game.cover.replace('{COVER_URL}', COVER_URL),
+            url: game.url.replace('{HTML_URL}', HTML_URL),
+            genre: classifyGenre(game.name)
+          }));
+        
+        displayedGames = [...allGames];
+        renderGames();
+      } catch (err) {
+        console.error('Failed to load games:', err);
+      }
+    }
+
+    // Render games with lazy loading
+    function renderGames() {
+      const grid = document.getElementById('gameGrid');
+      const noResults = document.getElementById('noResults');
+      
+      grid.innerHTML = '';
+      
+      // Update game counter
+      updateGameCounter();
+      
+      if (displayedGames.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      }
+      
+      noResults.style.display = 'none';
+      
+      displayedGames.forEach(game => {
+        const card = createGameCard(game);
+        grid.appendChild(card);
+      });
+      
+      // Setup Intersection Observer for lazy loading
+      setupLazyLoading();
+    }
+    
+    // Update game counter
+    function updateGameCounter() {
+      const count = displayedGames.length;
+      const total = allGames.length;
+      const counter = document.getElementById('gameCounter');
+      
+      if (currentGenre === 'all' && !document.getElementById('searchInput').value) {
+        counter.textContent = `${total} games`;
+      } else {
+        counter.textContent = `${count} of ${total} games`;
+      }
+    }
+
+    // Create game card
+    function createGameCard(game) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      card.onclick = () => openGame(game.url, game.name, game.cover);
+      
+      card.innerHTML = `
+        <div class="game-card-placeholder">?</div>
+        <img class="game-card-img" data-src="${game.cover}" alt="${game.name}" />
+        <div class="game-card-overlay">
+          <div class="game-card-title">${game.name}</div>
+          <div class="game-card-author">${game.author || 'Unknown'}</div>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Lazy loading with Intersection Observer
+    function setupLazyLoading() {
+      const images = document.querySelectorAll('.game-card-img:not(.loaded)');
+      
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            const src = img.getAttribute('data-src');
+            
+            if (src) {
+              img.src = src;
+              img.onload = () => {
+                img.classList.add('loaded');
+              };
+              img.onerror = () => {
+                console.error('Failed to load:', src);
+              };
+            }
+            
+            observer.unobserve(img);
+          }
+        });
+      }, {
+        root: document.getElementById('scrollContainer'),
+        rootMargin: '100px',
+        threshold: 0.01
+      });
+      
+      images.forEach(img => imageObserver.observe(img));
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchWrap = document.getElementById('searchWrap');
+    
+    searchInput.addEventListener('focus', () => {
+      searchWrap.classList.add('expanded');
+    });
+    
+    searchInput.addEventListener('blur', () => {
+      if (!searchInput.value) {
+        searchWrap.classList.remove('expanded');
+      }
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (query) {
+        clearBtn.classList.add('show');
+        
+        if (currentGenre === 'all') {
+          displayedGames = allGames.filter(game => 
+            game.name.toLowerCase().includes(query) ||
+            (game.author && game.author.toLowerCase().includes(query))
+          );
+        } else {
+          displayedGames = allGames.filter(game =>
+            game.genre === currentGenre &&
+            (game.name.toLowerCase().includes(query) ||
+            (game.author && game.author.toLowerCase().includes(query)))
+          );
+        }
+      } else {
+        clearBtn.classList.remove('show');
+        selectGenre(currentGenre, document.getElementById('genreLabel').textContent);
+        return;
+      }
+      
+      renderGames();
+    });
+
+    // Clear search
+    function clearSearch() {
+      searchInput.value = '';
+      document.getElementById('clearBtn').classList.remove('show');
+      searchWrap.classList.remove('expanded');
+      selectGenre(currentGenre, document.getElementById('genreLabel').textContent);
+    }
+
+    // Close games page
+    function closeGamesPage() {
+      window.parent.postMessage({ novaAction: 'closeApp', app: 'games' }, '*');
+    }
+
+    // Open game
+    function openGame(url, name, coverImage) {
+      console.log('🎮 Opening game:', name, coverImage);
+      
+      // Track the game being played
+      try {
+        window.parent.postMessage({ 
+          novaAction: 'gamePlayed', 
+          gameName: name,
+          gameImage: coverImage
+        }, '*');
+        console.log('✅ Game tracking message sent');
+      } catch(e) {
+        console.error('❌ Failed to send tracking message:', e);
+      }
+      
+      // Build player URL with parameters
+      const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}`;
+      
+      // Open in new window/tab or navigate
+      window.location.href = playerUrl;
+    }
+
+    // Random game
+    function openRandomGame() {
+      if (displayedGames.length > 0) {
+        const randomGame = displayedGames[Math.floor(Math.random() * displayedGames.length)];
+        openGame(randomGame.url, randomGame.name, randomGame.cover);
+      }
+    }
+
+    // Initialize
+    loadGames();
+    
+    // ═══════════════════════════════════════════════════════
+    // PANIC KEY GLOBAL HANDLER
+    // ═══════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedKey = localStorage.getItem('nova_panic_key');
+      const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+      const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
+      
+      if (!savedKey) return;
+      
+      // Remove old listener if exists
+      if (window._panicKeyHandler) {
+        document.removeEventListener('keydown', window._panicKeyHandler);
+      }
+      
+      // Add new listener
+      window._panicKeyHandler = (e) => {
+        if (e.key.toUpperCase() === savedKey.toUpperCase()) {
+          e.preventDefault();
+          
+          if (instantRedirect) {
+            window.location.href = savedUrl;
+          } else {
+            if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
+              window.location.href = savedUrl;
+            }
+          }
+        }
+      };
+      
+      document.addEventListener('keydown', window._panicKeyHandler);
+      console.log('🔐 Panic key active:', savedKey);
+    });
+  </script>
+</body>
+</html>

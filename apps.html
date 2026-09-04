@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova — Apps</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .library { 
+      display: flex; 
+      flex-direction: column; 
+      width: 100%; 
+      height: 100%; 
+    }
+    
+    /* TOP BAR */
+    .topbar {
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 60px 12px 20px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+    
+    /* COUNTER (left) */
+    .counter {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.02em;
+      z-index: 1;
+    }
+    
+    .btn-rand {
+      display: flex; 
+      align-items: center; 
+      gap: 6px;
+      background: rgba(255,255,255,0.06); 
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; 
+      padding: 9px 14px;
+      font-size: 12px; 
+      font-weight: 600; 
+      color: rgba(255,255,255,0.7);
+      cursor: pointer; 
+      font-family: inherit;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    
+    .btn-rand:hover { 
+      background: rgba(255,255,255,0.12); 
+      color: #fff; 
+      transform: translateY(-1px);
+    }
+    
+    .btn-rand svg { 
+      width: 14px; 
+      height: 14px; 
+      stroke-width: 2; 
+    }
+    
+    .search-wrap { 
+      position: relative; 
+      width: 320px;
+      transition: width 0.3s ease;
+      z-index: 1;
+    }
+    
+    .search-wrap.expanded {
+      width: 480px;
+    }
+    
+    .search-ico { 
+      position: absolute; 
+      left: 12px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      color: rgba(255,255,255,0.3); 
+      pointer-events: none; 
+      display: flex; 
+    }
+    
+    .search-ico svg { 
+      width: 14px; 
+      height: 14px; 
+      stroke-width: 2.5; 
+    }
+    
+    .search-inp {
+      width: 100%; 
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 10px;
+      padding: 9px 32px 9px 38px;
+      font-size: 12px; 
+      color: #fff; 
+      outline: none; 
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    .search-inp::placeholder { 
+      color: rgba(255,255,255,0.3); 
+    }
+    
+    .search-inp:focus { 
+      border-color: rgba(255,255,255,0.25); 
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .search-clr {
+      position: absolute; 
+      right: 8px; 
+      top: 50%; 
+      transform: translateY(-50%);
+      background: none; 
+      border: none; 
+      color: rgba(255,255,255,0.25);
+      cursor: pointer; 
+      font-size: 11px; 
+      display: none; 
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+    
+    .search-clr.show { 
+      display: block; 
+    }
+    
+    .search-clr:hover { 
+      color: rgba(255,255,255,0.6); 
+    }
+    
+    /* CLOSE BUTTON (right) */
+    .btn-cls {
+      position: absolute; 
+      right: 16px; 
+      top: 50%; 
+      transform: translateY(-50%);
+      width: 32px; 
+      height: 32px;
+      background: rgba(255,60,60,0.12); 
+      border: 1px solid rgba(255,60,60,0.2);
+      border-radius: 8px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      cursor: pointer; 
+      transition: all 0.2s;
+      z-index: 2;
+    }
+    
+    .btn-cls:hover { 
+      background: rgba(255,60,60,0.25); 
+      transform: translateY(-50%) scale(1.05); 
+    }
+    
+    .btn-cls svg { 
+      width: 14px; 
+      height: 14px; 
+      stroke-width: 2.5; 
+      color: rgba(255,255,255,0.85); 
+    }
+    
+    /* APPS GRID */
+    .apps-grid {
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 16px;
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, 227.19px);
+      gap: 12px;
+      align-content: start;
+      justify-content: center;
+    }
+    
+    .apps-grid::-webkit-scrollbar { 
+      width: 10px; 
+    }
+    
+    .apps-grid::-webkit-scrollbar-track { 
+      background: rgba(255,255,255,0.02); 
+    }
+    
+    .apps-grid::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.12); 
+      border-radius: 20px; 
+      border: 2px solid transparent; 
+      background-clip: content-box;
+    }
+    
+    .apps-grid::-webkit-scrollbar-thumb:hover { 
+      background: rgba(255,255,255,0.2); 
+      background-clip: content-box;
+    }
+    
+    /* APP CARD */
+    .app-card {
+      width: 227.19px;
+      height: 146.86px;
+      background: rgba(30,30,40,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .app-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      background: rgba(40,40,50,0.7);
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    
+    .app-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: opacity 0.2s;
+      display: block;
+    }
+    
+    .app-title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+      padding: 24px 10px 8px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.95);
+      text-align: center;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      line-height: 1.3;
+    }
+    
+    .app-card:hover .app-title {
+      opacity: 1;
+    }
+    
+    .no-apps {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      font-weight: 500;
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 1600px) {
+      .apps-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    
+    @media (max-width: 1200px) {
+      .apps-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    @media (max-width: 800px) {
+      .apps-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .search-wrap { width: 240px; }
+      .search-wrap.expanded { width: 320px; }
+    }
+    
+    /* APP PLAYER OVERLAY */
+    .player-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #000;
+      display: none;
+      flex-direction: column;
+    }
+    
+    .player-overlay.show {
+      display: flex;
+    }
+    
+    .player-topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: rgba(20,20,24,0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    
+    .player-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .player-logo img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    
+    .player-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .player-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .player-btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: scale(1.05);
+    }
+    
+    .player-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .player-btn.close-btn {
+      background: rgba(255,60,60,0.12);
+      border-color: rgba(255,60,60,0.2);
+    }
+    
+    .player-btn.close-btn:hover {
+      background: rgba(255,60,60,0.25);
+    }
+    
+    .player-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+
+<div class="library">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="counter" id="counter">0 of 0 apps</div>
+    
+    <button class="btn-rand" onclick="randomApp()" title="Random App">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M4 7h3a3 3 0 0 1 3 3v0a3 3 0 0 0 3 3h4" />
+        <path d="M20 7h-3a3 3 0 0 0-3 3v0a3 3 0 0 1-3 3H7" />
+        <path d="M16 3l4 4-4 4" />
+        <path d="M16 17l4 4-4 4" />
+      </svg>
+      Random
+    </button>
+    
+    <div class="search-wrap" id="searchWrap">
+      <span class="search-ico">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </span>
+      <input 
+        type="text" 
+        class="search-inp" 
+        id="searchInp" 
+        placeholder="Search apps..." 
+        oninput="filterApps()"
+        onfocus="this.parentElement.classList.add('expanded')"
+        onblur="if(!this.value)this.parentElement.classList.remove('expanded')"
+      />
+      <button class="search-clr" id="searchClr" onclick="clearSearch()">✕</button>
+    </div>
+    
+    <button class="btn-cls" onclick="closeApps()" title="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- APPS GRID -->
+  <div class="apps-grid" id="appsGrid">
+    <div class="no-apps">Loading apps...</div>
+  </div>
+</div>
+
+<!-- APP PLAYER OVERLAY -->
+<div class="player-overlay" id="playerOverlay">
+  <div class="player-topbar">
+    <div class="player-logo">
+      <img src="Nova12.png" alt="Nova" onerror="this.style.display='none'" />
+    </div>
+    <div class="player-title" id="playerTitle">App</div>
+    <button class="player-btn" onclick="refreshPlayer()" title="Refresh">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </button>
+    <button class="player-btn" onclick="fullscreenPlayer()" title="Fullscreen">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+      </svg>
+    </button>
+    <button class="player-btn close-btn" onclick="closePlayer()" title="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <iframe id="playerFrame" class="player-frame" allowfullscreen></iframe>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   APPS DATABASE
+   Easy to edit: just add name, image, url
+═══════════════════════════════════════ */
+const APPS = [
+  { name: 'YouTube', image: 'Img/app/youtueb.jpg', url: 'https://www.youtube.com' },
+  { name: 'Fortnite', image: 'Img/app/fortnite.jpg', url: 'https://www.fortnite.com' },
+  { name: 'Minecraft', image: 'Img/app/images (1).jpg', url: 'https://www.minecraft.net' },
+  { name: 'Discord', image: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0b5061df29d55a92d945_full_logo_blurple_RGB.svg', url: 'https://discord.com' },
+  { name: 'Reddit', image: 'https://www.redditinc.com/assets/images/site/reddit-logo.png', url: 'https://www.reddit.com' },
+  { name: 'Twitter', image: 'https://img.icons8.com/fluency/240/twitter.png', url: 'https://twitter.com' },
+  { name: 'Spotify', image: 'https://img.icons8.com/fluency/240/spotify.png', url: 'https://open.spotify.com' },
+  { name: 'Netflix', image: 'https://img.icons8.com/fluency/240/netflix.png', url: 'https://www.netflix.com' },
+  { name: 'GitHub', image: 'https://img.icons8.com/fluency/240/github.png', url: 'https://github.com' },
+  { name: 'Gmail', image: 'https://img.icons8.com/fluency/240/gmail.png', url: 'https://mail.google.com' },
+  { name: 'Google Drive', image: 'https://img.icons8.com/fluency/240/google-drive.png', url: 'https://drive.google.com' },
+  { name: 'Twitch', image: 'https://img.icons8.com/fluency/240/twitch.png', url: 'https://www.twitch.tv' },
+  { name: 'Instagram', image: 'https://img.icons8.com/fluency/240/instagram-new.png', url: 'https://www.instagram.com' },
+  { name: 'TikTok', image: 'https://img.icons8.com/fluency/240/tiktok.png', url: 'https://www.tiktok.com' },
+  { name: 'Amazon', image: 'https://img.icons8.com/fluency/240/amazon.png', url: 'https://www.amazon.com' },
+];
+
+let allApps = [];
+let filteredApps = [];
+
+/* Initialize */
+function init() {
+  allApps = [...APPS];
+  filteredApps = [...allApps];
+  renderApps();
+  updateCounter();
+}
+
+/* Render apps grid */
+function renderApps() {
+  const grid = document.getElementById('appsGrid');
+  
+  if (filteredApps.length === 0) {
+    grid.innerHTML = '<div class="no-apps">No apps found</div>';
+    updateCounter();
+    return;
+  }
+  
+  grid.innerHTML = filteredApps.map((app, idx) => `
+    <div class="app-card" onclick="openApp('${escapeHtml(app.url)}', '${escapeHtml(app.name)}')" data-idx="${idx}">
+      <img 
+        src="${escapeHtml(app.image)}" 
+        alt="${escapeHtml(app.name)}" 
+        class="app-img" 
+        loading="lazy"
+      />
+      <div class="app-title">${escapeHtml(app.name)}</div>
+    </div>
+  `).join('');
+  
+  updateCounter();
+}
+
+/* Update counter */
+function updateCounter() {
+  const counter = document.getElementById('counter');
+  counter.textContent = `${filteredApps.length} of ${allApps.length} apps`;
+}
+
+/* Filter apps */
+function filterApps() {
+  const input = document.getElementById('searchInp');
+  const clear = document.getElementById('searchClr');
+  const query = input.value.toLowerCase().trim();
+  
+  clear.classList.toggle('show', query.length > 0);
+  
+  if (!query) {
+    filteredApps = [...allApps];
+  } else {
+    filteredApps = allApps.filter(app => 
+      app.name.toLowerCase().includes(query) ||
+      app.url.toLowerCase().includes(query)
+    );
+  }
+  
+  renderApps();
+}
+
+/* Clear search */
+function clearSearch() {
+  const input = document.getElementById('searchInp');
+  input.value = '';
+  filterApps();
+  input.focus();
+}
+
+/* Random app */
+function randomApp() {
+  if (filteredApps.length === 0) return;
+  const random = filteredApps[Math.floor(Math.random() * filteredApps.length)];
+  openApp(random.url, random.name);
+}
+
+/* Open app via proxy */
+function openApp(url, name) {
+  console.log('Opening app:', name, url);
+  
+  // Find the app icon
+  const app = allApps.find(a => a.url === url && a.name === name);
+  const icon = app ? app.image : '';
+  
+  // Build player URL with parameters
+  const playerUrl = `app-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(icon)}`;
+  
+  // Navigate to player
+  window.location.href = playerUrl;
+}
+
+/* Close player */
+function closePlayer() {
+  const playerOverlay = document.getElementById('playerOverlay');
+  const playerFrame = document.getElementById('playerFrame');
+  
+  playerOverlay.classList.remove('show');
+  setTimeout(() => {
+    playerFrame.src = '';
+  }, 300);
+}
+
+/* Refresh player */
+function refreshPlayer() {
+  const playerFrame = document.getElementById('playerFrame');
+  const currentSrc = playerFrame.src;
+  playerFrame.src = '';
+  setTimeout(() => {
+    playerFrame.src = currentSrc;
+  }, 100);
+}
+
+/* Fullscreen player */
+function fullscreenPlayer() {
+  const playerFrame = document.getElementById('playerFrame');
+  if (playerFrame.requestFullscreen) {
+    playerFrame.requestFullscreen();
+  } else if (playerFrame.webkitRequestFullscreen) {
+    playerFrame.webkitRequestFullscreen();
+  } else if (playerFrame.msRequestFullscreen) {
+    playerFrame.msRequestFullscreen();
+  }
+}
+
+/* Close apps */
+function closeApps() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      novaAction: 'closeApp',
+      app: 'apps'
+    }, '*');
+  }
+}
+
+/* Escape HTML */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* Start */
+document.addEventListener('DOMContentLoaded', init);
+
+/* Enter key to open first result */
+document.getElementById('searchInp').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && filteredApps.length > 0) {
+    openApp(filteredApps[0].url, filteredApps[0].name);
+  }
+});
+
+/* ESC key to close player */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const playerOverlay = document.getElementById('playerOverlay');
+    if (playerOverlay.classList.contains('show')) {
+      closePlayer();
+    }
+  }
+});
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// PANIC KEY GLOBAL HANDLER
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  const savedKey = localStorage.getItem('nova_panic_key');
+  const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+  const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
+  
+  if (!savedKey) return;
+  
+  // Remove old listener if exists
+  if (window._panicKeyHandler) {
+    document.removeEventListener('keydown', window._panicKeyHandler);
+  }
+  
+  // Add new listener
+  window._panicKeyHandler = (e) => {
+    if (e.key.toUpperCase() === savedKey.toUpperCase()) {
+      e.preventDefault();
+      
+      if (instantRedirect) {
+        window.location.href = savedUrl;
+      } else {
+        if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
+          window.location.href = savedUrl;
+        }
+      }
+    }
+  };
+  
+  document.addEventListener('keydown', window._panicKeyHandler);
+  console.log('🔐 Panic key active:', savedKey);
+});
+</script>
+
+</body>
+</html>

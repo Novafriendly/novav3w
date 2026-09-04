@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "trailingSlash": false
+}

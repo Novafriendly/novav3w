@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova Browser</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .browser {
+      display: flex;
+      flex-direction: column;
+      width: 100%; height: 100%;
+    }
+
+    /* ═══════════════════════════════
+       TITLE BAR — X and minimize top right
+    ═══════════════════════════════ */
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px 0;
+      background: transparent;
+      flex-shrink: 0;
+      min-height: 36px;
+    }
+
+    .title-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .title-bar-left::-webkit-scrollbar { display: none; }
+
+    /* window controls */
+    .win-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      padding-left: 10px;
+    }
+
+    .win-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .win-btn svg { width: 12px; height: 12px; stroke-width: 2; }
+
+    .win-min {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.4);
+    }
+    .win-min:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .win-close {
+      background: rgba(255,60,60,0.12);
+      color: rgba(255,100,100,0.6);
+    }
+    .win-close:hover { background: rgba(255,60,60,0.25); color: #ff6060; }
+
+    /* tabs */
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px 5px 10px;
+      border-radius: 10px 10px 0 0;
+      background: #181818;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-bottom: none;
+      cursor: pointer;
+      min-width: 110px; max-width: 170px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .tab:hover { background: #202020; }
+    .tab.active {
+      background: #1e1e1e;
+      border-color: rgba(255,255,255,0.1);
+    }
+    .tab-title {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .tab.active .tab-title { color: rgba(255,255,255,0.9); }
+    .tab-x {
+      width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      color: rgba(255,255,255,0.2);
+      font-size: 9px;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab-x:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .tab-new {
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 7px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .tab-new:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8); }
+
+    /* ═══════════════════════════════
+       NAV BAR
+    ═══════════════════════════════ */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 10px;
+      background: #1a1a1a;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none;
+      color: rgba(255,255,255,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.85);
+    }
+    .nav-btn:disabled { opacity: 0.18; cursor: not-allowed; }
+    .nav-btn svg { width: 15px; height: 15px; stroke-width: 2; }
+
+    /* address bar */
+    .addr-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .addr-input {
+      width: 100%;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 9px;
+      padding: 7px 68px 7px 34px;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.75);
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, background 0.2s;
+      user-select: text;
+    }
+    .addr-input:focus {
+      border-color: rgba(255,255,255,0.2);
+      background: #161616;
+      color: #fff;
+    }
+    .addr-search-ico {
+      position: absolute; left: 10px;
+      color: rgba(255,255,255,0.18);
+      pointer-events: none; display: flex;
+    }
+    .addr-search-ico svg { width: 13px; height: 13px; stroke-width: 2; }
+
+    /* error fix button inside addr bar */
+    .addr-tools {
+      position: absolute; right: 4px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .addr-tool-btn {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none;
+      color: rgba(255,255,255,0.25);
+      cursor: pointer; border-radius: 7px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .addr-tool-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+    .addr-tool-btn.bookmarked { color: #f59e0b; }
+    .addr-tool-btn svg { width: 13px; height: 13px; stroke-width: 2; }
+
+    /* suggestions */
+    .sugg-drop {
+      position: absolute;
+      top: calc(100% + 5px); left: 0; right: 0;
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 11px;
+      overflow: hidden;
+      z-index: 300;
+      display: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.65);
+    }
+    .sugg-drop.show { display: block; }
+    .sugg-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.6);
+      transition: background 0.15s;
+    }
+    .sugg-item:hover { background: #222; color: #fff; }
+    .sugg-item svg { width: 12px; height: 12px; stroke-width: 2; color: rgba(255,255,255,0.22); flex-shrink:0; }
+
+    /* bookmarks bar */
+    .bm-bar {
+      display: none;
+      align-items: center; gap: 5px;
+      padding: 4px 10px;
+      background: #161616;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      overflow-x: auto; scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .bm-bar::-webkit-scrollbar { display: none; }
+    .bm-bar.show { display: flex; }
+    .bm-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, color 0.15s; flex-shrink: 0;
+    }
+    .bm-chip:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .bm-x { font-size: 8px; color: rgba(255,255,255,0.18); margin-left:2px; transition: color 0.15s; }
+    .bm-chip:hover .bm-x { color: rgba(255,80,80,0.7); }
+
+    /* ═══════════════════════════════
+       CONTENT
+    ═══════════════════════════════ */
+    .content-area { flex: 1; position: relative; overflow: hidden; }
+
+    .tab-view {
+      position: absolute; inset: 0;
+      display: none;
+    }
+    .tab-view.active { display: flex; flex-direction: column; }
+
+    .tab-frame {
+      flex: 1; width: 100%; border: none;
+      display: none; background: transparent;
+    }
+    .tab-frame.visible { display: block; }
+
+    /* ═══════════════════════════════
+       NEW TAB PAGE
+    ═══════════════════════════════ */
+    .newtab-page {
+      flex: 1;
+      background: transparent;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 34px;
+      padding: 0 24px 60px;
+      overflow-y: auto;
+    }
+    .newtab-page.hidden { display: none; }
+
+    .nova-title {
+      font-size: clamp(48px, 9vw, 76px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      text-align: center;
+    }
+    .nova-title span { display: inline-block; animation: lglow 3s ease-in-out infinite; }
+    .nova-title span:nth-child(1) { animation-delay:0s; }
+    .nova-title span:nth-child(2) { animation-delay:0.15s; }
+    .nova-title span:nth-child(3) { animation-delay:0.3s; }
+    .nova-title span:nth-child(4) { animation-delay:0.45s; }
+    @keyframes lglow {
+      0%,100% { color:#fff; text-shadow:0 0 20px rgba(255,255,255,0.4),0 0 60px rgba(140,100,255,0.3); }
+      50%      { color:#fff; text-shadow:0 0 50px rgba(255,255,255,0.95),0 0 120px rgba(180,140,255,0.65); }
+    }
+
+    /* newtab search */
+    .nts-wrap {
+      position: relative; width: 100%; max-width: 500px;
+    }
+    .nts-input {
+      width: 100%;
+      background: rgba(26,26,26,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 13px;
+      padding: 15px 50px 15px 18px;
+      font-size: 14px; color: #fff;
+      outline: none; font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      user-select: text;
+      backdrop-filter: blur(10px);
+    }
+    .nts-input::placeholder { color: rgba(255,255,255,0.2); }
+    .nts-input:focus {
+      border-color: rgba(255,255,255,0.22);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+    }
+    .nts-btn {
+      position: absolute; right: 9px; top: 50%;
+      transform: translateY(-50%);
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,0.07);
+      border: none; border-radius: 8px;
+      color: rgba(255,255,255,0.45);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nts-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .nts-btn svg { width: 15px; height: 15px; stroke-width: 2; }
+    .nts-sugg { position: absolute; top: calc(100% + 5px); left:0; right:0; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); border-radius:11px; overflow:hidden; z-index:300; display:none; box-shadow:0 8px 32px rgba(0,0,0,0.6); }
+    .nts-sugg.show { display:block; }
+
+    /* apps */
+    .apps-section { width: 100%; max-width: 540px; }
+    .apps-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .apps-lbl { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.22); }
+    .apps-add-btn {
+      display:flex; align-items:center; gap:4px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07);
+      border-radius:7px; padding:4px 9px;
+      font-size:10px; font-weight:600; color:rgba(255,255,255,0.35);
+      cursor:pointer; transition:background 0.15s,color 0.15s; font-family:inherit;
+    }
+    .apps-add-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+    .apps-add-btn svg { width:10px; height:10px; stroke-width:2.5; }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 9px;
+    }
+    .app-item {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:12px 6px 10px;
+      background:rgba(26,26,26,0.6); border:1px solid rgba(255,255,255,0.05);
+      border-radius:13px; cursor:pointer; position:relative;
+      transition:background 0.18s, transform 0.15s, border-color 0.18s;
+      backdrop-filter: blur(10px);
+    }
+    .app-item:hover { background:rgba(34,34,34,0.7); transform:translateY(-2px); border-color:rgba(255,255,255,0.1); }
+    .app-item:active { transform:scale(0.95); }
+    .app-icon-wrap {
+      width:36px; height:36px; border-radius:9px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .app-icon-wrap svg { width:20px; height:20px; stroke-width:1.6; }
+    .app-lbl { font-size:9.5px; color:rgba(255,255,255,0.45); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+    .app-rm {
+      position:absolute; top:4px; right:4px;
+      width:15px; height:15px; border-radius:50%;
+      background:rgba(255,60,60,0.75); border:none;
+      color:#fff; font-size:8px; display:none;
+      align-items:center; justify-content:center; cursor:pointer;
+    }
+    .app-item:hover .app-rm { display:flex; }
+
+    /* ═══════════════════════════════
+       ERROR FIX OVERLAY
+    ═══════════════════════════════ */
+    #errorOverlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: #0f0f0f;
+      display: none;
+      flex-direction: column;
+    }
+    #errorOverlay.show { display: flex; }
+
+    .err-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      background: #141414;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .err-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .err-status { font-size: 11px; color: rgba(255,255,255,0.3); flex: 1; }
+    .err-close {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: rgba(255,255,255,0.06); border: none;
+      color: rgba(255,255,255,0.4); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .err-close:hover { background: rgba(255,60,60,0.2); color: #ff6060; }
+
+    /* progress bar */
+    .err-progress-wrap {
+      height: 2px; background: rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .err-progress-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa);
+      transition: width 0.4s ease;
+      position: relative;
+    }
+    .err-progress-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 0;
+      width: 40px; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+      animation: shimmerBar 1s ease-in-out infinite;
+    }
+    @keyframes shimmerBar {
+      from { opacity:0; transform:translateX(-10px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    #errorFrame {
+      flex: 1; width: 100%; border: none;
+      background: #0f0f0f;
+      pointer-events: none;
+    }
+    #errorFrame.clickable { pointer-events: all; }
+
+    /* ═══════════════════════════════
+       ADD APPS MODAL
+    ═══════════════════════════════ */
+    .modal-ov {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-ov.show { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; padding: 24px; width: 440px;
+      max-height: 78vh; overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+    }
+    .modal-ov.show .modal-box { transform: scale(1) translateY(0); }
+    .modal-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+    .modal-ttl { font-size:15px; font-weight:700; }
+    .modal-cls {
+      width:28px; height:28px; background:rgba(255,255,255,0.06);
+      border:none; border-radius:7px; color:rgba(255,255,255,0.45);
+      cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center;
+      transition:background 0.15s;
+    }
+    .modal-cls:hover { background:rgba(255,60,60,0.18); color:#ff6060; }
+
+    .preset-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(86px,1fr)); gap:9px; }
+    .preset-item {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:14px 6px 10px;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+      border-radius:13px; cursor:pointer;
+      transition:background 0.15s, border-color 0.15s, transform 0.14s;
+    }
+    .preset-item:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.12); transform:translateY(-1px); }
+    .preset-item.added { border-color:rgba(80,200,80,0.35); background:rgba(40,160,80,0.08); }
+    .preset-icon-wrap { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .preset-icon-wrap svg { width:18px; height:18px; stroke-width:1.6; }
+    .preset-nm { font-size:9.5px; color:rgba(255,255,255,0.45); text-align:center; }
+    .preset-added { font-size:8.5px; color:rgba(80,200,80,0.75); display:none; }
+    .preset-item.added .preset-added { display:block; }
+
+    .mdivider { height:1px; background:rgba(255,255,255,0.05); margin:18px 0; }
+    .msub { font-size:11px; color:rgba(255,255,255,0.28); margin-bottom:10px; }
+    .custom-row { display:flex; gap:7px; }
+    .cinp {
+      flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09);
+      border-radius:9px; padding:9px 12px; font-size:12px; color:#fff;
+      font-family:inherit; outline:none; transition:border-color 0.2s;
+    }
+    .cinp:focus { border-color:rgba(255,255,255,0.22); }
+    .cinp::placeholder { color:rgba(255,255,255,0.18); }
+    .cadd {
+      padding:9px 14px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.09);
+      border-radius:9px; color:rgba(255,255,255,0.6); font-size:11px; font-weight:600;
+      cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 0.15s;
+    }
+    .cadd:hover { background:rgba(255,255,255,0.13); color:#fff; }
+  </style>
+</head>
+<body>
+<div class="browser">
+
+  <!-- ══ TITLE BAR (tabs + window controls) ══ -->
+  <div class="title-bar">
+    <div class="title-bar-left" id="tabBar">
+      <button class="tab-new" onclick="newTab()" title="New tab">＋</button>
+    </div>
+    <div class="win-controls">
+      <button class="win-btn win-min" onclick="minimizeBrowser()" title="Minimize">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+      </button>
+      <button class="win-btn win-close" onclick="closeBrowser()" title="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ NAV BAR ══ -->
+  <div class="nav-bar">
+    <button class="nav-btn" id="btn-back" onclick="navBack()" disabled title="Back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-fwd" onclick="navForward()" disabled title="Forward">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-refresh" onclick="navRefresh()" title="Refresh">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+    </button>
+
+    <!-- address bar -->
+    <div class="addr-wrap">
+      <span class="addr-search-ico">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </span>
+      <input
+        class="addr-input" id="addrInput" type="text"
+        placeholder="Search or enter address"
+        autocomplete="off" spellcheck="false"
+        onkeydown="addrKeydown(event)"
+        oninput="addrInputHandler(this.value)"
+        onfocus="this.select()"
+        onblur="setTimeout(()=>document.getElementById('suggDrop').classList.remove('show'),200)"
+      />
+      <div class="addr-tools">
+        <!-- error fix button -->
+        <button class="addr-tool-btn" onclick="startErrorFix()" title="Fix connection">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </button>
+        <!-- bookmark -->
+        <button class="addr-tool-btn" id="bmBtn" onclick="toggleBookmark()" title="Bookmark">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+        </button>
+      </div>
+      <div class="sugg-drop" id="suggDrop"></div>
+    </div>
+
+    <!-- error fix button in nav bar -->
+    <button class="nav-btn" onclick="startErrorFix()" title="Fix connection" style="flex-shrink:0">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15" stroke-width="2">
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+      </svg>
+    </button>
+
+    <!-- bookmarks toggle -->
+    <button class="nav-btn" onclick="document.getElementById('bmBar').classList.toggle('show')" title="Bookmarks">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+    </button>
+  </div>
+
+  <!-- bookmarks bar -->
+  <div class="bm-bar" id="bmBar"></div>
+
+  <!-- content -->
+  <div class="content-area" id="contentArea"></div>
+
+</div>
+
+<!-- ══ ERROR FIX OVERLAY ══ -->
+<div id="errorOverlay">
+  <div class="err-header">
+    <div class="err-title">Connection Fix</div>
+    <div class="err-status" id="errStatus">Initializing...</div>
+    <button class="err-close" onclick="cancelErrorFix()">✕</button>
+  </div>
+  <div class="err-progress-wrap">
+    <div class="err-progress-fill" id="errProgressFill"></div>
+  </div>
+  <iframe id="errorFrame" src=""></iframe>
+</div>
+
+<!-- ══ ADD APPS MODAL ══ -->
+<div class="modal-ov" id="appsModal" onclick="if(event.target===this)closeAppsModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-ttl">Add App Shortcuts</div>
+      <button class="modal-cls" onclick="closeAppsModal()">✕</button>
+    </div>
+    <div class="preset-grid" id="presetGrid"></div>
+    <div class="mdivider"></div>
+    <div class="msub">Add a custom website</div>
+    <div class="custom-row">
+      <input class="cinp" id="cName" placeholder="Name (e.g. Reddit)" />
+      <input class="cinp" id="cUrl"  placeholder="URL (e.g. reddit.com)" />
+      <button class="cadd" onclick="addCustomApp()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════
+   CONFIG
+═══════════════════════ */
+const PROXY_BASE = 'https://ubnteubsas.vercel.app/a/sj/';
+const SEARCH_BASE = 'https://ubnteubsas.vercel.app/a/sj/https%3A%2F%2Fsearch.brave.com%2Fsearch?q=';
+const SEARCH_SUFFIX = '&source=web';
+
+const ERROR_URLS = [
+  'https://ubnteubsas.vercel.app/',
+  'https://ubnteubsas.vercel.app/a',
+  'https://ubnteubsas.vercel.app/b',
+  'https://ubnteubsas.vercel.app/c',
+  PROXY_BASE + encodeURIComponent('https://www.google.com'),
+];
+
+/* app definitions — SVG icons, no emojis */
+const PRESET_APPS = [
+  { name:'YouTube',    url:'https://www.youtube.com/',          color:'#ff2020', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>' },
+  { name:'Spotify',    url:'https://open.spotify.com/',         color:'#1db954', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13.5c2.5-1 5.5-1 8 0M7 10.5c3-1.2 7-1.2 10 0M9 16.5c2-0.8 4-0.8 6 0"/></svg>' },
+  { name:'SoundCloud', url:'https://soundcloud.com/',           color:'#f50',    icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M2 16a2 2 0 002 2h16a3 3 0 000-6h-1a6 6 0 10-11.6 2H4a2 2 0 00-2 2z"/></svg>' },
+  { name:'Reddit',     url:'https://www.reddit.com/',           color:'#ff4500', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16.5 10.5a1.5 1.5 0 10-1.5 1.5m-7.5-1.5a1.5 1.5 0 101.5 1.5M9 15s1 1 3 1 3-1 3-1"/><circle cx="19" cy="7" r="1.5"/><path d="M12 8V6m0 0l2-1m-2 1l-2-1"/></svg>' },
+  { name:'Twitter',    url:'https://twitter.com/',              color:'#1da1f2', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>' },
+  { name:'Twitch',     url:'https://www.twitch.tv/',            color:'#9146ff', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zM11 11V7m4 4V7"/></svg>' },
+  { name:'GitHub',     url:'https://github.com/',               color:'#fff',    icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>' },
+  { name:'Netflix',    url:'https://www.netflix.com/',          color:'#e50914', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="5" height="20" rx="1"/><rect x="15" y="2" width="5" height="20" rx="1"/><path d="M9 2l6 20M9 22L15 2" stroke-width="2"/></svg>' },
+  { name:'Discord',    url:'https://discord.com/app',           color:'#5865f2', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>' },
+  { name:'Gmail',      url:'https://mail.google.com/',          color:'#ea4335', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' },
+  { name:'Google',     url:'https://www.google.com/',           color:'#4285f4', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>' },
+  { name:'Wikipedia',  url:'https://www.wikipedia.org/',        color:'#fff',    icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' },
+];
+
+/* ═══════════════════════
+   STATE
+═══════════════════════ */
+let tabs        = [];
+let activeTabId = null;
+let bookmarks   = JSON.parse(localStorage.getItem('nova_bookmarks') || '[]');
+let userApps    = JSON.parse(localStorage.getItem('nova_apps') || 'null');
+
+if (!userApps) {
+  userApps = PRESET_APPS.slice(0, 5).map(a => ({...a}));
+}
+
+/* ═══════════════════════
+   WINDOW CONTROLS
+═══════════════════════ */
+function closeBrowser() {
+  try { window.parent.postMessage({ novaAction: 'closeApp', app: 'browser' }, '*'); } catch(e) {}
+}
+function minimizeBrowser() {
+  try { window.parent.postMessage({ novaAction: 'minimizeApp', app: 'browser' }, '*'); } catch(e) {}
+}
+
+/* ═══════════════════════
+   TABS
+═══════════════════════ */
+function genId() { return '_' + Math.random().toString(36).slice(2,9); }
+
+function newTab(url) {
+  const id = genId();
+  tabs.push({ id, title:'Nova', url:'', history:[], histIdx:-1 });
+  activateTab(id);
+  if (url) navigate(url);
+  renderTabs();
+}
+
+function activateTab(id) {
+  activeTabId = id;
+  renderTabs();
+  renderViews();
+  syncNav();
+}
+
+function closeTab(id, e) {
+  e && e.stopPropagation();
+  const idx = tabs.findIndex(t => t.id === id);
+  tabs.splice(idx, 1);
+  if (!tabs.length) { newTab(); return; }
+  if (activeTabId === id) activateTab(tabs[Math.min(idx, tabs.length-1)].id);
+  else renderTabs();
+}
+
+function getTab() { return tabs.find(t => t.id === activeTabId); }
+
+function renderTabs() {
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = '';
+  tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+    el.innerHTML = `<span class="tab-title">${tab.title}</span><span class="tab-x" onclick="closeTab('${tab.id}',event)">✕</span>`;
+    el.onclick = () => activateTab(tab.id);
+    bar.appendChild(el);
+  });
+  const plus = document.createElement('button');
+  plus.className = 'tab-new'; plus.textContent = '＋'; plus.title = 'New tab';
+  plus.onclick = () => newTab();
+  bar.appendChild(plus);
+}
+
+/* ═══════════════════════
+   VIEWS
+═══════════════════════ */
+function renderViews() {
+  const area = document.getElementById('contentArea');
+  document.querySelectorAll('.tab-view').forEach(v => {
+    if (!tabs.find(t => t.id === v.dataset.id)) v.remove();
+  });
+  tabs.forEach(tab => {
+    let view = document.querySelector(`.tab-view[data-id="${tab.id}"]`);
+    if (!view) {
+      view = document.createElement('div');
+      view.className = 'tab-view';
+      view.dataset.id = tab.id;
+
+      const ntp = document.createElement('div');
+      ntp.className = 'newtab-page';
+      ntp.id = 'ntp-' + tab.id;
+      ntp.innerHTML = buildNTP(tab.id);
+      view.appendChild(ntp);
+
+      const fr = document.createElement('iframe');
+      fr.className = 'tab-frame';
+      fr.id = 'fr-' + tab.id;
+      fr.sandbox = 'allow-forms allow-modals allow-pointer-lock allow-popups allow-scripts allow-same-origin';
+      fr.addEventListener('load', () => onLoad(tab.id));
+      view.appendChild(fr);
+
+      area.appendChild(view);
+      bindNtpSearch(tab.id);
+    }
+    view.classList.toggle('active', tab.id === activeTabId);
+    const ntp2 = document.getElementById('ntp-' + tab.id);
+    const fr2  = document.getElementById('fr-' + tab.id);
+    if (tab.url) { ntp2.classList.add('hidden'); fr2.classList.add('visible'); }
+    else         { ntp2.classList.remove('hidden'); fr2.classList.remove('visible'); renderNtpApps(tab.id); }
+  });
+}
+
+/* ═══════════════════════
+   NEW TAB PAGE
+═══════════════════════ */
+function buildNTP(tabId) {
+  return `
+    <div class="nova-title"><span>N</span><span>O</span><span>V</span><span>A</span></div>
+    <div class="nts-wrap">
+      <input class="nts-input" id="nts-${tabId}" placeholder="Search the web or enter a URL" autocomplete="off" spellcheck="false" />
+      <button class="nts-btn" onclick="ntSearch('${tabId}')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </button>
+      <div class="nts-sugg" id="nsd-${tabId}"></div>
+    </div>
+    <div class="apps-section">
+      <div class="apps-hd">
+        <span class="apps-lbl">App Shortcuts</span>
+        <button class="apps-add-btn" onclick="openAppsModal()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add Apps
+        </button>
+      </div>
+      <div class="apps-grid" id="ag-${tabId}"></div>
+    </div>
+  `;
+}
+
+function bindNtpSearch(tabId) {
+  const inp = document.getElementById('nts-' + tabId);
+  if (!inp) return;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') ntSearch(tabId); });
+  inp.addEventListener('input',   e => buildSugg(e.target.value, 'nsd-' + tabId, tabId));
+  inp.addEventListener('blur',    () => setTimeout(() => {
+    const d = document.getElementById('nsd-' + tabId);
+    if (d) d.classList.remove('show');
+  }, 200));
+}
+
+function ntSearch(tabId) {
+  const inp = document.getElementById('nts-' + tabId);
+  if (!inp || !inp.value.trim()) return;
+  activeTabId = tabId;
+  navigate(inp.value.trim());
+}
+
+function renderNtpApps(tabId) {
+  const grid = document.getElementById('ag-' + tabId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  userApps.forEach((app, i) => {
+    const el = document.createElement('div');
+    el.className = 'app-item';
+    el.innerHTML = `
+      <div class="app-icon-wrap" style="background:${app.color}22;color:${app.color}">${app.icon}</div>
+      <div class="app-lbl">${app.name}</div>
+      <button class="app-rm" onclick="removeApp(${i},event)">✕</button>
+    `;
+    el.onclick = () => { activeTabId = tabId; navigate(app.url); };
+    grid.appendChild(el);
+  });
+}
+
+function refreshAllApps() {
+  tabs.forEach(tab => { if (!tab.url) renderNtpApps(tab.id); });
+}
+
+/* ═══════════════════════
+   NAVIGATE
+═══════════════════════ */
+function navigate(raw) {
+  const tab = getTab();
+  if (!tab) return;
+  let input = raw.trim();
+  let proxyUrl;
+
+  if (input.startsWith('http://') || input.startsWith('https://')) {
+    // full URL — proxy directly
+    proxyUrl = PROXY_BASE + encodeURIComponent(input);
+  } else if (input.includes('.') && !input.includes(' ')) {
+    // domain like youtube.com — add https then proxy
+    proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input);
+  } else {
+    // search query — brave search proxy
+    proxyUrl = SEARCH_BASE + encodeURIComponent(input) + SEARCH_SUFFIX;
+  }
+
+  tab.url = proxyUrl;
+  tab.history.splice(tab.histIdx + 1);
+  tab.history.push(proxyUrl);
+  tab.histIdx = tab.history.length - 1;
+
+  const fr  = document.getElementById('fr-' + tab.id);
+  const ntp = document.getElementById('ntp-' + tab.id);
+  if (fr)  { fr.src = proxyUrl; fr.classList.add('visible'); }
+  if (ntp) ntp.classList.add('hidden');
+
+  document.getElementById('addrInput').value = input;
+  syncNav(); renderTabs();
+}
+
+function onLoad(tabId) {
+  const tab = tabs.find(t => t.id === tabId);
+  if (!tab) return;
+  const fr = document.getElementById('fr-' + tabId);
+  try { tab.title = fr.contentDocument.title || 'Page'; } catch(e) { tab.title = 'Page'; }
+  if (tabId === activeTabId) syncNav();
+  renderTabs();
+}
+
+function navBack() {
+  const tab = getTab();
+  if (!tab || tab.histIdx <= 0) return;
+  tab.histIdx--;
+  tab.url = tab.history[tab.histIdx];
+  document.getElementById('fr-' + tab.id).src = tab.url;
+  syncNav();
+}
+function navForward() {
+  const tab = getTab();
+  if (!tab || tab.histIdx >= tab.history.length - 1) return;
+  tab.histIdx++;
+  tab.url = tab.history[tab.histIdx];
+  document.getElementById('fr-' + tab.id).src = tab.url;
+  syncNav();
+}
+function navRefresh() {
+  const tab = getTab();
+  if (tab && tab.url) document.getElementById('fr-' + tab.id).src = tab.url;
+}
+
+function syncNav() {
+  const tab = getTab();
+  document.getElementById('btn-back').disabled = !tab || tab.histIdx <= 0;
+  document.getElementById('btn-fwd').disabled  = !tab || tab.histIdx >= tab.history.length - 1;
+  document.getElementById('addrInput').value   = tab ? (tab.url || '') : '';
+  document.getElementById('bmBtn').classList.toggle('bookmarked', !!tab && bookmarks.some(b => b.url === tab.url));
+}
+
+/* ═══════════════════════
+   ADDRESS BAR
+═══════════════════════ */
+function addrKeydown(e) {
+  if (e.key === 'Enter') {
+    navigate(e.target.value);
+    e.target.blur();
+    document.getElementById('suggDrop').classList.remove('show');
+  }
+}
+function addrInputHandler(val) {
+  buildSugg(val, 'suggDrop', null);
+}
+
+/* ═══════════════════════
+   SUGGESTIONS (local)
+═══════════════════════ */
+function buildSugg(query, dropId, tabId) {
+  const drop = document.getElementById(dropId);
+  if (!drop || !query || query.length < 2) { if (drop) drop.classList.remove('show'); return; }
+  const items = [query, query+' tutorial', query+' reddit', query+' wiki', query+' how to'];
+  drop.innerHTML = '';
+  items.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'sugg-item';
+    el.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>${s}`;
+    el.onclick = () => {
+      drop.classList.remove('show');
+      if (tabId) {
+        const inp = document.getElementById('nts-' + tabId);
+        if (inp) inp.value = s;
+        activeTabId = tabId;
+      } else {
+        document.getElementById('addrInput').value = s;
+      }
+      navigate(s);
+    };
+    drop.appendChild(el);
+  });
+  drop.classList.add('show');
+}
+
+/* ═══════════════════════
+   BOOKMARKS
+═══════════════════════ */
+function toggleBookmark() {
+  const tab = getTab();
+  if (!tab || !tab.url) return;
+  const idx = bookmarks.findIndex(b => b.url === tab.url);
+  if (idx >= 0) bookmarks.splice(idx, 1);
+  else bookmarks.push({ title: tab.title, url: tab.url });
+  localStorage.setItem('nova_bookmarks', JSON.stringify(bookmarks));
+  renderBmBar(); syncNav();
+}
+function renderBmBar() {
+  const bar = document.getElementById('bmBar');
+  bar.innerHTML = '';
+  bookmarks.forEach((bm, i) => {
+    const c = document.createElement('div');
+    c.className = 'bm-chip';
+    c.innerHTML = `${bm.title}<span class="bm-x" onclick="rmBookmark(${i},event)">✕</span>`;
+    c.onclick = () => navigate(bm.url);
+    bar.appendChild(c);
+  });
+}
+function rmBookmark(i, e) {
+  e && e.stopPropagation();
+  bookmarks.splice(i, 1);
+  localStorage.setItem('nova_bookmarks', JSON.stringify(bookmarks));
+  renderBmBar(); syncNav();
+}
+
+/* ═══════════════════════
+   ERROR FIX
+═══════════════════════ */
+let errIdx = 0;
+let errTimer = null;
+
+function startErrorFix() {
+  errIdx = 0;
+  document.getElementById('errorOverlay').classList.add('show');
+  document.getElementById('errProgressFill').style.width = '0%';
+  document.getElementById('errorFrame').classList.remove('clickable');
+  runErrStep();
+}
+
+function runErrStep() {
+  if (errIdx >= ERROR_URLS.length) {
+    // done
+    document.getElementById('errProgressFill').style.width = '100%';
+    document.getElementById('errStatus').textContent = 'Done — click anywhere to use';
+    document.getElementById('errorFrame').classList.add('clickable');
+    return;
+  }
+  const pct = Math.round(((errIdx) / ERROR_URLS.length) * 100);
+  document.getElementById('errProgressFill').style.width = pct + '%';
+  document.getElementById('errStatus').textContent = `Loading ${errIdx + 1} / ${ERROR_URLS.length} — ${ERROR_URLS[errIdx]}`;
+  document.getElementById('errorFrame').src = ERROR_URLS[errIdx];
+  errIdx++;
+  // wait 2.5s per site so user can see it load
+  errTimer = setTimeout(runErrStep, 2500);
+}
+
+function cancelErrorFix() {
+  if (errTimer) clearTimeout(errTimer);
+  document.getElementById('errorOverlay').classList.remove('show');
+  document.getElementById('errorFrame').src = '';
+}
+
+/* ═══════════════════════
+   APPS MODAL
+═══════════════════════ */
+function openAppsModal() {
+  renderPresets();
+  document.getElementById('appsModal').classList.add('show');
+}
+function closeAppsModal() {
+  document.getElementById('appsModal').classList.remove('show');
+  refreshAllApps();
+}
+function renderPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  PRESET_APPS.forEach(app => {
+    const added = userApps.some(a => a.url === app.url);
+    const el = document.createElement('div');
+    el.className = 'preset-item' + (added ? ' added' : '');
+    el.innerHTML = `
+      <div class="preset-icon-wrap" style="background:${app.color}22;color:${app.color}">${app.icon}</div>
+      <div class="preset-nm">${app.name}</div>
+      <div class="preset-added">✓ Added</div>
+    `;
+    el.onclick = () => {
+      const i = userApps.findIndex(a => a.url === app.url);
+      if (i >= 0) { userApps.splice(i, 1); el.classList.remove('added'); }
+      else        { userApps.push({...app}); el.classList.add('added'); }
+      saveApps();
+    };
+    grid.appendChild(el);
+  });
+}
+function addCustomApp() {
+  const name = document.getElementById('cName').value.trim();
+  const url  = document.getElementById('cUrl').value.trim();
+  if (!name || !url) return;
+  userApps.push({ name, url, color:'#888', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' });
+  saveApps();
+  document.getElementById('cName').value = '';
+  document.getElementById('cUrl').value  = '';
+  renderPresets();
+}
+function removeApp(i, e) {
+  e && e.stopPropagation();
+  userApps.splice(i, 1);
+  saveApps(); refreshAllApps();
+}
+function saveApps() {
+  localStorage.setItem('nova_apps', JSON.stringify(userApps));
+}
+
+/* ═══════════════════════
+   INIT
+═══════════════════════ */
+newTab();
+renderBmBar();
+</script>
+</body>
+</html>

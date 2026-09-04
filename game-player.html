@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Player</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .player-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    /* GAME IFRAME - Always fullscreen */
+    .game-frame {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      background: #000;
+      z-index: 0;
+    }
+    
+    /* CONTROL BAR - Floating dock style */
+    .control-bar {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: rgba(15,15,20,0.75);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 
+                  0 0 0 1px rgba(255,255,255,0.05) inset;
+    }
+    
+    .control-bar.hidden {
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    /* GAME INFO (Left) */
+    .game-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 10px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      flex-shrink: 0;
+    }
+    
+    .game-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .game-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .game-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    /* CONTROLS (Center) */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .control-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .control-btn:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.25);
+      transform: translateY(-3px) scale(1.08);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    }
+    
+    .control-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+    
+    .control-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.5;
+    }
+    
+    .control-btn.minimize-btn {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.15);
+    }
+    
+    .control-btn.minimize-btn:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.25);
+    }
+    
+    .control-btn.close-btn {
+      background: rgba(255,50,50,0.2);
+      border-color: rgba(255,50,50,0.3);
+    }
+    
+    .control-btn.close-btn:hover {
+      background: rgba(255,50,50,0.35);
+      border-color: rgba(255,50,50,0.45);
+    }
+    
+    /* Retro Bowl Cheat Button */
+    .control-btn.cheat-btn {
+      background: linear-gradient(135deg, rgba(239,68,68,0.25), rgba(220,38,38,0.25));
+      border-color: rgba(248,113,113,0.4);
+      display: none; /* Hidden by default */
+    }
+    
+    .control-btn.cheat-btn:hover {
+      background: linear-gradient(135deg, rgba(239,68,68,0.4), rgba(220,38,38,0.4));
+      border-color: rgba(248,113,113,0.6);
+      box-shadow: 0 6px 16px rgba(239,68,68,0.5);
+    }
+    
+    .control-btn.cheat-btn.show {
+      display: flex;
+    }
+    
+    /* Tooltip */
+    .control-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(0,0,0,0.9);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+    
+    .control-btn:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    /* Nova Logo (Right) */
+    .nova-branding {
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255,255,255,0.12);
+      flex-shrink: 0;
+    }
+    
+    .nova-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .nova-logo:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    
+    .nova-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Nova tooltip */
+    .nova-logo::after {
+      content: 'Nova .Inc';
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(0,0,0,0.9);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+    
+    .nova-logo:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    /* NOTIFICATION */
+    .notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: rgba(15,15,20,0.6);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: rgba(255,255,255,0.95);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5), 
+                  0 0 0 1px rgba(255,255,255,0.08) inset;
+      z-index: 10000;
+      opacity: 0;
+      transform: translateX(420px) scale(0.9);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+      max-width: 300px;
+      min-width: 240px;
+    }
+    
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: all;
+    }
+    
+    .notification-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .notification-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .notification-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.5;
+      color: rgba(255,255,255,0.9);
+    }
+    
+    .notification-text {
+      flex: 1;
+      line-height: 1.4;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="player-container">
+    <!-- GAME IFRAME -->
+    <iframe id="gameFrame" class="game-frame" allowfullscreen></iframe>
+    
+    <!-- CONTROL BAR -->
+    <div class="control-bar" id="controlBar">
+      <!-- Game Info (Left) -->
+      <div class="game-info">
+        <div class="game-icon">
+          <img id="gameIcon" src="" alt="Game" onerror="this.style.display='none'">
+        </div>
+        <div class="game-title" id="gameTitle">Game</div>
+      </div>
+      
+      <!-- Controls (Center) -->
+      <div class="controls">
+        <button class="control-btn" onclick="refreshGame()" data-tooltip="Refresh">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn" onclick="openInAboutBlank()" data-tooltip="Open External">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn" onclick="fullscreenGame()" data-tooltip="Fullscreen">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+          </svg>
+        </button>
+        
+        <!-- Retro Bowl Cheat Button (only shows for Retro Bowl games) -->
+        <button class="control-btn cheat-btn" id="cheatBtn" onclick="activateCheat()" data-tooltip="Unlimited Credits">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn" onclick="requestGame()" data-tooltip="Request Game">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn" onclick="reportBug()" data-tooltip="Report Bug">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn minimize-btn" onclick="minimizeBar()" data-tooltip="Hide Controls">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn close-btn" onclick="closeGame()" data-tooltip="Close">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Nova Branding (Right) -->
+      <div class="nova-branding">
+        <div class="nova-logo">
+          <img src="Nova12.png" alt="Nova" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- NOTIFICATION -->
+  <div class="notification" id="notification">
+    <div class="notification-content">
+      <div class="notification-icon" id="notificationIcon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4m0-4h.01"/>
+        </svg>
+      </div>
+      <span class="notification-text" id="notificationText">Notification</span>
+    </div>
+  </div>
+
+  <script>
+    const gameFrame = document.getElementById('gameFrame');
+    const controlBar = document.getElementById('controlBar');
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    const notificationIcon = document.getElementById('notificationIcon');
+    const gameIcon = document.getElementById('gameIcon');
+    const gameTitle = document.getElementById('gameTitle');
+    const cheatBtn = document.getElementById('cheatBtn');
+    
+    let currentGameUrl = '';
+    let currentGameName = '';
+    let currentGameIcon = '';
+    let isRetroBowl = false;
+    let isRetroBowlCollege = false;
+    
+    // Initialize from URL parameters
+    function init() {
+      const params = new URLSearchParams(window.location.search);
+      currentGameUrl = params.get('url') || '';
+      currentGameName = params.get('name') || 'Game';
+      currentGameIcon = params.get('icon') || '';
+      
+      // Detect Retro Bowl games
+      const nameLower = currentGameName.toLowerCase();
+      const urlLower = currentGameUrl.toLowerCase();
+      
+      if (nameLower.includes('retro bowl') && nameLower.includes('college')) {
+        isRetroBowlCollege = true;
+        cheatBtn.classList.add('show');
+        console.log('🏈 Retro Bowl College detected - cheat button enabled');
+      } else if (nameLower.includes('retro bowl') || urlLower.includes('retrobowl')) {
+        isRetroBowl = true;
+        cheatBtn.classList.add('show');
+        console.log('🏈 Retro Bowl detected - cheat button enabled');
+      }
+      
+      if (currentGameUrl) {
+        gameFrame.src = currentGameUrl;
+        gameTitle.textContent = currentGameName;
+        if (currentGameIcon) {
+          gameIcon.src = currentGameIcon;
+        }
+      }
+    }
+    
+    // Refresh game
+    function refreshGame() {
+      const currentSrc = gameFrame.src;
+      gameFrame.src = '';
+      setTimeout(() => {
+        gameFrame.src = currentSrc;
+      }, 100);
+      showNotification('Game refreshed', 'refresh');
+    }
+    
+    // Open in about:blank
+    function openInAboutBlank() {
+      const win = window.open('about:blank', '_blank');
+      if (!win) {
+        showNotification('Popup blocked - please allow popups', 'error');
+        return;
+      }
+      
+      win.document.body.style.margin = '0';
+      win.document.body.style.height = '100vh';
+      win.document.body.style.overflow = 'hidden';
+      
+      const newIframe = win.document.createElement('iframe');
+      newIframe.style.border = 'none';
+      newIframe.style.width = '100%';
+      newIframe.style.height = '100%';
+      newIframe.src = gameFrame.src;
+      
+      win.document.body.appendChild(newIframe);
+      win.document.title = currentGameName;
+      
+      showNotification('Opened in new tab', 'external');
+    }
+    
+    // Fullscreen game
+    function fullscreenGame() {
+      const elem = gameFrame;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+      showNotification('Entering fullscreen', 'fullscreen');
+    }
+    
+    // Request game
+    function requestGame() {
+      window.open('https://forms.gle/wFp7Rwx9jVnxh3nv5', '_blank');
+      showNotification('Opening request form', 'request');
+    }
+    
+    // Report bug
+    function reportBug() {
+      window.open('https://forms.gle/mq8WfiKo2VuYeRJN7', '_blank');
+      showNotification('Opening bug report form', 'bug');
+    }
+    
+    // Minimize control bar
+    function minimizeBar() {
+      controlBar.classList.add('hidden');
+      showNotification('Control bar hidden. Refresh page to restore.', 'hide');
+    }
+    
+    // Close game
+    function closeGame() {
+      // Navigate back to games page
+      window.location.href = 'games.html';
+    }
+    
+    // Activate Retro Bowl cheat (unlimited credits)
+    function activateCheat() {
+      try {
+        if (isRetroBowlCollege) {
+          // Retro Bowl College cheat
+          const saveKey = "RetroBowlCollege.0.savedata.ini";
+          const savedData = localStorage.getItem(saveKey);
+          
+          if (savedData) {
+            const desiredCredits = prompt("🏈 Retro Bowl College Credit Hack\n\nHow many credits do you want?\n(Enter any amount, default: 999,999,999,999)");
+            
+            if (desiredCredits !== null) {
+              const creditAmount = desiredCredits.trim() === '' ? '999999999999' : desiredCredits.trim();
+              
+              // Use regex to find and replace the coach_credit value
+              const updatedData = savedData.replace(
+                /coach_credit="[^"]*"/,
+                `coach_credit="${creditAmount}"`
+              );
+              localStorage.setItem(saveKey, updatedData);
+              
+              showNotification(`✨ Credits set to ${creditAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}! Reloading...`, 'success');
+              
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            }
+          } else {
+            alert("❌ No save data found!\n\nYou must open up a new game save first!");
+            showNotification('Please start a new game first', 'error');
+          }
+          
+        } else if (isRetroBowl) {
+          // Regular Retro Bowl cheat
+          const saveKey = "RetroBowl.0.savedata.ini";
+          const savedData = localStorage.getItem(saveKey);
+          
+          if (savedData) {
+            const desiredCredits = prompt("🏈 Retro Bowl Credit Hack\n\nHow many credits do you want?\n(Enter any amount, default: 999,999,999,999)");
+            
+            if (desiredCredits !== null) {
+              const creditAmount = desiredCredits.trim() === '' ? '999999999999' : desiredCredits.trim();
+              
+              // Use regex to find and replace the coach_credit value
+              const updatedData = savedData.replace(
+                /coach_credit="[^"]*"/,
+                `coach_credit="${creditAmount}"`
+              );
+              localStorage.setItem(saveKey, updatedData);
+              
+              showNotification(`✨ Credits set to ${creditAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}! Reloading...`, 'success');
+              
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            }
+          } else {
+            alert("❌ No save data found!\n\nYou must open up a new game save first!");
+            showNotification('Please start a new game first', 'error');
+          }
+        }
+      } catch (error) {
+        console.error('Cheat activation error:', error);
+        alert("❌ Error activating cheat!\n\nPlease try again or check the console for details.");
+        showNotification('Cheat activation failed', 'error');
+      }
+    }
+    
+    // Show notification
+    function showNotification(text, iconType = 'info') {
+      notificationText.textContent = text;
+      
+      // Set icon based on type
+      const icons = {
+        info: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>',
+        refresh: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
+        external: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>',
+        fullscreen: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>',
+        request: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>',
+        bug: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+        hide: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>',
+        error: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6m0-6l6 6"/></svg>',
+        success: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      };
+      
+      notificationIcon.innerHTML = icons[iconType] || icons.info;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 4000);
+    }
+    
+    // Initialize
+    init();
+    
+    // ═══════════════════════════════════════════════════════
+    // PANIC KEY GLOBAL HANDLER
+    // ═══════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedKey = localStorage.getItem('nova_panic_key');
+      const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+      const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
+      
+      if (!savedKey) return;
+      
+      // Remove old listener if exists
+      if (window._panicKeyHandler) {
+        document.removeEventListener('keydown', window._panicKeyHandler);
+      }
+      
+      // Add new listener
+      window._panicKeyHandler = (e) => {
+        if (e.key.toUpperCase() === savedKey.toUpperCase()) {
+          e.preventDefault();
+          
+          if (instantRedirect) {
+            window.location.href = savedUrl;
+          } else {
+            if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
+              window.location.href = savedUrl;
+            }
+          }
+        }
+      };
+      
+      document.addEventListener('keydown', window._panicKeyHandler);
+      console.log('🔐 Panic key active:', savedKey);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,3806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Prevent aggressive caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nova — Settings</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+      overflow: hidden;
+      background: transparent;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* ═══════════════════════════════
+       SHELL
+    ═══════════════════════════════ */
+    .shell { display: flex; height: 100%; }
+
+    /* ═══════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════ */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: rgba(18,18,22,0.95);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column;
+      padding: 20px 0 16px;
+      position: relative;
+      z-index: 2;
+    }
+    /* subtle animated glow strip on right edge */
+    .sidebar::after {
+      content: '';
+      position: absolute; right: -1px; top: 20%; bottom: 20%; width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: sbGlow 4s ease-in-out infinite;
+    }
+    @keyframes sbGlow {
+      0%,100% { opacity: 0.3; top: 20%; bottom: 20%; }
+      50%      { opacity: 0.8;   top: 10%; bottom: 10%; }
+    }
+
+    .sb-head {
+      padding: 0 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sb-logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sb-logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.6);
+      animation: dotPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%,100% { transform: scale(1); opacity: 0.8; }
+      50%      { transform: scale(1.4); opacity: 1; }
+    }
+    .sb-title {
+      font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.04em;
+    }
+    .sb-close {
+      width: 26px; height: 26px; border-radius: 8px;
+      background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.15);
+      color: rgba(255,100,100,0.5); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.18s, color 0.18s, transform 0.15s;
+    }
+    .sb-close:hover { background: rgba(255,60,60,0.22); color: #ff6060; transform: scale(1.08); }
+    .sb-close svg { width: 11px; height: 11px; stroke-width: 2.5; }
+
+    /* divider */
+    .sb-divider {
+      height: 1px; background: rgba(255,255,255,0.05);
+      margin: 0 14px 14px;
+    }
+
+    .sb-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; flex: 1; }
+
+    .sb-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px; border: none;
+      background: transparent; color: rgba(255,255,255,0.4);
+      cursor: pointer; font-family: inherit; font-size: 13.5px;
+      font-weight: 600; text-align: left;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%; position: relative; overflow: hidden;
+    }
+    .sb-item::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: #fff; border-radius: 0 3px 3px 0;
+      transform: scaleY(0);
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .sb-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .sb-item:hover::before { transform: scaleY(0.6); }
+    .sb-item:active { transform: scale(0.98); }
+    .sb-item.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .sb-item.active::before { transform: scaleY(1); }
+    .sb-icon {
+      width: 32px; height: 32px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .sb-item.active .sb-icon { background: rgba(255,255,255,0.15); }
+    .sb-icon svg { width: 16px; height: 16px; stroke-width: 2; }
+
+    .sb-footer {
+      padding: 12px 14px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      margin-top: 4px;
+    }
+    .sb-ver {
+      font-size: 9.5px; color: rgba(255,255,255,0.15);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════
+       MAIN
+    ═══════════════════════════════ */
+    .main {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 28px 28px 60px;
+      background: rgba(10,10,15,0.4);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .main::-webkit-scrollbar { width: 4px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .tab-panel { display: none; animation: panelIn 0.22s cubic-bezier(0.22,1,0.36,1); }
+    .tab-panel.active { display: block; }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-title {
+      font-size: 22px; font-weight: 800;
+      margin-bottom: 24px; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.55) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════
+       CARDS
+    ═══════════════════════════════ */
+    .scard {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .scard:hover { 
+      border-color: rgba(255,255,255,0.18); 
+      background: rgba(255,255,255,0.08);
+    }
+
+    .scard-head {
+      padding: 13px 18px 11px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .scard-head svg { width: 12px; height: 12px; stroke-width: 2; opacity: 0.5; }
+
+    .srow {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+    }
+    .srow:last-child { border-bottom: none; }
+    .srow:hover { background: rgba(255,255,255,0.015); }
+
+    .srow-info { flex: 1; min-width: 0; }
+    .srow-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); }
+    .srow-sub { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+
+    /* ═══════════════════════════════
+       INPUTS
+    ═══════════════════════════════ */
+    
+    /* Custom Checkbox Styles */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+    
+    input[type="checkbox"]:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.25);
+    }
+    
+    input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+    }
+    
+    input[type="checkbox"]:checked::before {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    
+    input[type="checkbox"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+    
+    input[type="checkbox"]:active {
+      transform: scale(0.95);
+    }
+    
+    .s-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px; padding: 8px 13px;
+      font-size: 13px; color: #fff;
+      outline: none; font-family: inherit;
+      transition: border-color 0.2s, background 0.2s; width: 160px;
+    }
+    .s-input:focus { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+    .s-input::placeholder { color: rgba(255,255,255,0.18); }
+
+    /* ═══════════════════════════════
+       BUTTONS
+    ═══════════════════════════════ */
+    .s-btn {
+      padding: 10px 20px; border-radius: 12px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+      position: relative; overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .s-btn:active { transform: scale(0.96); }
+    /* shimmer on hover */
+    .s-btn::after {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: skewX(-15deg);
+      transition: left 0.5s;
+    }
+    .s-btn:hover::after { left: 130%; }
+
+    .s-btn-primary {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .s-btn-primary:hover { 
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .s-btn-danger {
+      background: rgba(239,68,68,0.1); color: rgba(248,113,113,0.9);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+    .s-btn-danger:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+
+    .s-btn-ghost {
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+    .s-btn-ghost:hover { background: rgba(255,255,255,0.11); color: #fff; }
+
+    /* wide button */
+    .s-btn-wide {
+      width: 100%; padding: 13px; font-size: 13px;
+      border-radius: 12px; margin-top: 6px;
+    }
+
+    /* ═══════════════════════════════
+       APPEARANCE — BACKGROUND
+    ═══════════════════════════════ */
+    .bg-preview {
+      width: 100%; height: 180px; border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.12);
+      transition: background 0.4s, border-color 0.3s; margin-bottom: 20px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .bg-preview::after {
+      content: 'Live Preview';
+      position: absolute; bottom: 10px; right: 14px;
+      font-size: 10px; color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* preset swatches */
+    .bg-presets {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px; margin-bottom: 20px;
+      max-height: 600px; /* Allow more height for more colors */
+    }
+
+    /* Responsive grid for smaller screens */
+    @media (max-width: 1200px) {
+      .bg-presets {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    @media (max-width: 900px) {
+      .bg-presets {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+    }
+    @media (max-width: 600px) {
+      .bg-presets {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+    }
+    .bg-swatch {
+      aspect-ratio: 16/10; border-radius: 16px;
+      cursor: pointer; border: 2px solid rgba(255,255,255,0.08);
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      overflow: hidden; position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      background: #0a0a0a;
+      min-height: 100px; /* Ensure minimum readable height */
+    }
+    /* video thumbnails inside swatch */
+    .bg-swatch video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; pointer-events: none;
+    }
+    .bg-swatch img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .bg-swatch:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .bg-swatch.selected {
+      border-color: #fff;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.2), 0 12px 40px rgba(0,0,0,0.6);
+      transform: translateY(-2px);
+    }
+    .bg-swatch.selected::after {
+      content: '✓';
+      position: absolute; top: 10px; right: 10px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(255,255,255,0.95); color: #000;
+      font-size: 12px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 24px; text-align: center;
+      z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .bg-swatch-lbl {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent);
+      font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.95); padding: 16px 12px 10px;
+      text-align: center; z-index: 2; letter-spacing: 0.05em;
+      line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    /* delete button on custom imported swatches */
+    .swatch-del {
+      position: absolute; top: 6px; left: 6px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(239,68,68,0.85); border: none;
+      color: #fff; font-size: 9px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 5;
+    }
+    .bg-swatch:hover .swatch-del { opacity: 1; }
+
+    /* Pulse animation for newly uploaded items */
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+      50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+    }
+    .bg-swatch:hover .swatch-del { opacity: 1; }
+
+    /* card head with action buttons */
+    .scard-head-row {
+      padding: 13px 18px 11px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .scard-head-label {
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .scard-head-label svg { width: 12px; height: 12px; stroke-width: 2; opacity: 0.5; }
+    .scard-head-actions { display: flex; align-items: center; gap: 6px; }
+    .head-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.65); cursor: pointer;
+      font-size: 11px; font-weight: 600; font-family: inherit;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .head-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .head-btn svg { width: 12px; height: 12px; stroke-width: 2.2; flex-shrink: 0; }
+
+    /* find wallpaper dropdown */
+    .find-wrap { position: relative; }
+    .find-drop {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: #1c1c24; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.75);
+      z-index: 50; display: none; min-width: 210px;
+    }
+    .find-drop.open { display: block; animation: dropIn 0.18s cubic-bezier(0.22,1,0.36,1); }
+    @keyframes dropIn {
+      from { opacity:0; transform:translateY(-6px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .find-drop-title {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.2);
+      padding: 11px 14px 6px;
+    }
+    .find-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; cursor: pointer; text-decoration: none;
+      color: rgba(255,255,255,0.72); font-size: 12.5px; font-weight: 500;
+      transition: background 0.12s;
+    }
+    .find-link:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .find-link-ico {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px;
+    }
+    .find-link-info { display: flex; flex-direction: column; gap: 2px; }
+    .find-link-sub { font-size: 10px; color: rgba(255,255,255,0.28); }
+
+    /* upload zone */
+    .upload-zone {
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 22px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.22s;
+      background: rgba(255,255,255,0.02);
+    }
+    .upload-zone:hover {
+      border-color: rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-1px);
+    }
+    .upload-zone svg { width: 26px; height: 26px; stroke-width: 1.8; color: rgba(255,255,255,0.25); }
+    .upload-zone-text { font-size: 13px; color: rgba(255,255,255,0.4); text-align: center; font-weight: 500; }
+    .upload-zone-text span { color: #fff; font-weight: 700; }
+    #bgUpload { display: none; }
+
+    /* color row */
+    .color-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .color-row label { font-size: 12px; color: rgba(255,255,255,0.45); width: 60px; flex-shrink: 0; font-weight: 500; }
+    .color-row input[type="color"] {
+      width: 42px; height: 34px; border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 8px; cursor: pointer; background: none; padding: 3px;
+      transition: border-color 0.2s;
+    }
+    .color-row input[type="color"]:hover { border-color: rgba(255,255,255,0.25); }
+    .color-hex {
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 7px 12px;
+      font-size: 13px; color: #fff; outline: none;
+      font-family: 'Courier New', monospace; width: 95px; transition: all 0.2s;
+      font-weight: 600;
+    }
+    .color-hex:focus { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.1); }
+
+    .grad-dir-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .grad-dir-row label { font-size: 11px; color: rgba(255,255,255,0.35); }
+    .grad-dir-row select {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 8px; padding: 5px 10px;
+      font-size: 12px; color: #fff; outline: none;
+      font-family: inherit; cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ═══════════════════════════════
+       INFO TAB
+    ═══════════════════════════════ */
+    .info-hero {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 18px 18px;
+    }
+    .info-hero-img {
+      width: 52px; height: 52px; object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.3));
+    }
+    .info-hero-name { font-size: 20px; font-weight: 800; }
+    .info-hero-ver { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 3px; }
+
+    .info-stat { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .info-stat:last-child { border-bottom: none; }
+    .info-stat-key { font-size: 13px; color: rgba(255,255,255,0.55); }
+    .info-stat-val { font-size: 12px; color: rgba(255,255,255,0.28); font-weight: 500; }
+
+    /* ═══════════════════════════════
+       PROXY TAB
+    ═══════════════════════════════ */
+    .proxy-live {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(52,211,153,0.06);
+      border: 1px solid rgba(52,211,153,0.18);
+      border-radius: 12px; padding: 11px 16px;
+      margin-bottom: 20px;
+    }
+    .proxy-live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #34d399; flex-shrink: 0;
+      box-shadow: 0 0 7px rgba(52,211,153,0.7);
+      animation: ldot 2s ease-in-out infinite;
+    }
+    @keyframes ldot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(0.65); }
+    }
+    .proxy-live-text { font-size: 11.5px; color: rgba(255,255,255,0.4); }
+    .proxy-live-text strong { color: rgba(255,255,255,0.8); }
+
+    /* simple pill selector */
+    .proxy-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.22);
+      margin-bottom: 8px; padding: 0 2px;
+    }
+    .proxy-pills {
+      display: flex; gap: 8px;
+      margin-bottom: 18px;
+    }
+    .ppill {
+      flex: 1; display: flex; flex-direction: column; gap: 3px;
+      padding: 13px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 12px; cursor: pointer;
+      transition: background 0.18s, border-color 0.2s, transform 0.14s;
+      position: relative;
+    }
+    .ppill:hover { background: rgba(255,255,255,0.07); transform: translateY(-1px); }
+    .ppill:active { transform: scale(0.97); }
+    .ppill.active-engine {
+      border-color: rgba(56,189,248,0.55);
+      background: rgba(56,189,248,0.09);
+    }
+    .ppill.active-transport {
+      border-color: rgba(52,211,153,0.55);
+      background: rgba(52,211,153,0.09);
+    }
+    .ppill-name {
+      font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.75);
+    }
+    .ppill.active-engine   .ppill-name { color: #7dd3fc; }
+    .ppill.active-transport .ppill-name { color: #6ee7b7; }
+    .ppill-sub {
+      font-size: 10.5px; color: rgba(255,255,255,0.25); line-height: 1.35;
+    }
+    /* selected tick in corner */
+    .ppill-tick {
+      position: absolute; top: 10px; right: 10px;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    .ppill-tick svg { width: 8px; height: 8px; stroke-width: 3; opacity: 0; transition: opacity 0.18s; }
+    .ppill.active-engine    .ppill-tick { border-color: #38bdf8; background: rgba(56,189,248,0.2); }
+    .ppill.active-transport .ppill-tick { border-color: #34d399; background: rgba(52,211,153,0.2); }
+    .ppill.active-engine    .ppill-tick svg { opacity: 1; stroke: #38bdf8; }
+    .ppill.active-transport .ppill-tick svg { opacity: 1; stroke: #34d399; }
+
+    /* ═══════════════════════════════
+       TOAST NOTIFICATIONS
+    ═══════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      transform: translateX(420px);
+      background: linear-gradient(135deg, rgba(15,15,25,0.95), rgba(25,25,40,0.95));
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.95);
+      border-radius: 16px; 
+      padding: 16px 22px;
+      font-size: 14px; 
+      font-weight: 500;
+      opacity: 0; 
+      pointer-events: none;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10000; 
+      min-width: 320px; 
+      max-width: 440px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+    }
+    .toast.show { 
+      opacity: 1; 
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+    .toast.green { 
+      background: linear-gradient(135deg, rgba(6,95,70,0.95), rgba(16,185,129,0.85));
+      border-color: rgba(52,211,153,0.5); 
+      color: #d1fae5;
+      box-shadow: 0 12px 40px rgba(16,185,129,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    }
+    .toast.red { 
+      background: linear-gradient(135deg, rgba(127,29,29,0.95), rgba(220,38,38,0.85));
+      border-color: rgba(248,113,113,0.5);  
+      color: #fee2e2;
+      box-shadow: 0 12px 40px rgba(220,38,38,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    }
+    .toast.blue { 
+      background: linear-gradient(135deg, rgba(30,58,138,0.95), rgba(59,130,246,0.85));
+      border-color: rgba(96,165,250,0.5);  
+      color: #dbeafe;
+      box-shadow: 0 12px 40px rgba(59,130,246,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    }
+    .toast.orange { 
+      background: linear-gradient(135deg, rgba(124,45,18,0.95), rgba(249,115,22,0.85));
+      border-color: rgba(251,146,60,0.5);  
+      color: #fed7aa;
+      box-shadow: 0 12px 40px rgba(249,115,22,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    }
+    .toast-icon { 
+      width: 24px; 
+      height: 24px; 
+      flex-shrink: 0;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-size: 20px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .toast-content {
+      flex: 1;
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+    }
+
+    /* cloak preset buttons */
+    .cloak-preset {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.4,0,0.2,1); 
+      font-family: inherit; color: rgba(255,255,255,0.7); 
+      font-size: 13px; font-weight: 500; text-align: left; width: 100%;
+      position: relative; overflow: hidden;
+    }
+    .cloak-preset:hover {
+      background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .cloak-preset:active { transform: scale(0.98); }
+    .cloak-preset.active {
+      background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.95); box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .cloak-preset.active::before {
+      content: '✓'; position: absolute; top: 6px; right: 8px;
+      font-size: 12px; font-weight: 900; color: #4ade80;
+    }
+    
+    .cloak-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.08); display: flex; 
+      align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .cloak-preset:hover .cloak-icon { background: rgba(255,255,255,0.15); }
+    .cloak-preset.active .cloak-icon { background: rgba(255,255,255,0.2); }
+    .cloak-icon svg { width: 18px; height: 18px; }
+    .cloak-icon img { width: 18px; height: 18px; border-radius: 4px; }
+    
+    .cloak-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .cloak-title { font-size: 13px; font-weight: 600; color: inherit; }
+    .cloak-subtitle { 
+      font-size: 11px; color: rgba(255,255,255,0.35); 
+      font-weight: 500; letter-spacing: 0.02em; 
+    }
+
+    /* ═══════════════════════════════
+       CREDITS & LEGAL
+    ═══════════════════════════════ */
+    .credit-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+    }
+    .credit-item:last-child { border-bottom: none; }
+    .credit-item:hover { background: rgba(255,255,255,0.02); }
+    
+    .credit-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: rgba(255,255,255,0.6);
+    }
+    .credit-icon svg {
+      width: 20px; height: 20px;
+    }
+    
+    .credit-info { flex: 1; min-width: 0; }
+    .credit-name { 
+      font-size: 14px; font-weight: 600; 
+      color: rgba(255,255,255,0.9); margin-bottom: 2px;
+    }
+    .credit-desc { 
+      font-size: 12px; color: rgba(255,255,255,0.35); 
+      line-height: 1.4;
+    }
+
+    .legal-links {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 18px;
+    }
+    
+    .legal-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none; font-size: 13px;
+      font-weight: 500; transition: all 0.2s;
+    }
+    .legal-link:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      color: #fff; transform: translateX(4px);
+    }
+    .legal-link svg {
+      width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ════════════════
+       SIDEBAR
+  ════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-logo-dot"></div>
+        <div class="sb-title">Settings</div>
+      </div>
+      <button class="sb-close" onclick="closePage()" title="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sb-divider"></div>
+
+    <nav class="sb-nav">
+      <button class="sb-item active" data-tab="account" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        Account
+      </button>
+      <button class="sb-item" data-tab="appearance" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        Appearance
+      </button>
+      <button class="sb-item" data-tab="tabcloak" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/><path d="M8 21v-4a2 2 0 012-2h4a2 2 0 012 2v4"/></svg>
+        </div>
+        Tab Cloak
+      </button>
+      <button class="sb-item" data-tab="panic" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        Panic Key
+      </button>
+      <button class="sb-item" data-tab="behavior" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        Behavior
+      </button>
+      <button class="sb-item" data-tab="info" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        Info
+      </button>
+      <button class="sb-item" data-tab="danger" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg>
+        </div>
+        Data
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-ver">Nova v1.0.1</div>
+    </div>
+  </aside>
+
+  <!-- ════════════════
+       MAIN
+  ════════════════ -->
+  <main class="main">
+
+    <!-- ── ACCOUNT ── -->
+    <div class="tab-panel active" id="tab-account">
+      <div class="panel-title">Your Profile</div>
+
+      <div class="scard">
+        <!-- Profile Header with Picture -->
+        <div style="display: flex; align-items: center; gap: 24px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08);">
+          <!-- Profile Picture -->
+          <div style="position: relative;">
+            <div id="profilePicPreview" style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: 700; color: white; overflow: hidden; border: 3px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+              <span id="profileInitial">?</span>
+              <img id="profilePicImg" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+            <button onclick="document.getElementById('profilePicInput').click()" style="position: absolute; bottom: -8px; right: -8px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 3px solid #1a1a2e; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(10px);">
+              <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/><path d="M12 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
+            <input type="file" id="profilePicInput" accept="image/*,.gif" style="display: none;" onchange="uploadProfilePic(this)" />
+          </div>
+          
+          <!-- Profile Info -->
+          <div style="flex: 1;">
+            <div style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 6px;" id="profileDisplayName">Guest</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px;" id="profileBio">No description set</div>
+            <div style="display: flex; gap: 16px; font-size: 12px;">
+              <div style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6);">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <span>Member since <span id="memberSince">Today</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Customize Profile
+        </div>
+        
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Username</div>
+            <div class="srow-sub">Current: <span id="currentUsername" style="color: rgba(255,255,255,0.9);">Not set</span></div>
+          </div>
+        </div>
+        <div class="srow">
+          <input class="s-input" id="newUsername" placeholder="Enter a username" maxlength="20" autocomplete="off" style="width: 100%; margin-bottom: 8px;" />
+          <button class="s-btn s-btn-primary" onclick="saveUsername()" style="width: 100%;">Save Username</button>
+        </div>
+
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Bio / Description</div>
+            <div class="srow-sub">Tell others about yourself</div>
+          </div>
+        </div>
+        <div class="srow">
+          <textarea class="s-input" id="profileBioInput" placeholder="Enter a bio (optional)" maxlength="120" style="width: 100%; min-height: 60px; resize: vertical; margin-bottom: 8px;"></textarea>
+          <button class="s-btn s-btn-primary" onclick="saveProfileBio()" style="width: 100%;">Save Bio</button>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="panel-title" style="margin-top: 32px;">Your Stats</div>
+      <div class="scard">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <!-- Games Played -->
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" fill="rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: white;" id="statGamesPlayed">0</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;">GAMES PLAYED</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browser Time -->
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" fill="rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: white;" id="statBrowserTime">0m</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;">BROWSER TIME</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Sessions -->
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" fill="rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: white;" id="statSessions">0</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;">SESSIONS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Section -->
+      <div class="panel-title" style="margin-top: 32px;">Recent Activity</div>
+      <div class="scard">
+        <div class="scard-head" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Recently Played
+          </div>
+          <button id="toggleAllGames" onclick="toggleAllGames()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: white; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+            Show All
+          </button>
+        </div>
+        <div id="recentGames" style="overflow-y: auto;">
+          <div style="padding: 32px; text-align: center; color: rgba(255,255,255,0.4);">
+            <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" style="opacity: 0.3; margin-bottom: 12px;"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+            <div style="font-size: 14px; font-weight: 600;">No games played yet</div>
+            <div style="font-size: 12px; margin-top: 4px;">Start playing to see your history!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIN Lock Section -->
+      <div class="panel-title" style="margin-top: 32px;">Security</div>
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Customize PIN Lock
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Set a 4-digit PIN lock (optional)</div>
+            <div class="srow-sub">Add extra security when opening Nova</div>
+          </div>
+        </div>
+        <div class="srow">
+          <input class="s-input" id="newPin" placeholder="Enter 4-digit PIN" maxlength="4" inputmode="numeric" autocomplete="off" style="width: 100%; margin-bottom: 8px;" />
+          <button class="s-btn s-btn-primary" onclick="savePin()" style="width: 100%; margin-bottom: 8px;">Set PIN</button>
+          <button class="s-btn s-btn-danger" onclick="removePin()" style="width: 100%;">Remove PIN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPEARANCE ── -->
+    <div class="tab-panel" id="tab-appearance">
+      <div class="panel-title">Appearance</div>
+
+      <!-- Preset backgrounds -->
+      <div class="scard">
+        <div class="scard-head-row">
+          <div class="scard-head-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Preset Backgrounds
+          </div>
+          <div class="scard-head-actions">
+            <!-- Find wallpaper -->
+            <div class="find-wrap">
+              <button class="head-btn" onclick="toggleFindDrop(event)" title="Find wallpapers online">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Find
+              </button>
+              <div class="find-drop" id="findDrop">
+                <div class="find-drop-title">Get wallpapers</div>
+                <a class="find-link" href="https://4kwallpapers.com/" target="_blank" onclick="closeFindDrop()">
+                  <div class="find-link-ico">🖼️</div>
+                  <div class="find-link-info">
+                    <span>4K Wallpapers</span>
+                    <span class="find-link-sub">4kwallpapers.com</span>
+                  </div>
+                </a>
+                <a class="find-link" href="https://motionbgs.com/" target="_blank" onclick="closeFindDrop()">
+                  <div class="find-link-ico">🎬</div>
+                  <div class="find-link-info">
+                    <span>Motion Backgrounds</span>
+                    <span class="find-link-sub">motionbgs.com · GIF/video</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <!-- Import -->
+            <button class="head-btn" onclick="document.getElementById('bgUpload').click()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+              Import
+            </button>
+            <button class="head-btn" onclick="clearAllCustomBackgrounds()" style="margin-left: 8px;">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7L18.1 20.5A1 1 0 0117.1 21H6.9A1 1 0 015.9 20.5L5 7M10 11V17M14 11V17M15 7V4A1 1 0 0014 3H10A1 1 0 009 4V7M4 7H20"/></svg>
+              Clear All
+            </button>
+            <!-- Clear Imports -->
+            <button class="head-btn" onclick="clearAllImports()" style="margin-left:8px;opacity:0.7;" title="Delete all imported backgrounds">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="m19 6-1 14-1 0H7L6 6m5 0V3h2v3"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <div style="padding:14px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <button class="s-btn s-btn-ghost" onclick="prevPage()" id="prevBtn" style="padding:8px 16px;">← Prev</button>
+            <span id="pageInfo" style="font-size:12px;color:rgba(255,255,255,0.4);">Page 1</span>
+            <button class="s-btn s-btn-ghost" onclick="nextPage()" id="nextBtn" style="padding:8px 16px;">Next →</button>
+          </div>
+          <div class="bg-presets" id="bgPresets"></div>
+          <button class="s-btn s-btn-ghost" onclick="clearBg()" style="margin-top:14px">Remove Background</button>
+        </div>
+      </div>
+
+      <!-- Color Presets -->
+      <div class="scard">
+        <div class="scard-head-row">
+          <div class="scard-head-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 010 20"/></svg>
+            Color Presets
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:500;">Click to apply</span>
+        </div>
+        <div style="padding:14px 18px">
+          <div class="bg-presets" id="colorPresets" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;"></div>
+        </div>
+      </div>
+
+      <!-- Gradient builder -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 010 20"/></svg>
+          Custom Gradient
+        </div>
+        <div style="padding:14px 18px">
+          <div class="bg-preview" id="gradPreview"></div>
+          <div class="color-row">
+            <label>Color 1</label>
+            <input type="color" id="gc1" value="#1a0a2e" oninput="updateGrad()" />
+            <input class="color-hex" id="gc1hex" value="#1a0a2e" oninput="hexToColor('gc1','gc1hex')" maxlength="7" />
+          </div>
+          <div class="color-row">
+            <label>Color 2</label>
+            <input type="color" id="gc2" value="#0a1a2e" oninput="updateGrad()" />
+            <input class="color-hex" id="gc2hex" value="#0a1a2e" oninput="hexToColor('gc2','gc2hex')" maxlength="7" />
+          </div>
+          <div class="color-row">
+            <label>Color 3</label>
+            <input type="color" id="gc3" value="#2e0a1a" oninput="updateGrad()" />
+            <input class="color-hex" id="gc3hex" value="#2e0a1a" oninput="hexToColor('gc3','gc3hex')" maxlength="7" />
+          </div>
+          <div class="grad-dir-row">
+            <label>Direction</label>
+            <select id="gradDir" onchange="updateGrad()">
+              <option value="135deg">Diagonal ↘</option>
+              <option value="180deg">Top → Bottom</option>
+              <option value="90deg">Left → Right</option>
+              <option value="45deg">Diagonal ↗</option>
+              <option value="225deg">Diagonal ↙</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button class="s-btn s-btn-primary" onclick="applyGrad()">Apply Gradient</button>
+            <button class="s-btn s-btn-ghost" onclick="resetGrad()">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB CLOAK ── -->
+    <div class="tab-panel" id="tab-tabcloak">
+      <div class="panel-title">Tab Cloak</div>
+
+      <!-- Presets Section -->
+      <div class="scard">
+        <div class="scard-head-row">
+          <div class="scard-head-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/><path d="M8 21v-4a2 2 0 012-2h4a2 2 0 012 2v4"/></svg>
+            Popular Disguises
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:500;">Click to apply</span>
+        </div>
+        
+        <!-- Educational Sites -->
+        <div style="padding:0 18px 8px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">📚 Educational</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <button class="cloak-preset active" data-cloak="default" onclick="setTabCloak(this, 'Nova', 'Nova12.png', 'default')">
+              <div class="cloak-icon">
+                <img src="Nova12.png" alt="Nova" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Nova</span>
+                <span class="cloak-subtitle">Original</span>
+              </div>
+            </button>
+            
+            <button class="cloak-preset" data-cloak="classroom" onclick="setTabCloak(this, 'Home - Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.png', 'classroom')">
+              <div class="cloak-icon">
+                <img src="https://ssl.gstatic.com/classroom/favicon.png" alt="Classroom" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Classroom</span>
+                <span class="cloak-subtitle">Google Education</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="canvas" onclick="setTabCloak(this, 'Dashboard - Canvas', 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico', 'canvas')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e13f2b"><path d="M9 11H7v8h2v-8zm4 4h-2v4h2v-4zm4-7h-2v11h2V8z"/><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Canvas</span>
+                <span class="cloak-subtitle">Learning Management</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="khan" onclick="setTabCloak(this, 'Khan Academy | Free Online Courses', 'https://cdn.kastatic.org/images/favicon.ico', 'khan')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#14BF96"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Khan Academy</span>
+                <span class="cloak-subtitle">Free Learning</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="wikipedia" onclick="setTabCloak(this, 'Wikipedia, the free encyclopedia', 'https://en.wikipedia.org/favicon.ico', 'wikipedia')">
+              <div class="cloak-icon">
+                <img src="https://en.wikipedia.org/favicon.ico" alt="Wikipedia" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Wikipedia</span>
+                <span class="cloak-subtitle">Free Encyclopedia</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="desmos" onclick="setTabCloak(this, 'Desmos | Graphing Calculator', 'https://www.desmos.com/favicon.ico', 'desmos')">
+              <div class="cloak-icon">
+                <img src="https://www.desmos.com/favicon.ico" alt="Desmos" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Desmos</span>
+                <span class="cloak-subtitle">Graphing Calculator</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="clever" onclick="setTabCloak(this, 'Clever | Portal', 'https://assets.clever.com/launchpad/favicon.ico', 'clever')">
+              <div class="cloak-icon">
+                <img src="https://assets.clever.com/launchpad/favicon.ico" alt="Clever" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Clever</span>
+                <span class="cloak-subtitle">Student Portal</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="newtab" onclick="setTabCloak(this, 'New Tab', 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23e8eaed%22 d=%22M0 0h24v24H0z%22/%3E%3C/svg%3E', 'newtab')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e8eaed"><rect width="24" height="24" rx="4"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">New Tab</span>
+                <span class="cloak-subtitle">Blank Browser Tab</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Google Services -->
+        <div style="padding:16px 18px 8px;border-top:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">🔍 Google Services</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <button class="cloak-preset" data-cloak="google" onclick="setTabCloak(this, 'Google', 'https://www.google.com/favicon.ico', 'google')">
+              <div class="cloak-icon">
+                <img src="https://www.google.com/favicon.ico" alt="Google" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Google</span>
+                <span class="cloak-subtitle">Search Engine</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="gmail" onclick="setTabCloak(this, 'Gmail', 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico', 'gmail')">
+              <div class="cloak-icon">
+                <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" alt="Gmail" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Gmail</span>
+                <span class="cloak-subtitle">Email Service</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="drive" onclick="setTabCloak(this, 'My Drive - Google Drive', 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png', 'drive')">
+              <div class="cloak-icon">
+                <img src="https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png" alt="Drive" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Drive</span>
+                <span class="cloak-subtitle">Cloud Storage</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="youtube" onclick="setTabCloak(this, 'YouTube', 'https://www.youtube.com/favicon.ico', 'youtube')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">YouTube</span>
+                <span class="cloak-subtitle">Video Platform</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Productivity & Tools -->
+        <div style="padding:16px 18px 18px;border-top:1px solid rgba(255,255,255,0.04);">
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">💼 Productivity</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <button class="cloak-preset" data-cloak="notion" onclick="setTabCloak(this, 'Notion – The all-in-one workspace', 'https://www.notion.so/favicon.ico', 'notion')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000"><path d="M4.459 4.208c.746.606 1.026.56 2.428.467l13.215-.747c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466l1.823 1.447zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933z"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Notion</span>
+                <span class="cloak-subtitle">Workspace</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="office" onclick="setTabCloak(this, 'Microsoft Office Home', 'https://res.cdn.office.net/officehub/images/content/images/favicon-8f211ea1.ico', 'office')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#D83B01"><path d="M21.53 4.306v15.363H21l-6.133-.587V5.018l6.133-.712zm-7.837.409v14.57H2.47V4.715h11.223z"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Office 365</span>
+                <span class="cloak-subtitle">Microsoft</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="github" onclick="setTabCloak(this, 'GitHub', 'https://github.com/favicon.ico', 'github')">
+              <div class="cloak-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#181717"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997z"/></svg>
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">GitHub</span>
+                <span class="cloak-subtitle">Code Repository</span>
+              </div>
+            </button>
+
+            <button class="cloak-preset" data-cloak="bing" onclick="setTabCloak(this, 'Bing', 'https://www.bing.com/favicon.ico', 'bing')">
+              <div class="cloak-icon">
+                <img src="https://www.bing.com/favicon.ico" alt="Bing" />
+              </div>
+              <div class="cloak-info">
+                <span class="cloak-title">Bing</span>
+                <span class="cloak-subtitle">Microsoft Search</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Cloak Section -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Custom Cloak
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Custom tab title</div>
+            <div class="srow-sub">Enter any title for your tab</div>
+          </div>
+          <input class="s-input" type="text" id="customCloakTitle" placeholder="My Drive - Google Drive" style="width:280px;" />
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Custom icon URL</div>
+            <div class="srow-sub">Link to a favicon (.ico) file</div>
+          </div>
+          <input class="s-input" type="text" id="customCloakIcon" placeholder="https://example.com/favicon.ico" style="width:280px;" />
+        </div>
+        <div class="srow">
+          <button class="s-btn s-btn-primary" onclick="applyCustomCloak()">Apply Custom Cloak</button>
+        </div>
+      </div>
+
+      <!-- Debug Section -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+          Debug & Maintenance
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Clear all custom backgrounds</div>
+            <div class="srow-sub">Remove all imported images/GIFs from storage</div>
+          </div>
+          <button class="s-btn s-btn-danger" onclick="if(confirm('Clear ALL custom backgrounds? This cannot be undone!')) clearAllCustoms()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Auto Cloak Section -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Advanced Options
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Auto cloak mode</div>
+            <div class="srow-sub">Only disguise when switching away from the tab</div>
+          </div>
+          <label style="display:flex;align-items:center;cursor:pointer;">
+            <input type="checkbox" id="autoCloakToggle" onchange="toggleAutoCloak()" style="margin-right:10px;" />
+            <span style="font-size:13px;color:rgba(255,255,255,0.7);">Enable auto cloak</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANIC KEY ── -->
+    <div class="tab-panel" id="tab-panic">
+      <div class="panel-title">Panic Key</div>
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Emergency Redirect
+        </div>
+        <div style="padding:18px;">
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Press your panic key on any page to instantly redirect to a safe site.</div>
+          
+          <!-- Instant redirect toggle -->
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;margin-bottom:16px;">
+            <input type="checkbox" id="instantPanicRedirect" onchange="saveInstantRedirect()" checked />
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);">Instant redirect (no confirmation)</div>
+          </label>
+
+          <!-- Panic Key -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:8px;">PANIC KEY</div>
+            <button id="panicKeyBtn" onclick="setPanicKey()" 
+              style="padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;width:100%;display:flex;align-items:center;justify-content:space-between;">
+              <span style="color:rgba(255,255,255,0.5);">Current key:</span>
+              <span id="panicKeyDisplay" style="color:#fff;font-weight:600;padding:4px 12px;background:rgba(255,60,60,0.15);border-radius:6px;">NONE</span>
+            </button>
+          </div>
+
+          <!-- Redirect URL -->
+          <div>
+            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:8px;">REDIRECT URL</div>
+            <input type="text" id="panicUrl" placeholder="e.g. https://classroom.google.com/" value="https://classroom.google.com/"
+              style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 12px;color:#fff;font-size:12px;font-family:inherit;outline:none;margin-bottom:8px;" />
+            <button onclick="savePanicUrl()" 
+              style="padding:8px 16px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BEHAVIOR ── -->
+    <div class="tab-panel" id="tab-behavior">
+      <div class="panel-title">Behavior</div>
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Tab Behavior
+        </div>
+        <div style="margin-top:16px;">
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;margin-bottom:10px;">
+            <input type="checkbox" id="openCloakedBlob" onchange="saveBehaviorSettings()" />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Open cloaked as blob</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Use a blob URL instead of about:blank</div>
+            </div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;">
+            <input type="checkbox" id="warnBeforeClosing" onchange="saveBehaviorSettings()" checked />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Warn before closing</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Confirm before you leave the tab</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="scard" style="margin-top: 20px;">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Performance Overlay
+        </div>
+        <div style="margin-top:16px;">
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;margin-bottom:10px;">
+            <input type="checkbox" id="showFPS" onchange="savePerformanceSettings()" />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Show FPS Counter</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Display frames per second in top-right corner</div>
+            </div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;">
+            <input type="checkbox" id="showPing" onchange="savePerformanceSettings()" />
+            <div>
+              <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Show Ping</div>
+              <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Display network latency in top-right corner</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INFO ── -->
+    <div class="tab-panel" id="tab-info">
+      <div class="panel-title">Info</div>
+      <div class="scard">
+        <div class="info-hero">
+          <img class="info-hero-img" src="Nova12.png" alt="Nova" />
+          <div>
+            <div class="info-hero-name">Nova</div>
+            <div class="info-hero-ver">Version 1.0.2</div>
+          </div>
+        </div>
+      </div>
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Stats
+        </div>
+        <div class="info-stat"><span class="info-stat-key">User</span><span class="info-stat-val" id="infoUser">—</span></div>
+        <div class="info-stat"><span class="info-stat-key">PIN set</span><span class="info-stat-val" id="infoPin">—</span></div>
+        <div class="info-stat"><span class="info-stat-key">Games available</span><span class="info-stat-val" id="gameCountLabel">Loading…</span></div>
+        <div class="info-stat"><span class="info-stat-key">Build</span><span class="info-stat-val">1.0.1-stable</span></div>
+      </div>
+
+      <!-- Credits Section -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Credits
+        </div>
+        <div class="credit-item">
+          <div class="credit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          </div>
+          <div class="credit-info">
+            <div class="credit-name">GN-Math</div>
+            <div class="credit-desc">Game library and content</div>
+          </div>
+        </div>
+        <div class="credit-item">
+          <div class="credit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+          </div>
+          <div class="credit-info">
+            <div class="credit-name">SoundCloud</div>
+            <div class="credit-desc">Music integration</div>
+          </div>
+        </div>
+        <div class="credit-item">
+          <div class="credit-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="credit-info">
+            <div class="credit-name">MercuryWorkshop</div>
+            <div class="credit-desc">Scramjet proxy technology</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Section -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Legal
+        </div>
+        <div class="legal-links">
+          <a href="terms.html" target="_blank" class="legal-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Terms of Service
+          </a>
+          <a href="privacy.html" target="_blank" class="legal-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Privacy Policy
+          </a>
+          <a href="dmca.html" target="_blank" class="legal-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            DMCA Policy
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DATA ── -->
+    <div class="tab-panel" id="tab-danger">
+      <div class="panel-title">Data</div>
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Danger Zone
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Reset All Data</div>
+            <div class="srow-sub">Clears username, PIN, bookmarks, app shortcuts, background</div>
+          </div>
+          <button class="s-btn s-btn-danger" onclick="resetAll()">Reset Everything</button>
+        </div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-label">Clear Bookmarks</div>
+            <div class="srow-sub">Remove all saved browser bookmarks</div>
+          </div>
+          <button class="s-btn s-btn-ghost" onclick="clearBookmarks()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon">
+    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+  </div>
+  <div class="toast-content" id="toastMsg"></div>
+</div>
+</div>
+
+<!-- Enhanced file input for import -->
+<input type="file" id="bgUpload" accept="image/*,video/*,.gif,.mp4,.webm,.mov,.avi,.mkv,.jpg,.jpeg,.png,.bmp,.tiff,.webp" multiple style="display:none" onchange="handleUpload(this)" />
+
+<script>
+/* ══════════════════════════════════
+   TAB SWITCHING
+══════════════════════════════════ */
+function switchTab(btn) {
+  // Close/hide modal when switching tabs
+  const modal = document.getElementById('allGamesModal');
+  const button = document.getElementById('toggleAllGames');
+  if (modal && modal.style.display !== 'none') {
+    modal.style.display = 'none';
+    if (button) button.textContent = 'Show All';
+    document.body.style.overflow = ''; // Restore scroll
+  }
+  
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function showToast(msg, type = 'blue') {
+  const t = document.getElementById('toast');
+  const ic = document.getElementById('toastIcon');
+  const content = document.getElementById('toastMsg');
+  
+  // Set beautiful icons with SVG
+  if (type === 'green') {
+    ic.innerHTML = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`;
+  } else if (type === 'red') {
+    ic.innerHTML = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>`;
+  } else if (type === 'orange') {
+    ic.innerHTML = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16v2h2v-2h-2zm0-6v4h2v-4h-2z"/></svg>`;
+  } else {
+    ic.innerHTML = `<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
+  }
+  
+  content.textContent = msg;
+  
+  // Apply styling with bounce animation
+  t.className = 'toast show ' + type;
+  
+  // Auto-hide after 4.5 seconds with smooth fade
+  clearTimeout(t._t);
+  t._t = setTimeout(() => {
+    t.classList.remove('show');
+  }, 4500);
+}
+
+/* ══════════════════════════════════
+   LOAD SAVED
+══════════════════════════════════ */
+function load() {
+  // Restore user settings
+  const user = localStorage.getItem('nova_user') || 'Not set';
+  document.getElementById('currentUsername').textContent = user;
+  document.getElementById('infoUser').textContent = user === 'Not set' ? '—' : user;
+  document.getElementById('infoPin').textContent  = localStorage.getItem('nova_pin') ? 'Yes' : 'No';
+
+  const saved = JSON.parse(localStorage.getItem('nova_grad') || 'null');
+  if (saved) {
+    ['c1','c2','c3'].forEach((k,i) => {
+      document.getElementById('gc'+(i+1)).value        = saved[k];
+      document.getElementById('gc'+(i+1)+'hex').value  = saved[k];
+    });
+    if (saved.dir) document.getElementById('gradDir').value = saved.dir;
+  }
+  updateGrad();
+
+  // Clean up old metadata system
+  localStorage.removeItem('nova_active_import_metadata');
+  
+  // Mark selected preset after a short delay
+  setTimeout(() => {
+    markSelectedPreset();
+  }, 200);
+}
+
+/* ══════════════════════════════════
+   ACCOUNT & PROFILE SYSTEM
+══════════════════════════════════ */
+function saveUsername() {
+  const v = document.getElementById('newUsername').value.trim();
+  if (v.length < 2) { showToast('Minimum 2 characters', 'red'); return; }
+  localStorage.setItem('nova_user', v);
+  document.getElementById('currentUsername').textContent = v;
+  document.getElementById('infoUser').textContent = v;
+  document.getElementById('profileDisplayName').textContent = v;
+  document.getElementById('newUsername').value = '';
+  
+  // Update profile initial
+  updateProfileInitial(v);
+  
+  showToast('Username updated!', 'green');
+  emit('usernameChanged', { value: v });
+}
+
+function saveProfileBio() {
+  const bio = document.getElementById('profileBioInput').value.trim();
+  localStorage.setItem('nova_profile_bio', bio);
+  document.getElementById('profileBio').textContent = bio || 'No description set';
+  showToast('Bio updated!', 'green');
+}
+
+function uploadProfilePic(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+  const isImage = file.type.startsWith('image/');
+  
+  if (!isImage) {
+    showToast('Please select an image or GIF', 'red');
+    return;
+  }
+  
+  // Check file size (5MB limit for profile pics)
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('File too large! Max 5MB for profile pictures', 'red');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    localStorage.setItem('nova_profile_pic', dataUrl);
+    localStorage.setItem('nova_profile_pic_type', isGif ? 'gif' : 'image');
+    
+    // Update preview
+    const preview = document.getElementById('profilePicImg');
+    const initial = document.getElementById('profileInitial');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    initial.style.display = 'none';
+    
+    showToast('Profile picture updated!', 'green');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function updateProfileInitial(username) {
+  const initial = username.charAt(0).toUpperCase();
+  document.getElementById('profileInitial').textContent = initial;
+}
+
+function loadProfileData() {
+  // Load username
+  const user = localStorage.getItem('nova_user') || 'Guest';
+  document.getElementById('currentUsername').textContent = user;
+  document.getElementById('profileDisplayName').textContent = user;
+  document.getElementById('infoUser').textContent = user === 'Guest' ? '—' : user;
+  updateProfileInitial(user);
+  
+  // Load bio
+  const bio = localStorage.getItem('nova_profile_bio') || '';
+  document.getElementById('profileBio').textContent = bio || 'No description set';
+  document.getElementById('profileBioInput').value = bio;
+  
+  // Load profile picture
+  const profilePic = localStorage.getItem('nova_profile_pic');
+  if (profilePic) {
+    const preview = document.getElementById('profilePicImg');
+    const initial = document.getElementById('profileInitial');
+    preview.src = profilePic;
+    preview.style.display = 'block';
+    initial.style.display = 'none';
+  }
+  
+  // Load member since date
+  let memberSince = localStorage.getItem('nova_member_since');
+  if (!memberSince) {
+    memberSince = new Date().toISOString();
+    localStorage.setItem('nova_member_since', memberSince);
+  }
+  const date = new Date(memberSince);
+  const formatted = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  document.getElementById('memberSince').textContent = formatted;
+  
+  // Load stats
+  loadStats();
+  
+  // Load recent games
+  loadRecentGames();
+}
+
+function loadStats() {
+  const stats = {
+    gamesPlayed: parseInt(localStorage.getItem('nova_stat_games_played') || '0'),
+    browserMinutes: parseInt(localStorage.getItem('nova_stat_browser_minutes') || '0'),
+    sessions: parseInt(localStorage.getItem('nova_stat_sessions') || '0')
+  };
+  
+  document.getElementById('statGamesPlayed').textContent = stats.gamesPlayed;
+  
+  // Convert minutes to hours
+  const hours = Math.floor(stats.browserMinutes / 60);
+  const mins = stats.browserMinutes % 60;
+  document.getElementById('statBrowserTime').textContent = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  
+  document.getElementById('statSessions').textContent = stats.sessions;
+}
+
+function incrementGamePlayed(gameName) {
+  // Increment games played count
+  let count = parseInt(localStorage.getItem('nova_stat_games_played') || '0');
+  count++;
+  localStorage.setItem('nova_stat_games_played', count);
+  
+  // Add to recent games history
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('nova_game_history') || '[]');
+  } catch(e) {}
+  
+  const entry = {
+    name: gameName,
+    timestamp: Date.now(),
+    date: new Date().toISOString()
+  };
+  
+  // Add to beginning, keep last 20
+  history.unshift(entry);
+  history = history.slice(0, 20);
+  
+  localStorage.setItem('nova_game_history', JSON.stringify(history));
+  
+  // Reload if on account page
+  if (document.getElementById('tab-account').classList.contains('active')) {
+    loadStats();
+    loadRecentGames();
+  }
+}
+
+// Store game with image
+function incrementGamePlayedWithImage(gameName, gameImage) {
+  // Increment games played count
+  let count = parseInt(localStorage.getItem('nova_stat_games_played') || '0');
+  count++;
+  localStorage.setItem('nova_stat_games_played', count);
+  
+  // Add to recent games history with image
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('nova_game_history') || '[]');
+  } catch(e) {}
+  
+  const entry = {
+    name: gameName,
+    image: gameImage || '',
+    timestamp: Date.now(),
+    date: new Date().toISOString()
+  };
+  
+  // Add to beginning, keep last 50
+  history.unshift(entry);
+  history = history.slice(0, 50);
+  
+  localStorage.setItem('nova_game_history', JSON.stringify(history));
+  
+  // Reload if on account page
+  if (document.getElementById('tab-account') && document.getElementById('tab-account').classList.contains('active')) {
+    loadStats();
+    loadRecentGames();
+  }
+}
+
+function loadRecentGames() {
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('nova_game_history') || '[]');
+  } catch(e) {}
+  
+  const container = document.getElementById('recentGames');
+  
+  if (history.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 32px; text-align: center; color: rgba(255,255,255,0.4);">
+        <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" style="opacity: 0.3; margin-bottom: 12px;"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+        <div style="font-size: 14px; font-weight: 600;">No games played yet</div>
+        <div style="font-size: 12px; margin-top: 4px;">Start playing to see your history!</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Show only 3 games with images
+  container.innerHTML = history.slice(0, 3).map(entry => {
+    const timeAgo = getTimeAgo(entry.timestamp);
+    const hasImage = entry.image && entry.image.length > 0;
+    
+    return `
+      <div style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 14px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+        ${hasImage ? `
+          <img src="${entry.image}" style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div style="display: none; width: 48px; height: 48px; background: rgba(255,255,255,0.08); border-radius: 10px; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" fill="rgba(255,255,255,0.5)" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+          </div>
+        ` : `
+          <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.08); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="24" height="24" fill="rgba(255,255,255,0.5)" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+          </div>
+        `}
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 14px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${entry.name}</div>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px;">${timeAgo}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Toggle All Games Modal
+function toggleAllGames() {
+  const modal = document.getElementById('allGamesModal');
+  const button = document.getElementById('toggleAllGames');
+  const content = document.getElementById('allGamesContent');
+  
+  if (modal.style.display === 'none' || !modal.style.display) {
+    // Show all games in modal
+    let history = [];
+    try {
+      history = JSON.parse(localStorage.getItem('nova_game_history') || '[]');
+    } catch(e) {}
+    
+    if (history.length === 0) {
+      content.innerHTML = `
+        <div style="padding: 60px 20px; text-align: center; color: rgba(255,255,255,0.4);">
+          <svg width="48" height="48" fill="rgba(255,255,255,0.2)" viewBox="0 0 24 24" style="margin: 0 auto 16px;"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">No games in history</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.25);">Play some games to see them here</div>
+        </div>
+      `;
+    } else {
+      content.innerHTML = history.map((entry, index) => {
+        const timeAgo = getTimeAgo(entry.timestamp);
+        const hasImage = entry.image && entry.image.length > 0;
+        
+        return `
+          <div style="padding: 16px 18px; background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; display: flex; align-items: center; gap: 16px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.borderColor='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='rgba(255,255,255,0.12)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <div style="font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.25); width: 36px; text-align: center; flex-shrink: 0;">#${index + 1}</div>
+            ${hasImage ? `
+              <img src="${entry.image}" style="width: 64px; height: 64px; border-radius: 14px; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0; box-shadow: 0 4px 16px rgba(0,0,0,0.3);" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div style="display: none; width: 64px; height: 64px; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 14px; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.12);">
+                <svg width="32" height="32" fill="rgba(255,255,255,0.3)" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+              </div>
+            ` : `
+              <div style="width: 64px; height: 64px; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.12);">
+                <svg width="32" height="32" fill="rgba(255,255,255,0.3)" viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66A5.99 5.99 0 0 0 14.5 3h-5A5.99 5.99 0 0 0 3.51 8.43l-1.09 7.66A2.5 2.5 0 0 0 4.9 19h.9l.54 3.24a1 1 0 0 0 .98.76h9.36a1 1 0 0 0 .98-.76L18.2 19h.9a2.5 2.5 0 0 0 2.48-2.91z"/></svg>
+              </div>
+            `}
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.95); margin-bottom: 6px; letter-spacing: -0.01em;">${entry.name}</div>
+              <div style="font-size: 13px; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="opacity: 0.5;"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2"/></svg>
+                ${timeAgo}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    modal.style.display = 'flex';
+    button.textContent = 'Hide All';
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  } else {
+    // Hide modal
+    modal.style.display = 'none';
+    button.textContent = 'Show All';
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }
+}
+
+function closeAllGamesModal() {
+  // Keep for backwards compatibility but just call toggle
+  const modal = document.getElementById('allGamesModal');
+  if (modal && modal.style.display !== 'none') {
+    toggleAllGames();
+  }
+  // Restore body scroll
+  document.body.style.overflow = '';
+}
+
+function getTimeAgo(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  return 'Just now';
+}
+
+// Track session time
+function startSessionTracking() {
+  // Increment sessions
+  let sessions = parseInt(localStorage.getItem('nova_stat_sessions') || '0');
+  sessions++;
+  localStorage.setItem('nova_stat_sessions', sessions);
+  
+  // Track time every minute
+  setInterval(() => {
+    let minutes = parseInt(localStorage.getItem('nova_stat_browser_minutes') || '0');
+    minutes++;
+    localStorage.setItem('nova_stat_browser_minutes', minutes);
+  }, 60000); // Every minute
+}
+
+// Call loadProfileData on page load
+setTimeout(() => {
+  loadProfileData();
+  startSessionTracking();
+}, 100);
+
+function savePin() {
+  const v = document.getElementById('newPin').value.trim();
+  if (!/^\d{4}$/.test(v)) { showToast('PIN must be exactly 4 digits', 'red'); return; }
+  localStorage.setItem('nova_pin', v);
+  document.getElementById('infoPin').textContent = 'Yes';
+  document.getElementById('newPin').value = '';
+  showToast('PIN updated', 'green');
+}
+
+function removePin() {
+  localStorage.removeItem('nova_pin');
+  document.getElementById('infoPin').textContent = 'No';
+  showToast('PIN removed');
+}
+
+/* ══════════════════════════════════
+   BACKGROUND — PRESETS (Videos/Images)
+══════════════════════════════════ */
+const BG_PRESETS = [
+  { label:'Blue Lake',      src:'Img/GifWallpapers/blue-lake-minecraft.1920x1080.mp4',        isVideo:true,  thumb:'#0a1520', thumbImg:'Img/Wallpapers/ezgif-7ddf323bfb72e48b.jpg' },
+  { label:'Cherry Blossom', src:'Img/GifWallpapers/cherry-blossom.1920x1080.mp4',             isVideo:true,  thumb:'#1a0a10', thumbImg:'Img/Wallpapers/ezgif-1f14617846267eb7.jpg' },
+  { label:'Dark Abyss',     src:'Img/GifWallpapers/dark-king-abyss.1920x1080.mp4',            isVideo:true,  thumb:'#050508', thumbImg:'Img/Wallpapers/ezgif-78d06c5d02034022.jpg' },
+  { label:'Goku Ultra',     src:'Img/GifWallpapers/goku-ultra-instinct_2.3840x2160.mp4',      isVideo:true,  thumb:'#0a0a1a', thumbImg:'Img/Wallpapers/ezgif-7a71ce22a1564c38.jpg' },
+  { label:'Falling Snow',   src:'Img/GifWallpapers/minecraft-falling-snow.1920x1080.mp4',     isVideo:true,  thumb:'#0e1520', thumbImg:'Img/Wallpapers/ezgif-76748afb1b304bbf.jpg' },
+  { label:'Night Sky',      src:'Img/GifWallpapers/minecraft-in-the-night.1920x1080.mp4',     isVideo:true,  thumb:'#050d15', thumbImg:'Img/Wallpapers/ezgif-1138d476828ac305.jpg' },
+  { label:'Rainy Cabin',    src:'Img/GifWallpapers/minecraft-rainy-cabin.1920x1080.mp4',      isVideo:true,  thumb:'#101510', thumbImg:'Img/Wallpapers/ezgif-79b45eeff6158103.jpg' },
+  { label:'Rainy Landscape',src:'Img/GifWallpapers/minecraft-rainy-landscape.1920x1080.mp4',  isVideo:true,  thumb:'#0a1015', thumbImg:'Img/Wallpapers/ezgif-723b2340c445c9a9.jpg' },
+  { label:'Snowy Campfire', src:'Img/GifWallpapers/minecraft-snowy-campfire.1920x1080.mp4',   isVideo:true,  thumb:'#0d1520', thumbImg:'Img/Wallpapers/ezgif-7caa32f46ef636d1.jpg' },
+  { label:'Sunset',         src:'Img/GifWallpapers/minecraft-sunset.1920x1080.mp4',           isVideo:true,  thumb:'#201008', thumbImg:'Img/Wallpapers/ezgif-7e145d292eeff0a2.jpg' },
+  { label:'Portal',         src:'Img/GifWallpapers/portal-in-minecraft.1920x1080.mp4',        isVideo:true,  thumb:'#051505', thumbImg:'Img/Wallpapers/ezgif-7a11452ce5671468.jpg' },
+  { label:'Void King',      src:'Img/GifWallpapers/void-dark-king.1920x1080.mp4',             isVideo:true,  thumb:'#080510', thumbImg:'Img/Wallpapers/ezgif-7a7f67b3fa764640.jpg' },
+  { label:'Drift',          src:'Img/GifWallpapers/white-toyota-drifting.1920x1080.mp4',      isVideo:true,  thumb:'#181818', thumbImg:'Img/Wallpapers/ezgif-7ec642ef22cdd760.jpg' },
+  { label:'Beneath the Seventh', src:'Img/GifWallpapers/beneath-the-seventh.3840x2160.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001.png' },
+  { label:'Skello', src:'Img/GifWallpapers/Skello.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-043.png' },
+  { label:'Celestial Veil', src:'Img/GifWallpapers/celestial-veil.3840x2160.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (1).png' },
+  { label:'Serious Girl', src:'Img/GifWallpapers/serious-girl.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (2).png' },
+  { label:'Gojo Satoru', src:'Img/GifWallpapers/gojo-satoru-beyond-infinity.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (3).png' },
+  { label:'Cross', src:'Img/GifWallpapers/default.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (4).png' },
+  { label:'JJK Clash', src:'Img/GifWallpapers/Brother.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (5).png' },
+  { label:'Hunt', src:'Img/GifWallpapers/Hunt.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-054.png' },
+  { label:'Minecraft Water og', src:'Img/GifWallpapers/Minecraft02.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (6).png' },
+  { label:'sukuna Fire', src:'Img/GifWallpapers/sukuna-fire.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (7).png' },
+  { label:'nature in Minecraft', src:'Img/GifWallpapers/nature-in-minecraft.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (8).png' },
+  { label:'Ultraman tiga statue', src:'Img/GifWallpapers/ultraman-tiga-statue.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-001 (9).png' },
+  { label:'King of Darkness', src:'Img/GifWallpapers/king-of-darkness.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'Img/Wallpapers/ezgif-frame-002.png' },
+  { label:'Michael Jackson', src:'Img/GifWallpapers/michael-jackson-neon-moonwalk.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Superman beyond earth', src:'Img/GifWallpapers/thumbs/superman-beyond-earth.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Silver Surfer', src:'Img/GifWallpapers/thumbs/silver-surfer-cosmic-void.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Silver Surfer cosmic', src:'Img/GifWallpapers/thumbs/silver-surfer-black-silence.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Rick Sunset', src:'Img/GifWallpapers/thumbs/rick-cosmic-serenity.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Car Rain', src:'Img/GifWallpapers/thumbs/nissan-r34-at-rainy-night.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Minecraft sunset', src:'Img/GifWallpapers/thumbs/minecraft-sunset-farm.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Hunt Showdown', src:'Img/GifWallpapers/thumbs/hunt-showdown-veil-of-thorns.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Hiyuki Silent storm', src:'Img/GifWallpapers/thumbs/hiyuki-silent-storm.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'gachiakuta the fall of rudo', src:'Img/GifWallpapers/thumbs/gachiakuta-the-fall-of-rudo-surebrec.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Gabimaru the hollow', src:'Img/GifWallpapers/thumbs/gabimaru-the-hollow-hells-paradise.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Batman', src:'Img/GifWallpapers/thumbs/batman-black-judgment.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Azure Horizon', src:'Img/GifWallpapers/thumbs/azure-horizon.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Sakura Forest', src:'Img/GifWallpapers/thumbs/sakura-forest-minecraft.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Nissan Gtr', src:'Img/GifWallpapers/thumbs/nissan-gtr-r34-skyline.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Minecraft Northern light', src:'Img/GifWallpapers/thumbs/minecraft-northern-light.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Minecraft aquarium light', src:'Img/GifWallpapers/thumbs/minecraft-aquarium.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Mahoraga behind megumi', src:'Img/GifWallpapers/thumbs/mahoraga-behind-megumi.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Crimson Blind Faith', src:'Img/GifWallpapers/thumbs/crimson-blind-faith.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Vinland Saga', src:'Img/GifWallpapers/thumbs/vinland-saga3.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Tanjiro in akazas eye', src:'Img/GifWallpapers/thumbs/tanjiro-in-akazas-eye.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Vagabond with dual', src:'Img/GifWallpapers/thumbs/musashi-vagabond-with-dual-katana.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Mahoraga wheel', src:'Img/GifWallpapers/thumbs/mahoraga-wheel-of-adaptation.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Gojo Six eye', src:'Img/GifWallpapers/thumbs/gojo-six-eyes-jujutsu-kaisen.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Gear 5 Luffy', src:'Img/GifWallpapers/thumbs/gear-5-technique.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Edge of the Universe', src:'Img/GifWallpapers/edge-of-the-universe.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Yuta Okkotsu Summer Sky', src:'Img/GifWallpapers/yuta-okkotsu-summer-sky.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' },
+  { label:'Minecraft Relaxing Fireplace', src:'Img/GifWallpapers/minecraft-relaxing-fireplace.1920x1080.mp4', isVideo:true, thumb:'#080700', thumbImg:'' }
+];
+
+/* ══════════════════════════════════
+   COLOR PRESETS (Gradients)
+══════════════════════════════════ */
+const COLOR_PRESETS = [
+  { label:'Dark',           gradient:'linear-gradient(135deg,#000 0%,#111 100%)' },
+  { label:'Ocean',          gradient:'linear-gradient(135deg,#0a1a2e 0%,#0a2a4e 50%,#0a3a5e 100%)' },
+  { label:'Midnight',       gradient:'linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%)' },
+  { label:'Galactic',       gradient:'linear-gradient(135deg,#020024 0%,#090979 50%,#00d4ff 100%)' },
+  { label:'Sunset',         gradient:'linear-gradient(135deg,#1a0a00 0%,#3d1a00 50%,#ff6b35 100%)' },
+  
+  { label:'Forest',         gradient:'linear-gradient(135deg,#134e5e 0%,#71b280 100%)' },
+  { label:'Purple Haze',    gradient:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)' },
+  { label:'Fire',           gradient:'linear-gradient(135deg,#f12711 0%,#f5af19 100%)' },
+  { label:'Ice',            gradient:'linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)' },
+  { label:'Neon',           gradient:'linear-gradient(135deg,#d299c2 0%,#fef9d7 100%)' },
+  
+  { label:'Matrix',         gradient:'linear-gradient(135deg,#000000 0%,#0f4c3a 50%,#000000 100%)' },
+  { label:'Aurora',         gradient:'linear-gradient(135deg,#00c6ff 0%,#0072ff 100%)' },
+  { label:'Crimson',        gradient:'linear-gradient(135deg,#eb3349 0%,#f45c43 100%)' },
+  { label:'Emerald',        gradient:'linear-gradient(135deg,#348f50 0%,#56b4d3 100%)' },
+  { label:'Royal',          gradient:'linear-gradient(135deg,#141e30 0%,#243b55 100%)' },
+  
+  { label:'Cosmic',         gradient:'linear-gradient(135deg,#2b1055 0%,#3f5efb 50%,#fc466b 100%)' },
+  { label:'Velvet',         gradient:'linear-gradient(135deg,#c31432 0%,#240b36 100%)' },
+  { label:'Mint',           gradient:'linear-gradient(135deg,#2afadf 0%,#4c83ff 100%)' },
+  { label:'Peach',          gradient:'linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%)' },
+  { label:'Steel',          gradient:'linear-gradient(135deg,#2c3e50 0%,#3498db 100%)' },
+];  
+
+/* ── TO ADD MORE BACKGROUNDS:
+   Add an entry to BG_PRESETS above like:
+   { label:'My BG', src:'Img/GifWallpapers/myfile.mp4', isVideo:true, thumb:'#0f0f0f', thumbImg:'path/to/thumb.jpg' }
+   or for an image:
+   { label:'My Image', src:'Img/myphoto.jpg', isVideo:false }
+   
+   For gradients, add to COLOR_PRESETS:
+   { label:'My Color', gradient:'linear-gradient(135deg,#ff0000,#0000ff)' }
+── */
+
+const ITEMS_PER_PAGE = 15;
+let currentPage = 0;
+
+function buildPresets() {
+  const grid = document.getElementById('bgPresets');
+  console.log('buildPresets: grid element', grid);
+  grid.innerHTML = '';
+
+  // Combine built-in videos/images + localStorage customs + session-only customs
+  let allItems = [...BG_PRESETS];
+  
+  // Add localStorage customs
+  let customs = [];
+  try { customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]'); } catch(e) {}
+  
+  allItems = allItems.concat(customs.map((c, i) => ({ ...c, isCustom: true, customIndex: i })));
+
+  const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
+  if (currentPage >= totalPages) currentPage = totalPages - 1;
+  if (currentPage < 0) currentPage = 0;
+
+  const start = currentPage * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const pageItems = allItems.slice(start, end);
+
+  console.log(`buildPresets: page ${currentPage + 1}/${totalPages}, showing ${pageItems.length} items (${customs.length} customs total)`);
+
+  pageItems.forEach(wp => {
+    const el = makeSwatchEl(wp, wp.isCustom, wp.customIndex);
+    grid.appendChild(el);
+  });
+
+  // Update pagination UI
+  document.getElementById('pageInfo').textContent = `Page ${currentPage + 1} of ${totalPages}`;
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage >= totalPages - 1;
+  
+  console.log('buildPresets: done, grid children', grid.children.length);
+  
+  // Mark selected preset after rendering
+  setTimeout(() => {
+    markSelectedPreset();
+  }, 100);
+}
+
+// Function to mark the currently active background as selected
+function markSelectedPreset() {
+  const savedSrc = localStorage.getItem('nova_wallpaper');
+  const usingImport = localStorage.getItem('nova_using_import') === 'true';
+  const activeImportLabel = localStorage.getItem('nova_active_import_label');
+  
+  console.log('🔍 markSelectedPreset:', { savedSrc, usingImport, activeImportLabel });
+  
+  document.querySelectorAll('.bg-swatch').forEach(el => {
+    el.classList.remove('selected');
+    
+    if (usingImport && activeImportLabel) {
+      // Check if this is the active imported background (custom-import class)
+      if (el.classList.contains('custom-import')) {
+        // Check if the onclick contains this label
+        const onclickStr = el.onclick ? el.onclick.toString() : '';
+        if (onclickStr.includes(activeImportLabel)) {
+          console.log('✅ Marked imported background as selected:', activeImportLabel);
+          el.classList.add('selected');
+        }
+      }
+    } else if (savedSrc && !usingImport) {
+      // Check if this is the active built-in background
+      if (el.dataset.src === savedSrc) {
+        console.log('✅ Marked built-in background as selected:', savedSrc);
+        el.classList.add('selected');
+      }
+    }
+  });
+}
+
+function buildColorPresets() {
+  const grid = document.getElementById('colorPresets');
+  if (!grid) {
+    console.warn('colorPresets grid not found');
+    return;
+  }
+  grid.innerHTML = '';
+  
+  COLOR_PRESETS.forEach(wp => {
+    const el = makeSwatchEl(wp, false, null);
+    grid.appendChild(el);
+  });
+  
+  console.log('buildColorPresets: done, added', COLOR_PRESETS.length, 'color swatches');
+}
+
+function nextPage() {
+  currentPage++;
+  buildPresets();
+}
+
+function prevPage() {
+  currentPage--;
+  buildPresets();
+}
+
+function makeSwatchEl(wp, isCustom, customIndex) {
+  const el = document.createElement('div');
+  el.className = 'bg-swatch';
+  el.dataset.src = wp.src || '';
+  
+  // Add class for custom imports
+  if (isCustom || wp.dataUrl) {
+    el.classList.add('custom-import');
+    
+    // Delete button ONLY for custom imports (user-uploaded backgrounds)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>';
+    deleteBtn.style.cssText = 'position:absolute;top:4px;left:4px;z-index:10;background:transparent;border:none;border-radius:3px;color:rgba(255,255,255,0.8);font-size:12px;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;';
+    deleteBtn.title = 'Delete this background';
+    
+    // Hover effect for better visibility
+    deleteBtn.onmouseenter = () => {
+      deleteBtn.style.background = 'rgba(255,0,0,0.7)';
+      deleteBtn.style.color = 'white';
+    };
+    deleteBtn.onmouseleave = () => {
+      deleteBtn.style.background = 'transparent';
+      deleteBtn.style.color = 'rgba(255,255,255,0.8)';
+    };
+    
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm(`Delete "${wp.label}"?`)) {
+        deleteCustomBackground(wp.label, isCustom, customIndex);
+      }
+    };
+    el.appendChild(deleteBtn);
+  }
+
+  if (wp.isVideo && wp.src) {
+    // Show thumb image if provided, else show video preview frame
+    if (wp.thumbImg) {
+      const img = document.createElement('img');
+      img.src = wp.thumbImg;
+      img.alt = wp.label;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;transition:opacity 0.3s;z-index:1;';
+      el.appendChild(img);
+    } else {
+      // Create a video element for preview frame
+      const previewVid = document.createElement('video');
+      previewVid.src = wp.src;
+      previewVid.muted = true;
+      previewVid.preload = 'metadata';
+      previewVid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;z-index:1;';
+      // Seek to 1 second to get a good preview frame
+      previewVid.addEventListener('loadedmetadata', () => {
+        previewVid.currentTime = 1;
+      });
+      el.appendChild(previewVid);
+      el.style.background = wp.thumb || '#0a0a0a';
+    }
+
+    const vid = document.createElement('video');
+    vid.src = wp.src;
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.preload = 'none';
+    vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.35s;pointer-events:none;z-index:2;border-radius:12px;';
+    el.appendChild(vid);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bg-swatch-lbl';
+    lbl.textContent = wp.label;
+    el.appendChild(lbl);
+
+    const badge = document.createElement('div');
+    badge.style.cssText = 'position:absolute;top:7px;left:7px;z-index:4;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:2px 6px;font-size:9px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);text-transform:uppercase;transition:opacity 0.2s;pointer-events:none;';
+    badge.textContent = 'Live';
+    el.appendChild(badge);
+
+    el.addEventListener('mouseenter', () => {
+      vid.preload = 'auto';
+      vid.load();
+      vid.play().catch(() => {});
+      vid.style.opacity = '1';
+      badge.style.opacity = '0';
+    });
+    el.addEventListener('mouseleave', () => {
+      vid.pause();
+      vid.currentTime = 0;
+      vid.style.opacity = '0';
+      badge.style.opacity = '1';
+    });
+
+  } else if (wp.dataUrl) {
+    // 📁 IMPORTED FILE — Enhanced display system
+    console.log('🎨 Creating swatch for imported file:', wp.label, { 
+      isVideo: wp.isVideo, 
+      isGif: wp.isGif, 
+      isImage: wp.isImage,
+      fileType: wp.fileType,
+      fileName: wp.fileName
+    });
+    
+    if (wp.isVideo && !wp.isGif) {
+      // 🎬 IMPORTED VIDEO - Show first frame as thumbnail
+      const vid = document.createElement('video');
+      vid.src = wp.dataUrl;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.preload = 'metadata';
+      vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;transition:opacity 0.3s;z-index:1;';
+      
+      // Load first frame
+      vid.addEventListener('loadedmetadata', () => { 
+        vid.currentTime = Math.min(1, vid.duration * 0.1); // 10% into video or 1 second
+      });
+      
+      vid.addEventListener('error', () => {
+        console.warn('Video thumbnail failed for:', wp.label);
+        // Fallback to a gradient
+        el.style.background = 'linear-gradient(135deg, #1a1a2e, #16213e)';
+      });
+      
+      el.appendChild(vid);
+
+      // Video badge with icon
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.8);border-radius:4px;padding:3px 6px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;display:flex;align-items:center;gap:3px;';
+      badge.innerHTML = '<svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M6.271 5.055a.5.5 0 0 1 .52.024L11 7.055a.5.5 0 0 1 0 .89L6.791 9.921A.5.5 0 0 1 6 9.5V6a.5.5 0 0 1 .271-.945z"/></svg>VIDEO';
+      el.appendChild(badge);
+
+      // Hover to play preview
+      el.addEventListener('mouseenter', () => { 
+        vid.currentTime = 0;
+        vid.play().catch(() => {}); 
+      });
+      el.addEventListener('mouseleave', () => { 
+        vid.pause(); 
+        vid.currentTime = Math.min(1, vid.duration * 0.1); 
+      });
+
+    } else if (wp.isGif) {
+      // 🎭 IMPORTED GIF - High quality rendering
+      const img = document.createElement('img');
+      img.src = wp.dataUrl;
+      img.alt = wp.label;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;image-rendering:high-quality;';
+      
+      img.onerror = () => {
+        console.warn('GIF failed to load:', wp.label);
+        el.style.background = 'linear-gradient(135deg, #2e1a2e, #3e163e)';
+      };
+      
+      el.appendChild(img);
+
+      // GIF badge with icon
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.8);border-radius:4px;padding:3px 6px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;display:flex;align-items:center;gap:3px;';
+      badge.innerHTML = '<svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/><path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14.002 5h-12v8l2.645-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5z"/></svg>GIF';
+      el.appendChild(badge);
+
+    } else {
+      // 🖼️ IMPORTED IMAGE (PNG, JPG, etc.) - High quality
+      const img = document.createElement('img');
+      img.src = wp.dataUrl;
+      img.alt = wp.label;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;image-rendering:high-quality;';
+      
+      img.onerror = () => {
+        console.warn('Image failed to load:', wp.label);
+        el.style.background = 'linear-gradient(135deg, #1a2e1a, #163e16)';
+      };
+      
+      el.appendChild(img);
+
+      // Image badge with icon
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.8);border-radius:4px;padding:3px 6px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;display:flex;align-items:center;gap:3px;';
+      badge.innerHTML = '<svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>IMG';
+      el.appendChild(badge);
+    }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bg-swatch-lbl';
+    lbl.textContent = wp.label;
+    el.appendChild(lbl);
+
+    // Enhanced delete button for imports
+    const del = document.createElement('button');
+    del.className = 'swatch-del';
+    del.innerHTML = '✕';
+    del.title = `Delete "${wp.label}"`;
+    del.style.cssText = 'position:absolute;top:6px;left:6px;z-index:5;width:22px;height:22px;border:none;border-radius:50%;background:rgba(255,60,60,0.9);color:white;font-size:12px;font-weight:bold;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;';
+    del.onmouseover = () => { del.style.background = 'rgba(255,20,20,1)'; del.style.transform = 'scale(1.1)'; };
+    del.onmouseout = () => { del.style.background = 'rgba(255,60,60,0.9)'; del.style.transform = 'scale(1)'; };
+    del.onclick = (e) => { 
+      e.stopPropagation(); 
+      deleteCustomBg(customIndex); 
+    };
+    el.appendChild(del);
+
+  } else if (wp.src && !wp.isVideo) {
+    const img = document.createElement('img');
+    img.src = wp.src;
+    img.alt = wp.label;
+    el.appendChild(img);
+    const lbl = document.createElement('div');
+    lbl.className = 'bg-swatch-lbl';
+    lbl.textContent = wp.label;
+    el.appendChild(lbl);
+
+  } else if (wp.gradient) {
+    el.style.background = wp.gradient;
+    const lbl = document.createElement('div');
+    lbl.className = 'bg-swatch-lbl';
+    lbl.textContent = wp.label;
+    el.appendChild(lbl);
+  }
+
+  el.onclick = () => applyPreset(wp, el);
+  return el;
+}
+
+function deleteCustomBackground(label, isCustom, customIndex) {
+  console.log('🗑️ Deleting custom background:', label);
+  
+  // Check if this background is currently active
+  const usingImport = localStorage.getItem('nova_using_import') === 'true';
+  const activeLabel = localStorage.getItem('nova_active_import_label');
+  const isCurrentlyActive = usingImport && activeLabel === label;
+  
+  if (isCurrentlyActive) {
+    // Clear active background flags if deleting the current background
+    localStorage.removeItem('nova_using_import');
+    localStorage.removeItem('nova_active_import_label');
+    localStorage.removeItem('nova_wallpaper_upload');
+    
+    // Apply default background
+    document.getElementById('bg').style.background = '#0f0f0f';
+    document.getElementById('bg-img').style.display = 'none';
+    document.getElementById('bg-video').style.display = 'none';
+    
+    // Notify home page to update
+    emit('wallpaperChanged', { gradient: '#0f0f0f' });
+  }
+  
+  // Remove from localStorage customs
+  let customs = [];
+  try {
+    customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    const localIndex = customs.findIndex(bg => bg.label === label);
+    if (localIndex !== -1) {
+      customs.splice(localIndex, 1);
+      localStorage.setItem('nova_custom_bgs', JSON.stringify(customs));
+      console.log('✅ Removed from localStorage customs');
+    }
+  } catch (e) {
+    console.warn('Failed to remove from localStorage customs:', e);
+  }
+  
+  // Remove from session customs
+  if (window.sessionCustomBgs) {
+    const sessionIndex = window.sessionCustomBgs.findIndex(bg => bg.label === label);
+    if (sessionIndex !== -1) {
+      window.sessionCustomBgs.splice(sessionIndex, 1);
+      console.log('✅ Removed from session customs');
+    }
+  }
+  
+  // Rebuild presets to reflect changes
+  buildPresets();
+  
+  if (isCurrentlyActive) {
+    showToast(`Deleted "${label}" and reset background`, 'orange');
+  } else {
+    showToast(`Deleted "${label}" ✓`, 'green');
+  }
+}
+
+function clearAllCustomBackgrounds() {
+  // Get current counts
+  let localCount = 0;
+  let sessionCount = 0;
+  
+  try {
+    const customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    localCount = customs.length;
+  } catch (e) {}
+  
+  if (window.sessionCustomBgs) {
+    sessionCount = window.sessionCustomBgs.length;
+  }
+  
+  const totalCount = localCount + sessionCount;
+  
+  if (totalCount === 0) {
+    showToast('No custom backgrounds to clear', 'blue');
+    return;
+  }
+  
+  if (!confirm(`Delete all ${totalCount} custom backgrounds?`)) {
+    return;
+  }
+  
+  console.log('🗑️ Clearing all custom backgrounds');
+  
+  // Check if current background is custom
+  const usingImport = localStorage.getItem('nova_using_import') === 'true';
+  
+  if (usingImport) {
+    // Clear active background flags
+    localStorage.removeItem('nova_using_import');
+    localStorage.removeItem('nova_active_import_label');
+    localStorage.removeItem('nova_wallpaper_upload');
+    
+    // Apply default background
+    document.getElementById('bg').style.background = '#0f0f0f';
+    document.getElementById('bg-img').style.display = 'none';
+    document.getElementById('bg-video').style.display = 'none';
+    
+    // Notify home page
+    emit('wallpaperChanged', { gradient: '#0f0f0f' });
+  }
+  
+  // Clear localStorage customs
+  localStorage.removeItem('nova_custom_bgs');
+  
+  // Clear session customs
+  window.sessionCustomBgs = [];
+  
+  // Rebuild presets
+  buildPresets();
+  
+  showToast(`Cleared ${totalCount} custom backgrounds`, 'green');
+}
+
+function applyPreset(wp, el) {
+  // Remove selection from BOTH grids
+  document.querySelectorAll('.bg-swatch').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+
+  // Clear ALL old storage
+  localStorage.removeItem('nova_wallpaper_upload');
+  localStorage.removeItem('nova_wallpaper');
+  localStorage.removeItem('nova_grad');
+  localStorage.removeItem('nova_wallpaper_is_video');
+  localStorage.removeItem('nova_wallpaper_is_gif');
+
+  console.log('🎯 applyPreset called with:', wp);
+
+  if (wp.dataUrl) {
+    // 📁 IMPORTED CUSTOM FILE - Enhanced persistence for large files
+    console.log('🎯 Applying imported file:', wp.label);
+    
+    // FIRST: Verify this background actually exists in localStorage
+    let customs = [];
+    try {
+      customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    } catch(e) {
+      customs = [];
+    }
+    
+    const existsInStorage = customs.find(bg => bg.label === wp.label);
+    if (!existsInStorage) {
+      console.error('❌ Background not found in localStorage, cannot apply:', wp.label);
+      showToast(`❌ Background "${wp.label}" not found in storage`, 'red');
+      return;
+    }
+    
+    console.log('✅ Verified background exists in localStorage:', wp.label);
+    
+    // Set simple flags for imported backgrounds
+    localStorage.setItem('nova_using_import', 'true');
+    localStorage.setItem('nova_active_import_label', wp.label);
+    console.log('📝 Saved import flags:', { using_import: true, active_label: wp.label });
+    
+    // Try to save the dataUrl
+    try {
+      localStorage.setItem('nova_wallpaper_upload', wp.dataUrl);
+      console.log('✅ Saved dataUrl to localStorage');
+    } catch (quotaError) {
+      console.warn('⚠️ Large file, saving to session + keeping in customs for persistence');
+      localStorage.removeItem('nova_wallpaper_upload');
+      
+      // For large files, make sure it stays in session customs
+      if (!window.sessionCustomBgs) window.sessionCustomBgs = [];
+      
+      // Check if this file is already in session customs
+      const existingIndex = window.sessionCustomBgs.findIndex(bg => bg.label === wp.label);
+      if (existingIndex === -1) {
+        // Add to session customs so it persists during the session
+        window.sessionCustomBgs.push({
+          label: wp.label,
+          dataUrl: wp.dataUrl,
+          isVideo: wp.isVideo || false,
+          isGif: wp.isGif || false,
+          isImage: wp.isImage || false,
+          uploadedAt: Date.now()
+        });
+        console.log('📦 Added large file to session customs for persistence');
+      }
+    }
+    
+    if (wp.isVideo && !wp.isGif) {
+      localStorage.setItem('nova_wallpaper_is_video', 'true');
+      localStorage.setItem('nova_wallpaper_is_gif', 'false');
+      console.log('📹 Emitting video wallpaper change');
+      emit('wallpaperChanged', { dataUrl: wp.dataUrl, isVideo: true });
+    } else if (wp.isGif) {
+      localStorage.setItem('nova_wallpaper_is_gif', 'true');
+      localStorage.setItem('nova_wallpaper_is_video', 'false');
+      console.log('🎭 Emitting GIF wallpaper change');
+      emit('wallpaperChanged', { dataUrl: wp.dataUrl, isGif: true, isVideo: false });
+    } else if (wp.isImage) {
+      localStorage.setItem('nova_wallpaper_is_gif', 'false');
+      localStorage.setItem('nova_wallpaper_is_video', 'false');
+      console.log('🖼️ Emitting IMAGE wallpaper change');
+      emit('wallpaperChanged', { dataUrl: wp.dataUrl, isVideo: false, isImage: true, isGif: false });
+    } else {
+      // Fallback for any imported file
+      localStorage.setItem('nova_wallpaper_is_gif', 'false');
+      localStorage.setItem('nova_wallpaper_is_video', 'false');
+      console.log('🎨 Emitting generic wallpaper change');
+      emit('wallpaperChanged', { dataUrl: wp.dataUrl, isVideo: false, isImage: true, isGif: false });
+    }
+  } else if (wp.src) {
+    // Built-in preset - clear import flags
+    localStorage.removeItem('nova_using_import');
+    localStorage.removeItem('nova_active_import_label');
+    
+    console.log('🎬 Applying src:', wp.src, 'isVideo:', wp.isVideo);
+    localStorage.setItem('nova_wallpaper', wp.src);
+    if (wp.isVideo) {
+      localStorage.setItem('nova_wallpaper_is_video', 'true');
+      emit('wallpaperChanged', { src: wp.src, isVideo: true });
+    } else {
+      emit('wallpaperChanged', { src: wp.src, isVideo: false });
+    }
+  } else if (wp.gradient) {
+    // Gradient preset - clear import flags
+    localStorage.removeItem('nova_using_import');
+    localStorage.removeItem('nova_active_import_label');
+    
+    console.log('🌈 Applying gradient:', wp.gradient);
+    localStorage.setItem('nova_grad', JSON.stringify({
+      c1: extractColorFromGradient(wp.gradient, 0),
+      c2: extractColorFromGradient(wp.gradient, 1),
+      c3: extractColorFromGradient(wp.gradient, 2) || extractColorFromGradient(wp.gradient, 1),
+      dir: '135deg'
+    }));
+    emit('wallpaperChanged', { gradient: wp.gradient });
+  }
+  
+  // Add a small delay to ensure the message is sent before showing toast
+  setTimeout(() => {
+    showToast('Background applied ✓', 'green');
+  }, 100);
+}
+
+function extractColorFromGradient(gradStr, index) {
+  const colors = (gradStr.match(/#[0-9a-fA-F]{6}/g) || []);
+  return colors[index] || '#000000';
+}
+
+function clearBg() {
+  document.querySelectorAll('.bg-swatch').forEach(e => e.classList.remove('selected'));
+  localStorage.removeItem('nova_wallpaper');
+  localStorage.removeItem('nova_wallpaper_upload');
+  localStorage.removeItem('nova_grad');
+  localStorage.removeItem('nova_wallpaper_is_video');
+  emit('wallpaperChanged', { clear: true });
+  showToast('Background cleared');
+}
+
+/* ══════════════════════════════════
+   IMPORT SYSTEM — COMPLETELY REVAMPED
+══════════════════════════════════ */
+
+// Clean up any test data that might interfere with real imports
+function cleanupTestData() {
+  try {
+    let customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    const originalLength = customs.length;
+    
+    // Remove any test items (including serious-girl)
+    customs = customs.filter(bg => 
+      !bg.label.includes('test-') && 
+      !bg.label.includes('serious-girl') && 
+      !bg.label.startsWith('serious-girl') &&
+      bg.fileName !== 'test.png'
+    );
+    
+    if (customs.length !== originalLength) {
+      localStorage.setItem('nova_custom_bgs', JSON.stringify(customs));
+      console.log(`🧹 Cleaned up ${originalLength - customs.length} test items from localStorage`);
+      
+      // Also clear any related flags
+      const activeLabel = localStorage.getItem('nova_active_import_label');
+      if (activeLabel && activeLabel.includes('serious-girl')) {
+        localStorage.removeItem('nova_using_import');
+        localStorage.removeItem('nova_active_import_label');
+        localStorage.removeItem('nova_wallpaper_upload');
+        console.log('🧹 Cleared serious-girl import flags');
+      }
+    }
+  } catch(e) {
+    console.warn('Failed to cleanup test data:', e);
+  }
+}
+
+// Function to completely clear all custom backgrounds if needed
+function clearAllCustoms() {
+  try {
+    localStorage.removeItem('nova_custom_bgs');
+    localStorage.removeItem('nova_using_import');
+    localStorage.removeItem('nova_active_import_label');
+    localStorage.removeItem('nova_wallpaper_upload');
+    console.log('🗑️ Completely cleared all custom backgrounds');
+    buildPresets(); // Refresh the display
+    showToast('All custom backgrounds cleared', 'green');
+  } catch(e) {
+    console.error('Failed to clear customs:', e);
+  }
+}
+
+function handleUpload(input) {
+  const files = Array.from(input.files);
+  if (files.length === 0) return;
+
+  console.log(`📁 Uploading ${files.length} file(s)`);
+  showToast(`📤 Processing ${files.length} file(s)...`, 'blue');
+
+  let processed = 0;
+  let successCount = 0;
+
+  files.forEach((file, index) => {
+    console.log(`Processing file ${index + 1}/${files.length}:`, file.name);
+
+    // Check file types
+    const isImage = file.type.startsWith('image/') && file.type !== 'image/gif' && !file.name.toLowerCase().endsWith('.gif');
+    const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (isImage) {
+      // Check image count limit (max 8)
+      let customs = [];
+      try {
+        customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+      } catch(e) {
+        customs = [];
+      }
+      
+      const imageCount = customs.filter(bg => bg.isImage).length;
+      if (imageCount >= 8) {
+        showToast(`Max 8 images reached. Delete old ones first.`, 'red');
+        console.error(`❌ Already have ${imageCount} images (max: 8)`);
+        processed++;
+        if (processed === files.length) {
+          buildPresets();
+          if (successCount > 0) {
+            showToast(`${successCount}/${files.length} backgrounds imported!`, 'green');
+          }
+        }
+        return;
+      }
+      
+      // Use the high-quality image system
+      processImageFile(file, (success, label) => {
+        if (success) {
+          successCount++;
+          console.log(`✅ Image "${label}" processed successfully`);
+        } else {
+          console.error(`❌ Image "${file.name}" failed - too large for localStorage`);
+          showToast(`"${file.name}" is too large. Max: 35MB`, 'red');
+        }
+        
+        processed++;
+        if (processed === files.length) {
+          buildPresets();
+          if (successCount > 0) {
+            showToast(`✅ ${successCount}/${files.length} backgrounds imported!`, 'green');
+          }
+        }
+      });
+    } else if (isGif || isVideo) {
+      // For videos - check duration for info only
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        
+        video.onloadedmetadata = () => {
+          const durationSeconds = video.duration;
+          const minutes = Math.floor(durationSeconds / 60);
+          const seconds = Math.floor(durationSeconds % 60);
+          
+          console.log(`🎬 Video: ${file.name} - Duration: ${minutes}:${seconds.toString().padStart(2, '0')}`);
+          
+          URL.revokeObjectURL(video.src);
+          processGifOrVideo(file);
+        };
+        
+        video.onerror = () => {
+          console.log(`ℹ️ Could not read video metadata: ${file.name} (will still try to import)`);
+          URL.revokeObjectURL(video.src);
+          processGifOrVideo(file);
+        };
+        
+        video.src = URL.createObjectURL(file);
+      } else {
+        // GIF - process directly
+        processGifOrVideo(file);
+      }
+      
+      function processGifOrVideo(file) {
+        // For GIFs and videos - check limits
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const dataUrl = e.target.result;
+            const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+            const sizeMB = (sizeKB / 1024).toFixed(1);
+            
+            console.log(`📊 ${isGif ? 'GIF' : 'Video'} size: ~${sizeMB}MB`);
+            
+            // Check file size limit (35MB = 35,000KB)
+            if (sizeKB > 35000) {
+              showToast(`File too large: ${sizeMB}MB. Max: 35MB`, 'red');
+              console.error(`❌ File exceeds 35MB limit: ${file.name} (${sizeMB}MB)`);
+              processed++;
+              if (processed === files.length) {
+                buildPresets();
+                if (successCount > 0) {
+                  showToast(`${successCount}/${files.length} backgrounds imported!`, 'green');
+                }
+              }
+              return;
+            }
+            
+            // Check video/GIF count limit (max 5 TOTAL, not counting current file)
+            let customs = [];
+            try {
+              customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+            } catch(e) {
+              customs = [];
+            }
+            
+            const videoGifCount = customs.filter(bg => bg.isVideo || bg.isGif).length;
+            if (videoGifCount >= 5) {
+              showToast(`Max 5 videos/GIFs. You have ${videoGifCount}. Delete old ones first.`, 'red');
+              console.error(`❌ Already have ${videoGifCount} videos/GIFs (max: 5)`);
+              processed++;
+              if (processed === files.length) {
+                buildPresets();
+                if (successCount > 0) {
+                  showToast(`${successCount}/${files.length} backgrounds imported!`, 'green');
+                }
+              }
+              return;
+            }
+            
+            let label = file.name.replace(/\.[^/.]+$/, '').slice(0, 50) || 'Import';
+            
+            // Get existing customs and make label unique (reuse customs from above)
+            let uniqueLabel = label;
+            let counter = 1;
+            while (customs.some(bg => bg.label === uniqueLabel)) {
+              uniqueLabel = `${label}-${counter}`;
+              counter++;
+            }
+            label = uniqueLabel;
+
+            const newWallpaper = { 
+              label, 
+              dataUrl, 
+              isVideo: isVideo,
+              isGif: isGif,
+              isImage: false,
+              fileName: file.name,
+              uploadedAt: Date.now()
+            };
+
+            customs.push(newWallpaper);
+            
+            try {
+              const jsonString = JSON.stringify(customs);
+              const totalSizeKB = Math.round(jsonString.length * 0.75 / 1024);
+              const totalSizeMB = (totalSizeKB / 1024).toFixed(1);
+              
+              console.log(`💾 Attempting to save: ${customs.length} total items, ~${totalSizeMB}MB total`);
+              
+              localStorage.setItem('nova_custom_bgs', jsonString);
+              console.log(`✅ SUCCESS: Saved "${label}" (${sizeMB}MB). Total storage: ${totalSizeMB}MB`);
+              successCount++;
+            } catch(err) {
+              // Storage quota exceeded
+              if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
+                // Remove the item we just added since it failed
+                customs.pop();
+                
+                const currentTotal = customs.length;
+                console.error(`❌ Storage full: Can't add "${label}" (${sizeMB}MB). You have ${currentTotal} items.`);
+                showToast(`Storage full! You have ${currentTotal} backgrounds. Delete some to add more.`, 'orange');
+              } else {
+                console.error(`❌ Failed to save "${label}":`, err.message);
+                showToast(`Failed to save "${file.name}"`, 'red');
+              }
+            }
+
+            processed++;
+            if (processed === files.length) {
+              buildPresets();
+              if (successCount > 0) {
+                showToast(`✅ ${successCount}/${files.length} backgrounds imported!`, 'green');
+              }
+            }
+
+          } catch (error) {
+            console.error(`Error processing "${file.name}":`, error);
+            processed++;
+            if (processed === files.length) {
+              buildPresets();
+              if (successCount > 0) {
+                showToast(`✅ ${successCount}/${files.length} backgrounds imported!`, 'green');
+              }
+            }
+          }
+        };
+
+        reader.onerror = () => {
+          console.error(`FileReader error for "${file.name}"`);
+          processed++;
+          if (processed === files.length) {
+            buildPresets();
+            if (successCount > 0) {
+              showToast(`✅ ${successCount}/${files.length} backgrounds imported!`, 'green');
+            }
+          }
+        };
+
+        reader.readAsDataURL(file);
+      }
+    } else {
+      // Unknown file type
+      console.warn(`⚠️ Unsupported file type: ${file.name}`);
+      processed++;
+      if (processed === files.length) {
+        buildPresets();
+        if (successCount > 0) {
+          showToast(`✅ ${successCount}/${files.length} backgrounds imported!`, 'green');
+        }
+      }
+    }
+  });
+
+  input.value = '';
+}
+
+// Bulletproof image processing that preserves quality
+function processImageFile(file, callback) {
+  console.log(`🖼️ Processing image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+  
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  
+  img.onload = () => {
+    console.log(`📏 Original dimensions: ${img.width}x${img.height}`);
+    
+    // HIGH QUALITY MODE - preserve 4K quality, only compress if REALLY necessary
+    let maxDimension = 3840; // 4K resolution
+    let quality = 0.92; // Very high quality
+    
+    const compressAndSave = (dimension, qual) => {
+      console.log(`🔄 Trying compression: ${dimension}px max, quality ${qual}`);
+      
+      // Calculate dimensions preserving aspect ratio
+      let { width, height } = img;
+      if (width > height && width > dimension) {
+        height = (height * dimension) / width;
+        width = dimension;
+      } else if (height > dimension) {
+        width = (width * dimension) / height;
+        height = dimension;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // High quality drawing settings
+      ctx.clearRect(0, 0, width, height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Get compressed data as JPEG (better compression than PNG)
+      const dataUrl = canvas.toDataURL('image/jpeg', qual);
+      const sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+      const sizeMB = (sizeKB / 1024).toFixed(1);
+      console.log(`📊 Compressed size: ~${sizeMB}MB`);
+      
+      // Check 35MB limit
+      if (sizeKB > 35000) {
+        console.warn(`⚠️ Image still too large after compression: ${sizeMB}MB (max: 35MB)`);
+        // Try smaller size/quality if possible
+        if (dimension > 1920) {
+          return compressAndSave(1920, 0.92); // Try 1080p
+        } else if (qual > 0.85) {
+          return compressAndSave(dimension, 0.85); // Try lower quality
+        } else {
+          callback(false, null);
+          return;
+        }
+      }
+      
+      // Create unique label
+      let label = file.name.replace(/\.[^/.]+$/, '').slice(0, 30) || 'Import';
+      
+      // Get fresh localStorage data
+      let customs = [];
+      try {
+        customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+        console.log(`📚 Current localStorage has ${customs.length} items`);
+      } catch(e) {
+        console.warn('Failed to parse localStorage, starting fresh:', e);
+        customs = [];
+      }
+      
+      // Make label unique
+      let uniqueLabel = label;
+      let counter = 1;
+      while (customs.some(bg => bg.label === uniqueLabel)) {
+        uniqueLabel = `${label}-${counter}`;
+        counter++;
+      }
+      label = uniqueLabel;
+      
+      const newWallpaper = {
+        label,
+        dataUrl,
+        isVideo: false,
+        isGif: false,
+        isImage: true,
+        fileName: file.name,
+        uploadedAt: Date.now(),
+        compressed: dimension < img.width || dimension < img.height,
+        originalSize: file.size,
+        finalSize: dataUrl.length,
+        dimensions: `${width}x${height}`,
+        quality: qual
+      };
+      
+      customs.push(newWallpaper);
+      console.log(`📦 Adding "${label}" to customs array (now ${customs.length} items)`);
+      
+      // Try to save
+      try {
+        localStorage.setItem('nova_custom_bgs', JSON.stringify(customs));
+        console.log(`✅ SUCCESS: Image "${label}" saved to localStorage!`);
+        console.log(`📈 Stats: ${width}x${height} @ ${(qual*100).toFixed(0)}% quality (~${sizeKB}KB)`);
+        
+        // Verify it was saved
+        const verification = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+        const found = verification.find(bg => bg.label === label);
+        if (found) {
+          console.log(`🔍 VERIFIED: Image "${label}" is confirmed in localStorage`);
+          callback(true, label);
+        } else {
+          console.error(`❌ VERIFICATION FAILED: Image "${label}" not found after save`);
+          callback(false, null);
+        }
+      } catch (err) {
+        console.warn(`⚠️ Save failed at ${dimension}px/${qual} quality:`, err.message);
+        customs.pop();
+        
+        // Only reduce if necessary - prefer quality
+        if (dimension > 1920) {
+          // Try 1080p
+          compressAndSave(1920, qual);
+        } else if (dimension > 1280 && qual > 0.7) {
+          // Try 720p with high quality
+          compressAndSave(1280, 0.85);
+        } else if (qual > 0.5) {
+          // Reduce quality but keep size
+          compressAndSave(dimension, Math.max(0.5, qual - 0.2));
+        } else {
+          console.error(`❌ Could not save "${file.name}" - too large for localStorage`);
+          callback(false, null);
+        }
+      }
+    };
+    
+    // Start with high quality
+    compressAndSave(maxDimension, quality);
+  };
+  
+  img.onerror = () => {
+    console.error(`❌ Failed to load image: ${file.name}`);
+    callback(false, null);
+  };
+  
+  img.src = URL.createObjectURL(file);
+}
+
+function finishUpload(successCount, errorCount, sessionOnlyItems) {
+  // Add session-only items to the grid by temporarily modifying the build function
+  if (sessionOnlyItems.length > 0) {
+    window.sessionCustomBgs = (window.sessionCustomBgs || []).concat(sessionOnlyItems);
+  }
+
+  // Rebuild the grid to show all new items
+  buildPresets();
+  
+  // Get current total count for user feedback
+  let totalCount = 0;
+  try {
+    const customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    totalCount += customs.length;
+  } catch (e) {}
+  
+  if (window.sessionCustomBgs) {
+    totalCount += window.sessionCustomBgs.length;
+  }
+  
+  // Show completion message
+  if (successCount > 0 && errorCount === 0) {
+    if (sessionOnlyItems.length > 0) {
+      showToast(`⚠️ ${successCount} imported (${sessionOnlyItems.length} session-only) • ${totalCount} total backgrounds`, 'orange');
+    } else {
+      showToast(`✅ ${successCount} file(s) imported successfully! • ${totalCount} total backgrounds`, 'green');
+    }
+  } else if (successCount > 0 && errorCount > 0) {
+    showToast(`⚠️ ${successCount} imported, ${errorCount} failed • ${totalCount} total backgrounds`, 'orange');
+  } else {
+    showToast(`❌ All ${errorCount} files failed to import`, 'red');
+  }
+
+  // Auto-scroll and pulse animation
+  if (successCount > 0 || sessionOnlyItems.length > 0) {
+    setTimeout(() => {
+      const grid = document.getElementById('bgPresets');
+      if (grid && grid.children.length > 0) {
+        // Go to last page if we have pagination
+        let allItems = [...BG_PRESETS];
+        let customs = [];
+        try { customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]'); } catch(e) {}
+        allItems = allItems.concat(customs);
+        if (window.sessionCustomBgs) allItems = allItems.concat(window.sessionCustomBgs);
+        
+        if (allItems.length > ITEMS_PER_PAGE) {
+          const lastPage = Math.floor((allItems.length - 1) / ITEMS_PER_PAGE);
+          if (lastPage !== currentPage) {
+            currentPage = lastPage;
+            buildPresets();
+          }
+        }
+        
+        // Pulse the newest items
+        setTimeout(() => {
+          const swatches = grid.querySelectorAll('.bg-swatch');
+          const newItemCount = Math.min(successCount + sessionOnlyItems.length, swatches.length);
+          for (let i = swatches.length - newItemCount; i < swatches.length; i++) {
+            if (swatches[i]) {
+              swatches[i].style.animation = 'pulse 1.5s ease-in-out';
+              setTimeout(() => {
+                if (swatches[i]) swatches[i].style.animation = '';
+              }, 1500);
+            }
+          }
+        }, 100);
+      }
+    }, 200);
+  }
+}
+
+// Enhanced delete function with confirmation
+function deleteCustomBg(index) {
+  // Get localStorage customs
+  let customs = [];
+  try { 
+    customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]'); 
+  } catch(e) { 
+    customs = [];
+  }
+  
+  // Get session-only customs
+  let sessionCustoms = window.sessionCustomBgs || [];
+  let totalCustoms = customs.concat(sessionCustoms);
+  
+  if (index >= totalCustoms.length) {
+    showToast('Item not found', 'red');
+    return;
+  }
+
+  const item = totalCustoms[index];
+  if (confirm(`Delete "${item.label}"?`)) {
+    if (index < customs.length) {
+      // Item is in localStorage
+      customs.splice(index, 1);
+      localStorage.setItem('nova_custom_bgs', JSON.stringify(customs));
+    } else {
+      // Item is session-only
+      const sessionIndex = index - customs.length;
+      sessionCustoms.splice(sessionIndex, 1);
+      window.sessionCustomBgs = sessionCustoms;
+    }
+    
+    buildPresets();
+    showToast(`Deleted "${item.label}"`, 'green');
+  }
+}
+
+// Add a "Clear All Imports" function
+function clearAllImports() {
+  const localCount = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]').length;
+  const sessionCount = (window.sessionCustomBgs || []).length;
+  const total = localCount + sessionCount;
+  
+  if (total === 0) {
+    showToast('No imports to clear', 'blue');
+    return;
+  }
+  
+  if (confirm(`Delete all ${total} imported backgrounds? This cannot be undone.`)) {
+    localStorage.removeItem('nova_custom_bgs');
+    window.sessionCustomBgs = [];
+    buildPresets();
+    showToast(`Cleared ${total} imports`, 'green');
+  }
+}
+
+/* ══════════════════════════════════
+   GRADIENT
+══════════════════════════════════ */
+function updateGrad() {
+  const c1 = document.getElementById('gc1').value;
+  const c2 = document.getElementById('gc2').value;
+  const c3 = document.getElementById('gc3').value;
+  const dir = document.getElementById('gradDir').value;
+  document.getElementById('gc1hex').value = c1;
+  document.getElementById('gc2hex').value = c2;
+  document.getElementById('gc3hex').value = c3;
+  document.getElementById('gradPreview').style.background =
+    `linear-gradient(${dir}, ${c1}, ${c2}, ${c3})`;
+}
+
+function hexToColor(cid, hid) {
+  const hex = document.getElementById(hid).value;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    document.getElementById(cid).value = hex;
+    updateGrad();
+  }
+}
+
+function applyGrad() {
+  const c1  = document.getElementById('gc1').value;
+  const c2  = document.getElementById('gc2').value;
+  const c3  = document.getElementById('gc3').value;
+  const dir = document.getElementById('gradDir').value;
+  const gradStr = `linear-gradient(${dir}, ${c1}, ${c2}, ${c3})`;
+  const grad = { c1, c2, c3, dir };
+  localStorage.setItem('nova_grad', JSON.stringify(grad));
+  localStorage.removeItem('nova_wallpaper');
+  localStorage.removeItem('nova_wallpaper_upload');
+  document.querySelectorAll('.bg-swatch').forEach(e => e.classList.remove('selected'));
+  document.getElementById('uploadPreviewWrap').style.display = 'none';
+  emit('wallpaperChanged', { gradient: gradStr });
+  // Extract colors and apply to dock
+  extractColorsFromGradient(gradStr);
+  showToast('Gradient applied', 'green');
+}
+
+function resetGrad() {
+  localStorage.removeItem('nova_grad');
+  const d = { c1:'#1a0a2e', c2:'#0a1a2e', c3:'#2e0a1a', dir:'135deg' };
+  ['c1','c2','c3'].forEach((k,i) => {
+    document.getElementById('gc'+(i+1)).value       = d[k];
+    document.getElementById('gc'+(i+1)+'hex').value = d[k];
+  });
+  document.getElementById('gradDir').value = d.dir;
+  updateGrad();
+  emit('wallpaperChanged', { clear: true });
+  showToast('Gradient reset');
+}
+
+/* ══════════════════════════════════
+   PROXY - AUTO SET
+══════════════════════════════════ */
+// Always use Scramjet + Libcurl
+localStorage.setItem('nova_proxy_engine', 'scramjet');
+localStorage.setItem('nova_proxy_transport', 'libcurl');
+
+/* ══════════════════════════════════
+   DATA
+══════════════════════════════════ */
+function resetAll() {
+  if (!confirm('⚠️ This will PERMANENTLY DELETE ALL Nova data including:\n\n• Username & PIN\n• Custom backgrounds\n• Bookmarks\n• App shortcuts\n• All settings\n• Tab cloak settings\n• Behavior settings\n\nThis CANNOT be undone! Continue?')) return;
+  
+  // Clear ALL localStorage items related to Nova
+  const allKeys = [
+    'nova_user', 'nova_pin', 'nova_bm', 'nova_apps2', 'nova_bookmarks', 'nova_apps',
+    'nova_grad', 'nova_wallpaper', 'nova_wallpaper_upload', 'nova_wallpaper_is_video',
+    'nova_wallpaper_is_gif', 'nova_using_import', 'nova_active_import_label',
+    'nova_custom_bgs', 'nova_proxy_engine', 'nova_proxy_transport', 'nova_search_engine',
+    'nova_tab_cloak_title', 'nova_tab_cloak_icon', 'nova_tab_cloak_preset',
+    'nova_panic_key', 'nova_warn_before_closing'
+  ];
+  
+  // Remove all Nova data
+  allKeys.forEach(k => localStorage.removeItem(k));
+  
+  // Also clear sessionStorage
+  try {
+    sessionStorage.clear();
+  } catch(e) {}
+  
+  // Clear window session data
+  if (window.sessionCustomBgs) {
+    window.sessionCustomBgs = [];
+  }
+  
+  showToast('Everything has been reset! Reloading...', 'green');
+  
+  // Reload after 2 seconds
+  setTimeout(() => {
+    emit('resetAll', {});
+    window.location.reload();
+  }, 2000);
+}
+
+function clearBookmarks() {
+  localStorage.removeItem('nova_bm');
+  localStorage.removeItem('nova_bookmarks');
+  showToast('Bookmarks cleared');
+}
+
+/* ══════════════════════════════════
+   HELPERS
+══════════════════════════════════ */
+function emit(action, data) {
+  try { window.parent.postMessage({ novaAction: action, ...data }, '*'); } catch(e) {}
+}
+
+function closePage() { emit('closeApp', { app: 'settings' }); }
+
+/* ══════════════════════════════════
+   GAME COUNT - DISABLED TO REDUCE LAG
+══════════════════════════════════ */
+// Removed fetch to reduce lag
+document.getElementById('gameCountLabel').textContent = '—';
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+
+// Clean up orphaned import flags on page load
+function cleanupOrphanedFlags() {
+  const usingImport = localStorage.getItem('nova_using_import') === 'true';
+  const activeImportLabel = localStorage.getItem('nova_active_import_label');
+  
+  if (usingImport && activeImportLabel) {
+    // Check if the referenced background actually exists
+    let customs = [];
+    try {
+      customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+    } catch(e) {
+      customs = [];
+    }
+    
+    const existsInStorage = customs.find(bg => bg.label === activeImportLabel);
+    if (!existsInStorage) {
+      console.warn(`🧹 Cleaning up orphaned import flags for missing background: ${activeImportLabel}`);
+      localStorage.removeItem('nova_using_import');
+      localStorage.removeItem('nova_active_import_label');
+      localStorage.removeItem('nova_wallpaper_upload');
+    } else {
+      console.log(`✅ Import flags are valid for existing background: ${activeImportLabel}`);
+    }
+  }
+}
+
+cleanupTestData();
+cleanupOrphanedFlags();
+buildPresets();
+buildColorPresets();
+load();
+
+/* ══════════════════════════════════
+   TAB CLOAK
+══════════════════════════════════ */
+function setTabCloak(btn, title, iconUrl, preset) {
+  document.querySelectorAll('.cloak-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  localStorage.setItem('nova_cloak_title', title);
+  localStorage.setItem('nova_cloak_icon', iconUrl);
+  localStorage.setItem('nova_cloak_preset', preset);
+  
+  // Notify home page to apply cloak
+  emit('tabCloakChanged', { title, iconUrl, preset });
+  
+  showToast('Tab cloak applied', 'green');
+}
+
+function applyCustomCloak() {
+  const title = document.getElementById('customCloakTitle').value.trim();
+  const iconUrl = document.getElementById('customCloakIcon').value.trim();
+  
+  if (!title) {
+    showToast('Please enter a custom title', 'red');
+    return;
+  }
+  
+  localStorage.setItem('nova_cloak_title', title);
+  localStorage.setItem('nova_cloak_icon', iconUrl);
+  localStorage.setItem('nova_cloak_preset', 'custom');
+  
+  document.querySelectorAll('.cloak-preset').forEach(b => b.classList.remove('active'));
+  
+  // Notify home page to apply cloak
+  emit('tabCloakChanged', { title, iconUrl, preset: 'custom' });
+  
+  showToast('Custom cloak applied', 'green');
+}
+
+function toggleAutoCloak() {
+  const enabled = document.getElementById('autoCloakToggle').checked;
+  localStorage.setItem('nova_auto_cloak', enabled ? 'true' : 'false');
+  emit('autoCloakChanged', { enabled });
+  showToast(enabled ? 'Auto cloak enabled' : 'Auto cloak disabled', 'green');
+}
+
+// Apply saved cloak on load
+function loadTabCloak() {
+  const savedPreset = localStorage.getItem('nova_cloak_preset') || 'default';
+  document.querySelectorAll('.cloak-preset').forEach(btn => {
+    if (btn.dataset.cloak === savedPreset) {
+      btn.classList.add('active');
+    }
+  });
+  
+  const autoCloak = localStorage.getItem('nova_auto_cloak') === 'true';
+  document.getElementById('autoCloakToggle').checked = autoCloak;
+}
+
+/* ══════════════════════════════════
+   PANIC KEY
+══════════════════════════════════ */
+let isSettingPanicKey = false;
+
+function setPanicKey() {
+  if (isSettingPanicKey) return;
+  
+  isSettingPanicKey = true;
+  const display = document.getElementById('panicKeyDisplay');
+  const btn = document.getElementById('panicKeyBtn');
+  const originalText = display.textContent;
+  display.textContent = 'Press any key...';
+  display.style.background = 'rgba(255,165,0,0.25)';
+  btn.style.borderColor = 'rgba(255,165,0,0.3)';
+  
+  const handler = (e) => {
+    e.preventDefault();
+    const key = e.key.toUpperCase();
+    localStorage.setItem('nova_panic_key', key);
+    display.textContent = key;
+    display.style.background = 'rgba(255,60,60,0.15)';
+    btn.style.borderColor = 'rgba(255,255,255,0.12)';
+    isSettingPanicKey = false;
+    document.removeEventListener('keydown', handler);
+    document.removeEventListener('click', cancel);
+    emit('panicKeyChanged', { key });
+    showToast(`Panic key set to: ${key}`, 'green');
+  };
+  
+  const cancel = (e) => {
+    // Ignore clicks on the button itself
+    if (e && (e.target === btn || btn.contains(e.target))) {
+      return;
+    }
+    
+    if (isSettingPanicKey) {
+      display.textContent = originalText;
+      display.style.background = 'rgba(255,60,60,0.15)';
+      btn.style.borderColor = 'rgba(255,255,255,0.12)';
+      isSettingPanicKey = false;
+      document.removeEventListener('keydown', handler);
+      document.removeEventListener('click', cancel);
+      showToast('Panic key setup cancelled', 'orange');
+    }
+  };
+  
+  document.addEventListener('keydown', handler);
+  
+  // Cancel if clicked elsewhere (but not on the button itself)
+  setTimeout(() => {
+    document.addEventListener('click', cancel);
+  }, 200);
+}
+
+function savePanicUrl() {
+  const url = document.getElementById('panicUrl').value.trim();
+  if (!url) {
+    showToast('Please enter a URL', 'red');
+    return;
+  }
+  localStorage.setItem('nova_panic_url', url);
+  emit('panicUrlChanged', { url });
+  showToast('Panic URL saved', 'green');
+}
+
+function loadPanicKey() {
+  const savedKey = localStorage.getItem('nova_panic_key');
+  const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+  const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false'; // default true
+  
+  const display = document.getElementById('panicKeyDisplay');
+  if (display) {
+    if (savedKey) {
+      display.textContent = savedKey.toUpperCase();
+    } else {
+      display.textContent = 'NONE';
+    }
+  }
+  
+  const urlInput = document.getElementById('panicUrl');
+  if (urlInput) urlInput.value = savedUrl;
+  
+  const instantCheckbox = document.getElementById('instantPanicRedirect');
+  if (instantCheckbox) instantCheckbox.checked = instantRedirect;
+}
+
+function saveInstantRedirect() {
+  const instant = document.getElementById('instantPanicRedirect').checked;
+  localStorage.setItem('nova_instant_panic_redirect', instant ? 'true' : 'false');
+  emit('instantRedirectChanged', { instant });
+  showToast(instant ? 'Instant redirect enabled' : 'Confirmation dialog enabled', 'green');
+}
+
+/* ══════════════════════════════════
+   BEHAVIOR
+══════════════════════════════════ */
+function saveBehaviorSettings() {
+  const openCloakedBlob = document.getElementById('openCloakedBlob').checked;
+  const warnBeforeClosing = document.getElementById('warnBeforeClosing').checked;
+  
+  localStorage.setItem('nova_open_cloaked_blob', openCloakedBlob ? 'true' : 'false');
+  localStorage.setItem('nova_warn_before_closing', warnBeforeClosing ? 'true' : 'false');
+  
+  emit('behaviorChanged', { openCloakedBlob, warnBeforeClosing });
+  showToast('Behavior settings saved', 'green');
+}
+
+function loadBehaviorSettings() {
+  const openCloakedBlob = localStorage.getItem('nova_open_cloaked_blob') === 'true';
+  const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') !== 'false'; // default true
+  
+  document.getElementById('openCloakedBlob').checked = openCloakedBlob;
+  document.getElementById('warnBeforeClosing').checked = warnBeforeClosing;
+  
+  // Load performance settings
+  const showFPS = localStorage.getItem('nova_show_fps') === 'true';
+  const showPing = localStorage.getItem('nova_show_ping') === 'true';
+  
+  if (document.getElementById('showFPS')) document.getElementById('showFPS').checked = showFPS;
+  if (document.getElementById('showPing')) document.getElementById('showPing').checked = showPing;
+}
+
+function savePerformanceSettings() {
+  const showFPS = document.getElementById('showFPS').checked;
+  const showPing = document.getElementById('showPing').checked;
+  
+  localStorage.setItem('nova_show_fps', showFPS ? 'true' : 'false');
+  localStorage.setItem('nova_show_ping', showPing ? 'true' : 'false');
+  
+  emit('performanceChanged', { showFPS, showPing });
+  showToast('Performance overlay settings saved', 'green');
+}
+
+/* ══════════════════════════════════
+   COLOR EXTRACTION & DOCK THEMING
+══════════════════════════════════ */
+function extractColorsFromGradient(gradStr) {
+  // Extract hex colors from gradient string
+  const hexPattern = /#[0-9a-fA-F]{6}/g;
+  const colors = gradStr.match(hexPattern) || [];
+  
+  if (colors.length > 0) {
+    // Use the first color as primary, create a much darker variant
+    const primary = colors[0];
+    const darker = adjustBrightness(primary, -60); // Make it much darker
+    applyDockColors(primary, darker);
+  }
+}
+
+function extractAndApplyColors(src) {
+  // For GIFs and images, create temp image to sample colors
+  const img = new Image();
+  img.crossOrigin = 'Anonymous';
+  img.onload = () => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      // Sample from bottom portion (where dock is)
+      const imageData = ctx.getImageData(0, Math.max(0, img.height - 50), img.width, 50);
+      const dominant = getDominantColor(imageData.data);
+      const hex = rgbToHex(dominant.r, dominant.g, dominant.b);
+      const darker = adjustBrightness(hex, -80); // Much darker for visibility
+      applyDockColors(hex, darker);
+    } catch (e) {
+      // Fallback to black if CORS or other issues
+      applyDockColors('#1a1a1a', '#000000');
+    }
+  };
+  img.onerror = () => {
+    // Fallback to black
+    applyDockColors('#1a1a1a', '#000000');
+  };
+  img.src = src;
+}
+
+function getDominantColor(pixels) {
+  let r = 0, g = 0, b = 0, count = 0;
+  for (let i = 0; i < pixels.length; i += 4) {
+    // Skip very dark pixels (black background)
+    if (pixels[i] + pixels[i+1] + pixels[i+2] > 30) {
+      r += pixels[i];
+      g += pixels[i + 1];
+      b += pixels[i + 2];
+      count++;
+    }
+  }
+  if (count === 0) count = 1; // Avoid division by zero
+  return {
+    r: Math.floor(r / count),
+    g: Math.floor(g / count),
+    b: Math.floor(b / count)
+  };
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(x => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+}
+
+function adjustBrightness(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.min(255, ((num >> 16) & 0xFF) + percent));
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + percent));
+  const b = Math.max(0, Math.min(255, (num & 0xFF) + percent));
+  return rgbToHex(r, g, b);
+}
+
+function applyDockColors(primary, secondary) {
+  // Store theme colors
+  localStorage.setItem('nova_dock_color_primary', primary);
+  localStorage.setItem('nova_dock_color_secondary', secondary);
+  
+  // Notify home page to update dock AND page backgrounds
+  emit('dockColorsChanged', { primary, secondary });
+}
+
+/* ══════════════════════════════════
+   FIND WALLPAPER DROPDOWN
+══════════════════════════════════ */
+function toggleFindDrop(e) {
+  e.stopPropagation();
+  document.getElementById('findDrop').classList.toggle('open');
+}
+function closeFindDrop() {
+  document.getElementById('findDrop').classList.remove('open');
+}
+// Close when clicking anywhere else
+document.addEventListener('click', () => closeFindDrop());
+
+// Load all new settings
+loadTabCloak();
+loadPanicKey();
+loadBehaviorSettings();
+
+// ═══════════════════════════════════════════════════════
+// PANIC KEY GLOBAL HANDLER
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  const savedKey = localStorage.getItem('nova_panic_key');
+  const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+  const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
+  
+  if (!savedKey) return;
+  
+  // Remove old listener if exists
+  if (window._panicKeyHandler) {
+    document.removeEventListener('keydown', window._panicKeyHandler);
+  }
+  
+  // Add new listener
+  window._panicKeyHandler = (e) => {
+    if (e.key.toUpperCase() === savedKey.toUpperCase()) {
+      e.preventDefault();
+      
+      if (instantRedirect) {
+        window.location.href = savedUrl;
+      } else {
+        if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
+          window.location.href = savedUrl;
+        }
+      }
+    }
+  };
+  
+  document.addEventListener('keydown', window._panicKeyHandler);
+  console.log('🔐 Panic key active:', savedKey);
+});
+
+/* ══════════════════════════════════
+   CACHE BUSTING - Force Fresh Content
+══════════════════════════════════ */
+(function() {
+  // Clear service worker caches
+  if ('caches' in window) {
+    caches.keys().then(function(names) {
+      names.forEach(function(name) {
+        caches.delete(name);
+      });
+    });
+  }
+  
+  // Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(function(registration) {
+        registration.unregister();
+      });
+    });
+  }
+})();
+</script>
+
+<!-- Modal for All Games History - Outside settings page -->
+<div id="allGamesModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: transparent; align-items: center; justify-content: center;">
+  <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 32px; width: 90%; max-width: 800px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 32px 100px rgba(0,0,0,0.5);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div style="font-size: 24px; font-weight: 800; color: white; letter-spacing: -0.02em;">All Games History</div>
+      <button onclick="toggleAllGames()" style="background: rgba(255,60,60,0.15); border: 1px solid rgba(255,60,60,0.3); color: rgba(255,120,120,1); padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(255,60,60,0.25)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,60,60,0.15)'; this.style.transform='scale(1)'">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Close
+      </button>
+    </div>
+    <div id="allGamesContent" style="display: grid; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 8px;">
+      <!-- All games will be inserted here -->
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova — Proxy Settings</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #0d0d12;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .page { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: #0d0d12;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 15px; font-weight: 700; }
+    .topbar-sub { font-size: 11px; color: rgba(255,255,255,0.25); flex: 1; }
+    .btn-x {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(255,60,60,0.1); border: none;
+      color: rgba(255,100,100,0.55); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-x:hover { background: rgba(255,60,60,0.24); color: #ff6060; }
+    .btn-x svg { width: 13px; height: 13px; stroke-width: 2; }
+
+    /* ── SCROLL ── */
+    .scroll {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 20px 16px 32px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.06) transparent;
+    }
+    .scroll::-webkit-scrollbar { width: 4px; }
+    .scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-card {
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 20px 16px 16px;
+      margin-bottom: 22px;
+    }
+    .flow-title {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      margin-bottom: 18px;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .flow-node {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      flex-shrink: 0;
+    }
+    .flow-box {
+      width: 72px; height: 54px;
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: #1a1a24;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .flow-box.active-node {
+      border-color: rgba(139,92,246,0.55);
+      background: rgba(139,92,246,0.1);
+      box-shadow: 0 0 18px rgba(139,92,246,0.18);
+    }
+    .flow-box.active-engine {
+      border-color: rgba(56,189,248,0.55);
+      background: rgba(56,189,248,0.08);
+      box-shadow: 0 0 18px rgba(56,189,248,0.15);
+    }
+    .flow-box.active-transport {
+      border-color: rgba(52,211,153,0.55);
+      background: rgba(52,211,153,0.08);
+      box-shadow: 0 0 18px rgba(52,211,153,0.12);
+    }
+    .flow-box svg { width: 18px; height: 18px; stroke-width: 1.6; opacity: 0.6; }
+    .flow-box.active-node svg,
+    .flow-box.active-engine svg,
+    .flow-box.active-transport svg { opacity: 1; }
+    .flow-box-lbl {
+      font-size: 9px; font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      text-align: center; line-height: 1.2;
+    }
+    .flow-box.active-node .flow-box-lbl,
+    .flow-box.active-engine .flow-box-lbl,
+    .flow-box.active-transport .flow-box-lbl { color: rgba(255,255,255,0.8); }
+
+    .flow-node-cap {
+      font-size: 8.5px; color: rgba(255,255,255,0.2);
+      text-align: center; max-width: 72px;
+    }
+
+    /* animated arrow */
+    .flow-arrow {
+      display: flex; align-items: center;
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+    .arrow-track {
+      width: 38px; height: 2px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 2px;
+      position: relative; overflow: hidden;
+    }
+    .arrow-track::after {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139,92,246,0.7), transparent);
+      animation: flow 2s linear infinite;
+    }
+    @keyframes flow {
+      from { left: -60%; }
+      to   { left: 110%; }
+    }
+    .arrow-head {
+      width: 0; height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid rgba(255,255,255,0.12);
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin-bottom: 18px;
+    }
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      margin-bottom: 10px;
+    }
+
+    /* ── OPTION CARDS ── */
+    .option-row { display: flex; gap: 10px; }
+
+    .opt-card {
+      flex: 1;
+      background: #18181e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, box-shadow 0.2s;
+      position: relative;
+    }
+    .opt-card:hover { background: #1e1e28; border-color: rgba(255,255,255,0.12); }
+
+    .opt-card.selected-engine {
+      border-color: rgba(56,189,248,0.5);
+      background: rgba(56,189,248,0.06);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.18);
+    }
+    .opt-card.selected-transport {
+      border-color: rgba(52,211,153,0.5);
+      background: rgba(52,211,153,0.06);
+      box-shadow: 0 0 0 1px rgba(52,211,153,0.18);
+    }
+
+    .opt-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .opt-name {
+      font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.85);
+    }
+    .opt-badge {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 20px;
+    }
+    .badge-fast {
+      background: rgba(56,189,248,0.15);
+      color: rgba(56,189,248,0.9);
+    }
+    .badge-compat {
+      background: rgba(251,191,36,0.15);
+      color: rgba(251,191,36,0.9);
+    }
+    .badge-secure {
+      background: rgba(52,211,153,0.15);
+      color: rgba(52,211,153,0.9);
+    }
+    .badge-network {
+      background: rgba(167,139,250,0.15);
+      color: rgba(167,139,250,0.9);
+    }
+
+    .opt-desc {
+      font-size: 11px; color: rgba(255,255,255,0.32);
+      line-height: 1.5;
+    }
+
+    .opt-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .opt-card.selected-engine .opt-check {
+      border-color: rgba(56,189,248,0.7);
+      background: rgba(56,189,248,0.18);
+    }
+    .opt-card.selected-transport .opt-check {
+      border-color: rgba(52,211,153,0.7);
+      background: rgba(52,211,153,0.18);
+    }
+    .opt-check svg { width: 10px; height: 10px; stroke-width: 3; opacity: 0; transition: opacity 0.18s; }
+    .opt-card.selected-engine .opt-check svg,
+    .opt-card.selected-transport .opt-check svg { opacity: 1; }
+
+    /* ── STAT BARS ── */
+    .stat-row { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+    .stat-line { display: flex; align-items: center; gap: 8px; }
+    .stat-lbl { font-size: 9.5px; color: rgba(255,255,255,0.25); width: 64px; flex-shrink: 0; }
+    .stat-track {
+      flex: 1; height: 4px; border-radius: 4px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%; border-radius: 4px;
+      transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+    }
+    .fill-sky   { background: linear-gradient(90deg,#38bdf8,#7dd3fc); }
+    .fill-green { background: linear-gradient(90deg,#34d399,#6ee7b7); }
+    .fill-amber { background: linear-gradient(90deg,#fbbf24,#fde68a); }
+    .fill-violet{ background: linear-gradient(90deg,#a78bfa,#c4b5fd); }
+
+    /* ── STATUS PILL ── */
+    .status-row {
+      display: flex; align-items: center; gap: 10px;
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 8px rgba(52,211,153,0.6);
+      animation: pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.5; transform:scale(0.7); }
+    }
+    .status-text { font-size: 12px; color: rgba(255,255,255,0.55); flex: 1; }
+    .status-text strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+    .status-ping {
+      font-size: 10px; color: rgba(52,211,153,0.8);
+      background: rgba(52,211,153,0.08);
+      border: 1px solid rgba(52,211,153,0.2);
+      border-radius: 6px; padding: 2px 8px;
+    }
+
+    /* ── SAVE BUTTON ── */
+    .save-btn {
+      width: 100%;
+      padding: 13px;
+      background: rgba(139,92,246,0.18);
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 12px;
+      color: rgba(167,139,250,0.9);
+      font-size: 13px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+      letter-spacing: 0.02em;
+    }
+    .save-btn:hover {
+      background: rgba(139,92,246,0.28);
+      border-color: rgba(139,92,246,0.55);
+      color: #c4b5fd;
+    }
+    .save-btn:active { transform: scale(0.99); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px);
+      background: #1e1e28;
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 12px; font-weight: 600; color: #c4b5fd;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">Proxy Settings</div>
+    <div class="topbar-sub">Configure how Nova accesses the web</div>
+    <button class="btn-x" onclick="closePage()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="scroll">
+
+    <!-- STATUS -->
+    <div class="status-row">
+      <div class="status-dot"></div>
+      <div class="status-text">Proxy active — using <strong id="statusLabel">Scramjet + Epoxy</strong></div>
+      <div class="status-ping" id="statusPing">Live</div>
+    </div>
+
+    <!-- FLOW DIAGRAM -->
+    <div class="flow-card">
+      <div class="flow-title">How your traffic flows</div>
+      <div class="flow-row">
+
+        <!-- You -->
+        <div class="flow-node">
+          <div class="flow-box active-node" id="nodeYou">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#a78bfa">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <div class="flow-box-lbl">You</div>
+          </div>
+          <div class="flow-node-cap">Browser</div>
+        </div>
+
+        <div class="flow-arrow"><div class="arrow-track"></div><div class="arrow-head"></div></div>
+
+        <!-- Engine -->
+        <div class="flow-node">
+          <div class="flow-box" id="nodeEngine">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#38bdf8" id="engineIcon">
+              <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+            </svg>
+            <div class="flow-box-lbl" id="engineLabel">Scramjet</div>
+          </div>
+          <div class="flow-node-cap">Rewriter</div>
+        </div>
+
+        <div class="flow-arrow"><div class="arrow-track"></div><div class="arrow-head"></div></div>
+
+        <!-- Transport -->
+        <div class="flow-node">
+          <div class="flow-box" id="nodeTransport">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#34d399" id="transportIcon">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+            <div class="flow-box-lbl" id="transportLabel">Epoxy</div>
+          </div>
+          <div class="flow-node-cap">Transport</div>
+        </div>
+
+        <div class="flow-arrow"><div class="arrow-track"></div><div class="arrow-head"></div></div>
+
+        <!-- Proxy Server -->
+        <div class="flow-node">
+          <div class="flow-box active-node">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#a78bfa">
+              <rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/>
+              <line x1="6" y1="6" x2="6.01" y2="6" stroke-width="3"/>
+              <line x1="6" y1="18" x2="6.01" y2="18" stroke-width="3"/>
+            </svg>
+            <div class="flow-box-lbl">Server</div>
+          </div>
+          <div class="flow-node-cap">Proxy Host</div>
+        </div>
+
+        <div class="flow-arrow"><div class="arrow-track"></div><div class="arrow-head"></div></div>
+
+        <!-- Site -->
+        <div class="flow-node">
+          <div class="flow-box active-node">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#a78bfa">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+            </svg>
+            <div class="flow-box-lbl">Website</div>
+          </div>
+          <div class="flow-node-cap">Destination</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ENGINE SECTION -->
+    <div class="section">
+      <div class="section-label">Browse Engine — rewrites the site inside your browser</div>
+      <div class="option-row">
+
+        <!-- Scramjet -->
+        <div class="opt-card selected-engine" id="card-scramjet" onclick="selectEngine('scramjet')">
+          <div class="opt-check">
+            <svg fill="none" stroke="#38bdf8" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="opt-header">
+            <div class="opt-name">Scramjet</div>
+            <div class="opt-badge badge-fast">Faster</div>
+          </div>
+          <div class="opt-desc">Newer engine that rewrites and sandboxes pages using WebAssembly. Better performance, supports more modern sites.</div>
+          <div class="stat-row">
+            <div class="stat-line">
+              <div class="stat-lbl">Speed</div>
+              <div class="stat-track"><div class="stat-fill fill-sky" style="width:88%"></div></div>
+            </div>
+            <div class="stat-line">
+              <div class="stat-lbl">Compatibility</div>
+              <div class="stat-track"><div class="stat-fill fill-sky" style="width:72%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ultraviolet -->
+        <div class="opt-card" id="card-ultraviolet" onclick="selectEngine('ultraviolet')">
+          <div class="opt-check">
+            <svg fill="none" stroke="#38bdf8" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="opt-header">
+            <div class="opt-name">Ultraviolet</div>
+            <div class="opt-badge badge-compat">More Compatible</div>
+          </div>
+          <div class="opt-desc">Older but battle-tested engine. Works on more networks and has broader site coverage for legacy pages.</div>
+          <div class="stat-row">
+            <div class="stat-line">
+              <div class="stat-lbl">Speed</div>
+              <div class="stat-track"><div class="stat-fill fill-amber" style="width:62%"></div></div>
+            </div>
+            <div class="stat-line">
+              <div class="stat-lbl">Compatibility</div>
+              <div class="stat-track"><div class="stat-fill fill-amber" style="width:92%"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TRANSPORT SECTION -->
+    <div class="section">
+      <div class="section-label">Transport — how traffic reaches the proxy</div>
+      <div class="option-row">
+
+        <!-- Epoxy -->
+        <div class="opt-card selected-transport" id="card-epoxy" onclick="selectTransport('epoxy')">
+          <div class="opt-check">
+            <svg fill="none" stroke="#34d399" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="opt-header">
+            <div class="opt-name">Epoxy</div>
+            <div class="opt-badge badge-secure">Faster</div>
+          </div>
+          <div class="opt-desc">Runs SSL/TLS inside WebAssembly. Fastest option with strong encryption. May not work on all school or work networks.</div>
+          <div class="stat-row">
+            <div class="stat-line">
+              <div class="stat-lbl">Speed</div>
+              <div class="stat-track"><div class="stat-fill fill-green" style="width:91%"></div></div>
+            </div>
+            <div class="stat-line">
+              <div class="stat-lbl">Works on strict nets</div>
+              <div class="stat-track"><div class="stat-fill fill-green" style="width:48%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Libcurl -->
+        <div class="opt-card" id="card-libcurl" onclick="selectTransport('libcurl')">
+          <div class="opt-check">
+            <svg fill="none" stroke="#34d399" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="opt-header">
+            <div class="opt-name">Libcurl</div>
+            <div class="opt-badge badge-network">Strict Networks</div>
+          </div>
+          <div class="opt-desc">Uses curl under the hood — the same tool that powers millions of apps. Works on stricter networks where Epoxy is blocked.</div>
+          <div class="stat-row">
+            <div class="stat-line">
+              <div class="stat-lbl">Speed</div>
+              <div class="stat-track"><div class="stat-fill fill-violet" style="width:68%"></div></div>
+            </div>
+            <div class="stat-line">
+              <div class="stat-lbl">Works on strict nets</div>
+              <div class="stat-track"><div class="stat-fill fill-violet" style="width:88%"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SAVE -->
+    <button class="save-btn" onclick="saveSettings()">Apply Settings</button>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Settings saved</div>
+
+<script>
+  let engine    = localStorage.getItem('nova_proxy_engine')    || 'scramjet';
+  let transport = localStorage.getItem('nova_proxy_transport') || 'epoxy';
+
+  const ENGINE_ICONS = {
+    scramjet:   `<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>`,
+    ultraviolet:`<circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>`
+  };
+  const TRANSPORT_ICONS = {
+    epoxy:  `<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>`,
+    libcurl:`<path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>`
+  };
+
+  function selectEngine(e) {
+    engine = e;
+    ['scramjet','ultraviolet'].forEach(k => {
+      document.getElementById('card-' + k).classList.toggle('selected-engine', k === e);
+    });
+    // update diagram
+    document.getElementById('engineLabel').textContent = e.charAt(0).toUpperCase() + e.slice(1);
+    document.getElementById('engineIcon').innerHTML = ENGINE_ICONS[e];
+    document.getElementById('nodeEngine').classList.add('active-engine');
+    updateStatus();
+  }
+
+  function selectTransport(t) {
+    transport = t;
+    ['epoxy','libcurl'].forEach(k => {
+      document.getElementById('card-' + k).classList.toggle('selected-transport', k === t);
+    });
+    // update diagram
+    const label = t === 'libcurl' ? 'Libcurl' : 'Epoxy';
+    document.getElementById('transportLabel').textContent = label;
+    document.getElementById('transportIcon').innerHTML = TRANSPORT_ICONS[t];
+    document.getElementById('nodeTransport').classList.add('active-transport');
+    updateStatus();
+  }
+
+  function updateStatus() {
+    const e = engine.charAt(0).toUpperCase() + engine.slice(1);
+    const t = transport === 'libcurl' ? 'Libcurl' : 'Epoxy';
+    document.getElementById('statusLabel').textContent = `${e} + ${t}`;
+  }
+
+  function saveSettings() {
+    localStorage.setItem('nova_proxy_engine',    engine);
+    localStorage.setItem('nova_proxy_transport', transport);
+    // notify parent window (Nova home) in case it needs to update
+    try { window.parent.postMessage({ novaAction: 'proxySettingsChanged', engine, transport }, '*'); } catch(e) {}
+    showToast('Settings saved — ' + document.getElementById('statusLabel').textContent);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  function closePage() {
+    try { window.parent.postMessage({ novaAction: 'closeApp', app: 'proxy' }, '*'); } catch(e) {}
+  }
+
+  // init UI from saved state
+  selectEngine(engine);
+  selectTransport(transport);
+</script>
+</body>
+</html>

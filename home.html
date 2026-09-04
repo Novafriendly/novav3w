@@ -1,0 +1,3928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Prevent aggressive caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Nova</title>
+  <link rel="icon" type="image/png" href="Nova12.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    /* ── Global background — always visible behind everything ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      background: #0f0f0f;
+      z-index: 0;
+      transition: background 0.4s ease;
+    }
+    /* GIF/image overlay — sits above bg color */
+    #bg-img {
+      position: absolute; 
+      inset: 0;
+      width: 100%; 
+      height: 100%;
+      object-fit: cover; 
+      object-position: center center;
+      display: none;
+      z-index: 2;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: high-quality;
+      -ms-interpolation-mode: bicubic;
+      /* Backup sizing for older browsers */
+      min-width: 100%;
+      min-height: 100%;
+    }
+    /* Alternative fit modes for different aspect ratios */
+    #bg-img.fit-contain { object-fit: contain; }
+    #bg-img.fit-fill { object-fit: fill; }
+    #bg-img.fit-stretch { object-fit: fill; width: 100vw; height: 100vh; }
+    /* Video element for video backgrounds */
+    #bg-video {
+      position: absolute; 
+      inset: 0;
+      width: 100%; 
+      height: 100%;
+      object-fit: cover; 
+      object-position: center center;
+      display: none;
+      z-index: 2;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: high-quality;
+    }
+    /* slight dark tint so text always reads - BELOW content */
+    #bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════════════
+       SPLASH SCREEN - SIMPLE & TRANSPARENT
+    ═══════════════════════════════════════ */
+    #s-splash {
+      background: transparent;
+      perspective: 1200px;
+    }
+
+    .splash-container {
+      text-align: center;
+      transform-style: preserve-3d;
+    }
+
+    .splash-logo-container {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 40px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: logoRotate 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes logoRotate {
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+        filter: blur(20px);
+      }
+      70% {
+        transform: scale(1.04);
+        opacity: 1;
+        filter: blur(0px);
+      }
+      85% {
+        transform: scale(0.98);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: blur(0px);
+      }
+    }
+
+    .splash-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+    }
+
+    /* Loading bar */
+    .splash-loader {
+      width: 200px;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      margin: 0 auto;
+      border-radius: 3px;
+      overflow: hidden;
+      opacity: 0;
+      animation: loaderFadeIn 0.6s ease 0.8s forwards;
+      box-shadow: 0 0 20px rgba(255,255,255,0.05);
+    }
+
+    @keyframes loaderFadeIn {
+      to { opacity: 1; }
+    }
+
+    .splash-loader-fill {
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255,255,255,0.8) 50%, 
+        transparent 100%);
+      box-shadow: 0 0 15px rgba(255,255,255,0.5);
+      animation: loaderSlide 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loaderSlide {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(200%);
+      }
+    }
+
+    /* Smooth slide up animation */
+    #s-splash.slide-up {
+      animation: slideUpOut 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+    }
+
+    @keyframes slideUpOut {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-60px) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    /* ═══════════════════════════════════════
+       SCREEN SYSTEM
+    ═══════════════════════════════════════ */
+    .screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.5s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: all;
+    }
+    .screen.hidden {
+      opacity: 0;
+      transform: scale(0.96) translateY(12px);
+      pointer-events: none;
+    }
+    .screen.slide-in {
+      opacity: 0;
+      transform: scale(0.96) translateY(20px);
+    }
+
+    /* ── frosted glass card used on loader / username / pin ── */
+    .glass-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 24px;
+      box-shadow:
+        0 32px 80px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ═══════════════════════════════════════
+       SCREEN 1 — LOADER
+    ═══════════════════════════════════════ */
+    #s-load .glass-card {
+      padding: 64px 56px 52px;
+      gap: 36px;
+      min-width: 340px;
+    }
+
+    .logo-wrap {
+      position: relative;
+      width: 160px; height: 160px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-wrap::before {
+      content: '';
+      position: absolute; inset: -16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(180,150,255,0.18) 0%, transparent 70%);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%,100% { transform: scale(0.85); opacity: 0.4; }
+      50%      { transform: scale(1.2);  opacity: 1;   }
+    }
+    .logo-wrap img {
+      width: 140px; height: 140px;
+      object-fit: contain;
+      position: relative; z-index: 1;
+      animation: logoIdle 3s ease-in-out infinite;
+    }
+    @keyframes logoIdle {
+      0%,100% { transform: scale(1);     opacity: 0.85; }
+      50%      { transform: scale(1.06);  opacity: 1;    }
+    }
+    /* shine sweep */
+    .logo-shine {
+      position: absolute; inset: 0; z-index: 2;
+      overflow: hidden; border-radius: 8px;
+      pointer-events: none;
+    }
+    .logo-shine::after {
+      content: '';
+      position: absolute;
+      top: -60%; left: -80%;
+      width: 45%; height: 220%;
+      background: linear-gradient(105deg,
+        transparent 0%, rgba(255,255,255,0) 38%,
+        rgba(255,255,255,0.22) 50%,
+        rgba(255,255,255,0) 62%, transparent 100%);
+      transform: skewX(-15deg);
+      animation: shineSweep 4s ease-in-out infinite;
+    }
+    @keyframes shineSweep {
+      0%   { left:-80%; opacity:0; }
+      8%   { opacity:1; }
+      48%  { left:130%; opacity:1; }
+      50%  { opacity:0; }
+      100% { left:130%; opacity:0; }
+    }
+
+    .bar-wrap {
+      width: 280px; height: 3px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; width: 0%;
+      background: #fff;
+      border-radius: 999px;
+      position: relative;
+      transition: width 0.22s ease;
+    }
+    .bar-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
+      animation: barShim 1.4s ease-in-out infinite;
+    }
+    @keyframes barShim {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(300%); }
+    }
+
+    .load-ver {
+      position: fixed; bottom: 22px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px; letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.22);
+      white-space: nowrap; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .load-login {
+      font-size: 12px; letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.45);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .load-login.show {
+      opacity: 1; transform: translateY(0);
+    }
+    .load-login strong {
+      color: rgba(255,255,255,0.75);
+    }
+
+    /* ═══════════════════════════════════════
+       SCREEN 2 — USERNAME
+    ═══════════════════════════════════════ */
+    #s-user .glass-card {
+      padding: 52px 48px 46px;
+      gap: 22px;
+      width: 420px;
+    }
+
+    .card-logo {
+      width: 64px; height: 64px;
+      object-fit: contain; opacity: 0.9;
+    }
+    .card-title {
+      font-size: 24px; font-weight: 700;
+      letter-spacing: -0.02em; text-align: center;
+    }
+    .card-sub {
+      font-size: 14px; color: rgba(255,255,255,0.4);
+      text-align: center; line-height: 1.55;
+      margin-top: -6px;
+    }
+
+    .inp-wrap {
+      width: 100%; position: relative;
+    }
+    .inp-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      padding: 15px 56px 15px 18px;
+      font-size: 16px; color: #fff;
+      outline: none; font-family: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .inp-wrap input::placeholder { color: rgba(255,255,255,0.25); }
+    .inp-wrap input:focus {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+    }
+    .inp-count {
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px; color: rgba(255,255,255,0.22);
+      pointer-events: none;
+    }
+
+    .btn-main {
+      width: 100%; padding: 15px;
+      border-radius: 12px; border: none;
+      background: rgba(255,255,255,0.92);
+      color: #0a0a0f; font-size: 15px;
+      font-weight: 700; letter-spacing: 0.02em;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.18s, transform 0.14s, opacity 0.18s;
+    }
+    .btn-main:hover:not(:disabled)  { background: #fff; }
+    .btn-main:active:not(:disabled) { transform: scale(0.97); }
+    .btn-main:disabled {
+      opacity: 0.3; cursor: not-allowed;
+    }
+
+    /* ═══════════════════════════════════════
+       SCREEN 3 — PIN SETUP / PIN CHECK
+    ═══════════════════════════════════════ */
+    #s-pin .glass-card {
+      padding: 52px 48px 46px;
+      gap: 24px;
+      width: 420px;
+    }
+
+    .pin-dots {
+      display: flex; gap: 12px;
+    }
+    .pin-cell {
+      width: 62px; height: 68px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 700;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: default;
+    }
+    .pin-cell.filled {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.35);
+    }
+    .pin-cell.active-cell {
+      border-color: rgba(255,255,255,0.5);
+    }
+    .pin-cell.error {
+      border-color: rgba(255,80,80,0.7);
+      background: rgba(255,50,50,0.1);
+    }
+
+    /* shake animation */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      15%      { transform: translateX(-8px); }
+      30%      { transform: translateX(8px); }
+      45%      { transform: translateX(-6px); }
+      60%      { transform: translateX(6px); }
+      75%      { transform: translateX(-3px); }
+      90%      { transform: translateX(3px); }
+    }
+    .shake { animation: shake 0.5s ease; }
+
+    .btn-skip {
+      background: none; border: none;
+      color: rgba(255,255,255,0.3);
+      font-size: 12px; cursor: pointer;
+      font-family: inherit; letter-spacing: 0.03em;
+      transition: color 0.15s; padding: 2px;
+    }
+    .btn-skip:hover { color: rgba(255,255,255,0.6); }
+
+    /* hidden input for pin */
+    #pin-real {
+      position: fixed; left: -9999px;
+      opacity: 0; width: 1px; height: 1px;
+    }
+
+    /* ── wrong attempts label ── */
+    .attempts-label {
+      font-size: 11px;
+      color: rgba(255,100,100,0.8);
+      letter-spacing: 0.04em;
+      height: 14px;
+      transition: opacity 0.2s;
+    }
+
+    /* ── Help notification (bottom center, shown after 3 wrong) ── */
+    #help-notif {
+      position: fixed;
+      bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 50;
+      background: rgba(20,20,30,0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 12px 20px 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      white-space: nowrap;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    #help-notif.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: all;
+    }
+    #help-notif img {
+      width: 28px; height: 28px; object-fit: contain;
+    }
+    #help-notif .notif-text { font-size: 12px; }
+    #help-notif .notif-title {
+      font-weight: 600; font-size: 12px;
+      margin-bottom: 2px;
+    }
+    #help-notif .notif-sub {
+      font-size: 10px; color: rgba(255,255,255,0.4);
+    }
+    #help-notif .notif-arrow {
+      font-size: 16px; color: rgba(255,255,255,0.25);
+      margin-left: 6px;
+    }
+    /* pulse ring on notif */
+    #help-notif::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 18px;
+      border: 2px solid rgba(255,255,255,0.08);
+      animation: notifPulse 2s ease-in-out infinite;
+    }
+    @keyframes notifPulse {
+      0%,100% { transform: scale(1);    opacity: 0.6; }
+      50%      { transform: scale(1.03); opacity: 1;   }
+    }
+
+    /* ── Help modal ── */
+    #help-modal {
+      position: fixed; inset: 0; z-index: 60;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #help-modal.show {
+      opacity: 1; pointer-events: all;
+    }
+    .modal-card {
+      background: rgba(18,18,26,0.88);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px;
+      padding: 36px 32px 30px;
+      width: 300px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 18px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+      transform: scale(0.94) translateY(12px);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    #help-modal.show .modal-card {
+      transform: scale(1) translateY(0);
+    }
+    .modal-logo {
+      width: 52px; height: 52px; object-fit: contain;
+      opacity: 0.85;
+    }
+    .modal-title {
+      font-size: 16px; font-weight: 700;
+      text-align: center;
+    }
+    .modal-sub {
+      font-size: 12px; color: rgba(255,255,255,0.38);
+      text-align: center; margin-top: -8px; line-height: 1.5;
+    }
+    .modal-pin-display {
+      font-size: 28px; font-weight: 800;
+      letter-spacing: 0.25em;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 24px;
+      display: none;
+    }
+    .modal-btn {
+      width: 100%; padding: 13px;
+      border-radius: 12px; border: none;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: filter 0.18s, transform 0.14s;
+    }
+    .modal-btn:hover   { filter: brightness(1.12); }
+    .modal-btn:active  { transform: scale(0.97); }
+    .btn-show-pin {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .btn-reset-pin {
+      background: rgba(255,80,80,0.15);
+      color: rgba(255,120,120,0.9);
+      border: 1px solid rgba(255,80,80,0.2);
+    }
+    .btn-modal-close {
+      background: none; border: none;
+      color: rgba(255,255,255,0.25);
+      font-size: 11px; cursor: pointer;
+      font-family: inherit; letter-spacing: 0.04em;
+      transition: color 0.15s;
+    }
+    .btn-modal-close:hover { color: rgba(255,255,255,0.55); }
+
+    /* ═══════════════════════════════════════
+       SCREEN 4 — HOME
+    ═══════════════════════════════════════ */
+    #s-home {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    /* main area */
+    .home-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 80px;
+      user-select: none;
+      position: relative;
+    }
+
+    /* ── CLOCK ── */
+    .clock-wrap {
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .clock-time {
+      font-size: clamp(72px, 13vw, 108px);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      color: rgba(255,255,255,0.95);
+      text-shadow: 
+        0 2px 8px rgba(0,0,0,0.3),
+        0 8px 24px rgba(0,0,0,0.2);
+      font-variant-numeric: tabular-nums;
+    }
+    .clock-date {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+
+    /* ── BOTTOM DOCK - macOS Style ── */
+    .dock {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      padding: 6px 16px;
+      min-width: 600px;
+      
+      background: rgba(15,15,18,0.95);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 
+        0 12px 48px rgba(0,0,0,0.6),
+        0 4px 16px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* Apps label - hide it */
+    .dock-label {
+      display: none;
+    }
+
+    /* icons container - centered, no extra background */
+    .dock-icons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dock-btn {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      outline: none;
+    }
+    .dock-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 1.8;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .dock-btn i {
+      font-size: 24px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .dock-btn img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .dock-btn span {
+      display: none;
+    }
+
+    .dock-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      transform: translateY(-5px) scale(1.05);
+    }
+    .dock-btn:active {
+      transform: translateY(-3px) scale(1.02);
+    }
+    .dock-btn.active {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+    /* active indicator dot - under the icon */
+    .dock-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    }
+
+    /* divider between icon groups */
+    .dock-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── APP OVERLAY ── */
+    .app-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 0.42s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.42s cubic-bezier(0.22,1,0.36,1);
+    }
+    .app-overlay.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    /* the iframe fills everything except the bottom handle strip */
+    .app-overlay iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: #0f0f0f;
+    }
+
+    /* thin handle bar at bottom — sits right above the dock */
+    .app-handle {
+      height: 72px;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    /* swipe pill */
+    .handle-pill {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+    }
+
+    .handle-close {
+      position: absolute;
+      right: 24px;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+    }
+    .handle-close:hover {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+    }
+    .handle-close svg { width: 13px; height: 13px; stroke-width: 2; }
+
+    /* active dock button glow */
+    .dock-btn.app-open {
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ═══════════════════════════════════════
+       BUILT-IN BROWSER
+    ═══════════════════════════════════════ */
+    #browser-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0a;
+      opacity: 0;
+      transform: translateY(100%);
+      pointer-events: none;
+      transition: opacity 0.42s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.42s cubic-bezier(0.22,1,0.36,1);
+    }
+    #browser-overlay.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    
+    /* Browser background container - mirrors home background */
+    .br-bg-container {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .br-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: opacity 0.5s ease;
+    }
+    
+    .br-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    
+    .br-bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    
+    /* Browser content overlay - above background */
+    .br-content-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* tab bar */
+    .br-tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px 0;
+      background: #1a1a1f;
+      min-height: 36px;
+      flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .br-tab-bar::-webkit-scrollbar { display: none; }
+
+    .br-tab {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      border-radius: 8px 8px 0 0;
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.04);
+      border-bottom: none;
+      cursor: pointer;
+      min-width: 120px; max-width: 200px;
+      transition: background 0.15s; flex-shrink: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .br-tab:hover { background: #141418; }
+    .br-tab.active { background: #1e1e24; border-color: rgba(255,255,255,0.06); }
+    
+    .br-tab-favicon {
+      width: 14px; height: 14px; flex-shrink: 0;
+      object-fit: contain; display: none;
+    }
+    .br-tab-favicon.show { display: block; }
+    
+    .br-tab-title {
+      font-size: 11.5px; color: rgba(255,255,255,0.5);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+    }
+    .br-tab.active .br-tab-title { color: rgba(255,255,255,0.85); }
+    .br-tab-x {
+      width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; color: rgba(255,255,255,0.25); font-size: 10px; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .br-tab-x:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .br-tab-new {
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; background: transparent; border: none;
+      color: rgba(255,255,255,0.35); cursor: pointer; font-size: 18px; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s; font-family: inherit;
+    }
+    .br-tab-new:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+
+    /* nav bar */
+    .br-nav-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px;
+      background: #1e1e24;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .br-nav-btn {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; color: rgba(255,255,255,0.4);
+      border-radius: 6px; cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s; font-family: inherit;
+    }
+    .br-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+    .br-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+    .br-nav-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+
+    .br-addr-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+    .br-addr-input {
+      width: 100%; background: #16161c;
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+      padding: 8px 120px 8px 34px;
+      font-size: 13px; color: rgba(255,255,255,0.8);
+      outline: none; font-family: 'Segoe UI', system-ui, sans-serif;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .br-addr-input:focus { border-color: rgba(255,255,255,0.15); background: #1a1a20; color: #fff; }
+    
+    .br-addr-favicon { 
+      position: absolute; left: 10px; 
+      width: 16px; height: 16px;
+      pointer-events: none; display: none;
+    }
+    .br-addr-favicon.show { display: block; }
+    
+    .br-addr-ico { position: absolute; left: 10px; color: rgba(255,255,255,0.25); pointer-events: none; display: flex; }
+    .br-addr-ico svg { width: 14px; height: 14px; stroke-width: 2; }
+    .br-addr-tools { position: absolute; right: 6px; display: flex; align-items: center; gap: 2px; }
+    .br-addr-tool {
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; color: rgba(255,255,255,0.4);
+      cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; font-family: inherit;
+    }
+    .br-addr-tool:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+    .br-addr-tool.bm-on { color: #60a5fa; background: rgba(96,165,250,0.15); }
+    .br-addr-tool svg { width: 15px; height: 15px; stroke-width: 2; }
+
+    /* suggestions dropdown (address bar) — revamped */
+    .br-sugg-drop {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #1c1c24; border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px; overflow: hidden; z-index: 300; display: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .br-sugg-drop.open { display: block; }
+
+    /* shared suggestion item styles */
+    .br-sugg-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; cursor: pointer;
+      transition: background 0.12s;
+    }
+    .br-sugg-item:hover { background: rgba(255,255,255,0.05); }
+    .br-sugg-icon { display:flex; align-items:center; flex-shrink:0; }
+    .br-sugg-icon svg { width: 13px; height: 13px; stroke-width: 2; }
+    .br-sugg-label {
+      font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: rgba(255,255,255,0.2);
+      width: 52px; flex-shrink: 0;
+    }
+    .br-sugg-text {
+      font-size: 12.5px; color: rgba(255,255,255,0.6);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+    }
+    .br-sugg-text strong { color: #fff; font-weight: 600; }
+    .br-sugg-divider {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.15); padding: 7px 14px 4px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* bookmark bar */
+    .br-bm-bar {
+      display: none; align-items: center; gap: 5px;
+      padding: 4px 10px; background: #161616;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .br-bm-bar::-webkit-scrollbar { display: none; }
+    .br-bm-bar.show { display: flex; }
+    .br-bm-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 3px 9px; font-size: 10.5px;
+      color: rgba(255,255,255,0.5); cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, color 0.15s; flex-shrink: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .br-bm-chip:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .br-bm-x { font-size: 8px; color: rgba(255,255,255,0.18); margin-left: 2px; transition: color 0.15s; }
+    .br-bm-chip:hover .br-bm-x { color: rgba(255,80,80,0.7); }
+
+    /* content area */
+    .br-content { flex: 1; position: relative; overflow: hidden; }
+
+    /* each tab view */
+    .br-view { position: absolute; inset: 0; display: none; flex-direction: column; }
+    .br-view.active { display: flex; }
+
+    /* proxy iframe — single top-level, no nesting */
+    .br-frame { flex: 1; width: 100%; border: none; background: transparent; display: none; }
+    .br-frame.show { display: block; }
+
+    /* new tab page */
+    .br-ntp {
+      flex: 1; background: transparent;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 32px; padding: 0 24px 60px; overflow-y: auto;
+    }
+    .br-ntp.hide { display: none; }
+
+    .br-nova-title {
+      font-size: clamp(56px, 10vw, 88px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1; text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #e0e0e0 20%,
+        #ffffff 40%,
+        #f0f0f0 60%,
+        #ffffff 80%,
+        #d0d0d0 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientFlow 4s ease infinite;
+      filter: drop-shadow(0 4px 20px rgba(255,255,255,0.15));
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* ntp search — enhanced */
+    .br-nts-wrap { 
+      position: relative; 
+      width: 100%; 
+      max-width: 600px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .br-nts-bar {
+      display: flex; align-items: center;
+      flex: 1;
+      background: rgba(26,26,30,0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+      padding: 0 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .br-nts-bar:focus-within {
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 0 4px rgba(255,255,255,0.06);
+      background: rgba(30,30,36,0.9);
+    }
+
+    .br-nts-ico {
+      display: flex; align-items: center; flex-shrink: 0;
+      color: rgba(255,255,255,0.25); transition: color 0.2s;
+      margin: 0 10px 0 8px;
+    }
+    .br-nts-bar:focus-within .br-nts-ico { color: rgba(255,255,255,0.5); }
+    .br-nts-ico svg { width: 16px; height: 16px; stroke-width: 2.5; }
+
+    .br-nts-input {
+      flex: 1;
+      background: transparent; border: none;
+      padding: 16px 4px;
+      font-size: 15px; color: #fff; outline: none;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 400;
+      transition: transform 0.2s ease;
+    }
+    .br-nts-input::placeholder { 
+      color: rgba(255,255,255,0.25);
+      transition: color 0.3s ease;
+    }
+    .br-nts-input:focus::placeholder {
+      color: rgba(255,255,255,0.15);
+    }
+    .br-nts-input:focus {
+      transform: translateY(-1px);
+    }
+
+    .br-nts-actions {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .br-nts-btn {
+      width: 38px; height: 38px; 
+      background: rgba(255,255,255,0.08); 
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: rgba(255,255,255,0.5); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .br-nts-btn:hover { 
+      background: rgba(255,255,255,0.15); 
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .br-nts-btn:active {
+      transform: translateY(0);
+    }
+    .br-nts-btn svg { width: 16px; height: 16px; stroke-width: 2; }
+
+    /* Settings button - separate on the right */
+    .br-settings-btn {
+      width: 48px; 
+      height: 48px; 
+      background: rgba(255,255,255,0.08); 
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; 
+      color: rgba(255,255,255,0.5); 
+      cursor: pointer;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      transition: all 0.2s; 
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .br-settings-btn:hover { 
+      background: rgba(255,255,255,0.15); 
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .br-settings-btn:active {
+      transform: translateY(0);
+    }
+    .br-settings-btn svg { 
+      width: 20px; 
+      height: 20px; 
+      stroke-width: 2;
+    }
+
+    /* Remove search engine row */
+    .br-se-row { display: none; }
+
+    /* suggestions dropdown — revamped */
+    .br-nts-sugg {
+      position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+      background: #1c1c24; border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px; overflow: hidden; z-index: 300; display: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .br-nts-sugg.open { display: block; }
+
+    /* apps grid */
+    .br-apps-section { width: 100%; max-width: 640px; }
+    .br-apps-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .br-apps-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+    .br-apps-add-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9px; padding: 6px 12px; font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.45); cursor: pointer; font-family: 'Segoe UI', system-ui, sans-serif;
+      transition: all 0.2s;
+    }
+    .br-apps-add-btn:hover { 
+      background: rgba(255,255,255,0.12); 
+      color: rgba(255,255,255,0.85);
+      transform: translateY(-1px);
+    }
+    .br-apps-add-btn svg { width: 12px; height: 12px; stroke-width: 2.5; }
+    
+    .br-apps-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill,minmax(90px,1fr)); 
+      gap: 12px; 
+    }
+    
+    .br-app-item {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 16px 8px 12px; 
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06); 
+      border-radius: 16px;
+      cursor: pointer; position: relative;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .br-app-item:hover { 
+      background: rgba(255,255,255,0.08); 
+      transform: translateY(-3px); 
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .br-app-item:active { transform: translateY(-1px) scale(0.98); }
+    
+    .br-app-ico { 
+      width: 44px; height: 44px; 
+      border-radius: 12px; 
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+    }
+    .br-app-ico img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .br-app-ico svg { width: 24px; height: 24px; stroke-width: 1.8; }
+    
+    .br-app-lbl { 
+      font-size: 10.5px; 
+      color: rgba(255,255,255,0.55); 
+      text-align: center; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      width: 100%; 
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 500;
+    }
+    
+    .br-app-rm {
+      position: absolute; top: 6px; right: 6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(239,68,68,0.9); border: none;
+      color: #fff; font-size: 10px; display: none;
+      align-items: center; justify-content: center; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .br-app-rm:hover {
+      background: rgba(239,68,68,1);
+      transform: scale(1.1);
+    }
+    .br-app-item:hover .br-app-rm { display: flex; }
+
+    /* Browser Settings Modal */
+    #br-settings-modal {
+      position: absolute; inset: 0; z-index: 25;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #br-settings-modal.show { opacity: 1; pointer-events: all; }
+    
+    .br-settings-box {
+      background: #1a1a1f; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; width: 520px; max-height: 85vh;
+      overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+      transform: scale(0.94) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex; flex-direction: column;
+    }
+    #br-settings-modal.show .br-settings-box { transform: scale(1) translateY(0); }
+    
+    .br-settings-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .br-settings-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.95);
+    }
+    .br-settings-close {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 16px;
+    }
+    .br-settings-close:hover {
+      background: rgba(255,60,60,0.15);
+      color: rgba(255,100,100,0.9);
+    }
+    
+    .br-settings-tabs {
+      display: flex;
+      padding: 0 24px;
+      gap: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .br-settings-tab {
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .br-settings-tab:hover {
+      color: rgba(255,255,255,0.7);
+    }
+    .br-settings-tab.active {
+      color: rgba(255,255,255,0.95);
+      border-bottom-color: rgba(255,255,255,0.9);
+    }
+    
+    .br-settings-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    
+    .br-settings-panel {
+      display: none;
+    }
+    .br-settings-panel.active {
+      display: block;
+    }
+    
+    .br-search-engine-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .br-search-engine-option {
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .br-search-engine-option:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .br-search-engine-option.active {
+      background: rgba(96,165,250,0.12);
+      border-color: rgba(96,165,250,0.4);
+    }
+    .br-search-engine-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .br-search-engine-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .br-search-engine-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+    
+    .br-history-item {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .br-history-item:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateX(4px);
+    }
+    .br-history-info {
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+    }
+    .br-history-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .br-history-url {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .br-history-delete {
+      width: 32px;
+      height: 32px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px;
+      color: rgba(239,68,68,0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .br-history-delete:hover {
+      background: rgba(239,68,68,0.2);
+      color: rgba(239,68,68,1);
+    }
+    
+    .br-clear-all-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      color: rgba(239,68,68,0.9);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 12px;
+    }
+    .br-clear-all-btn:hover {
+      background: rgba(239,68,68,0.2);
+    }
+    
+    .br-empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
+    }
+
+    /* add apps modal */
+    #br-apps-modal {
+      position: absolute; inset: 0; z-index: 20;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #br-apps-modal.show { opacity: 1; pointer-events: all; }
+    .br-modal-box {
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; padding: 24px; width: 440px; max-height: 78vh;
+      overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    #br-apps-modal.show .br-modal-box { transform: scale(1) translateY(0); }
+    .br-mhd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .br-mttl { font-size: 15px; font-weight: 700; }
+    .br-mcls {
+      width: 28px; height: 28px; background: rgba(255,255,255,0.06); border: none;
+      border-radius: 7px; color: rgba(255,255,255,0.45); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; transition: background 0.15s; font-family: inherit;
+    }
+    .br-mcls:hover { background: rgba(255,60,60,0.18); color: #ff6060; }
+    .br-preset-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(86px,1fr)); gap: 9px; }
+    .br-preset-item {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 6px 10px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 13px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.14s;
+    }
+    .br-preset-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); transform: translateY(-1px); }
+    .br-preset-item.added { border-color: rgba(80,200,80,0.35); background: rgba(40,160,80,0.08); }
+    .br-pico { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .br-pico svg { width: 18px; height: 18px; stroke-width: 1.6; }
+    .br-pnm { font-size: 9.5px; color: rgba(255,255,255,0.45); text-align: center; }
+    .br-padded { font-size: 8.5px; color: rgba(80,200,80,0.75); display: none; }
+    .br-preset-item.added .br-padded { display: block; }
+    .br-mdiv { height: 1px; background: rgba(255,255,255,0.05); margin: 18px 0; }
+    .br-msub { font-size: 11px; color: rgba(255,255,255,0.28); margin-bottom: 10px; }
+    .br-crow { display: flex; gap: 7px; }
+    .br-cinp {
+      flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 9px; padding: 9px 12px; font-size: 12px; color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .br-cinp:focus { border-color: rgba(255,255,255,0.22); }
+    .br-cinp::placeholder { color: rgba(255,255,255,0.18); }
+    .br-cadd {
+      padding: 9px 14px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 9px; color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600;
+      cursor: pointer; font-family: 'Segoe UI', system-ui, sans-serif; white-space: nowrap; transition: background 0.15s;
+    }
+    .br-cadd:hover { background: rgba(255,255,255,0.13); color: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- FPS/Ping Overlay -->
+<div id="performance-overlay" style="display:none;position:fixed;top:20px;right:20px;z-index:99999;background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+  <div id="fps-display" style="display:none;margin-bottom:3px;display:flex;align-items:center;gap:6px;">
+    <span style="color:rgba(255,255,255,0.6);font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">FPS</span>
+    <span id="fps-value" style="font-size:13px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;">0</span>
+  </div>
+  <div id="ping-display" style="display:none;display:flex;align-items:center;gap:6px;">
+    <span style="color:rgba(255,255,255,0.6);font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">PING</span>
+    <span id="ping-value" style="font-size:13px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;">0</span>
+    <span style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;">ms</span>
+  </div>
+</div>
+
+<!-- global bg -->
+<div id="bg">
+  <img id="bg-img" src="" alt="" />
+  <video id="bg-video" autoplay loop muted playsinline preload="auto" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
+</div>
+
+<!-- ══════════════════════════════
+     SPLASH SCREEN — ANIMATED INTRO
+══════════════════════════════ -->
+<div class="screen" id="s-splash">
+  <div class="splash-container">
+    <div class="splash-logo-container">
+      <img src="Nova12.png" alt="Nova" class="splash-logo" />
+    </div>
+    <div class="splash-loader">
+      <div class="splash-loader-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 1 — LOADER
+══════════════════════════════ -->
+<div class="screen hidden" id="s-load">
+  <div class="glass-card">
+    <div class="logo-wrap">
+      <img src="Nova12.png" alt="Nova" />
+      <div class="logo-shine"></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-fill" id="load-bar"></div>
+    </div>
+  </div>
+  <div class="load-ver">
+    <span>Version 1.0.2</span>
+    <span class="load-login" id="load-login"></span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 2 — USERNAME
+══════════════════════════════ -->
+<div class="screen hidden" id="s-user">
+  <div class="glass-card">
+    <img class="card-logo" src="Nova12.png" alt="Nova" />
+    <div class="card-title">Create a Username</div>
+    <div class="card-sub">This is how you'll appear in Nova.<br/>Maximum 16 characters.</div>
+    <div class="inp-wrap">
+      <input type="text" id="uname-inp" maxlength="16"
+        placeholder="Enter username"
+        autocomplete="off" spellcheck="false"
+        oninput="onUnameInput()" />
+      <span class="inp-count" id="uname-count">0/16</span>
+    </div>
+    <button class="btn-main" id="uname-btn" disabled onclick="goToPin()">Continue</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 3 — PIN
+══════════════════════════════ -->
+<div class="screen hidden" id="s-pin">
+  <input type="tel" id="pin-real" maxlength="4" inputmode="numeric" pattern="[0-9]*" />
+  <div class="glass-card">
+    <img class="card-logo" src="Nova12.png" alt="Nova" />
+    <div class="card-title" id="pin-title">Add a PIN</div>
+    <div class="card-sub" id="pin-sub">Set a 4-digit PIN to secure your account.</div>
+
+    <div class="pin-dots" id="pin-dots" onclick="focusPin()">
+      <div class="pin-cell active-cell" id="pc-0"></div>
+      <div class="pin-cell" id="pc-1"></div>
+      <div class="pin-cell" id="pc-2"></div>
+      <div class="pin-cell" id="pc-3"></div>
+    </div>
+
+    <div class="attempts-label" id="attempts-lbl"></div>
+
+    <button class="btn-main" id="pin-btn" disabled onclick="submitPin()">Continue</button>
+    <button class="btn-skip" id="pin-skip" onclick="skipPin()">Skip for now</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     HELP NOTIFICATION
+══════════════════════════════ -->
+<div id="help-notif" onclick="openHelpModal()">
+  <img src="Nova12.png" alt="Nova" />
+  <div class="notif-text">
+    <div class="notif-title">Need Help?</div>
+    <div class="notif-sub">Click me</div>
+  </div>
+  <div class="notif-arrow">›</div>
+</div>
+
+<!-- ══════════════════════════════
+     HELP MODAL
+══════════════════════════════ -->
+<div id="help-modal" onclick="modalBgClick(event)">
+  <div class="modal-card">
+    <img class="modal-logo" src="Nova12.png" alt="Nova" />
+    <div class="modal-title">PIN Help</div>
+    <div class="modal-sub">Forgot your PIN? You can reveal it<br/>or reset it completely.</div>
+    <div class="modal-pin-display" id="modal-pin-display">——</div>
+    <button class="modal-btn btn-show-pin" onclick="showPin()">Show PIN</button>
+    <button class="modal-btn btn-reset-pin" onclick="resetPin()">Reset PIN</button>
+    <button class="btn-modal-close" onclick="closeHelpModal()">Close</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN 4 — HOME
+══════════════════════════════ -->
+<div class="screen hidden" id="s-home">
+
+  <div class="home-area">
+    <!-- Clock and date -->
+    <div class="clock-wrap">
+      <div class="clock-time" id="clock-time">00:00</div>
+      <div class="clock-date" id="clock-date">Monday, January 1</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM DOCK -->
+  <div class="dock">
+    <span class="dock-label">Apps</span>
+    
+    <!-- Nav icons -->
+    <div class="dock-icons">
+
+      <button class="dock-btn active" onclick="dockClick(this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/>
+          <path d="M9 21v-9h6v9"/>
+        </svg>
+        <span>Home</span>
+      </button>
+
+      <button class="dock-btn" id="dock-games" onclick="openPanel('games', this)">
+        <i class="bi bi-controller"></i>
+        <span>Games</span>
+      </button>
+
+      <button class="dock-btn" id="dock-apps" onclick="openPanel('apps', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        <span>Apps</span>
+      </button>
+
+      <div class="dock-divider"></div>
+
+      <button class="dock-btn" id="dock-browser" onclick="openApp('browser', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <span>Browser</span>
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://discord.com/app', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://open.spotify.com/', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=spotify.com&sz=128" alt="Spotify">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://www.crunchyroll.com/', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="Crunchyroll">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://www.netflix.com/', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="Netflix">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://www.roblox.com/', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=roblox.com&sz=128" alt="Roblox">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://www.fortnite.com/', '_blank')">
+        <img src="Img/app/fortnite.jpg" alt="Fortnite">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('https://www.minecraft.net/', '_blank')">
+        <img src="Img/app/images (1).jpg" alt="Minecraft">
+      </button>
+
+      <button class="dock-btn" onclick="window.open('#', '_blank')">
+        <img src="Img/app/Fcloud.jpg" alt="Fcloud">
+      </button>
+
+      <div class="dock-divider"></div>
+
+      <button class="dock-btn" id="dock-settings" onclick="openPanel('settings', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+        <span>Settings</span>
+      </button>
+
+    </div>
+
+    <!-- Plus -->
+    <div class="dock-plus" title="More">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════ -->
+<script>
+  /* ── screen transition ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.add('hidden');
+      s.classList.remove('slide-in');
+    });
+    const t = document.getElementById(id);
+    t.classList.add('slide-in');
+    t.classList.remove('hidden');
+    // force reflow
+    t.getBoundingClientRect();
+    t.classList.remove('slide-in');
+  }
+
+  /* ═══════════════════
+     SPLASH SCREEN - Skip old loader, go straight to home
+  ═══════════════════ */
+  setTimeout(() => {
+    const splash = document.getElementById('s-splash');
+    splash.classList.add('slide-up');
+    
+    // After splash finishes, check if setup needed or go home
+    setTimeout(() => {
+      splash.style.display = 'none';
+      
+      const user = localStorage.getItem('nova_user');
+      const pin  = localStorage.getItem('nova_pin');
+      
+      if (!user) {
+        // First time - show username setup
+        showScreen('s-user');
+        setTimeout(() => document.getElementById('uname-inp').focus(), 300);
+      } else if (pin) {
+        // Has PIN - show PIN check
+        setupPinCheck();
+        showScreen('s-pin');
+        setTimeout(focusPin, 300);
+      } else {
+        // Go straight to home
+        goHome();
+      }
+    }, 800);
+  }, 2200); // Show splash for 2.2 seconds total
+
+  /* ═══════════════════
+     USERNAME
+  ═══════════════════ */
+  function onUnameInput() {
+    const v = document.getElementById('uname-inp').value.trim();
+    document.getElementById('uname-count').textContent = v.length + '/16';
+    document.getElementById('uname-btn').disabled = v.length < 2;
+  }
+
+  function goToPin() {
+    const v = document.getElementById('uname-inp').value.trim();
+    if (v.length < 2) return;
+    localStorage.setItem('nova_user', v);
+    setupPinCreate();
+    showScreen('s-pin');
+    setTimeout(focusPin, 300);
+  }
+
+  document.getElementById('uname-inp').addEventListener('keydown', e => {
+    if (e.key === 'Enter') goToPin();
+  });
+
+  /* ═══════════════════
+     PIN — SHARED
+  ═══════════════════ */
+  let pinMode     = 'create'; // 'create' | 'check'
+  let pinValue    = '';
+  let wrongCount  = 0;
+
+  function setupPinCreate() {
+    pinMode = 'create';
+    pinValue = '';
+    document.getElementById('pin-title').textContent = 'Add a PIN';
+    document.getElementById('pin-sub').textContent   = 'Set a 4-digit PIN to secure your account.';
+    document.getElementById('pin-skip').style.display = '';
+    document.getElementById('attempts-lbl').textContent = '';
+    clearPinCells();
+  }
+
+  function setupPinCheck() {
+    pinMode = 'check';
+    pinValue = '';
+    wrongCount = 0;
+    document.getElementById('pin-title').textContent = 'Enter PIN';
+    document.getElementById('pin-sub').textContent   = 'Enter your 4-digit PIN to continue.';
+    document.getElementById('pin-skip').style.display = 'none';
+    document.getElementById('attempts-lbl').textContent = '';
+    clearPinCells();
+  }
+
+  function focusPin() {
+    const el = document.getElementById('pin-real');
+    el.value = '';
+    el.focus();
+  }
+
+  function clearPinCells() {
+    for (let i = 0; i < 4; i++) {
+      const c = document.getElementById('pc-' + i);
+      c.textContent = '';
+      c.className = 'pin-cell' + (i === 0 ? ' active-cell' : '');
+    }
+    document.getElementById('pin-btn').disabled = true;
+    document.getElementById('pin-real').value = '';
+    pinValue = '';
+  }
+
+  function updatePinCells() {
+    for (let i = 0; i < 4; i++) {
+      const c = document.getElementById('pc-' + i);
+      c.textContent = i < pinValue.length ? '•' : '';
+      c.className = 'pin-cell' +
+        (i < pinValue.length  ? ' filled' : '') +
+        (i === pinValue.length ? ' active-cell' : '');
+    }
+    document.getElementById('pin-btn').disabled = pinValue.length < 4;
+  }
+
+  document.getElementById('pin-real').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+    pinValue = this.value;
+    updatePinCells();
+  });
+
+  document.getElementById('pin-dots').addEventListener('click', focusPin);
+
+  function submitPin() {
+    if (pinValue.length < 4) return;
+
+    if (pinMode === 'create') {
+      localStorage.setItem('nova_pin', pinValue);
+      goHome();
+    } else {
+      // check mode
+      const saved = localStorage.getItem('nova_pin');
+      if (pinValue === saved) {
+        // correct — green flash then go home
+        for (let i = 0; i < 4; i++) {
+          const c = document.getElementById('pc-' + i);
+          c.style.borderColor = 'rgba(80,220,120,0.8)';
+          c.style.background  = 'rgba(40,180,80,0.15)';
+        }
+        hideHelpNotif();
+        setTimeout(goHome, 500);
+      } else {
+        // wrong
+        wrongCount++;
+        // shake + error color
+        const dots = document.getElementById('pin-dots');
+        for (let i = 0; i < 4; i++) {
+          document.getElementById('pc-' + i).classList.add('error');
+        }
+        dots.classList.add('shake');
+        dots.addEventListener('animationend', () => {
+          dots.classList.remove('shake');
+        }, { once: true });
+
+        const lbl = document.getElementById('attempts-lbl');
+        const remaining = 3 - wrongCount;
+        if (remaining > 0) {
+          lbl.textContent = `Wrong PIN — ${remaining} attempt${remaining !== 1 ? 's' : ''} left`;
+        } else {
+          lbl.textContent = 'Too many attempts';
+          showHelpNotif();
+        }
+
+        setTimeout(() => {
+          for (let i = 0; i < 4; i++) {
+            document.getElementById('pc-' + i).classList.remove('error');
+          }
+          clearPinCells();
+          focusPin();
+        }, 700);
+      }
+    }
+  }
+
+  function skipPin() {
+    goHome();
+  }
+
+  /* ── help notification ── */
+  function showHelpNotif() {
+    document.getElementById('help-notif').classList.add('show');
+  }
+  function hideHelpNotif() {
+    document.getElementById('help-notif').classList.remove('show');
+  }
+
+  /* ── help modal ── */
+  function openHelpModal() {
+    document.getElementById('modal-pin-display').style.display = 'none';
+    document.getElementById('modal-pin-display').textContent = '——';
+    document.getElementById('help-modal').classList.add('show');
+  }
+  function closeHelpModal() {
+    document.getElementById('help-modal').classList.remove('show');
+  }
+  function modalBgClick(e) {
+    if (e.target === document.getElementById('help-modal')) closeHelpModal();
+  }
+  function showPin() {
+    const pin = localStorage.getItem('nova_pin') || '——';
+    const d = document.getElementById('modal-pin-display');
+    d.textContent = pin.split('').join(' ');
+    d.style.display = 'block';
+  }
+  function resetPin() {
+    localStorage.removeItem('nova_pin');
+    closeHelpModal();
+    hideHelpNotif();
+    setupPinCreate();
+    setTimeout(focusPin, 200);
+  }
+
+  /* ═══════════════════
+     HOME
+  ═══════════════════ */
+  function goHome() {
+    showScreen('s-home');
+    startClock();
+  }
+
+  /* clock */
+  function startClock() {
+    function tick() {
+      const now  = new Date();
+      const h    = String(now.getHours()).padStart(2, '0');
+      const m    = String(now.getMinutes()).padStart(2, '0');
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const mons = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+      document.getElementById('clock-time').textContent = h + ':' + m;
+      document.getElementById('clock-date').textContent =
+        days[now.getDay()] + ', ' + mons[now.getMonth()] + ' ' + now.getDate();
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* dock active */
+  function dockClick(btn) {
+    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ── DOCK AUTO-HIDE ── */
+  (function() {
+    const dock = document.querySelector('.dock');
+    // Dock is always visible - no auto-hide
+    dock.classList.remove('dock-hidden');
+    window._dockShow = function() { dock.classList.remove('dock-hidden'); };
+    window._dockScheduleHide = function() {}; // no-op
+  })();
+</script>
+
+<!-- ══ BUILT-IN BROWSER ══ -->
+<div id="browser-overlay">
+  
+  <!-- Background container - mirrors home background -->
+  <div class="br-bg-container">
+    <div class="br-bg" id="brBg"></div>
+    <img class="br-bg-img" id="brBgImg" alt="Background" />
+    <video class="br-bg-video" id="brBgVideo" muted loop playsinline></video>
+  </div>
+  
+  <!-- Content wrapper with semi-transparent overlay -->
+  <div class="br-content-wrapper">
+
+  <!-- title bar: tabs + win controls -->
+  <div class="br-tab-bar" id="brTabBar">
+    <button class="br-tab-new" onclick="brNewTab()" title="New tab">＋</button>
+  </div>
+
+  <!-- nav bar -->
+  <div class="br-nav-bar">
+    <button class="br-nav-btn" id="brBtnBack" onclick="brBack()" disabled title="Back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="br-nav-btn" id="brBtnFwd" onclick="brFwd()" disabled title="Forward">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="br-nav-btn" onclick="brRefresh()" title="Refresh">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+    </button>
+    <button class="br-nav-btn" onclick="brGoHome()" title="Home">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </button>
+    
+    <div class="br-addr-wrap">
+      <img class="br-addr-favicon" id="brAddrFavicon" src="" alt="" />
+      <span class="br-addr-ico"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+      <input class="br-addr-input" id="brAddr" type="text" placeholder="Search or enter address"
+        autocomplete="off" spellcheck="false"
+        onkeydown="brAddrKey(event)"
+        oninput="brAddrType(this.value)"
+        onfocus="this.select()"
+        onblur="setTimeout(()=>document.getElementById('brSuggDrop').classList.remove('open'),200)" />
+      <div class="br-addr-tools">
+        <button class="br-addr-tool" id="brBmBtn" onclick="brToggleBm()" title="Bookmark this page">
+          <svg fill="currentColor" stroke="none" viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M5 4a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 20V4z"/></svg>
+        </button>
+        <button class="br-addr-tool" onclick="brToggleFullscreen()" title="Fullscreen">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        </button>
+      </div>
+      <div class="br-sugg-drop" id="brSuggDrop"></div>
+    </div>
+    
+    <button class="br-nav-btn" onclick="document.getElementById('brBmBar').classList.toggle('show')" title="Bookmarks">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+    </button>
+    
+    <button class="br-nav-btn" onclick="brClose()" title="Close browser" style="margin-left: 8px;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- bookmarks bar -->
+  <div class="br-bm-bar" id="brBmBar"></div>
+
+  <!-- content area -->
+  <div class="br-content" id="brContent">
+
+    <!-- add apps modal -->
+    <div id="br-apps-modal" onclick="if(event.target===this)brCloseApps()">
+      <div class="br-modal-box">
+        <div class="br-mhd">
+          <div class="br-mttl">Add App Shortcuts</div>
+          <button class="br-mcls" onclick="brCloseApps()">✕</button>
+        </div>
+        <div class="br-preset-grid" id="brPresetGrid"></div>
+        <div class="br-mdiv"></div>
+        <div class="br-msub">Add a custom website</div>
+        <div class="br-crow">
+          <input class="br-cinp" id="brCName" placeholder="Name (e.g. Reddit)" />
+          <input class="br-cinp" id="brCUrl"  placeholder="URL (e.g. reddit.com)" />
+          <button class="br-cadd" onclick="brAddCustomApp()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- browser settings modal -->
+    <div id="br-settings-modal" onclick="if(event.target===this)brCloseSettings()">
+      <div class="br-settings-box">
+        <div class="br-settings-header">
+          <div class="br-settings-title">Browser Settings</div>
+          <button class="br-settings-close" onclick="brCloseSettings()">✕</button>
+        </div>
+        
+        <div class="br-settings-tabs">
+          <button class="br-settings-tab active" onclick="brSwitchTab(event, 'search')">Search Engine</button>
+          <button class="br-settings-tab" onclick="brSwitchTab(event, 'history')">History</button>
+        </div>
+        
+        <div class="br-settings-content">
+          <div class="br-settings-panel active" id="br-panel-search">
+            <div class="br-search-engine-grid">
+              <div class="br-search-engine-option" data-engine="google" onclick="brSelectSearchEngine('google')">
+                <div class="br-search-engine-icon">
+                  <img src="https://www.google.com/favicon.ico" alt="Google">
+                </div>
+                <div class="br-search-engine-name">Google</div>
+              </div>
+              <div class="br-search-engine-option" data-engine="brave" onclick="brSelectSearchEngine('brave')">
+                <div class="br-search-engine-icon">
+                  <img src="https://brave.com/static-assets/images/brave-favicon.png" alt="Brave">
+                </div>
+                <div class="br-search-engine-name">Brave</div>
+              </div>
+              <div class="br-search-engine-option" data-engine="ddg" onclick="brSelectSearchEngine('ddg')">
+                <div class="br-search-engine-icon">
+                  <img src="https://duckduckgo.com/favicon.ico" alt="DuckDuckGo">
+                </div>
+                <div class="br-search-engine-name">DuckDuckGo</div>
+              </div>
+              <div class="br-search-engine-option" data-engine="bing" onclick="brSelectSearchEngine('bing')">
+                <div class="br-search-engine-icon">
+                  <img src="https://www.bing.com/favicon.ico" alt="Bing">
+                </div>
+                <div class="br-search-engine-name">Bing</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="br-settings-panel" id="br-panel-history">
+            <div id="br-history-list"></div>
+            <button class="br-clear-all-btn" onclick="brClearAllHistory()">Clear All History</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- tab views injected by JS -->
+
+  </div><!-- .br-content -->
+  </div><!-- .br-content-wrapper -->
+</div><!-- #browser-overlay -->
+
+<script>
+/* ═══════════════════════════════════════
+   BROWSER — PROXY CONFIG
+   Proxy: base + encodeURIComponent(fullUrl)
+   Search: search base + encoded query + suffix
+═══════════════════════════════════════ */
+/* ── Proxy / search engine config ── */
+// Scramjet App runs on port 8080 — change this when you deploy
+const BR_PROXY_HOST = 'http://localhost:8080';
+
+const BR_SEARCH_ENGINES = {
+  brave:  { name:'Brave',      url:'https://search.brave.com/search?q=',  suffix:'&source=web' },
+  google: { name:'Google',     url:'https://www.google.com/search?q=',    suffix:'' },
+  bing:   { name:'Bing',       url:'https://www.bing.com/search?q=',      suffix:'' },
+  ddg:    { name:'DuckDuckGo', url:'https://duckduckgo.com/?q=',          suffix:'' },
+};
+
+function brGetSearchEngine() {
+  const key = localStorage.getItem('nova_search_engine') || 'brave';
+  return BR_SEARCH_ENGINES[key] || BR_SEARCH_ENGINES.brave;
+}
+
+
+const BR_PRESET_APPS = [
+  { name:'Nova',       url:'home.html' },
+  { name:'YouTube',    url:'https://www.youtube.com/' },
+  { name:'Google',     url:'https://www.google.com/' },
+  { name:'Gmail',      url:'https://mail.google.com/' },
+  { name:'Classroom',  url:'https://classroom.google.com/' },
+  { name:'Drive',      url:'https://drive.google.com/' },
+  { name:'Canvas',     url:'https://www.instructure.com/canvas' },
+  { name:'Khan Academy', url:'https://www.khanacademy.org/' },
+  { name:'Wikipedia',  url:'https://www.wikipedia.org/' },
+  { name:'Desmos',     url:'https://www.desmos.com/' },
+  { name:'Notion',     url:'https://www.notion.so/' },
+  { name:'GitHub',     url:'https://github.com/' },
+  { name:'Bing',       url:'https://www.bing.com/' },
+  { name:'Office 365', url:'https://www.office.com/' },
+  { name:'Spotify',    url:'https://open.spotify.com/' },
+  { name:'Netflix',    url:'https://www.netflix.com/' },
+  { name:'Discord',    url:'https://discord.com/' },
+  { name:'Reddit',     url:'https://www.reddit.com/' },
+  { name:'Twitter',    url:'https://twitter.com/' },
+  { name:'Twitch',     url:'https://www.twitch.tv/' },
+];
+
+/* ── State ── */
+let brTabs       = [];
+let brActiveId   = null;
+let brBookmarks  = JSON.parse(localStorage.getItem('nova_bm') || '[]');
+let brUserApps   = JSON.parse(localStorage.getItem('nova_apps2') || 'null');
+let brHistory    = JSON.parse(localStorage.getItem('nova_br_history') || '[]');
+
+if (!brUserApps) brUserApps = BR_PRESET_APPS.slice(0, 6).map(a => ({...a}));
+
+/* ── Proxy URL builder ── */
+// Engine → path on the Scramjet App server
+const BR_ENGINE_PATHS = {
+  scramjet:    '/',
+  ultraviolet: '/uv/',
+};
+// Transport query param passed to the proxy page
+const BR_TRANSPORT_PARAMS = {
+  epoxy:   'epoxy',
+  libcurl: 'libcurl',
+};
+
+function brProxyUrl(input) {
+  const s = input.trim();
+  if (!s) return '';
+  const se        = brGetSearchEngine();
+  const engine    = localStorage.getItem('nova_proxy_engine')    || 'scramjet';
+  const transport = localStorage.getItem('nova_proxy_transport') || 'libcurl';
+  const path      = BR_ENGINE_PATHS[engine]         || '/';
+  const tParam    = BR_TRANSPORT_PARAMS[transport]  || 'libcurl';
+
+  let targetUrl;
+  if (s.startsWith('http://') || s.startsWith('https://')) {
+    targetUrl = s;
+  } else if (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(s) && !s.includes(' ')) {
+    targetUrl = 'https://' + s;
+  } else {
+    targetUrl = se.url + encodeURIComponent(s) + se.suffix;
+  }
+
+  return BR_PROXY_HOST + path + '?url=' + encodeURIComponent(targetUrl) + '&transport=' + tParam;
+}
+
+/* ── Open / close ── */
+function brOpen(btn) {
+  document.getElementById('browser-overlay').classList.add('open');
+  document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+  if (btn) btn.classList.add('active','app-open');
+  if (brTabs.length === 0) brNewTab();
+}
+function brClose() {
+  document.getElementById('browser-overlay').classList.remove('open');
+  document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+  const homeBtn = document.querySelector('.dock-btn');
+  if (homeBtn) homeBtn.classList.add('active');
+}
+
+/* ── Tabs ── */
+function brGenId() { return '_' + Math.random().toString(36).slice(2,9); }
+
+function brNewTab(url) {
+  const id = brGenId();
+  brTabs.push({ id, title:'Nova', url:'', realUrl:'', hist:[], histIdx:-1, favicon:'' });
+  brActivate(id);
+  if (url) brNavigate(url);
+}
+
+function brActivate(id) {
+  brActiveId = id;
+  brRenderTabs();
+  brRenderViews();
+  brSyncNav();
+}
+
+function brCloseTab(id, e) {
+  e && e.stopPropagation();
+  const idx = brTabs.findIndex(t => t.id === id);
+  brTabs.splice(idx, 1);
+  if (!brTabs.length) { brNewTab(); return; }
+  if (brActiveId === id) brActivate(brTabs[Math.min(idx, brTabs.length-1)].id);
+  else brRenderTabs();
+}
+
+function brGetTab() { return brTabs.find(t => t.id === brActiveId); }
+
+function brRenderTabs() {
+  const bar = document.getElementById('brTabBar');
+  bar.innerHTML = '';
+  brTabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'br-tab' + (tab.id === brActiveId ? ' active' : '');
+    const faviconHtml = tab.favicon 
+      ? `<img class="br-tab-favicon show" src="${tab.favicon}" alt="" />` 
+      : '<img class="br-tab-favicon" src="" alt="" />';
+    el.innerHTML = `${faviconHtml}<span class="br-tab-title">${tab.title}</span><span class="br-tab-x" onclick="brCloseTab('${tab.id}',event)">✕</span>`;
+    el.onclick = () => brActivate(tab.id);
+    bar.appendChild(el);
+  });
+  const plus = document.createElement('button');
+  plus.className = 'br-tab-new'; plus.textContent = '＋'; plus.title = 'New tab';
+  plus.onclick = () => brNewTab();
+  bar.appendChild(plus);
+}
+
+/* ── Views ── */
+function brRenderViews() {
+  const area = document.getElementById('brContent');
+  // remove stale
+  area.querySelectorAll('.br-view').forEach(v => {
+    if (!brTabs.find(t => t.id === v.dataset.id)) v.remove();
+  });
+  brTabs.forEach(tab => {
+    let view = area.querySelector(`.br-view[data-id="${tab.id}"]`);
+    if (!view) {
+      view = document.createElement('div');
+      view.className = 'br-view';
+      view.dataset.id = tab.id;
+
+      /* new tab page */
+      const ntp = document.createElement('div');
+      ntp.className = 'br-ntp';
+      ntp.id = 'br-ntp-' + tab.id;
+      ntp.innerHTML = brBuildNTP(tab.id);
+      view.appendChild(ntp);
+
+      /* single top-level proxy iframe — NOT nested inside another iframe */
+      const fr = document.createElement('iframe');
+      fr.className = 'br-frame';
+      fr.id = 'br-fr-' + tab.id;
+      fr.allow = 'fullscreen';
+      fr.setAttribute('sandbox', 'allow-forms allow-modals allow-pointer-lock allow-popups allow-scripts allow-same-origin allow-top-navigation');
+      fr.addEventListener('load', () => brOnLoad(tab.id));
+      view.appendChild(fr);
+
+      area.appendChild(view);
+      brBindNtpSearch(tab.id);
+    }
+    view.classList.toggle('active', tab.id === brActiveId);
+    const ntp2 = document.getElementById('br-ntp-' + tab.id);
+    const fr2  = document.getElementById('br-fr-' + tab.id);
+    if (tab.url) { ntp2.classList.add('hide'); fr2.classList.add('show'); }
+    else         { ntp2.classList.remove('hide'); fr2.classList.remove('show'); brRenderApps(tab.id); }
+  });
+}
+
+/* ── New Tab Page ── */
+function brBuildNTP(tabId) {
+  return `
+    <div class="br-nova-title">Nova</div>
+
+    <div class="br-nts-wrap">
+      <div class="br-nts-bar">
+        <span class="br-nts-ico" id="br-nts-ico-${tabId}">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+        <input class="br-nts-input" id="br-nts-${tabId}"
+          placeholder="Search the web"
+          autocomplete="off" spellcheck="false" />
+        <div class="br-nts-actions">
+          <button class="br-nts-btn" onclick="brNtSearch('${tabId}')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      
+      <button class="br-settings-btn" onclick="brOpenSettings(event)" title="Browser Settings">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+      
+      <div class="br-nts-sugg" id="br-nsd-${tabId}"></div>
+    </div>
+
+    <div class="br-apps-section">
+      <div class="br-apps-hd">
+        <span class="br-apps-lbl">Quick Access</span>
+        <button class="br-apps-add-btn" onclick="brOpenApps()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add Apps
+        </button>
+      </div>
+      <div class="br-apps-grid" id="br-ag-${tabId}"></div>
+    </div>`;
+}
+
+function brBindNtpSearch(tabId) {
+  const inp = document.getElementById('br-nts-' + tabId);
+  if (!inp) return;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') brNtSearch(tabId); });
+  inp.addEventListener('input', e => {
+    brBuildSugg(e.target.value, 'br-nsd-' + tabId, tabId);
+    brUpdateNtsIcon(e.target.value, tabId);
+  });
+  inp.addEventListener('focus', () => {
+    if (inp.value) brBuildSugg(inp.value, 'br-nsd-' + tabId, tabId);
+  });
+  inp.addEventListener('blur', () => setTimeout(() => {
+    const d = document.getElementById('br-nsd-' + tabId);
+    if (d) d.classList.remove('open');
+  }, 200));
+}
+
+function brUpdateNtsIcon(val, tabId) {
+  const ico = document.getElementById('br-nts-ico-' + tabId);
+  if (!ico) return;
+  const isUrl = val.startsWith('http://') || val.startsWith('https://') ||
+    (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(val) && !val.includes(' '));
+  ico.innerHTML = isUrl
+    ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+    : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>`;
+  ico.style.color = isUrl ? 'rgba(52,211,153,0.7)' : 'rgba(255,255,255,0.18)';
+}
+
+function brSetSE(key, tabId) {
+  localStorage.setItem('nova_search_engine', key);
+  // update all visible SE rows
+  document.querySelectorAll('.br-se-chip').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.se === key);
+  });
+}
+
+function brNtSearch(tabId) {
+  const inp = document.getElementById('br-nts-' + tabId);
+  if (!inp || !inp.value.trim()) return;
+  brActiveId = tabId;
+  brNavigate(inp.value.trim());
+}
+
+function brRenderApps(tabId) {
+  const grid = document.getElementById('br-ag-' + tabId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  brUserApps.forEach((app, i) => {
+    const el = document.createElement('div');
+    el.className = 'br-app-item';
+    
+    // Extract hostname for favicon - special handling for Nova
+    let faviconUrl;
+    if (app.name === 'Nova') {
+      faviconUrl = 'Nova12.png';
+    } else {
+      try {
+        const hostname = new URL(app.url).hostname;
+        faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+      } catch(e) {
+        faviconUrl = '';
+      }
+    }
+    
+    el.innerHTML = `
+      <div class="br-app-ico">
+        <img src="${faviconUrl}" alt="${app.name}" onerror="this.style.display='none'">
+      </div>
+      <div class="br-app-lbl">${app.name}</div>
+      <button class="br-app-rm" onclick="brRemoveApp(${i},event)">✕</button>`;
+    el.onclick = () => { brActiveId = tabId; brNavigate(app.url); };
+    grid.appendChild(el);
+  });
+}
+
+function brRefreshAllApps() {
+  brTabs.forEach(t => { if (!t.url) brRenderApps(t.id); });
+}
+
+/* ── Navigate ── */
+function brNavigate(raw) {
+  const tab = brGetTab();
+  if (!tab) return;
+  const proxyUrl = brProxyUrl(raw);
+  if (!proxyUrl) return;
+
+  tab.url = proxyUrl;
+  tab.realUrl = raw; // Store the original URL for bookmarks/favicon
+  
+  // Determine if this is a search query or a URL
+  const isUrl = raw.startsWith('http://') || raw.startsWith('https://') || 
+                (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(raw) && !raw.includes(' '));
+  
+  // Immediately extract favicon and title from URL
+  try {
+    if (isUrl) {
+      // It's a URL - get favicon and hostname
+      const urlObj = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+      tab.favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+      tab.title = urlObj.hostname.replace('www.', '');
+      
+      // Add to browser history (website)
+      console.log('Adding URL to history:', tab.title, raw);
+      brAddToHistory(tab.title, raw);
+    } else {
+      // It's a search query
+      const se = brGetSearchEngine();
+      // Use SVG data URI for search icon instead of emoji
+      tab.favicon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"%3E%3Ccircle cx="10" cy="10" r="7" stroke="rgba(255,255,255,0.7)" stroke-width="2"/%3E%3Cpath d="M15 15l6 6" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/%3E%3C/svg%3E';
+      tab.title = raw; // Use the search query as title
+      
+      // Add search query to history
+      console.log('Adding search to history:', raw);
+      brAddToHistory(`Search: ${raw}`, raw, true);
+    }
+    
+    // Try to fetch the actual page title for URLs
+    if (isUrl) {
+      fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(raw.startsWith('http') ? raw : 'https://' + raw)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.contents) {
+            const titleMatch = data.contents.match(/<title[^>]*>([^<]+)<\/title>/i);
+            if (titleMatch && titleMatch[1]) {
+              tab.title = titleMatch[1].trim();
+              brRenderTabs();
+              if (tab.id === brActiveId) brSyncNav();
+              
+              // Update history with better title
+              if (brHistory[0] && brHistory[0].url === raw) {
+                brHistory[0].title = tab.title;
+                localStorage.setItem('nova_br_history', JSON.stringify(brHistory));
+                console.log('Updated history title:', tab.title);
+              }
+            }
+          }
+        })
+        .catch(e => console.log('Title fetch failed:', e));
+    }
+  } catch(e) {
+    tab.title = 'Tab';
+    tab.favicon = '';
+  }
+  
+  tab.hist.splice(tab.histIdx + 1);
+  tab.hist.push({ proxyUrl, realUrl: raw }); // Store both URLs in history
+  tab.histIdx = tab.hist.length - 1;
+
+  const fr  = document.getElementById('br-fr-' + tab.id);
+  const ntp = document.getElementById('br-ntp-' + tab.id);
+  if (ntp) ntp.classList.add('hide');
+  if (fr)  { fr.src = proxyUrl; fr.classList.add('show'); }
+
+  document.getElementById('brAddr').value = raw;
+  brSyncNav(); brRenderTabs();
+}
+
+function brOnLoad(tabId) {
+  const tab = brTabs.find(t => t.id === tabId);
+  if (!tab) return;
+  const fr = document.getElementById('br-fr-' + tabId);
+  
+  // Try to extract title from iframe if accessible
+  try { 
+    const docTitle = fr.contentDocument.title;
+    if (docTitle && docTitle.trim()) {
+      tab.title = docTitle.trim();
+    }
+  } catch(e) { 
+    // Cross-origin - title already set from URL in brNavigate
+  }
+  
+  if (tabId === brActiveId) brSyncNav();
+  brRenderTabs();
+}
+
+function brBack() {
+  const tab = brGetTab();
+  if (!tab || tab.histIdx <= 0) return;
+  tab.histIdx--;
+  const histItem = tab.hist[tab.histIdx];
+  // Support both old string format and new object format
+  if (typeof histItem === 'string') {
+    tab.url = histItem;
+    tab.realUrl = '';
+  } else {
+    tab.url = histItem.proxyUrl;
+    tab.realUrl = histItem.realUrl;
+  }
+  document.getElementById('br-fr-' + tab.id).src = tab.url;
+  brSyncNav();
+}
+function brFwd() {
+  const tab = brGetTab();
+  if (!tab || tab.histIdx >= tab.hist.length - 1) return;
+  tab.histIdx++;
+  const histItem = tab.hist[tab.histIdx];
+  // Support both old string format and new object format
+  if (typeof histItem === 'string') {
+    tab.url = histItem;
+    tab.realUrl = '';
+  } else {
+    tab.url = histItem.proxyUrl;
+    tab.realUrl = histItem.realUrl;
+  }
+  document.getElementById('br-fr-' + tab.id).src = tab.url;
+  brSyncNav();
+}
+function brRefresh() {
+  const tab = brGetTab();
+  if (tab && tab.url) document.getElementById('br-fr-' + tab.id).src = tab.url;
+}
+
+function brGoHome() {
+  const tab = brGetTab();
+  if (!tab) return;
+  // Show new tab page
+  tab.url = '';
+  tab.hist = [];
+  tab.histIdx = -1;
+  const ntp = document.getElementById('br-ntp-' + tab.id);
+  const fr = document.getElementById('br-fr-' + tab.id);
+  if (ntp) ntp.classList.remove('hide');
+  if (fr) fr.classList.remove('show');
+  brSyncNav();
+  brRenderTabs();
+  brRenderApps(tab.id);
+}
+
+function brToggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log('Fullscreen error:', err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function brSyncNav() {
+  const tab = brGetTab();
+  document.getElementById('brBtnBack').disabled = !tab || tab.histIdx <= 0;
+  document.getElementById('brBtnFwd').disabled  = !tab || tab.histIdx >= tab.hist.length - 1;
+  document.getElementById('brAddr').value = tab ? (tab.realUrl || tab.url || '') : '';
+  document.getElementById('brBmBtn').classList.toggle('bm-on', !!tab && !!tab.realUrl && brBookmarks.some(b => b.url === tab.realUrl));
+  
+  // Update address bar favicon
+  const addrFavicon = document.getElementById('brAddrFavicon');
+  const addrIcon = document.querySelector('.br-addr-ico');
+  if (tab && tab.favicon) {
+    addrFavicon.src = tab.favicon;
+    addrFavicon.classList.add('show');
+    addrIcon.style.display = 'none';
+  } else {
+    addrFavicon.classList.remove('show');
+    addrIcon.style.display = 'flex';
+  }
+}
+
+/* ── Address bar ── */
+function brAddrKey(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    if (!val) return;
+    brNavigate(val);
+    e.target.blur();
+    document.getElementById('brSuggDrop').classList.remove('open');
+  }
+  if (e.key === 'Escape') {
+    e.target.blur();
+    document.getElementById('brSuggDrop').classList.remove('open');
+  }
+}
+function brAddrType(val) {
+  brBuildSugg(val, 'brSuggDrop', null);
+  // update lock/search icon in address bar
+  const isUrl = val.startsWith('http://') || val.startsWith('https://') ||
+    (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(val) && !val.includes(' '));
+  const ico = document.querySelector('.br-addr-ico');
+  if (ico) {
+    ico.innerHTML = isUrl
+      ? `<svg fill="none" stroke="rgba(52,211,153,0.8)" viewBox="0 0 24 24" width="13" height="13" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+      : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>`;
+  }
+}
+
+/* ── Suggestions — revamped with categories ── */
+const BR_QUICK_SITES = [
+  { name:'YouTube',    url:'https://www.youtube.com/' },
+  { name:'Google',     url:'https://www.google.com/' },
+  { name:'Reddit',     url:'https://www.reddit.com/' },
+  { name:'Twitter',    url:'https://twitter.com/' },
+  { name:'Discord',    url:'https://discord.com/app' },
+  { name:'Spotify',    url:'https://open.spotify.com/' },
+  { name:'GitHub',     url:'https://github.com/' },
+  { name:'Netflix',    url:'https://www.netflix.com/' },
+  { name:'Twitch',     url:'https://www.twitch.tv/' },
+  { name:'Wikipedia',  url:'https://www.wikipedia.org/' },
+];
+
+function brBuildSugg(query, dropId, tabId) {
+  const drop = document.getElementById(dropId);
+  if (!drop) return;
+  if (!query || query.length < 1) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
+
+  const q    = query.trim();
+  const lq   = q.toLowerCase();
+  const isUrl = q.startsWith('http://') || q.startsWith('https://') ||
+    (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(q) && !q.includes(' '));
+  const se = brGetSearchEngine();
+
+  drop.innerHTML = '';
+
+  // ── URL / Navigate row ──
+  if (isUrl) {
+    const raw = q.startsWith('http') ? q : 'https://' + q;
+    drop.appendChild(brSuggItem(
+      `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`,
+      'Go to', raw, 'rgba(52,211,153,0.7)', q, dropId, tabId
+    ));
+  }
+
+  // ── Search suggestions ──
+  const searches = [q, q + ' reddit', q + ' how to', q + ' wiki', q + ' tutorial'];
+  const seColor  = 'rgba(56,189,248,0.7)';
+  const seIcon   = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>`;
+  searches.forEach((s, i) => {
+    drop.appendChild(brSuggItem(seIcon, i === 0 ? se.name : 'Search', s, seColor, q, dropId, tabId));
+  });
+
+  // ── Matching quick sites ──
+  const matchedSites = BR_QUICK_SITES.filter(s => s.name.toLowerCase().includes(lq));
+  if (matchedSites.length) {
+    const div = document.createElement('div');
+    div.className = 'br-sugg-divider';
+    div.textContent = 'Sites';
+    drop.appendChild(div);
+    matchedSites.slice(0, 3).forEach(site => {
+      drop.appendChild(brSuggItem(
+        `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+        'Visit', site.name, 'rgba(167,139,250,0.7)', q, dropId, tabId, site.url
+      ));
+    });
+  }
+
+  drop.classList.add('open');
+}
+
+function brSuggItem(iconSvg, label, text, iconColor, query, dropId, tabId, forceUrl) {
+  const el = document.createElement('div');
+  el.className = 'br-sugg-item';
+
+  // highlight matching part
+  const highlighted = text.replace(
+    new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'),
+    '<strong>$1</strong>'
+  );
+
+  el.innerHTML = `
+    <span class="br-sugg-icon" style="color:${iconColor}">${iconSvg}</span>
+    <span class="br-sugg-label">${label}</span>
+    <span class="br-sugg-text">${highlighted}</span>`;
+
+  el.onclick = () => {
+    const drop = document.getElementById(dropId);
+    if (drop) drop.classList.remove('open');
+    const navigate = forceUrl || text;
+    if (tabId) {
+      const inp = document.getElementById('br-nts-' + tabId);
+      if (inp) inp.value = navigate;
+      brActiveId = tabId;
+    } else {
+      document.getElementById('brAddr').value = navigate;
+    }
+    brNavigate(navigate);
+  };
+  return el;
+}
+
+/* ── Bookmarks ── */
+function brToggleBm() {
+  const tab = brGetTab();
+  if (!tab || !tab.realUrl) return;
+  const idx = brBookmarks.findIndex(b => b.url === tab.realUrl);
+  if (idx >= 0) brBookmarks.splice(idx, 1);
+  else brBookmarks.push({ title: tab.title, url: tab.realUrl, favicon: tab.favicon || '' });
+  localStorage.setItem('nova_bm', JSON.stringify(brBookmarks));
+  brRenderBmBar(); brSyncNav();
+}
+function brRenderBmBar() {
+  const bar = document.getElementById('brBmBar');
+  bar.innerHTML = '';
+  brBookmarks.forEach((bm, i) => {
+    const c = document.createElement('div');
+    c.className = 'br-bm-chip';
+    const faviconHtml = bm.favicon ? `<img src="${bm.favicon}" alt="" style="width:14px;height:14px;object-fit:contain;flex-shrink:0;" onerror="this.style.display='none'" />` : '';
+    c.innerHTML = `${faviconHtml}${bm.title}<span class="br-bm-x" onclick="brRmBm(${i},event)">✕</span>`;
+    c.onclick = () => brNavigate(bm.url);
+    bar.appendChild(c);
+  });
+}
+function brRmBm(i, e) {
+  e && e.stopPropagation();
+  brBookmarks.splice(i, 1);
+  localStorage.setItem('nova_bm', JSON.stringify(brBookmarks));
+  brRenderBmBar(); brSyncNav();
+}
+
+/* ── Apps modal ── */
+function brOpenApps() {
+  brRenderPresets();
+  document.getElementById('br-apps-modal').classList.add('show');
+}
+function brCloseApps() {
+  document.getElementById('br-apps-modal').classList.remove('show');
+  brRefreshAllApps();
+}
+function brRenderPresets() {
+  const grid = document.getElementById('brPresetGrid');
+  grid.innerHTML = '';
+  BR_PRESET_APPS.forEach(app => {
+    const added = brUserApps.some(a => a.url === app.url);
+    const el = document.createElement('div');
+    el.className = 'br-preset-item' + (added ? ' added' : '');
+    
+    // Extract hostname for favicon - special handling for Nova
+    let faviconUrl;
+    if (app.name === 'Nova') {
+      faviconUrl = 'Nova12.png';
+    } else {
+      try {
+        const hostname = new URL(app.url).hostname;
+        faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+      } catch(e) {
+        faviconUrl = '';
+      }
+    }
+    
+    el.innerHTML = `
+      <div class="br-pico">
+        <img src="${faviconUrl}" alt="${app.name}" style="width: 20px; height: 20px;">
+      </div>
+      <div class="br-pnm">${app.name}</div>
+      <div class="br-padded">✓ Added</div>`;
+    el.onclick = () => {
+      const i = brUserApps.findIndex(a => a.url === app.url);
+      if (i >= 0) { brUserApps.splice(i, 1); el.classList.remove('added'); }
+      else { brUserApps.push({...app}); el.classList.add('added'); }
+      brSaveApps();
+    };
+    grid.appendChild(el);
+  });
+}
+function brAddCustomApp() {
+  const name = document.getElementById('brCName').value.trim();
+  const url  = document.getElementById('brCUrl').value.trim();
+  if (!name || !url) return;
+  const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+  brUserApps.push({ name, url: fullUrl, color:'#888', icon:'<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' });
+  brSaveApps();
+  document.getElementById('brCName').value = '';
+  document.getElementById('brCUrl').value  = '';
+  brRenderPresets();
+}
+function brRemoveApp(i, e) {
+  e && e.stopPropagation();
+  brUserApps.splice(i, 1);
+  brSaveApps(); brRefreshAllApps();
+}
+function brSaveApps() { localStorage.setItem('nova_apps2', JSON.stringify(brUserApps)); }
+
+/* ── Browser Settings Modal ── */
+function brOpenSettings(e) {
+  e && e.stopPropagation();
+  const modal = document.getElementById('br-settings-modal');
+  modal.classList.add('show');
+  
+  // Reload history from localStorage to ensure it's fresh
+  brHistory = JSON.parse(localStorage.getItem('nova_br_history') || '[]');
+  
+  // Update active search engine
+  const currentEngine = localStorage.getItem('nova_search_engine') || 'brave';
+  document.querySelectorAll('.br-search-engine-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.engine === currentEngine);
+  });
+  
+  // Render history
+  brRenderHistory();
+}
+
+function brCloseSettings() {
+  document.getElementById('br-settings-modal').classList.remove('show');
+}
+
+function brSwitchTab(e, tabName) {
+  // Update tabs
+  document.querySelectorAll('.br-settings-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  e.target.classList.add('active');
+  
+  // Update panels
+  document.querySelectorAll('.br-settings-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+  document.getElementById('br-panel-' + tabName).classList.add('active');
+}
+
+function brSelectSearchEngine(engine) {
+  localStorage.setItem('nova_search_engine', engine);
+  document.querySelectorAll('.br-search-engine-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.engine === engine);
+  });
+}
+
+function brAddToHistory(title, url, isSearch = false) {
+  // Don't track empty URLs
+  if (!url || url === '') return;
+  
+  // Don't add duplicates if the same URL/search was just added
+  if (brHistory.length > 0 && brHistory[0].url === url) {
+    return;
+  }
+  
+  const entry = {
+    title: title || 'Untitled',
+    url: url,
+    timestamp: Date.now(),
+    isSearch: isSearch // Flag to distinguish searches from URLs
+  };
+  
+  // Add to beginning of array (most recent first)
+  brHistory.unshift(entry);
+  
+  // Keep only last 100 entries
+  if (brHistory.length > 100) {
+    brHistory = brHistory.slice(0, 100);
+  }
+  
+  localStorage.setItem('nova_br_history', JSON.stringify(brHistory));
+}
+
+function brRenderHistory() {
+  const container = document.getElementById('br-history-list');
+  
+  if (brHistory.length === 0) {
+    container.innerHTML = '<div class="br-empty-state">No browsing history yet</div>';
+    return;
+  }
+  
+  container.innerHTML = brHistory.map((entry, i) => {
+    const date = new Date(entry.timestamp);
+    const timeStr = date.toLocaleString();
+    
+    // Show search text for searches, or use the URL for websites
+    const displayTitle = entry.title;
+    const displayUrl = entry.isSearch 
+      ? `Search query` 
+      : entry.url;
+    
+    return `
+      <div class="br-history-item">
+        <div class="br-history-info" onclick="brOpenFromHistory('${entry.url.replace(/'/g, "\\'")}', ${entry.isSearch || false})">
+          <div class="br-history-title">${displayTitle}</div>
+          <div class="br-history-url">${displayUrl} • ${timeStr}</div>
+        </div>
+        <button class="br-history-delete" onclick="brDeleteHistoryItem(${i})">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function brOpenFromHistory(url, isSearch = false) {
+  brCloseSettings();
+  const tab = brGetTab();
+  if (tab) {
+    brNavigate(url);
+  }
+}
+
+function brDeleteHistoryItem(index) {
+  brHistory.splice(index, 1);
+  localStorage.setItem('nova_br_history', JSON.stringify(brHistory));
+  brRenderHistory();
+}
+
+function brClearAllHistory() {
+  if (confirm('Clear all browsing history?')) {
+    brHistory = [];
+    localStorage.setItem('nova_br_history', JSON.stringify(brHistory));
+    brRenderHistory();
+  }
+}
+
+/* ── Hook dock button ── */
+document.getElementById('dock-browser').onclick = function() { brOpen(this); };
+
+brRenderBmBar();
+</script>
+
+<!-- ══ PANEL OVERLAYS (games / apps / settings) ══ -->
+<style>
+  .panel-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column;
+    opacity: 0; transform: translateY(100%);
+    pointer-events: none;
+    background: transparent;
+    transition: opacity 0.42s cubic-bezier(0.22,1,0.36,1),
+                transform 0.42s cubic-bezier(0.22,1,0.36,1);
+  }
+  .panel-overlay.open {
+    opacity: 1; transform: translateY(0);
+    pointer-events: all;
+  }
+  .panel-overlay iframe {
+    flex: 1; width: 100%; border: none; background: transparent;
+  }
+</style>
+
+<div class="panel-overlay" id="overlay-games">
+  <iframe id="frame-games" src=""></iframe>
+</div>
+<div class="panel-overlay" id="overlay-apps">
+  <iframe id="frame-apps" src=""></iframe>
+</div>
+<div class="panel-overlay" id="overlay-settings">
+  <iframe id="frame-settings" src=""></iframe>
+</div>
+
+<script>
+  /* ── Generic panel open/close ── */
+  const PANEL_SRCS = {
+    games:    'games.html',
+    apps:     'apps.html',
+    settings: 'settings.html',
+  };
+
+  function openPanel(name, btn) {
+    const overlay = document.getElementById('overlay-' + name);
+    const frame   = document.getElementById('frame-' + name);
+    if (!overlay || !frame) return;
+    
+    // lazy-load
+    if (!frame.src || frame.src === window.location.href) {
+      frame.src = PANEL_SRCS[name];
+    }
+    overlay.classList.add('open');
+    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+    if (btn) btn.classList.add('active','app-open');
+    // show dock briefly then let it hide
+    if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
+  }
+
+  function closePanel(name) {
+    const overlay = document.getElementById('overlay-' + name);
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+    const homeBtn = document.querySelector('.dock-btn');
+    if (homeBtn) homeBtn.classList.add('active');
+    // show dock when closing panel
+    if (window._dockShow) window._dockShow();
+  }
+
+  /* ── postMessage from panels ── */
+  window.addEventListener('message', function(e) {
+    const d = e.data;
+    if (!d || !d.novaAction) return;
+
+    if (d.novaAction === 'closeApp') {
+      closePanel(d.app);
+      brClose && brClose();
+    }
+    if (d.novaAction === 'minimizeApp') {
+      closePanel(d.app);
+    }
+    
+    // Track game played
+    if (d.novaAction === 'gamePlayed') {
+      trackGamePlayed(d.gameName, d.gameImage);
+    }
+    
+    // Open app in browser
+    if (d.novaAction === 'openAppInBrowser') {
+      if (typeof brNavigate === 'function') {
+        brNavigate(d.url);
+      }
+    }
+
+    // all background changes come through wallpaperChanged now
+    if (d.novaAction === 'wallpaperChanged') {
+      applyBackground(d);
+    }
+
+    // dock color changes from settings
+    if (d.novaAction === 'dockColorsChanged') {
+      applyDockColors(d.primary, d.secondary);
+    }
+
+    // legacy gradientChanged from old settings — treat same way
+    if (d.novaAction === 'gradientChanged') {
+      if (d.grad) {
+        applyBackground({ gradient: `linear-gradient(${d.grad.dir}, ${d.grad.c1}, ${d.grad.c2}, ${d.grad.c3})` });
+      } else {
+        applyBackground({ clear: true });
+      }
+    }
+
+    if (d.novaAction === 'usernameChanged') { /* future use */ }
+
+    if (d.novaAction === 'tabCloakChanged') {
+      applyTabCloak(d.title, d.iconUrl);
+    }
+
+    if (d.novaAction === 'autoCloakChanged') {
+      setupAutoCloak(d.enabled);
+    }
+
+    if (d.novaAction === 'panicKeyChanged' || d.novaAction === 'panicUrlChanged' || d.novaAction === 'instantRedirectChanged') {
+      setupPanicKey();
+    }
+
+    if (d.novaAction === 'behaviorChanged') {
+      applyBehaviorSettings(d.warnBeforeClosing);
+    }
+
+    if (d.novaAction === 'resetAll') {
+      setTimeout(() => window.location.reload(), 500);
+    }
+
+    // proxy settings — brProxyUrl() reads localStorage live on every navigate
+    if (d.novaAction === 'proxySettingsChanged') { /* handled via localStorage */ }
+  });
+
+  /* central function to apply any background type to #bg */
+  function applyBackground(d) {
+    const bg      = document.getElementById('bg');
+    const bgImg   = document.getElementById('bg-img');
+    const bgVideo = document.getElementById('bg-video');
+
+    console.log('applyBackground called:', d);
+
+    // Kill the CSS transition so it doesn't fight the change
+    bg.style.transition = 'none';
+
+    // Stop and hide everything first
+    bgVideo.pause();
+    bgVideo.removeAttribute('src');
+    bgVideo.load();
+    bgVideo.style.display = 'none';
+    bgImg.style.display   = 'none';
+    bgImg.removeAttribute('src');
+
+    if (d.clear) {
+      console.log('Clearing to #0f0f0f');
+      bg.style.background = '#0f0f0f';
+    } else if (d.src) {
+      const src = d.src;
+      console.log('Applying src:', src, 'isVideo:', d.isVideo);
+      if (d.isVideo || /\.(mp4|webm|mov)$/i.test(src)) {
+        bg.style.background = '#000';
+        bgVideo.src = src;
+        bgVideo.style.display = 'block';
+        bgVideo.load();
+        bgVideo.play().catch(() => {});
+      } else {
+        bg.style.background = '#000';
+        bgImg.src = src;
+        bgImg.style.display = 'block';
+      }
+    } else if (d.dataUrl) {
+      console.log('🎯 Applying dataUrl background:', { 
+        isVideo: d.isVideo, 
+        isGif: d.isGif, 
+        isImage: d.isImage,
+        dataUrlLength: d.dataUrl ? d.dataUrl.length : 0
+      });
+      
+      bg.style.background = '#000';
+      if (d.isVideo && !d.isGif) {
+        // Imported video
+        console.log('📹 Setting video element with dataUrl');
+        bgVideo.src = d.dataUrl;
+        bgVideo.style.display = 'block';
+        bgVideo.load();
+        bgVideo.play().catch(err => console.warn('Video play failed:', err));
+      } else {
+        // Imported image or GIF - ALWAYS use img tag (GIFs animate, images display)
+        console.log('🖼️ Setting image element with dataUrl (GIF will animate automatically)');
+        bgImg.src = d.dataUrl;
+        bgImg.style.display = 'block';
+        
+        // Ensure proper sizing and positioning
+        bgImg.style.width = '100%';
+        bgImg.style.height = '100%';
+        bgImg.style.objectFit = 'cover';
+        bgImg.style.objectPosition = 'center center';
+        
+        // Add load event listener for debugging
+        bgImg.onload = () => {
+          console.log('✅ Background image/GIF loaded successfully');
+          console.log('📐 Image dimensions:', bgImg.naturalWidth, 'x', bgImg.naturalHeight);
+          console.log('📱 Viewport dimensions:', window.innerWidth, 'x', window.innerHeight);
+        };
+        bgImg.onerror = () => console.error('❌ Background image/GIF failed to load');
+      }
+    } else if (d.gradient) {
+      console.log('Applying gradient:', d.gradient);
+      bg.style.background = d.gradient;
+    }
+
+    // Restore transition after a tick
+    requestAnimationFrame(() => { bg.style.transition = ''; });
+
+    // tint dock / overlays
+    applyPanelTint(d);
+    
+    // Sync browser background to match home background
+    syncBrowserBackground();
+  }
+
+  /* tint the panel/app overlay backgrounds to match chosen bg */
+  function applyPanelTint(d) {
+    let panelBg = '#0a0a10';
+    if (d.gradient) {
+      // grab the first hex colour from the gradient and make a very dark tint
+      const match = d.gradient.match(/#([0-9a-fA-F]{6})/);
+      if (match) {
+        // darken it — mix 85% black with 15% the accent colour
+        const r = parseInt(match[1].slice(0,2),16);
+        const g = parseInt(match[1].slice(2,4),16);
+        const b = parseInt(match[1].slice(4,6),16);
+        const dr = Math.round(r * 0.25);
+        const dg = Math.round(g * 0.25);
+        const db = Math.round(b * 0.25);
+        panelBg = `rgb(${dr},${dg},${db})`;
+      }
+    } else if (d.clear || d.src || d.dataUrl) {
+      panelBg = '#0a0a10';
+    }
+    // Keep panels transparent - don't set background
+    // document.querySelectorAll('.panel-overlay').forEach(el => {
+    //   el.style.background = panelBg;
+    // });
+    const browserOverlay = document.getElementById('browser-overlay');
+    if (browserOverlay) browserOverlay.style.background = 'transparent';
+    // also subtly tint the dock
+    const dock = document.querySelector('.dock');
+    if (dock && d.gradient) {
+      const match = d.gradient.match(/#([0-9a-fA-F]{6})/);
+      if (match) {
+        const r = parseInt(match[1].slice(0,2),16);
+        const g = parseInt(match[1].slice(2,4),16);
+        const b = parseInt(match[1].slice(4,6),16);
+        dock.style.background = `rgba(${Math.round(r*0.15)},${Math.round(g*0.15)},${Math.round(b*0.15)},0.97)`;
+        dock.style.borderColor = `rgba(${r},${g},${b},0.12)`;
+      }
+    } else if (dock) {
+      dock.style.background = '';
+      dock.style.borderColor = '';
+    }
+  }
+
+  /* sync browser background to match home background */
+  function syncBrowserBackground() {
+    const brBg      = document.getElementById('brBg');
+    const brBgImg   = document.getElementById('brBgImg');
+    const brBgVideo = document.getElementById('brBgVideo');
+    
+    if (!brBg || !brBgImg || !brBgVideo) return;
+
+    console.log('Syncing browser background...');
+
+    // Stop and hide everything first
+    brBgVideo.pause();
+    brBgVideo.removeAttribute('src');
+    brBgVideo.load();
+    brBgVideo.style.display = 'none';
+    brBgImg.style.display   = 'none';
+    brBgImg.removeAttribute('src');
+    brBg.style.background = '#0a0a0a';
+
+    // Read current home background state
+    const upload  = localStorage.getItem('nova_wallpaper_upload');
+    const src     = localStorage.getItem('nova_wallpaper');
+    const isVideo = localStorage.getItem('nova_wallpaper_is_video') === 'true';
+    const isGif   = localStorage.getItem('nova_wallpaper_is_gif') === 'true';
+    const grad    = JSON.parse(localStorage.getItem('nova_grad') || 'null');
+
+    // Priority 1: Upload (dataUrl)
+    if (upload) {
+      console.log('Browser bg: applying upload');
+      const uploadIsVideo = upload.startsWith('data:video') && !isGif;
+      brBg.style.background = '#000';
+      if (uploadIsVideo) {
+        brBgVideo.src = upload;
+        brBgVideo.style.display = 'block';
+        brBgVideo.load();
+        brBgVideo.play().catch(() => {});
+      } else {
+        brBgImg.src = upload;
+        brBgImg.style.display = 'block';
+      }
+    }
+    // Priority 2: Preset wallpaper (src)
+    else if (src) {
+      console.log('Browser bg: applying preset', src, 'isVideo:', isVideo);
+      brBg.style.background = '#000';
+      if (isVideo) {
+        brBgVideo.src = src;
+        brBgVideo.style.display = 'block';
+        brBgVideo.load();
+        brBgVideo.play().catch(() => {});
+      } else {
+        brBgImg.src = src;
+        brBgImg.style.display = 'block';
+      }
+    }
+    // Priority 3: Gradient
+    else if (grad) {
+      console.log('Browser bg: applying gradient');
+      brBg.style.background = `linear-gradient(${grad.dir}, ${grad.c1}, ${grad.c2}, ${grad.c3})`;
+    }
+    // Priority 4: Default dark
+    else {
+      console.log('Browser bg: default dark');
+      brBg.style.background = '#0a0a0a';
+    }
+  }
+
+  /* apply dynamic dock colors from settings */
+  function applyDockColors(primary, secondary) {
+    const dock = document.querySelector('.dock');
+    if (!dock) return;
+
+    // Parse hex colors to RGB
+    const pNum = parseInt(primary.replace('#', ''), 16);
+    const sNum = parseInt(secondary.replace('#', ''), 16);
+    const pr = (pNum >> 16) & 0xFF;
+    const pg = (pNum >> 8) & 0xFF;
+    const pb = pNum & 0xFF;
+    const sr = (sNum >> 16) & 0xFF;
+    const sg = (sNum >> 8) & 0xFF;
+    const sb = sNum & 0xFF;
+
+    // Apply darker gradient background with blur for better readability
+    dock.style.background = `linear-gradient(135deg, rgba(${Math.round(pr*0.3)},${Math.round(pg*0.3)},${Math.round(pb*0.3)},0.9), rgba(${Math.round(sr*0.3)},${Math.round(sg*0.3)},${Math.round(sb*0.3)},0.9))`;
+    dock.style.borderColor = `rgba(${pr},${pg},${pb},0.25)`;
+    
+    // Apply to overlays - BROWSER gets dark, GAMES/APPS stay transparent, SETTINGS transparent
+    const overlays = document.querySelectorAll('.app-overlay');
+    overlays.forEach(overlay => {
+      const iframe = overlay.querySelector('iframe');
+      if (!iframe) return;
+      
+      // Check which overlay this is
+      if (overlay.id === 'overlay-settings') {
+        // Settings - transparent
+        overlay.style.background = 'transparent';
+      } else if (overlay.id === 'overlay-games' || overlay.id === 'overlay-apps') {
+        // Games and Apps - transparent
+        overlay.style.background = 'transparent';
+      } else {
+        // Everything else (music, etc) - very dark tinted background
+        overlay.style.background = `rgba(${Math.round(pr*0.15)},${Math.round(pg*0.15)},${Math.round(pb*0.15)},0.97)`;
+      }
+    });
+
+    // Apply to browser overlay (transparent) - keep this but also sync background
+    const browserOverlay = document.getElementById('browser-overlay');
+    if (browserOverlay) {
+      browserOverlay.style.background = 'transparent';
+      // Sync browser background
+      syncBrowserBackground();
+    }
+
+    // Apply to app handles with theme
+    const handles = document.querySelectorAll('.app-handle');
+    handles.forEach(handle => {
+      handle.style.background = `rgba(${Math.round(pr*0.2)},${Math.round(pg*0.2)},${Math.round(pb*0.2)},0.95)`;
+      handle.style.borderTopColor = `rgba(${pr},${pg},${pb},0.15)`;
+    });
+
+    // Active button background only — no dynamic hover listeners
+    document.querySelectorAll('.dock-btn.active, .dock-btn.app-open').forEach(btn => {
+      btn.style.background = `rgba(${pr},${pg},${pb},0.35)`;
+    });
+  }
+
+  /* restore background on load from localStorage */
+  (function() {
+    const bg      = document.getElementById('bg');
+    const bgImg   = document.getElementById('bg-img');
+    const bgVideo = document.getElementById('bg-video');
+    const upload  = localStorage.getItem('nova_wallpaper_upload');
+    const src     = localStorage.getItem('nova_wallpaper');
+    const isVideo = localStorage.getItem('nova_wallpaper_is_video') === 'true';
+    const isGif   = localStorage.getItem('nova_wallpaper_is_gif') === 'true';
+    const grad    = JSON.parse(localStorage.getItem('nova_grad') || 'null');
+    const usingImport = localStorage.getItem('nova_using_import') === 'true';
+    const activeImportLabel = localStorage.getItem('nova_active_import_label');
+
+    console.log('Restoring background:', { 
+      upload: !!upload, 
+      src, 
+      isVideo, 
+      isGif, 
+      grad: !!grad,
+      usingImport,
+      activeImportLabel
+    });
+
+    // No transition on initial load
+    bg.style.transition = 'none';
+
+    // Priority 1: Imported backgrounds (with fallback to customs)
+    if (usingImport && activeImportLabel) {
+      console.log('🎯 Restoring imported background:', activeImportLabel);
+      
+      // Quick safety check - verify the background still exists before proceeding
+      let customs = [];
+      try {
+        customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+      } catch(e) {
+        customs = [];
+      }
+      
+      const existsInStorage = customs.find(bg => bg.label === activeImportLabel);
+      if (!existsInStorage) {
+        console.warn('🧹 Active import background no longer exists, clearing flags:', activeImportLabel);
+        localStorage.removeItem('nova_using_import');
+        localStorage.removeItem('nova_active_import_label');
+        localStorage.removeItem('nova_wallpaper_upload');
+        // Fall through to default background
+      } else {
+      if (upload) {
+        // Small file saved in localStorage
+        console.log('✅ Found imported background in localStorage upload');
+        const uploadIsVideo = upload.startsWith('data:video') && !isGif;
+        bg.style.background = '#000';
+        if (uploadIsVideo) {
+          bgVideo.src = upload; bgVideo.style.display = 'block';
+          bgVideo.style.objectFit = 'cover';
+          bgVideo.load(); bgVideo.play().catch(() => {});
+        } else {
+          bgImg.src = upload; bgImg.style.display = 'block';
+          bgImg.style.objectFit = 'cover';
+        }
+      } else {
+        // Large file - try to find in customs
+        console.log('🔍 Looking for large imported background in customs:', activeImportLabel);
+        console.log('🔍 Active import label details:', { 
+          label: activeImportLabel, 
+          length: activeImportLabel?.length,
+          type: typeof activeImportLabel 
+        });
+        let foundInCustoms = false;
+        
+        // Check localStorage customs
+        try {
+          const customs = JSON.parse(localStorage.getItem('nova_custom_bgs') || '[]');
+          console.log(`🔍 Checking ${customs.length} localStorage customs for "${activeImportLabel}"`);
+          const matchingBg = customs.find(bg => bg.label === activeImportLabel);
+          
+          if (matchingBg) {
+            console.log('✅ Found imported background in localStorage customs:', matchingBg.label);
+            bg.style.background = '#000';
+            
+            if (matchingBg.isVideo && !matchingBg.isGif) {
+              bgVideo.src = matchingBg.dataUrl; bgVideo.style.display = 'block';
+              bgVideo.style.objectFit = 'cover';
+              bgVideo.load(); bgVideo.play().catch(() => {});
+            } else {
+              bgImg.src = matchingBg.dataUrl; bgImg.style.display = 'block';
+              bgImg.style.objectFit = 'cover';
+            }
+            foundInCustoms = true;
+          } else {
+            console.log(`❌ Not found in localStorage customs`);
+          }
+        } catch (e) {
+          console.warn('Failed to check localStorage customs:', e);
+        }
+        
+        // Check session customs
+        if (!foundInCustoms && window.sessionCustomBgs) {
+          console.log(`🔍 Checking ${window.sessionCustomBgs.length} session customs for "${activeImportLabel}"`);
+          const matchingBg = window.sessionCustomBgs.find(bg => bg.label === activeImportLabel);
+          if (matchingBg) {
+            console.log('✅ Found imported background in session customs:', matchingBg.label);
+            bg.style.background = '#000';
+            
+            if (matchingBg.isVideo && !matchingBg.isGif) {
+              bgVideo.src = matchingBg.dataUrl; bgVideo.style.display = 'block';
+              bgVideo.style.objectFit = 'cover';
+              bgVideo.load(); bgVideo.play().catch(() => {});
+            } else {
+              bgImg.src = matchingBg.dataUrl; bgImg.style.display = 'block';
+              bgImg.style.objectFit = 'cover';
+            }
+            foundInCustoms = true;
+          } else {
+            console.log(`❌ Not found in session customs. Available labels:`, window.sessionCustomBgs.map(bg => bg.label));
+          }
+        } else if (!foundInCustoms) {
+          console.log('❌ No session customs to check');
+        }
+        
+        if (!foundInCustoms) {
+          console.warn('⚠️ Could not find imported background, clearing flags and using default');
+          localStorage.removeItem('nova_using_import');
+          localStorage.removeItem('nova_active_import_label');
+          bg.style.background = '#0f0f0f';
+        }
+        }
+      }
+    } 
+    // Priority 2: Built-in presets
+    else if (src && !usingImport) {
+      console.log('✅ Restoring built-in background:', src, 'isVideo:', isVideo);
+      bg.style.background = '#000';
+      if (isVideo || /\.(mp4|webm|mov)$/i.test(src)) {
+        bgVideo.src = src; bgVideo.style.display = 'block';
+        bgVideo.style.objectFit = 'cover';
+        bgVideo.load(); bgVideo.play().catch(() => {});
+      } else {
+        bgImg.src = src; bgImg.style.display = 'block';
+        bgImg.style.objectFit = 'cover';
+      }
+    } 
+    // Priority 3: Gradients
+    else if (grad) {
+      const gradStr = `linear-gradient(${grad.dir}, ${grad.c1}, ${grad.c2}, ${grad.c3})`;
+      console.log('Restoring gradient:', gradStr);
+      bg.style.background = gradStr;
+    } 
+    // Priority 4: Default
+    else {
+      console.log('No saved background, using #0f0f0f default');
+      bg.style.background = '#0f0f0f';
+    }
+
+    requestAnimationFrame(() => { bg.style.transition = ''; });
+
+    // Restore dock colors if saved
+    const dockPrimary   = localStorage.getItem('nova_dock_color_primary');
+    const dockSecondary = localStorage.getItem('nova_dock_color_secondary');
+    if (dockPrimary && dockSecondary) {
+      applyDockColors(dockPrimary, dockSecondary);
+    }
+    
+    // Sync browser background to match home background
+    syncBrowserBackground();
+  })();
+
+  /* ══════════════════════════════════
+     TAB CLOAK & PANIC KEY & BEHAVIOR
+  ══════════════════════════════════ */
+  function applyTabCloak(title, iconUrl) {
+    document.title = title || 'Nova';
+    if (iconUrl) {
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = iconUrl;
+    }
+  }
+
+  let originalTitle = document.title;
+  let originalIcon = document.querySelector("link[rel*='icon']")?.href || '';
+
+  function setupAutoCloak(enabled) {
+    if (!enabled) return;
+    
+    document.addEventListener('visibilitychange', () => {
+      const cloakTitle = localStorage.getItem('nova_cloak_title') || 'Google';
+      const cloakIcon = localStorage.getItem('nova_cloak_icon') || 'https://www.google.com/s2/favicons?domain=google.com&sz=32';
+      
+      if (document.hidden) {
+        // Tab is hidden - apply cloak
+        originalTitle = document.title;
+        originalIcon = document.querySelector("link[rel*='icon']")?.href || '';
+        applyTabCloak(cloakTitle, cloakIcon);
+      } else {
+        // Tab is visible - restore original
+        applyTabCloak(originalTitle || 'Nova', originalIcon);
+      }
+    });
+  }
+
+  function setupPanicKey() {
+    const savedKey = localStorage.getItem('nova_panic_key');
+    const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+    const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false'; // default true
+    
+    if (!savedKey) return;
+    
+    // Remove old listener if exists
+    if (window._panicKeyHandler) {
+      document.removeEventListener('keydown', window._panicKeyHandler);
+    }
+    
+    // Add new listener
+    window._panicKeyHandler = (e) => {
+      if (e.key === savedKey) {
+        e.preventDefault();
+        
+        if (instantRedirect) {
+          // Instant redirect - no confirmation
+          window.location.href = savedUrl;
+        } else {
+          // Show confirmation dialog
+          if (confirm('Redirect to safe site?')) {
+            window.location.href = savedUrl;
+          }
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', window._panicKeyHandler);
+  }
+
+  function applyBehaviorSettings(warnBeforeClosing) {
+    // Remove old listener if exists
+    if (window._beforeUnloadHandler) {
+      window.removeEventListener('beforeunload', window._beforeUnloadHandler);
+    }
+    
+    if (warnBeforeClosing) {
+      window._beforeUnloadHandler = (e) => {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      };
+      window.addEventListener('beforeunload', window._beforeUnloadHandler);
+    }
+  }
+
+  // Load and apply saved settings on page load
+  (function initSettings() {
+    const savedTitle = localStorage.getItem('nova_cloak_title');
+    const savedIcon = localStorage.getItem('nova_cloak_icon');
+    const autoCloak = localStorage.getItem('nova_auto_cloak') === 'true';
+    const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') !== 'false';
+    
+    // Apply tab cloak if set and auto-cloak is off
+    if (savedTitle && !autoCloak) {
+      applyTabCloak(savedTitle, savedIcon);
+    }
+    
+    // Setup auto cloak if enabled
+    if (autoCloak) {
+      setupAutoCloak(true);
+    }
+    
+    // Setup panic key
+    setupPanicKey();
+    
+    // Apply behavior settings
+    applyBehaviorSettings(warnBeforeClosing);
+  })();
+
+  /* ══════════════════════════════════
+     CACHE BUSTING - Force Fresh Content
+  ══════════════════════════════════ */
+  (function() {
+    // Clear service worker caches
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        names.forEach(function(name) {
+          caches.delete(name);
+        });
+      });
+    }
+    
+    // Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        registrations.forEach(function(registration) {
+          registration.unregister();
+        });
+      });
+    }
+  })();
+
+  /* ══════════════════════════════════
+     STATS TRACKING
+  ══════════════════════════════════ */
+  function trackGamePlayed(gameName, gameImage) {
+    try {
+      // Increment games played count
+      let count = parseInt(localStorage.getItem('nova_stat_games_played') || '0');
+      count++;
+      localStorage.setItem('nova_stat_games_played', count);
+      
+      // Add to recent games history with image
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem('nova_game_history') || '[]');
+      } catch(e) {}
+      
+      const entry = {
+        name: gameName,
+        image: gameImage || '',
+        timestamp: Date.now(),
+        date: new Date().toISOString()
+      };
+      
+      // Add to beginning, keep last 50
+      history.unshift(entry);
+      history = history.slice(0, 50);
+      
+      localStorage.setItem('nova_game_history', JSON.stringify(history));
+      
+      console.log('✅ Game tracked:', gameName);
+    } catch(e) {
+      console.error('Failed to track game:', e);
+    }
+  }
+
+  // Track browser usage
+  function trackBrowserUsage(url) {
+    try {
+      // Track that browser was used
+      let browserMinutes = parseInt(localStorage.getItem('nova_stat_browser_minutes') || '0');
+      browserMinutes += 1; // Add 1 minute each time browser is used
+      localStorage.setItem('nova_stat_browser_minutes', browserMinutes);
+      
+      console.log('✅ Browser usage tracked');
+    } catch(e) {}
+  }
+
+  // Hook into browser navigation
+  if (window.brNavigateTo) {
+    const originalNavigate = window.brNavigateTo;
+    window.brNavigateTo = function(url) {
+      trackBrowserUsage(url);
+      return originalNavigate(url);
+    };
+  }
+
+  // Increment session counter on page load
+  (function() {
+    try {
+      let sessions = parseInt(localStorage.getItem('nova_stat_sessions') || '0');
+      sessions++;
+      localStorage.setItem('nova_stat_sessions', sessions);
+      
+      // Track time every minute
+      setInterval(function() {
+        let minutes = parseInt(localStorage.getItem('nova_stat_browser_minutes') || '0');
+        minutes++;
+        localStorage.setItem('nova_stat_browser_minutes', minutes);
+      }, 60000);
+    } catch(e) {}
+  })();
+
+  /* ══════════════════════════════════
+     FPS / PING OVERLAY
+  ══════════════════════════════════ */
+  (function() {
+    const overlay = document.getElementById('performance-overlay');
+    const fpsDisplay = document.getElementById('fps-display');
+    const pingDisplay = document.getElementById('ping-display');
+    const fpsValue = document.getElementById('fps-value');
+    const pingValue = document.getElementById('ping-value');
+
+    let showFps = localStorage.getItem('nova_show_fps') === 'true';
+    let showPing = localStorage.getItem('nova_show_ping') === 'true';
+    let isOnHomeScreen = false;
+
+    // FPS calculation
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let fps = 0;
+
+    function calculateFPS() {
+      frameCount++;
+      const currentTime = performance.now();
+      const delta = currentTime - lastTime;
+
+      if (delta >= 1000) { // Update every second
+        fps = Math.round((frameCount * 1000) / delta);
+        fpsValue.textContent = fps;
+        frameCount = 0;
+        lastTime = currentTime;
+      }
+
+      if (showFps && isOnHomeScreen) {
+        requestAnimationFrame(calculateFPS);
+      }
+    }
+
+    // Ping simulation (measures localStorage write/read latency as a proxy)
+    function updatePing() {
+      const startTime = performance.now();
+      try {
+        localStorage.setItem('nova_ping_test', Date.now().toString());
+        localStorage.getItem('nova_ping_test');
+      } catch(e) {}
+      const endTime = performance.now();
+      const latency = Math.round(endTime - startTime);
+      
+      // Add some realistic variation
+      const ping = Math.max(1, latency + Math.floor(Math.random() * 15));
+      pingValue.textContent = ping;
+    }
+
+    function checkIfHomeScreen() {
+      // Only show on home screen (#s-home), not on loading/splash/user/pin screens
+      const homeScreen = document.getElementById('s-home');
+      return homeScreen && !homeScreen.classList.contains('hidden');
+    }
+
+    function updateOverlayVisibility() {
+      showFps = localStorage.getItem('nova_show_fps') === 'true';
+      showPing = localStorage.getItem('nova_show_ping') === 'true';
+      isOnHomeScreen = checkIfHomeScreen();
+
+      if ((showFps || showPing) && isOnHomeScreen) {
+        overlay.style.display = 'block';
+        fpsDisplay.style.display = showFps ? 'flex' : 'none';
+        pingDisplay.style.display = showPing ? 'flex' : 'none';
+
+        if (showFps) {
+          calculateFPS();
+        }
+        if (showPing) {
+          updatePing();
+          // Update ping every 2 seconds
+          if (!window.pingInterval) {
+            window.pingInterval = setInterval(updatePing, 2000);
+          }
+        } else {
+          if (window.pingInterval) {
+            clearInterval(window.pingInterval);
+            window.pingInterval = null;
+          }
+        }
+      } else {
+        overlay.style.display = 'none';
+        if (window.pingInterval) {
+          clearInterval(window.pingInterval);
+          window.pingInterval = null;
+        }
+      }
+    }
+
+    // Listen for performance settings changes from settings page
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.novaAction === 'performanceChanged') {
+        updateOverlayVisibility();
+      }
+    });
+
+    // Check every 500ms if we're on home screen (for when transitioning from loading)
+    setInterval(function() {
+      const wasOnHome = isOnHomeScreen;
+      isOnHomeScreen = checkIfHomeScreen();
+      if (wasOnHome !== isOnHomeScreen) {
+        updateOverlayVisibility();
+      }
+    }, 500);
+
+    // Initial setup
+    updateOverlayVisibility();
+  })();
+
+</script>
+</body>
+</html>
