@@ -1,5 +1,14 @@
 [
   {
+    "id": "proxy_bigshotboxing",
+    "name": "Big Shot Boxing",
+    "url": "https://bigshotboxing.com",
+    "cover": "Img/game/Bigshotboxing.jpg",
+    "author": "Big Shot Games",
+    "genre": "sports",
+    "isProxied": true
+  },
+  {
     "id": "proxy_shellshockers",
     "name": "Shell Shockers",
     "url": "https://shellshock.io",
