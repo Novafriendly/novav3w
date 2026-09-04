@@ -631,16 +631,14 @@
 /* ═══════════════════════
    CONFIG
 ═══════════════════════ */
-const PROXY_BASE = 'https://ubnteubsas.vercel.app/a/sj/';
-const SEARCH_BASE = 'https://ubnteubsas.vercel.app/a/sj/https%3A%2F%2Fsearch.brave.com%2Fsearch?q=';
-const SEARCH_SUFFIX = '&source=web';
+const PROXY_BASE = 'https://scracmjetfornovatesters.onrender.com/?url=';
+const SEARCH_BASE = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent('https://search.brave.com/search?q=');
+const SEARCH_SUFFIX = '&source=web&transport=libcurl';
 
 const ERROR_URLS = [
-  'https://ubnteubsas.vercel.app/',
-  'https://ubnteubsas.vercel.app/a',
-  'https://ubnteubsas.vercel.app/b',
-  'https://ubnteubsas.vercel.app/c',
-  PROXY_BASE + encodeURIComponent('https://www.google.com'),
+  'https://scracmjetfornovatesters.onrender.com/',
+  'https://scracmjetfornovatesters.onrender.com/?url=',
+  PROXY_BASE + encodeURIComponent('https://www.google.com') + '&transport=libcurl',
 ];
 
 /* app definitions — SVG icons, no emojis */
@@ -843,10 +841,10 @@ function navigate(raw) {
 
   if (input.startsWith('http://') || input.startsWith('https://')) {
     // full URL — proxy directly
-    proxyUrl = PROXY_BASE + encodeURIComponent(input);
+    proxyUrl = PROXY_BASE + encodeURIComponent(input) + '&transport=libcurl';
   } else if (input.includes('.') && !input.includes(' ')) {
     // domain like youtube.com — add https then proxy
-    proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input);
+    proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input) + '&transport=libcurl';
   } else {
     // search query — brave search proxy
     proxyUrl = SEARCH_BASE + encodeURIComponent(input) + SEARCH_SUFFIX;
