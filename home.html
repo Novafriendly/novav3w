@@ -3211,10 +3211,21 @@ brRenderBmBar();
     if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
   }
   
-  // Open proxied app (Discord, Netflix, etc.) in app-player
+  // Open proxied app (Discord, Netflix, etc.) in app-player overlay
   function openProxiedApp(name, url, icon) {
+    const overlay = document.getElementById('overlay-apps');
+    const frame = document.getElementById('frame-apps');
+    if (!overlay || !frame) return;
+    
+    // Load app in the apps iframe
     const appUrl = `app-player.html?name=${encodeURIComponent(name)}&url=${encodeURIComponent(url)}&icon=${encodeURIComponent(icon)}`;
-    window.open(appUrl, '_blank');
+    frame.src = appUrl;
+    
+    overlay.classList.add('open');
+    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+    
+    // Show dock briefly
+    if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
   }
 
   function closePanel(name) {
