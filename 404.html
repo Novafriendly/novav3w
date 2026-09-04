@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found | Nova</title>
+  <link rel="icon" type="image/png" href="Nova12.png">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Background video/image from user settings */
+    #bgMedia {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .error-code {
+      font-size: 120px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #d84a6e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 10px 40px rgba(255, 107, 107, 0.3);
+      animation: glitch 3s ease-in-out infinite;
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 500px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .error-details {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    .error-details h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .error-url {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #ff6b6b;
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .reasons {
+      margin-top: 60px;
+      max-width: 700px;
+    }
+
+    .reasons h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .reasons-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      text-align: left;
+    }
+
+    .reason-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
+    }
+
+    .reason-item strong {
+      display: block;
+      color: #fff;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- User's background video/image -->
+  <video id="bgMedia" autoplay muted loop playsinline></video>
+
+  <div class="overlay"></div>
+
+  <div class="content">
+    <div class="error-code">404</div>
+    <h1>Page Not Found</h1>
+    <p>The page you're looking for doesn't exist or has been moved.</p>
+
+    <div class="error-details">
+      <h3>Requested URL</h3>
+      <div class="error-url" id="requestedUrl"></div>
+    </div>
+
+    <div class="actions">
+      <a href="home.html" class="btn btn-primary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Go to Home
+      </a>
+      <button onclick="history.back()" class="btn btn-secondary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Go Back
+      </button>
+      <button onclick="location.reload()" class="btn btn-secondary">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <div class="reasons">
+      <h3>Why did this happen?</h3>
+      <div class="reasons-list">
+        <div class="reason-item">
+          <strong>🔗 Broken Link</strong>
+          The link you clicked may be outdated or incorrect
+        </div>
+        <div class="reason-item">
+          <strong>⌨️ Typo</strong>
+          There might be a typo in the URL you entered
+        </div>
+        <div class="reason-item">
+          <strong>📦 Moved Content</strong>
+          The page may have been moved or removed
+        </div>
+        <div class="reason-item">
+          <strong>🔒 No Access</strong>
+          You might not have permission to view this page
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Display the requested URL
+    document.getElementById('requestedUrl').textContent = window.location.href;
+
+    // Load user's background from settings
+    const bgSetting = localStorage.getItem('nova_background');
+    const bgMedia = document.getElementById('bgMedia');
+
+    if (bgSetting) {
+      try {
+        const bg = JSON.parse(bgSetting);
+        
+        if (bg.type === 'video' || bg.type === 'imported-video') {
+          bgMedia.src = bg.src;
+          bgMedia.autoplay = true;
+          bgMedia.loop = true;
+          bgMedia.muted = true;
+          bgMedia.playsInline = true;
+          bgMedia.play().catch(() => {
+            // If video fails, show fallback gradient
+            bgMedia.style.display = 'none';
+            document.body.style.background = 'linear-gradient(135deg, #0f0f14 0%, #1a1a2e 100%)';
+          });
+        } else if (bg.type === 'image' || bg.type === 'imported-image') {
+          // For images, convert video element to image
+          const img = document.createElement('img');
+          img.src = bg.src;
+          img.style.cssText = bgMedia.style.cssText;
+          bgMedia.replaceWith(img);
+        } else if (bg.type === 'gradient' || bg.type === 'color') {
+          bgMedia.style.display = 'none';
+          document.body.style.background = bg.gradient || bg.src;
+        }
+      } catch (e) {
+        // Fallback gradient
+        bgMedia.style.display = 'none';
+        document.body.style.background = 'linear-gradient(135deg, #0f0f14 0%, #1a1a2e 100%)';
+      }
+    } else {
+      // Default gradient if no background set
+      bgMedia.style.display = 'none';
+      document.body.style.background = 'linear-gradient(135deg, #0f0f14 0%, #1a1a2e 100%)';
+    }
+  </script>
+</body>
+</html>

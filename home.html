@@ -1831,13 +1831,48 @@
   }
 
   /* ═══════════════════
-     SPLASH SCREEN - Skip old loader, go straight to home
+     SPLASH SCREEN - Preload assets then show home
   ═══════════════════ */
-  setTimeout(() => {
+  (async function initializeSplash() {
     const splash = document.getElementById('s-splash');
+    const minSplashTime = 2200; // Minimum splash duration
+    const startTime = Date.now();
+
+    // Preload background videos from CDN
+    const videoPromises = [];
+    const VIDEO_CDN = 'https://github.com/Novafriendly/novav3w/releases/download/v1.0/';
+    const preloadVideos = [
+      'blue-lake-minecraft.1920x1080.mp4',
+      'cherry-blossom.1920x1080.mp4',
+      'minecraft-sunset.1920x1080.mp4',
+      'nature-in-minecraft.1920x1080.mp4'
+    ];
+
+    // Preload first 4 videos in background
+    preloadVideos.forEach(filename => {
+      const promise = fetch(VIDEO_CDN + filename, { 
+        method: 'HEAD', // Just check if accessible
+        mode: 'no-cors' 
+      }).catch(() => {}); // Silently fail if CDN unavailable
+      videoPromises.push(promise);
+    });
+
+    // Wait for preloads or timeout
+    await Promise.race([
+      Promise.all(videoPromises),
+      new Promise(resolve => setTimeout(resolve, 1500)) // Max 1.5s preload wait
+    ]);
+
+    // Ensure minimum splash time elapsed
+    const elapsed = Date.now() - startTime;
+    if (elapsed < minSplashTime) {
+      await new Promise(resolve => setTimeout(resolve, minSplashTime - elapsed));
+    }
+
+    // Animate splash out
     splash.classList.add('slide-up');
     
-    // After splash finishes, check if setup needed or go home
+    // After splash animation, check setup state
     setTimeout(() => {
       splash.style.display = 'none';
       
@@ -1858,7 +1893,7 @@
         goHome();
       }
     }, 800);
-  }, 2200); // Show splash for 2.2 seconds total
+  })();
 
   /* ═══════════════════
      USERNAME

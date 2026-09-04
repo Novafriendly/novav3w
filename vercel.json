@@ -4,5 +4,19 @@
   "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": null,
   "outputDirectory": ".",
-  "trailingSlash": false
+  "trailingSlash": false,
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/home.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "status": 404,
+      "dest": "/404.html"
+    }
+  ]
 }
