@@ -1831,36 +1831,97 @@
   }
 
   /* ═══════════════════
-     SPLASH SCREEN - Preload assets then show home
+     SPLASH SCREEN - Preload all background videos from Cloudinary
   ═══════════════════ */
   (async function initializeSplash() {
     const splash = document.getElementById('s-splash');
+    const loaderFill = document.querySelector('.splash-loader-fill');
     const minSplashTime = 2200; // Minimum splash duration
     const startTime = Date.now();
 
-    // Preload background videos from CDN
-    const videoPromises = [];
-    const VIDEO_CDN = 'https://github.com/Novafriendly/novav3w/releases/download/v1.0/';
-    const preloadVideos = [
+    // Preload ALL background videos from Cloudinary
+    const VIDEO_CDN = 'https://res.cloudinary.com/bn9aice0/video/upload/';
+    const allVideos = [
       'blue-lake-minecraft.1920x1080.mp4',
       'cherry-blossom.1920x1080.mp4',
       'minecraft-sunset.1920x1080.mp4',
-      'nature-in-minecraft.1920x1080.mp4'
+      'nature-in-minecraft.1920x1080.mp4',
+      'space-1.1920x1080.mp4',
+      'space-2.1920x1080.mp4',
+      'space-3.1920x1080.mp4',
+      'space-5.1920x1080.mp4',
+      'waterfall-abstract-landscape.1920x1080.mp4',
+      'arctic-landscape.1920x1080.mp4',
+      'synthwave-sunset-loop.1920x1080.mp4',
+      'northern-lights-norway.1920x1080.mp4',
+      'cyberpunk-city-rain.1920x1080.mp4',
+      'desert-dunes-sunset.1920x1080.mp4',
+      'ocean-waves-sunset.1920x1080.mp4',
+      'forest-fireflies-night.1920x1080.mp4',
+      'tokyo-street-rain.1920x1080.mp4',
+      'mountain-lake-sunrise.1920x1080.mp4',
+      'aurora-borealis-iceland.1920x1080.mp4',
+      'neon-city-night.1920x1080.mp4',
+      'tropical-beach-waves.1920x1080.mp4',
+      'starry-night-mountains.1920x1080.mp4',
+      'futuristic-city-skyline.1920x1080.mp4',
+      'japanese-garden-autumn.1920x1080.mp4',
+      'underwater-coral-reef.1920x1080.mp4',
+      'snowy-forest-winter.1920x1080.mp4',
+      'desert-night-stars.1920x1080.mp4',
+      'city-lights-timelapse.1920x1080.mp4',
+      'volcano-lava-flow.1920x1080.mp4',
+      'bamboo-forest-rain.1920x1080.mp4',
+      'canyon-sunset-aerial.1920x1080.mp4',
+      'nebula-space-zoom.1920x1080.mp4',
+      'lighthouse-storm-waves.1920x1080.mp4',
+      'cherry-petals-falling.1920x1080.mp4',
+      'northern-forest-fog.1920x1080.mp4',
+      'miami-beach-sunset.1920x1080.mp4',
+      'alpine-meadow-summer.1920x1080.mp4',
+      'cosmic-nebula-zoom.1920x1080.mp4',
+      'waterfall-tropical-jungle.1920x1080.mp4',
+      'snowy-mountain-peak.1920x1080.mp4',
+      'city-skyline-dusk.1920x1080.mp4',
+      'deep-ocean-jellyfish.1920x1080.mp4',
+      'autumn-leaves-falling.1920x1080.mp4',
+      'desert-sandstorm.1920x1080.mp4',
+      'tokyo-crossing-night.1920x1080.mp4',
+      'mountain-river-flow.1920x1080.mp4',
+      'space-station-orbit.1920x1080.mp4',
+      'tropical-waterfall.1920x1080.mp4',
+      'canyon-lightning-storm.1920x1080.mp4',
+      'cherry-blossoms-tokyo.1920x1080.mp4',
+      'glacier-ice-cave.1920x1080.mp4',
+      'neon-tunnel-loop.1920x1080.mp4',
+      'forest-stream-peaceful.1920x1080.mp4',
+      'sahara-desert-dunes.1920x1080.mp4',
+      'northern-lights-finland.1920x1080.mp4',
+      'cyberpunk-alley-rain.1920x1080.mp4'
     ];
 
-    // Preload first 4 videos in background
-    preloadVideos.forEach(filename => {
-      const promise = fetch(VIDEO_CDN + filename, { 
-        method: 'HEAD', // Just check if accessible
-        mode: 'no-cors' 
-      }).catch(() => {}); // Silently fail if CDN unavailable
-      videoPromises.push(promise);
+    // Preload videos and update progress bar
+    let loaded = 0;
+    const videoPromises = allVideos.map(async (filename, index) => {
+      try {
+        // Use HEAD request to check if video exists (lightweight)
+        await fetch(VIDEO_CDN + filename, { 
+          method: 'HEAD'
+        });
+        loaded++;
+        // Update progress bar smoothly
+        const progress = (loaded / allVideos.length) * 100;
+        if (loaderFill) loaderFill.style.width = progress + '%';
+      } catch (err) {
+        // Video doesn't exist yet on Cloudinary, skip
+        loaded++;
+      }
     });
 
-    // Wait for preloads or timeout
+    // Wait for all videos to be checked (or timeout after 5 seconds)
     await Promise.race([
       Promise.all(videoPromises),
-      new Promise(resolve => setTimeout(resolve, 1500)) // Max 1.5s preload wait
+      new Promise(resolve => setTimeout(resolve, 5000))
     ]);
 
     // Ensure minimum splash time elapsed
@@ -2261,8 +2322,8 @@
    Search: search base + encoded query + suffix
 ═══════════════════════════════════════ */
 /* ── Proxy / search engine config ── */
-// Scramjet App runs on port 8080 — change this when you deploy
-const BR_PROXY_HOST = 'http://localhost:8080';
+// Scramjet proxy deployed on Render
+const BR_PROXY_HOST = 'https://scracmjetfornovatesters.onrender.com';
 
 const BR_SEARCH_ENGINES = {
   brave:  { name:'Brave',      url:'https://search.brave.com/search?q=',  suffix:'&source=web' },
