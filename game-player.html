@@ -172,6 +172,16 @@
       border-color: rgba(255,255,255,0.25);
     }
     
+    .control-btn.close-btn {
+      background: rgba(255,50,50,0.2);
+      border-color: rgba(255,50,50,0.3);
+    }
+    
+    .control-btn.close-btn:hover {
+      background: rgba(255,50,50,0.35);
+      border-color: rgba(255,50,50,0.45);
+    }
+    
     /* Retro Bowl Cheat Button */
     .control-btn.cheat-btn {
       background: linear-gradient(135deg, rgba(239,68,68,0.25), rgba(220,38,38,0.25));
@@ -396,6 +406,12 @@
         <button class="control-btn minimize-btn" onclick="minimizeBar()" data-tooltip="Hide Controls">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        
+        <button class="control-btn close-btn" onclick="window.location.href='games.html'" data-tooltip="Close">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
