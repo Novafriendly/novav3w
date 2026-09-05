@@ -3461,7 +3461,19 @@ function emit(action, data) {
   try { window.parent.postMessage({ novaAction: action, ...data }, '*'); } catch(e) {}
 }
 
-function closePage() { emit('closeApp', { app: 'settings' }); }
+function closePage() { 
+  // Try to emit to parent (if opened from home.html)
+  emit('closeApp', { app: 'settings' }); 
+  
+  // If navigated directly, use history or go to home
+  setTimeout(() => {
+    if (document.referrer) {
+      window.history.back();
+    } else {
+      window.location.href = 'home.html';
+    }
+  }, 100);
+}
 
 /* ══════════════════════════════════
    GAME COUNT - DISABLED TO REDUCE LAG
