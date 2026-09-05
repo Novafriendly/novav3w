@@ -1,0 +1,47 @@
+[
+  {
+    "id": "gta5-cloud",
+    "name": "GTA 5 Cloud",
+    "genre": "action",
+    "cover": "https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg",
+    "url": "https://boosteroid.com/games/grand-theft-auto-v",
+    "type": "cloud",
+    "description": "Play GTA 5 via cloud gaming - requires Boosteroid subscription"
+  },
+  {
+    "id": "forza-cloud",
+    "name": "Forza Horizon 5",
+    "genre": "racing",
+    "cover": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/header.jpg",
+    "url": "https://www.xbox.com/play/games/forza-horizon-5/9NKX70BBCDRN",
+    "type": "cloud",
+    "description": "Play via Xbox Cloud Gaming - requires Game Pass Ultimate"
+  },
+  {
+    "id": "cyberpunk-cloud",
+    "name": "Cyberpunk 2077",
+    "genre": "action",
+    "cover": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg",
+    "url": "https://boosteroid.com/games/cyberpunk-2077",
+    "type": "cloud",
+    "description": "Play via cloud gaming - requires subscription and game license"
+  },
+  {
+    "id": "cod-cloud",
+    "name": "Call of Duty: Warzone",
+    "genre": "shooter",
+    "cover": "https://www.callofduty.com/content/dam/atvi/callofduty/cod-touchui/blog/hero/mwii/MWII-SEASON-02-ANNOUNCE-001.jpg",
+    "url": "https://www.xbox.com/play/games/call-of-duty-warzone/9NF02MQ2GQQB",
+    "type": "cloud",
+    "description": "Free to play via Xbox Cloud Gaming"
+  },
+  {
+    "id": "rdr2-cloud",
+    "name": "Red Dead Redemption 2",
+    "genre": "action",
+    "cover": "https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/header.jpg",
+    "url": "https://boosteroid.com/games/red-dead-redemption-2",
+    "type": "cloud",
+    "description": "Play via cloud gaming - requires subscription"
+  }
+]
