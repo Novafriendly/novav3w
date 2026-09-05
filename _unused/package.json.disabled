@@ -1,0 +1,15 @@
+{
+  "name": "nova",
+  "version": "1.0.0",
+  "description": "Nova - Static gaming and productivity hub",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Static site'"
+  },
+  "keywords": [
+    "nova",
+    "games"
+  ],
+  "author": "Nova Team",
+  "license": "MIT"
+}
