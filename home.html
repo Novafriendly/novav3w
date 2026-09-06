@@ -4322,6 +4322,7 @@ brRenderBmBar();
     document.body.appendChild(pickerPanel);
     
     let currentPickerType = 'game';
+    let allPickerItems = []; // Store current items for addShortcut
     
     // Open game picker
     window.openGamePicker = async function() {
@@ -4346,7 +4347,7 @@ brRenderBmBar();
           xhr.send();
         });
         
-        const games = data.filter(g => g.id >= 0).map(g => ({
+        allPickerItems = data.filter(g => g.id >= 0).map(g => ({
           id: 'game_' + g.id,
           name: g.name,
           icon: g.cover.replace('{COVER_URL}', 'https://raw.githubusercontent.com/GN-Yu/Assets/main/covers'),
@@ -4354,7 +4355,7 @@ brRenderBmBar();
           type: 'game'
         }));
         
-        renderPickerItems(games);
+        renderPickerItems(allPickerItems);
       } catch (error) {
         document.getElementById('picker-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">Failed to load games</div>';
       }
@@ -4367,7 +4368,7 @@ brRenderBmBar();
       pickerPanel.style.display = 'flex';
       setTimeout(() => pickerPanel.style.right = '0', 10);
       
-      const apps = [
+      allPickerItems = [
         { id: 'app_youtube', name: 'YouTube', icon: 'Img/app/youtueb.jpg', url: 'https://youtube.com', type: 'app' },
         { id: 'app_discord', name: 'Discord', icon: 'Img/app/discord.jpg', url: 'https://discord.com/app', type: 'app' },
         { id: 'app_spotify', name: 'Spotify', icon: 'Img/app/spoti.jpg', url: 'https://open.spotify.com', type: 'app' },
@@ -4380,7 +4381,7 @@ brRenderBmBar();
         { id: 'app_twitter', name: 'Twitter', icon: 'Img/app/twitter.jpg', url: 'https://twitter.com', type: 'app' }
       ];
       
-      renderPickerItems(apps);
+      renderPickerItems(allPickerItems);
     };
     
     // Close picker panel
@@ -4444,17 +4445,187 @@ brRenderBmBar();
       }
       
       // Find item in current list
-      let item;
-      if (currentPickerType === 'game') {
-        // We need to reload to get the item - for now just close and tell user
-        alert('Shortcut will be added! (Full implementation in next update)');
-      } else {
-        // For apps, we have the data
-        alert('Shortcut will be added! (Full implementation in next update)');
-      }
+      const item = allPickerItems.find(i => i.id === id);
+      if (!item) return;
       
-      closePickerPanel();
+      // Add to shortcuts
+      shortcuts.push({
+        id: item.id,
+        name: item.name,
+        icon: item.icon,
+        url: item.url,
+        type: item.type,
+        position: shortcuts.length
+      });
+      
+      localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
+      
+      // Show success message
+      showToast('Added ' + item.name + '!');
+      
+      // Refresh picker to remove added item
+      renderPickerItems(allPickerItems);
+      
+      // Render shortcuts on home
+      renderHomeShortcuts();
     };
+    
+    // Show toast notification
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(138,43,226,0.95);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(138,43,226,0.4);
+        z-index: 999999;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+    
+    // Add animation CSS
+    const animStyle = document.createElement('style');
+    animStyle.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(animStyle);
+    
+    // Create shortcuts container
+    const shortcutsContainer = document.createElement('div');
+    shortcutsContainer.id = 'home-shortcuts';
+    shortcutsContainer.style.cssText = `
+      position: fixed;
+      inset: 100px 60px 120px 60px;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      align-content: start;
+    `;
+    document.body.appendChild(shortcutsContainer);
+    
+    // Render shortcuts on home
+    function renderHomeShortcuts() {
+      const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      shortcutsContainer.innerHTML = '';
+      
+      shortcuts.forEach(shortcut => {
+        const item = document.createElement('div');
+        item.className = 'home-shortcut';
+        item.dataset.id = shortcut.id;
+        item.style.cssText = `
+          pointer-events: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          background: rgba(255,255,255,0.08);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.3s;
+          position: relative;
+        `;
+        
+        item.innerHTML = `
+          <img src="${shortcut.icon}" style="width:56px;height:56px;border-radius:12px;object-fit:cover;pointer-events:none;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
+          <div style="font-size:11px;font-weight:600;color:white;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;">${shortcut.name}</div>
+          <button class="shortcut-delete" style="display:none;position:absolute;top:4px;right:4px;width:24px;height:24px;background:rgba(220,38,38,0.9);border:none;border-radius:50%;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+            <svg width="12" height="12" fill="white" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        `;
+        
+        // Click to launch
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.shortcut-delete')) return;
+          if (shortcut.type === 'game') {
+            window.location.href = `game-player.html?game=${encodeURIComponent(shortcut.url)}`;
+          } else {
+            window.open(shortcut.url, '_blank');
+          }
+        });
+        
+        // Hover effects
+        item.addEventListener('mouseenter', function() {
+          this.style.background = 'rgba(255,255,255,0.12)';
+          this.style.borderColor = 'rgba(255,255,255,0.3)';
+          this.style.transform = 'translateY(-4px) scale(1.05)';
+          this.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+          this.style.background = 'rgba(255,255,255,0.08)';
+          this.style.borderColor = 'rgba(255,255,255,0.15)';
+          this.style.transform = 'translateY(0) scale(1)';
+          this.style.boxShadow = 'none';
+        });
+        
+        // Right-click to delete
+        item.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const deleteBtn = item.querySelector('.shortcut-delete');
+          deleteBtn.style.display = 'flex';
+          
+          setTimeout(() => {
+            deleteBtn.style.display = 'none';
+          }, 3000);
+        });
+        
+        // Delete handler
+        const deleteBtn = item.querySelector('.shortcut-delete');
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteShortcut(shortcut.id);
+        });
+        
+        shortcutsContainer.appendChild(item);
+      });
+    }
+    
+    // Delete shortcut
+    function deleteShortcut(id) {
+      let shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      shortcuts = shortcuts.filter(s => s.id !== id);
+      
+      // Update positions
+      shortcuts.forEach((s, i) => s.position = i);
+      
+      localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
+      renderHomeShortcuts();
+      showToast('Shortcut removed');
+    }
+    
+    // Initialize shortcuts on load
+    const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
+    if (shortcutsEnabled) {
+      renderHomeShortcuts();
+    }
     
     // Search functionality
     document.getElementById('picker-search').addEventListener('input', (e) => {
