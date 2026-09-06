@@ -308,15 +308,81 @@
       letter-spacing: -0.03em;
       line-height: 1;
       text-align: center;
+      margin-bottom: 12px;
+      transform-style: preserve-3d;
+      perspective: 1000px;
     }
-    .nova-title span { display: inline-block; animation: lglow 3s ease-in-out infinite; }
+    .nova-title span { 
+      display: inline-block; 
+      animation: float3d 3s ease-in-out infinite;
+      color: #fff;
+      text-shadow:
+        0 1px 0 #ccc,
+        0 2px 0 #c9c9c9,
+        0 3px 0 #bbb,
+        0 4px 0 #b9b9b9,
+        0 5px 0 #aaa,
+        0 6px 1px rgba(0,0,0,.1),
+        0 0 5px rgba(0,0,0,.1),
+        0 1px 3px rgba(0,0,0,.3),
+        0 3px 5px rgba(0,0,0,.2),
+        0 5px 10px rgba(0,0,0,.25),
+        0 10px 20px rgba(0,0,0,.2),
+        0 20px 40px rgba(0,0,0,.15),
+        0 0 80px rgba(255,255,255,0.4);
+      transition: all 0.3s ease;
+    }
+    .nova-title span:hover {
+      transform: translateY(-10px) scale(1.1);
+      text-shadow:
+        0 1px 0 #ccc,
+        0 2px 0 #c9c9c9,
+        0 3px 0 #bbb,
+        0 4px 0 #b9b9b9,
+        0 5px 0 #aaa,
+        0 6px 1px rgba(0,0,0,.1),
+        0 0 5px rgba(0,0,0,.1),
+        0 1px 3px rgba(0,0,0,.3),
+        0 3px 5px rgba(0,0,0,.2),
+        0 5px 10px rgba(0,0,0,.25),
+        0 10px 20px rgba(0,0,0,.2),
+        0 20px 40px rgba(0,0,0,.15),
+        0 0 120px rgba(255,255,255,0.8),
+        0 0 200px rgba(255,255,255,0.4);
+    }
     .nova-title span:nth-child(1) { animation-delay:0s; }
     .nova-title span:nth-child(2) { animation-delay:0.15s; }
     .nova-title span:nth-child(3) { animation-delay:0.3s; }
     .nova-title span:nth-child(4) { animation-delay:0.45s; }
-    @keyframes lglow {
-      0%,100% { color:#fff; text-shadow:0 0 20px rgba(255,255,255,0.4),0 0 60px rgba(140,100,255,0.3); }
-      50%      { color:#fff; text-shadow:0 0 50px rgba(255,255,255,0.95),0 0 120px rgba(180,140,255,0.65); }
+    
+    @keyframes float3d {
+      0%, 100% { 
+        transform: translateY(0px) translateZ(0px);
+      }
+      50% { 
+        transform: translateY(-8px) translateZ(20px);
+      }
+    }
+    
+    .nova-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      margin-bottom: 32px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      animation: fadeIn 1s ease-out 0.5s both;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* newtab search */
@@ -781,6 +847,7 @@ function renderViews() {
 function buildNTP(tabId) {
   return `
     <div class="nova-title"><span>N</span><span>O</span><span>V</span><span>A</span></div>
+    <div class="nova-tagline">Search Privately on Nova Browser • It will not track nothing • Have fun :}</div>
     <div class="nts-wrap">
       <input class="nts-input" id="nts-${tabId}" placeholder="Search the web or enter a URL" autocomplete="off" spellcheck="false" />
       <button class="nts-btn" onclick="ntSearch('${tabId}')">
