@@ -1773,96 +1773,6 @@
           </label>
         </div>
       </div>
-
-      <!-- Home Shortcuts Toggle -->
-      <div class="scard">
-        <div class="scard-head">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Home Shortcuts
-        </div>
-        <div style="margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.6);">Add custom game and app shortcuts to your home page (max 40)</div>
-        
-        <label style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;">
-          <div>
-            <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.9);margin-bottom:4px;">Enable Home Shortcuts</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);">Right-click home to add shortcuts</div>
-          </div>
-          <div class="toggle-switch">
-            <input type="checkbox" id="homeShortcutsEnabled" onchange="saveHomeShortcuts()" />
-            <span class="toggle-slider"></span>
-          </div>
-        </label>
-
-        <div id="shortcutPreview" style="margin-top:20px;padding:20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;display:none;">
-          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">✨ Preview</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">
-            • Right-click anywhere on home to open menu<br/>
-            • Select "Add Game" or "Add App"<br/>
-            • Browse and add your favorites<br/>
-            • Drag to reorder, hover to create folders<br/>
-            • Right-click shortcuts to delete
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── CUSTOMIZE HOME ── -->
-    <div class="tab-panel" id="tab-customize">
-      <div class="panel-title">Customize Home</div>
-      
-      <!-- Clock Font -->
-      <div class="scard">
-        <div class="scard-head">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Clock Font
-        </div>
-        <div style="margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.6);">Choose the font for the time and date display</div>
-        
-        <select id="clockFontSelect" onchange="saveClockFont()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:14px;cursor:pointer;">
-          <option value="default">Default (Segoe UI)</option>
-          <option value="mono">Monospace</option>
-          <option value="serif">Serif</option>
-          <option value="cursive">Cursive</option>
-          <option value="fantasy">Fantasy</option>
-        </select>
-        
-        <div id="clockPreview" style="margin-top:20px;padding:24px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;text-align:center;">
-          <div style="font-size:48px;font-weight:900;color:white;margin-bottom:8px;" id="previewTime">12:34</div>
-          <div style="font-size:14px;color:rgba(255,255,255,0.6);" id="previewDate">SUNDAY, JANUARY 1</div>
-        </div>
-      </div>
-      
-      <!-- Dock Position -->
-      <div class="scard">
-        <div class="scard-head">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          Dock Position
-        </div>
-        <div style="margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.6);">Choose where the navigation dock appears</div>
-        
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-          <button class="dock-pos-btn" data-pos="left" onclick="saveDockPosition('left')">
-            <div class="dock-pos-preview">
-              <div class="dock-pos-bar" style="left:4px;top:50%;transform:translateY(-50%);width:20%;height:60%;"></div>
-            </div>
-            <span>Left</span>
-          </button>
-          
-          <button class="dock-pos-btn" data-pos="right" onclick="saveDockPosition('right')">
-            <div class="dock-pos-preview">
-              <div class="dock-pos-bar" style="right:4px;top:50%;transform:translateY(-50%);width:20%;height:60%;"></div>
-            </div>
-            <span>Right</span>
-          </button>
-          
-          <button class="dock-pos-btn active" data-pos="bottom" onclick="saveDockPosition('bottom')">
-            <div class="dock-pos-preview">
-              <div class="dock-pos-bar" style="bottom:4px;left:50%;transform:translateX(-50%);width:60%;height:20%;"></div>
-            </div>
-            <span>Bottom</span>
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- ── INFO ── -->
@@ -4297,20 +4207,6 @@ function saveDockPosition() {
   
   emit('dockPositionChanged', { position });
   showToast(`Dock moved to ${position}`, 'green');
-}
-
-function saveHomeShortcuts() {
-  const enabled = document.getElementById('homeShortcutsEnabled').checked;
-  localStorage.setItem('nova_home_shortcuts_enabled', enabled ? 'true' : 'false');
-  
-  // Toggle preview
-  const preview = document.getElementById('shortcutPreview');
-  if (preview) {
-    preview.style.display = enabled ? 'block' : 'none';
-  }
-  
-  emit('homeShortcutsChanged', { enabled });
-  showToast(enabled ? 'Home shortcuts enabled! Right-click home to add.' : 'Home shortcuts disabled', 'green');
 }
 
 // ═══════════════════════════════════════════════════════
