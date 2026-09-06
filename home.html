@@ -48,11 +48,16 @@
       object-position: center center;
       display: none;
       z-index: 2;
+      /* Optimize 4K image rendering */
+      image-rendering: auto;
       image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      image-rendering: high-quality;
       -ms-interpolation-mode: bicubic;
-      /* Backup sizing for older browsers */
+      /* Hardware acceleration for large images */
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      /* Ensure full coverage on all display sizes */
       min-width: 100%;
       min-height: 100%;
     }
@@ -70,9 +75,18 @@
       object-position: center center;
       display: none;
       z-index: 2;
+      /* Optimize 4K video rendering */
+      image-rendering: auto;
       image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      image-rendering: high-quality;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: auto;
+      /* Enable hardware acceleration for smooth 4K playback */
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      /* Ensure full coverage even on ultra-wide or 4K displays */
+      min-width: 100%;
+      min-height: 100%;
     }
     /* slight dark tint so text always reads - BELOW content */
     #bg::after {
@@ -1609,7 +1623,7 @@
 <!-- global bg -->
 <div id="bg">
   <img id="bg-img" src="" alt="" />
-  <video id="bg-video" autoplay loop muted playsinline preload="auto" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
+  <video id="bg-video" autoplay loop muted playsinline preload="auto" disablePictureInPicture disableRemotePlayback webkit-playsinline style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
 </div>
 
 <!-- ══════════════════════════════
@@ -3397,6 +3411,24 @@ brRenderBmBar();
         bg.style.background = '#000';
         bgVideo.src = src;
         bgVideo.style.display = 'block';
+        
+        // Optimize 4K playback based on screen resolution
+        const is4K = window.innerWidth >= 3840 || window.innerHeight >= 2160;
+        const isHighRes = window.innerWidth >= 2560 || window.innerHeight >= 1440;
+        
+        if (is4K) {
+          // 4K display - use highest quality
+          bgVideo.setAttribute('preload', 'auto');
+          console.log('🎬 4K display detected - using full quality');
+        } else if (isHighRes) {
+          // 1440p+ - balance quality and performance
+          bgVideo.setAttribute('preload', 'metadata');
+          console.log('🎬 High-res display detected');
+        } else {
+          // 1080p or lower - optimize for performance
+          bgVideo.setAttribute('preload', 'metadata');
+        }
+        
         bgVideo.load();
         bgVideo.play().catch(() => {});
       } else {
