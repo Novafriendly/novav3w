@@ -3207,6 +3207,17 @@ brRenderBmBar();
     overlay.classList.add('open');
     document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
     if (btn) btn.classList.add('active','app-open');
+    
+    // Hide dock for settings and browser
+    const dock = document.querySelector('.dock');
+    if (dock) {
+      if (name === 'settings' || name === 'browser') {
+        dock.style.display = 'none';
+      } else {
+        dock.style.display = 'flex';
+      }
+    }
+    
     // show dock briefly then let it hide
     if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
   }
@@ -3235,7 +3246,13 @@ brRenderBmBar();
     document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
     const homeBtn = document.querySelector('.dock-btn');
     if (homeBtn) homeBtn.classList.add('active');
-    // show dock when closing panel
+    
+    // Show dock when closing panel
+    const dock = document.querySelector('.dock');
+    if (dock) {
+      dock.style.display = 'flex';
+    }
+    
     if (window._dockShow) window._dockShow();
   }
 
@@ -3258,6 +3275,11 @@ brRenderBmBar();
       });
       // Reset active dock buttons
       document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+      // Show dock again
+      const dock = document.querySelector('.dock');
+      if (dock) {
+        dock.style.display = 'flex';
+      }
     }
     
     // Track game played
