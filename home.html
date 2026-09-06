@@ -3251,6 +3251,14 @@ brRenderBmBar();
     if (d.novaAction === 'minimizeApp') {
       closePanel(d.app);
     }
+    if (d.novaAction === 'closePanel') {
+      // Close any open panel overlays
+      document.querySelectorAll('.panel-overlay.open').forEach(overlay => {
+        overlay.classList.remove('open');
+      });
+      // Reset active dock buttons
+      document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+    }
     
     // Track game played
     if (d.novaAction === 'gamePlayed') {
