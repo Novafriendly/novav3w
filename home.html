@@ -4628,6 +4628,8 @@ brRenderBmBar();
     // Drag & drop state
     let draggedElement = null;
     let draggedIndex = null;
+    let hoverTimer = null;
+    let hoveredElement = null;
     
     function handleDragStart(e) {
       draggedElement = this;
@@ -4642,6 +4644,12 @@ brRenderBmBar();
       this.style.opacity = '1';
       this.style.cursor = 'move';
       
+      // Clear hover timer
+      if (hoverTimer) {
+        clearTimeout(hoverTimer);
+        hoverTimer = null;
+      }
+      
       // Remove all drag-over effects
       document.querySelectorAll('.home-shortcut').forEach(item => {
         item.style.background = 'rgba(255,255,255,0.08)';
@@ -4651,6 +4659,7 @@ brRenderBmBar();
       
       draggedElement = null;
       draggedIndex = null;
+      hoveredElement = null;
     }
     
     function handleDragOver(e) {
@@ -4662,10 +4671,21 @@ brRenderBmBar();
     }
     
     function handleDragEnter(e) {
-      if (this !== draggedElement) {
+      if (this !== draggedElement && this.classList.contains('home-shortcut')) {
         this.style.background = 'rgba(138,43,226,0.2)';
         this.style.borderColor = 'rgba(138,43,226,0.6)';
         this.style.transform = 'scale(1.1)';
+        
+        // Start hover timer for folder creation
+        hoveredElement = this;
+        clearTimeout(hoverTimer);
+        
+        hoverTimer = setTimeout(() => {
+          if (hoveredElement === this && draggedElement) {
+            // Create folder!
+            createFolder(draggedElement, this);
+          }
+        }, 1000); // 1 second hover to create folder
       }
     }
     
@@ -4674,6 +4694,12 @@ brRenderBmBar();
         this.style.background = 'rgba(255,255,255,0.08)';
         this.style.borderColor = 'rgba(255,255,255,0.15)';
         this.style.transform = 'scale(1)';
+        
+        // Cancel hover timer
+        if (hoveredElement === this) {
+          clearTimeout(hoverTimer);
+          hoveredElement = null;
+        }
       }
     }
     
@@ -4726,6 +4752,7 @@ brRenderBmBar();
     const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
     if (shortcutsEnabled) {
       renderHomeShortcuts();
+      renderFolders();
     }
     
     // Search functionality
@@ -4737,6 +4764,231 @@ brRenderBmBar();
       });
     });
     
+    // ═══════════════════════════════════════════════════════
+    //  FOLDER SYSTEM - Phase 5
+    // ═══════════════════════════════════════════════════════
+    
+    // Create folder from two shortcuts
+    function createFolder(element1, element2) {
+      const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      const folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+      
+      const shortcut1 = shortcuts.find(s => s.id === element1.dataset.id);
+      const shortcut2 = shortcuts.find(s => s.id === element2.dataset.id);
+      
+      if (!shortcut1 || !shortcut2) return;
+      
+      // Ask for folder name
+      const folderName = prompt('Name this folder:', 'New Folder');
+      if (!folderName) return;
+      
+      // Create folder
+      const folderId = 'folder_' + Date.now();
+      const folder = {
+        id: folderId,
+        name: folderName,
+        items: [shortcut1, shortcut2],
+        position: Math.min(parseInt(element1.dataset.index), parseInt(element2.dataset.index))
+      };
+      
+      folders.push(folder);
+      
+      // Remove shortcuts from main list
+      const updatedShortcuts = shortcuts.filter(s => s.id !== shortcut1.id && s.id !== shortcut2.id);
+      updatedShortcuts.forEach((s, i) => s.position = i);
+      
+      localStorage.setItem('nova_home_shortcuts', JSON.stringify(updatedShortcuts));
+      localStorage.setItem('nova_home_folders', JSON.stringify(folders));
+      
+      // Re-render
+      renderHomeShortcuts();
+      renderFolders();
+      
+      showToast(`Folder "${folderName}" created!`);
+      
+      // Reset drag state
+      draggedElement = null;
+      draggedIndex = null;
+    }
+    
+    // Render folders
+    function renderFolders() {
+      // Remove existing folders
+      document.querySelectorAll('.home-folder').forEach(el => el.remove());
+      
+      const folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+      
+      folders.forEach(folder => {
+        const folderEl = document.createElement('div');
+        folderEl.className = 'home-folder';
+        folderEl.dataset.id = folder.id;
+        folderEl.style.cssText = `
+          pointer-events: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          background: rgba(138,43,226,0.15);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 2px solid rgba(138,43,226,0.4);
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.3s;
+          position: relative;
+        `;
+        
+        folderEl.innerHTML = `
+          <div style="position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
+            <svg width="56" height="56" fill="rgba(138,43,226,0.6)" viewBox="0 0 24 24">
+              <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+            </svg>
+            <div style="position:absolute;font-size:16px;font-weight:800;color:white;">${folder.items.length}</div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:white;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${folder.name}</div>
+        `;
+        
+        // Click to open
+        folderEl.addEventListener('click', () => openFolder(folder.id));
+        
+        // Hover effects
+        folderEl.addEventListener('mouseenter', function() {
+          this.style.background = 'rgba(138,43,226,0.25)';
+          this.style.borderColor = 'rgba(138,43,226,0.7)';
+          this.style.transform = 'translateY(-4px) scale(1.05)';
+          this.style.boxShadow = '0 16px 40px rgba(138,43,226,0.3)';
+        });
+        
+        folderEl.addEventListener('mouseleave', function() {
+          this.style.background = 'rgba(138,43,226,0.15)';
+          this.style.borderColor = 'rgba(138,43,226,0.4)';
+          this.style.transform = 'translateY(0) scale(1)';
+          this.style.boxShadow = 'none';
+        });
+        
+        shortcutsContainer.appendChild(folderEl);
+      });
+    }
+    
+    // Create folder modal
+    const folderModal = document.createElement('div');
+    folderModal.id = 'folder-modal';
+    folderModal.style.cssText = `
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+    `;
+    folderModal.innerHTML = `
+      <div style="background:rgba(18,18,22,0.98);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;width:90%;max-width:500px;max-height:70vh;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,0.6);">
+        <div style="padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <h3 id="folder-modal-title" style="font-size:20px;font-weight:700;margin:0;color:white;">Folder</h3>
+            <button onclick="closeFolderModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="16" height="16" fill="none" stroke="white" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="folder-content" style="padding:20px;max-height:400px;overflow-y:auto;"></div>
+        <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);">
+          <button onclick="deleteCurrentFolder()" style="width:100%;padding:12px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.4);border-radius:10px;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">Delete Folder</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(folderModal);
+    
+    let currentFolderId = null;
+    
+    // Open folder
+    window.openFolder = function(folderId) {
+      const folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+      
+      currentFolderId = folderId;
+      document.getElementById('folder-modal-title').textContent = folder.name;
+      
+      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:12px;">';
+      folder.items.forEach(item => {
+        html += `
+          <div class="folder-item" onclick="launchFromFolder('${item.type}', '${item.url.replace(/'/g, "\\'")}');" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;transition:all 0.2s;">
+            <img src="${item.icon}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
+            <div style="font-size:10px;font-weight:600;color:white;text-align:center;word-break:break-word;">${item.name}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('folder-content').innerHTML = html;
+      
+      folderModal.style.display = 'flex';
+      
+      // Add hover effects
+      setTimeout(() => {
+        document.querySelectorAll('.folder-item').forEach(item => {
+          item.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255,255,255,0.08)';
+            this.style.transform = 'scale(1.05)';
+          });
+          item.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.03)';
+            this.style.transform = 'scale(1)';
+          });
+        });
+      }, 10);
+    };
+    
+    // Launch from folder
+    window.launchFromFolder = function(type, url) {
+      if (type === 'game') {
+        window.location.href = `game-player.html?game=${encodeURIComponent(url)}`;
+      } else {
+        window.open(url, '_blank');
+      }
+    };
+    
+    // Close folder modal
+    window.closeFolderModal = function() {
+      folderModal.style.display = 'none';
+      currentFolderId = null;
+    };
+    
+    // Delete current folder
+    window.deleteCurrentFolder = function() {
+      if (!currentFolderId) return;
+      if (!confirm('Delete this folder? Items will be restored to home.')) return;
+      
+      let folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+      const folder = folders.find(f => f.id === currentFolderId);
+      if (!folder) return;
+      
+      // Restore items to shortcuts
+      let shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      folder.items.forEach(item => {
+        item.position = shortcuts.length;
+        shortcuts.push(item);
+      });
+      
+      // Remove folder
+      folders = folders.filter(f => f.id !== currentFolderId);
+      
+      localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
+      localStorage.setItem('nova_home_folders', JSON.stringify(folders));
+      
+      closeFolderModal();
+      renderHomeShortcuts();
+      renderFolders();
+      
+      showToast('Folder deleted');
+    };
+    
+    console.log('✅ Phase 5: Folder system complete!');
+    console.log('🎉 HOME CUSTOMIZATION SYSTEM FULLY COMPLETE!');
     console.log('✅ Phase 3: Right-click menu initialized');
   })();
 
