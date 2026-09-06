@@ -2161,6 +2161,9 @@
 
   /* clock */
   function startClock() {
+    // Apply saved clock font
+    applyClockFont();
+    
     function tick() {
       const now  = new Date();
       const h    = String(now.getHours()).padStart(2, '0');
@@ -2175,6 +2178,28 @@
     tick();
     setInterval(tick, 1000);
   }
+  
+  function applyClockFont() {
+    const font = localStorage.getItem('nova_clock_font') || 'default';
+    const fontMap = {
+      'default': '"Segoe UI", system-ui, sans-serif',
+      'mono': 'Consolas, "Courier New", monospace',
+      'serif': 'Georgia, "Times New Roman", serif',
+      'cursive': '"Comic Sans MS", cursive',
+      'fantasy': 'Impact, fantasy'
+    };
+    
+    const fontFamily = fontMap[font] || fontMap['default'];
+    const timeEl = document.getElementById('clock-time');
+    const dateEl = document.getElementById('clock-date');
+    if (timeEl) timeEl.style.fontFamily = fontFamily;
+    if (dateEl) dateEl.style.fontFamily = fontFamily;
+  }
+  
+  // Listen for font changes from settings
+  listen('clockFontChanged', (data) => {
+    applyClockFont();
+  });
 
   /* dock active */
   function dockClick(btn) {

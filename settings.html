@@ -981,6 +981,12 @@
         </div>
         Behavior
       </button>
+      <button class="sb-item" data-tab="customize" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        Customize Home
+      </button>
       <button class="sb-item" data-tab="info" onclick="switchTab(this)">
         <div class="sb-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1748,6 +1754,33 @@
             • Drag to reorder, hover to create folders<br/>
             • Right-click shortcuts to delete
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CUSTOMIZE HOME ── -->
+    <div class="tab-panel" id="tab-customize">
+      <div class="panel-title">Customize Home</div>
+      
+      <!-- Clock Font -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Clock Font
+        </div>
+        <div style="margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.6);">Choose the font for the time and date display</div>
+        
+        <select id="clockFontSelect" onchange="saveClockFont()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:14px;cursor:pointer;">
+          <option value="default">Default (Segoe UI)</option>
+          <option value="mono">Monospace</option>
+          <option value="serif">Serif</option>
+          <option value="cursive">Cursive</option>
+          <option value="fantasy">Fantasy</option>
+        </select>
+        
+        <div id="clockPreview" style="margin-top:20px;padding:24px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;text-align:center;">
+          <div style="font-size:48px;font-weight:900;color:white;margin-bottom:8px;" id="previewTime">12:34</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.6);" id="previewDate">SUNDAY, JANUARY 1</div>
         </div>
       </div>
     </div>
@@ -4200,25 +4233,54 @@ function saveHomeShortcuts() {
   showToast(enabled ? 'Home shortcuts enabled! Right-click home to add.' : 'Home shortcuts disabled', 'green');
 }
 
+// ═══════════════════════════════════════════════════════
+//  CUSTOMIZE HOME
+// ═══════════════════════════════════════════════════════
+
+function saveClockFont() {
+  const select = document.getElementById('clockFontSelect');
+  const font = select.value;
+  localStorage.setItem('nova_clock_font', font);
+  
+  // Update preview
+  updateClockPreview(font);
+  
+  // Emit event to update home page
+  emit('clockFontChanged', { font });
+  showToast('Clock font updated!', 'green');
+}
+
+function updateClockPreview(font) {
+  const timeEl = document.getElementById('previewTime');
+  const dateEl = document.getElementById('previewDate');
+  
+  const fontMap = {
+    'default': '"Segoe UI", system-ui, sans-serif',
+    'mono': 'Consolas, "Courier New", monospace',
+    'serif': 'Georgia, "Times New Roman", serif',
+    'cursive': '"Comic Sans MS", cursive',
+    'fantasy': 'Impact, fantasy'
+  };
+  
+  const fontFamily = fontMap[font] || fontMap['default'];
+  timeEl.style.fontFamily = fontFamily;
+  dateEl.style.fontFamily = fontFamily;
+}
+
 function loadCustomizeHomeSettings() {
-  // Load dock position
-  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
-  const radio = document.querySelector(`input[name="dockPosition"][value="${dockPosition}"]`);
-  if (radio) {
-    radio.checked = true;
-    document.querySelectorAll('.dock-option').forEach(opt => opt.classList.remove('active'));
-    radio.parentElement.querySelector('.dock-option').classList.add('active');
+  // Load clock font
+  const clockFont = localStorage.getItem('nova_clock_font') || 'default';
+  const select = document.getElementById('clockFontSelect');
+  if (select) {
+    select.value = clockFont;
+    updateClockPreview(clockFont);
   }
   
-  // Load shortcuts toggle
+  // Load dock position (for future phases)
+  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
+  
+  // Load shortcuts toggle (for future phases)
   const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
-  if (document.getElementById('homeShortcutsEnabled')) {
-    document.getElementById('homeShortcutsEnabled').checked = shortcutsEnabled;
-    const preview = document.getElementById('shortcutPreview');
-    if (preview) {
-      preview.style.display = shortcutsEnabled ? 'block' : 'none';
-    }
-  }
 }
 
 // Call on page load
