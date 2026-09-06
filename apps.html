@@ -50,19 +50,6 @@
       z-index: 10;
     }
     
-    /* COUNTER (left) */
-    .counter {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 0.02em;
-      z-index: 1;
-    }
-    
     .btn-rand {
       display: flex; 
       align-items: center; 
@@ -165,252 +152,277 @@
       color: rgba(255,255,255,0.6); 
     }
     
-    /* CLOSE BUTTON (right) */
-    .btn-cls {
-      position: absolute; 
-      right: 16px; 
-      top: 50%; 
+    /* GENRE DROPDOWN */
+    .genre-dropdown {
+      position: relative;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    
+    .genre-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      min-width: 120px;
+      justify-content: space-between;
+    }
+    
+    .genre-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    
+    .genre-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.5;
+      transition: transform 0.2s;
+    }
+    
+    .genre-dropdown.open .genre-btn svg {
+      transform: rotate(180deg);
+    }
+    
+    .genre-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: rgba(20,20,24,0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 6px;
+      min-width: 160px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    
+    .genre-dropdown.open .genre-menu {
+      display: flex;
+    }
+    
+    .genre-item {
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    
+    .genre-item:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    
+    .genre-item.active {
+      background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+      color: #fff;
+    }
+    
+    .btn-x {
+      position: absolute;
+      right: 16px;
+      top: 50%;
       transform: translateY(-50%);
-      width: 32px; 
-      height: 32px;
-      background: rgba(255,60,60,0.12); 
-      border: 1px solid rgba(255,60,60,0.2);
-      border-radius: 8px; 
+      width: 28px; 
+      height: 28px; 
+      border-radius: 7px;
+      background: rgba(255,60,60,0.1); 
+      border: 1px solid rgba(255,60,60,0.15);
+      color: rgba(255,100,100,0.6); 
+      cursor: pointer;
       display: flex; 
       align-items: center; 
       justify-content: center;
-      cursor: pointer; 
       transition: all 0.2s;
-      z-index: 2;
+      flex-shrink: 0;
     }
     
-    .btn-cls:hover { 
+    .btn-x:hover { 
       background: rgba(255,60,60,0.25); 
-      transform: translateY(-50%) scale(1.05); 
+      border-color: rgba(255,60,60,0.3);
+      color: #ff6060; 
+      transform: translateY(-50%) scale(1.05);
     }
     
-    .btn-cls svg { 
-      width: 14px; 
-      height: 14px; 
+    .btn-x svg { 
+      width: 11px; 
+      height: 11px; 
       stroke-width: 2.5; 
-      color: rgba(255,255,255,0.85); 
     }
     
-    /* APPS GRID */
-    .apps-grid {
+    /* app COUNTER */
+    .app-counter {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.02em;
+    }
+    
+    /* app GRID */
+    .grid-scroll {
       flex: 1; 
       overflow-y: auto; 
       overflow-x: hidden;
-      padding: 20px;
-      display: grid !important;
-      grid-template-columns: repeat(5, 1fr) !important;
-      gap: 16px;
-      align-content: start;
-      justify-items: stretch;
-      max-width: 100%;
-      margin: 0 auto;
+      padding: 24px 24px 32px;
+      background: transparent;
     }
     
-    .apps-grid::-webkit-scrollbar { 
-      width: 10px; 
+    .grid-scroll::-webkit-scrollbar { 
+      width: 8px; 
     }
     
-    .apps-grid::-webkit-scrollbar-track { 
+    .grid-scroll::-webkit-scrollbar-track { 
       background: rgba(255,255,255,0.02); 
     }
     
-    .apps-grid::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.12); 
-      border-radius: 20px; 
-      border: 2px solid transparent; 
-      background-clip: content-box;
+    .grid-scroll::-webkit-scrollbar-thumb { 
+      background: rgba(255,255,255,0.08); 
+      border-radius: 4px; 
     }
     
-    .apps-grid::-webkit-scrollbar-thumb:hover { 
-      background: rgba(255,255,255,0.2); 
-      background-clip: content-box;
+    .grid-scroll::-webkit-scrollbar-thumb:hover { 
+      background: rgba(255,255,255,0.15); 
     }
     
-    /* APP CARD */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* app CARD - Clean image only */
     .app-card {
       position: relative;
       aspect-ratio: 198/128;
-      background: rgba(30,30,40,0.6);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.4);
       border-radius: 10px;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .app-card:hover {
       transform: translateY(-4px) scale(1.02);
-      background: rgba(40,40,50,0.7);
-      border-color: rgba(255,255,255,0.15);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-      z-index: 5;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
     }
     
-    .app-img {
+    .app-card-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center;
-      transition: opacity 0.2s;
       display: block;
-    }
-    
-    .app-title {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
-      padding: 24px 10px 8px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.95);
-      text-align: center;
-      letter-spacing: 0.01em;
       opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-      line-height: 1.3;
+      transition: opacity 0.3s;
     }
     
-    .app-card:hover .app-title {
+    .app-card-img.loaded {
       opacity: 1;
     }
     
-    .no-apps {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
+    .app-card-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+      color: rgba(255,255,255,0.15);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Overlay with title - only shows on hover */
+    .app-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    
+    .app-card:hover .app-card-overlay {
+      opacity: 1;
+    }
+    
+    .app-card-title {
       font-size: 13px;
-      color: rgba(255,255,255,0.35);
-      font-weight: 500;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      margin-bottom: 2px;
+    }
+    
+    .app-card-author {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 80px 20px;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
     }
     
     /* RESPONSIVE */
     @media (max-width: 1200px) {
-      .apps-grid { grid-template-columns: repeat(4, 1fr); }
+      .app-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
     
     @media (max-width: 900px) {
-      .apps-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .app-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
     }
     
     @media (max-width: 600px) {
-      .apps-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .search-wrap { width: 200px; }
-      .search-wrap.expanded { width: 280px; }
-    }
-    
-    /* APP PLAYER OVERLAY */
-    .player-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: #000;
-      display: none;
-      flex-direction: column;
-    }
-    
-    .player-overlay.show {
-      display: flex;
-    }
-    
-    .player-topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 50px;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-      z-index: 10001;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-      gap: 12px;
-      padding: 10px 16px;
-      background: rgba(20,20,24,0.95);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0;
-    }
-    
-    .player-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    
-    .player-logo img {
-      width: 20px;
-      height: 20px;
-      object-fit: contain;
-    }
-    
-    .player-title {
-      flex: 1;
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .player-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    
-    .player-btn:hover {
-      background: rgba(255,255,255,0.15);
-      transform: scale(1.05);
-    }
-    
-    .player-btn svg {
-      width: 16px;
-      height: 16px;
-      stroke-width: 2;
-      color: rgba(255,255,255,0.8);
-    }
-    
-    .player-btn.close-btn {
-      background: rgba(255,60,60,0.12);
-      border-color: rgba(255,60,60,0.2);
-    }
-    
-    .player-btn.close-btn:hover {
-      background: rgba(255,60,60,0.25);
-    }
-    
-    .player-frame {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #000;
+      .app-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      
+      .search-wrap {
+        width: 200px;
+      }
+      
+      .search-wrap.expanded {
+        width: 280px;
+      }
     }
     
     /* BOTTOM DOCK */
@@ -576,345 +588,752 @@
   </style>
 </head>
 <body>
-
-<div class="library">
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="counter" id="counter">0 of 0 apps</div>
-    
-    <button class="btn-rand" onclick="randomApp()" title="Random App">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M4 7h3a3 3 0 0 1 3 3v0a3 3 0 0 0 3 3h4" />
-        <path d="M20 7h-3a3 3 0 0 0-3 3v0a3 3 0 0 1-3 3H7" />
-        <path d="M16 3l4 4-4 4" />
-        <path d="M16 17l4 4-4 4" />
-      </svg>
-      Random
-    </button>
-    
-    <div class="search-wrap" id="searchWrap">
-      <span class="search-ico">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="M21 21l-4.35-4.35"/>
-        </svg>
-      </span>
-      <input 
-        type="text" 
-        class="search-inp" 
-        id="searchInp" 
-        placeholder="Search apps..." 
-        oninput="filterApps()"
-        onfocus="this.parentElement.classList.add('expanded')"
-        onblur="if(!this.value)this.parentElement.classList.remove('expanded')"
-      />
-      <button class="search-clr" id="searchClr" onclick="clearSearch()">✕</button>
-    </div>
-  </div>
-  
-  <!-- APPS GRID -->
-  <div class="apps-grid" id="appsGrid">
-    <div class="no-apps">Loading apps...</div>
-  </div>
-</div>
-
-<!-- APP PLAYER OVERLAY -->
-<div class="player-overlay" id="playerOverlay">
-  <div class="player-topbar">
-    <div class="player-logo">
-      <img src="Nova12.png" alt="Nova" onerror="this.style.display='none'" />
-    </div>
-    <div class="player-title" id="playerTitle">App</div>
-    <button class="player-btn" onclick="refreshPlayer()" title="Refresh">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-      </svg>
-    </button>
-    <button class="player-btn" onclick="fullscreenPlayer()" title="Fullscreen">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
-      </svg>
-    </button>
-    <button class="player-btn close-btn" onclick="closePlayer()" title="Close">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    </button>
-  </div>
-  <iframe id="playerFrame" class="player-frame" allowfullscreen></iframe>
-</div>
-
-<script>
-/* ═══════════════════════════════════════
-   APPS DATABASE
-   Easy to edit: just add name, image, url
-═══════════════════════════════════════ */
-const APPS = [
-  { name: 'YouTube', image: 'Img/app/youtueb.jpg', url: 'https://www.youtube.com' },
-  { name: 'Fortnite', image: 'Img/app/fortnite.jpg', url: 'https://www.fortnite.com' },
-  { name: 'Minecraft', image: 'Img/app/images (1).jpg', url: 'https://www.minecraft.net' },
-  { name: 'Discord', image: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0b5061df29d55a92d945_full_logo_blurple_RGB.svg', url: 'https://discord.com' },
-  { name: 'Reddit', image: 'https://www.redditinc.com/assets/images/site/reddit-logo.png', url: 'https://www.reddit.com' },
-  { name: 'Twitter', image: 'https://img.icons8.com/fluency/240/twitter.png', url: 'https://twitter.com' },
-  { name: 'Spotify', image: 'https://img.icons8.com/fluency/240/spotify.png', url: 'https://open.spotify.com' },
-  { name: 'Netflix', image: 'https://img.icons8.com/fluency/240/netflix.png', url: 'https://www.netflix.com' },
-  { name: 'GitHub', image: 'https://img.icons8.com/fluency/240/github.png', url: 'https://github.com' },
-  { name: 'Gmail', image: 'https://img.icons8.com/fluency/240/gmail.png', url: 'https://mail.google.com' },
-  { name: 'Google Drive', image: 'https://img.icons8.com/fluency/240/google-drive.png', url: 'https://drive.google.com' },
-  { name: 'Twitch', image: 'https://img.icons8.com/fluency/240/twitch.png', url: 'https://www.twitch.tv' },
-  { name: 'Instagram', image: 'https://img.icons8.com/fluency/240/instagram-new.png', url: 'https://www.instagram.com' },
-  { name: 'TikTok', image: 'https://img.icons8.com/fluency/240/tiktok.png', url: 'https://www.tiktok.com' },
-  { name: 'Amazon', image: 'https://img.icons8.com/fluency/240/amazon.png', url: 'https://www.amazon.com' },
-  // Popular unblocked apps students want
-  { name: 'ChatGPT', image: 'https://img.icons8.com/fluency/240/chatgpt.png', url: 'https://chat.openai.com' },
-  { name: 'Snapchat', image: 'https://img.icons8.com/fluency/240/snapchat.png', url: 'https://web.snapchat.com' },
-  { name: 'WhatsApp', image: 'https://img.icons8.com/fluency/240/whatsapp.png', url: 'https://web.whatsapp.com' },
-  { name: 'Messenger', image: 'https://img.icons8.com/fluency/240/facebook-messenger.png', url: 'https://www.messenger.com' },
-  { name: 'Pinterest', image: 'https://img.icons8.com/fluency/240/pinterest.png', url: 'https://www.pinterest.com' },
-  { name: 'SoundCloud', image: 'https://img.icons8.com/fluency/240/soundcloud.png', url: 'https://soundcloud.com' },
-  { name: 'Roblox', image: 'https://img.icons8.com/fluency/240/roblox.png', url: 'https://www.roblox.com' },
-  { name: 'Steam', image: 'https://img.icons8.com/fluency/240/steam.png', url: 'https://store.steampowered.com' },
-  { name: 'Crunchyroll', image: 'https://img.icons8.com/fluency/240/crunchyroll.png', url: 'https://www.crunchyroll.com' },
-  { name: 'Duolingo', image: 'https://img.icons8.com/fluency/240/duolingo-logo.png', url: 'https://www.duolingo.com' },
-  { name: 'Khan Academy', image: 'https://img.icons8.com/fluency/240/khan-academy.png', url: 'https://www.khanacademy.org' },
-  { name: 'Quizlet', image: 'https://img.icons8.com/fluency/240/quizlet.png', url: 'https://quizlet.com' },
-  { name: 'Canva', image: 'https://img.icons8.com/fluency/240/canva.png', url: 'https://www.canva.com' },
-  { name: 'Figma', image: 'https://img.icons8.com/fluency/240/figma.png', url: 'https://www.figma.com' },
-  { name: 'Notion', image: 'https://img.icons8.com/fluency/240/notion.png', url: 'https://www.notion.so' },
-  { name: 'Trello', image: 'https://img.icons8.com/fluency/240/trello.png', url: 'https://trello.com' },
-  { name: 'Coolmath Games', image: 'https://www.coolmathgames.com/sites/default/files/public_games/50065/mobile_v2.jpg', url: 'https://www.coolmathgames.com' },
-  { name: 'Y8', image: 'https://img.icons8.com/fluency/240/controller.png', url: 'https://www.y8.com' },
-  { name: 'Poki', image: 'https://a.poki-cdn.com/images/poki-logo-blue.svg', url: 'https://poki.com' },
-  { name: 'GeForce NOW', image: 'https://img.icons8.com/fluency/240/nvidia.png', url: 'https://play.geforcenow.com' },
-  { name: 'Google Docs', image: 'https://img.icons8.com/fluency/240/google-docs.png', url: 'https://docs.google.com' },
-  { name: 'Google Sheets', image: 'https://img.icons8.com/fluency/240/google-sheets.png', url: 'https://sheets.google.com' },
-  { name: 'Google Slides', image: 'https://img.icons8.com/fluency/240/google-slides.png', url: 'https://slides.google.com' },
-  { name: 'Desmos', image: 'https://www.desmos.com/assets/img/apps/scientific/icon.png', url: 'https://www.desmos.com/calculator' },
-  { name: 'CodePen', image: 'https://img.icons8.com/fluency/240/codepen.png', url: 'https://codepen.io' },
-];
-
-let allApps = [];
-let filteredApps = [];
-
-/* Initialize */
-function init() {
-  allApps = [...APPS];
-  filteredApps = [...allApps];
-  renderApps();
-  updateCounter();
-}
-
-/* Render apps grid */
-function renderApps() {
-  const grid = document.getElementById('appsGrid');
-  
-  if (filteredApps.length === 0) {
-    grid.innerHTML = '<div class="no-apps">No apps found</div>';
-    updateCounter();
-    return;
-  }
-  
-  grid.innerHTML = filteredApps.map((app, idx) => `
-    <div class="app-card" onclick="openApp('${escapeHtml(app.url)}', '${escapeHtml(app.name)}')" data-idx="${idx}">
-      <img 
-        src="${escapeHtml(app.image)}" 
-        alt="${escapeHtml(app.name)}" 
-        class="app-img" 
-        loading="lazy"
-      />
-      <div class="app-title">${escapeHtml(app.name)}</div>
-    </div>
-  `).join('');
-  
-  updateCounter();
-}
-
-/* Update counter */
-function updateCounter() {
-  const counter = document.getElementById('counter');
-  counter.textContent = `${filteredApps.length} of ${allApps.length} apps`;
-}
-
-/* Filter apps */
-function filterApps() {
-  const input = document.getElementById('searchInp');
-  const clear = document.getElementById('searchClr');
-  const query = input.value.toLowerCase().trim();
-  
-  clear.classList.toggle('show', query.length > 0);
-  
-  if (!query) {
-    filteredApps = [...allApps];
-  } else {
-    filteredApps = allApps.filter(app => 
-      app.name.toLowerCase().includes(query) ||
-      app.url.toLowerCase().includes(query)
-    );
-  }
-  
-  renderApps();
-}
-
-/* Clear search */
-function clearSearch() {
-  const input = document.getElementById('searchInp');
-  input.value = '';
-  filterApps();
-  input.focus();
-}
-
-/* Random app */
-function randomApp() {
-  if (filteredApps.length === 0) return;
-  const random = filteredApps[Math.floor(Math.random() * filteredApps.length)];
-  openApp(random.url, random.name);
-}
-
-/* Open app via proxy */
-function openApp(url, name) {
-  console.log('Opening app:', name, url);
-  
-  // Find the app icon
-  const app = allApps.find(a => a.url === url && a.name === name);
-  const icon = app ? app.image : '';
-  
-  // Build player URL with parameters
-  const playerUrl = `app-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(icon)}`;
-  
-  // Navigate to player
-  window.location.href = playerUrl;
-}
-
-/* Close player */
-function closePlayer() {
-  const playerOverlay = document.getElementById('playerOverlay');
-  const playerFrame = document.getElementById('playerFrame');
-  
-  playerOverlay.classList.remove('show');
-  setTimeout(() => {
-    playerFrame.src = '';
-  }, 300);
-}
-
-/* Refresh player */
-function refreshPlayer() {
-  const playerFrame = document.getElementById('playerFrame');
-  const currentSrc = playerFrame.src;
-  playerFrame.src = '';
-  setTimeout(() => {
-    playerFrame.src = currentSrc;
-  }, 100);
-}
-
-/* Fullscreen player */
-function fullscreenPlayer() {
-  const playerFrame = document.getElementById('playerFrame');
-  if (playerFrame.requestFullscreen) {
-    playerFrame.requestFullscreen();
-  } else if (playerFrame.webkitRequestFullscreen) {
-    playerFrame.webkitRequestFullscreen();
-  } else if (playerFrame.msRequestFullscreen) {
-    playerFrame.msRequestFullscreen();
-  }
-}
-
-/* Close apps */
-function closeApps() {
-  if (window.parent && window.parent !== window) {
-    window.parent.postMessage({
-      novaAction: 'closeApp',
-      app: 'apps'
-    }, '*');
-  }
-}
-
-/* Escape HTML */
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-/* Start */
-document.addEventListener('DOMContentLoaded', init);
-
-/* Enter key to open first result */
-document.getElementById('searchInp').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && filteredApps.length > 0) {
-    openApp(filteredApps[0].url, filteredApps[0].name);
-  }
-});
-
-/* ESC key to close player */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    const playerOverlay = document.getElementById('playerOverlay');
-    if (playerOverlay.classList.contains('show')) {
-      closePlayer();
-    }
-  }
-});
-</script>
-
-<script>
-// ═══════════════════════════════════════════════════════
-// PANIC KEY GLOBAL HANDLER
-// ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', function() {
-  const savedKey = localStorage.getItem('nova_panic_key');
-  const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
-  const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
-  
-  if (!savedKey) return;
-  
-  // Remove old listener if exists
-  if (window._panicKeyHandler) {
-    document.removeEventListener('keydown', window._panicKeyHandler);
-  }
-  
-  // Add new listener
-  window._panicKeyHandler = (e) => {
-    if (e.key.toUpperCase() === savedKey.toUpperCase()) {
-      e.preventDefault();
+  <div class="library">
+    <div class="topbar">
+      <div class="app-counter" id="appCounter">0 apps</div>
       
-      if (instantRedirect) {
-        window.location.href = savedUrl;
-      } else {
-        if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
-          window.location.href = savedUrl;
+      <button class="btn-rand" onclick="openRandomapp()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M18 3h-7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Z"/>
+          <path d="M10 8H5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h5"/>
+          <path d="M4 3h6"/>
+          <circle cx="15" cy="6" r=".5" fill="currentColor"/>
+          <circle cx="15" cy="18" r=".5" fill="currentColor"/>
+        </svg>
+        Random
+      </button>
+      
+      <button class="btn-rand" onclick="openAddappModal()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Add Custom app
+      </button>
+      
+      <div class="genre-dropdown" id="genreDropdown">
+        <button class="genre-btn" onclick="toggleGenreDropdown()">
+          <span id="genreLabel">All apps</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="genre-menu">
+          <button class="genre-item active" data-genre="all" onclick="selectGenre('all', 'All apps')">All apps</button>
+          <button class="genre-item" data-genre="custom" onclick="selectGenre('custom', 'Custom apps')">Custom apps</button>
+          <button class="genre-item" data-genre="action" onclick="selectGenre('action', 'Action')">Action</button>
+          <button class="genre-item" data-genre="shooting" onclick="selectGenre('shooting', 'Shooting')">Shooting</button>
+          <button class="genre-item" data-genre="racing" onclick="selectGenre('racing', 'Racing')">Racing</button>
+          <button class="genre-item" data-genre="puzzle" onclick="selectGenre('puzzle', 'Puzzle')">Puzzle</button>
+          <button class="genre-item" data-genre="sports" onclick="selectGenre('sports', 'Sports')">Sports</button>
+          <button class="genre-item" data-genre="io" onclick="selectGenre('io', 'IO apps')">IO apps</button>
+          <button class="genre-item" data-genre="adventure" onclick="selectGenre('adventure', 'Adventure')">Adventure</button>
+          <button class="genre-item" data-genre="strategy" onclick="selectGenre('strategy', 'Strategy')">Strategy</button>
+          <button class="genre-item" data-genre="arcade" onclick="selectGenre('arcade', 'Arcade')">Arcade</button>
+        </div>
+      </div>
+      
+      <div class="search-wrap" id="searchWrap">
+        <div class="search-ico">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <input type="text" class="search-inp" id="searchInput" placeholder="Search apps..." autocomplete="off" />
+        <button class="search-clr" id="clearBtn" onclick="clearSearch()">✕</button>
+      </div>
+    </div>
+    
+    <div class="grid-scroll" id="scrollContainer">
+      <div class="app-grid" id="appGrid"></div>
+      <div class="no-results" id="noResults" style="display:none;">No apps found</div>
+    </div>
+  </div>
+
+  <script>
+    let allapps = [];
+    let displayedapps = [];
+    let currentGenre = 'all';
+    const COVER_URL = 'covers-main/covers-main';
+    const HTML_URL = 'html-main/html-main';
+
+    // Genre keywords for classification
+    const genreKeywords = {
+      shooting: ['shoot', 'gun', 'sniper', 'warfare', 'battle', 'combat', 'strike', 'fps', 'bullet', 'zombie'],
+      racing: ['race', 'racing', 'car', 'drive', 'drift', 'speed', 'rider', 'moto', 'bike', 'vehicle', 'nascar'],
+      io: ['.io', 'agario', 'slither', 'agar'],
+      puzzle: ['puzzle', 'sudoku', 'match', '2048', 'tile', 'sort', 'swap', 'connect', 'block'],
+      sports: ['football', 'soccer', 'basketball', 'tennis', 'golf', 'hockey', 'sport', 'baseball'],
+      adventure: ['adventure', 'quest', 'explore', 'journey', 'parkour', 'run', 'temple'],
+      strategy: ['strategy', 'tower', 'defense', 'war', 'empire', 'civilization', 'tycoon'],
+      arcade: ['arcade', 'classic', 'retro', 'pac', 'breakout', 'snake'],
+      action: ['action', 'fight', 'ninja', 'battle', 'hero', 'attack', 'brawl', 'stickman']
+    };
+
+    // Classify app by genre
+    function classifyGenre(appName) {
+      const name = appName.toLowerCase();
+      for (const [genre, keywords] of Object.entries(genreKeywords)) {
+        if (keywords.some(keyword => name.includes(keyword))) {
+          return genre;
         }
       }
+      return 'arcade'; // default
     }
-  };
+
+    // Toggle genre dropdown
+    function toggleGenreDropdown() {
+      const dropdown = document.getElementById('genreDropdown');
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('genreDropdown');
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Select genre
+    function selectGenre(genre, label) {
+      currentGenre = genre;
+      document.getElementById('genreLabel').textContent = label;
+      
+      // Update active genre item
+      document.querySelectorAll('.genre-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.genre === genre);
+      });
+      
+      // Close dropdown
+      document.getElementById('genreDropdown').classList.remove('open');
+      
+      // Filter apps
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+      
+      if (genre === 'all') {
+        displayedapps = allapps;
+      } else if (genre === 'custom') {
+        // Show only custom apps
+        displayedapps = allapps.filter(app => app.isCustom === true);
+      } else {
+        displayedapps = allapps.filter(app => app.genre === genre);
+      }
+      
+      // Apply search filter if active
+      if (searchQuery) {
+        displayedapps = displayedapps.filter(app =>
+          app.name.toLowerCase().includes(searchQuery) ||
+          (app.author && app.author.toLowerCase().includes(searchQuery))
+        );
+      }
+      
+      renderapps();
+    }
+
+    // Fetch apps from zones.json
+    async function loadapps() {
+      try {
+        console.log('🎮 Loading apps...');
+        
+        // Use XMLHttpRequest for file:// protocol compatibility
+        const data = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', 'zones.json', true);
+          xhr.onload = function() {
+            if (xhr.status === 200 || xhr.status === 0) { // 0 for file://
+              try {
+                resolve(JSON.parse(xhr.responseText));
+              } catch (e) {
+                reject(new Error('Failed to parse JSON: ' + e.message));
+              }
+            } else {
+              reject(new Error('HTTP error! status: ' + xhr.status));
+            }
+          };
+          xhr.onerror = () => reject(new Error('Network error'));
+          xhr.send();
+        });
+        
+        if (!data) {
+          throw new Error('Failed to load app data');
+        }
+        
+        console.log('✅ Loaded app data');
+        
+        // Filter out the Discord suggestion entry (id: -1) and process URLs
+        allapps = data
+          .filter(app => app.id >= 0)
+          .map(app => ({
+            ...app,
+            cover: app.cover.replace('{COVER_URL}', COVER_URL),
+            url: app.url.replace('{HTML_URL}', HTML_URL),
+            genre: classifyGenre(app.name)
+          }));
+        
+        console.log('✅ Processed', allapps.length, 'valid apps');
+        
+        // Load proxied apps from proxied-apps.json (dev-added apps)
+        try {
+          const proxiedResponse = await fetch('proxied-apps.json');
+          const proxiedapps = await proxiedResponse.json();
+          allapps = [...allapps, ...proxiedapps];
+          console.log('✅ Loaded', proxiedapps.length, 'proxied apps');
+        } catch (err) {
+          console.log('ℹ️ No proxied-apps.json found or error loading:', err.message);
+        }
+        
+        // Load custom apps from localStorage (user-added apps)
+        const savedCustomapps = JSON.parse(localStorage.getItem('nova_custom_apps') || '[]');
+        allapps = [...allapps, ...savedCustomapps];
+        console.log('✅ Total apps:', allapps.length);
+        
+        displayedapps = [...allapps];
+        renderapps();
+      } catch (err) {
+        console.error('❌ Error loading apps:', err);
+        // Show error message to user
+        const grid = document.getElementById('appGrid');
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+            <p style="font-size: 18px; margin-bottom: 10px;">❌ Failed to load apps</p>
+            <p style="font-size: 14px;">${err.message}</p>
+            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; cursor: pointer;">Retry</button>
+          </div>
+        `;
+        console.error('Failed to load apps:', err);
+      }
+    }
+
+    // Render apps with lazy loading
+    function renderapps() {
+      const grid = document.getElementById('appGrid');
+      const noResults = document.getElementById('noResults');
+      
+      grid.innerHTML = '';
+      
+      // Update app counter
+      updateappCounter();
+      
+      if (displayedapps.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      }
+      
+      noResults.style.display = 'none';
+      
+      displayedapps.forEach(app => {
+        const card = createappCard(app);
+        grid.appendChild(card);
+      });
+      
+      // Setup Intersection Observer for lazy loading
+      setupLazyLoading();
+    }
+    
+    // Update app counter
+    function updateappCounter() {
+      const count = displayedapps.length;
+      const total = allapps.length;
+      const counter = document.getElementById('appCounter');
+      
+      if (currentGenre === 'all' && !document.getElementById('searchInput').value) {
+        counter.textContent = `${total} apps`;
+      } else {
+        counter.textContent = `${count} of ${total} apps`;
+      }
+    }
+
+    // Create app card
+    function createappCard(app) {
+      const card = document.createElement('div');
+      card.className = 'app-card';
+      card.onclick = () => openapp(app.url, app.name, app.cover, app.isProxied);
+      
+      card.innerHTML = `
+        <div class="app-card-placeholder">?</div>
+        <img class="app-card-img" data-src="${app.cover}" alt="${app.name}" />
+        <div class="app-card-overlay">
+          <div class="app-card-title">${app.name}</div>
+          <div class="app-card-author">${app.author || 'Unknown'}</div>
+        </div>
+        ${app.isCustom ? '<button class="delete-custom-app" onclick="event.stopPropagation(); deleteCustomapp(\'' + app.id + '\');" style="position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(220,38,38,0.9);border:none;border-radius:6px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>' : ''}
+      `;
+      
+      return card;
+    }
+
+    // Lazy loading with Intersection Observer
+    function setupLazyLoading() {
+      const images = document.querySelectorAll('.app-card-img:not(.loaded)');
+      
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            const src = img.getAttribute('data-src');
+            
+            if (src) {
+              img.src = src;
+              img.onload = () => {
+                img.classList.add('loaded');
+              };
+              img.onerror = () => {
+                console.error('Failed to load:', src);
+              };
+            }
+            
+            observer.unobserve(img);
+          }
+        });
+      }, {
+        root: document.getElementById('scrollContainer'),
+        rootMargin: '100px',
+        threshold: 0.01
+      });
+      
+      images.forEach(img => imageObserver.observe(img));
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchWrap = document.getElementById('searchWrap');
+    
+    searchInput.addEventListener('focus', () => {
+      searchWrap.classList.add('expanded');
+    });
+    
+    searchInput.addEventListener('blur', () => {
+      if (!searchInput.value) {
+        searchWrap.classList.remove('expanded');
+      }
+    });
+    
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (query) {
+        clearBtn.classList.add('show');
+        
+        if (currentGenre === 'all') {
+          displayedapps = allapps.filter(app => 
+            app.name.toLowerCase().includes(query) ||
+            (app.author && app.author.toLowerCase().includes(query))
+          );
+        } else {
+          displayedapps = allapps.filter(app =>
+            app.genre === currentGenre &&
+            (app.name.toLowerCase().includes(query) ||
+            (app.author && app.author.toLowerCase().includes(query)))
+          );
+        }
+      } else {
+        clearBtn.classList.remove('show');
+        selectGenre(currentGenre, document.getElementById('genreLabel').textContent);
+        return;
+      }
+      
+      renderapps();
+    });
+
+    // Clear search
+    function clearSearch() {
+      searchInput.value = '';
+      document.getElementById('clearBtn').classList.remove('show');
+      searchWrap.classList.remove('expanded');
+      selectGenre(currentGenre, document.getElementById('genreLabel').textContent);
+    }
+
+    // Close apps page
+    function closeappsPage() {
+      window.parent.postMessage({ novaAction: 'closeApp', app: 'apps' }, '*');
+    }
+
+    // Open app
+    function openapp(url, name, coverImage, isProxied = false) {
+      console.log('🎮 Opening app:', name, coverImage, 'Proxied:', isProxied);
+      
+      // Track the app being played
+      try {
+        window.parent.postMessage({ 
+          novaAction: 'appPlayed', 
+          appName: name,
+          appImage: coverImage
+        }, '*');
+        console.log('✅ app tracking message sent');
+      } catch(e) {
+        console.error('❌ Failed to send tracking message:', e);
+      }
+      
+      // ALWAYS use proxy for ALL apps to bypass school blocks
+      // This routes ALL traffic through Scramjet proxy
+      const playerUrl = `app-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=true`;
+      window.location.href = playerUrl;
+    }
+
+    // Random app
+    function openRandomapp() {
+      if (displayedapps.length > 0) {
+        const randomapp = displayedapps[Math.floor(Math.random() * displayedapps.length)];
+        openapp(randomapp.url, randomapp.name, randomapp.cover, randomapp.isProxied);
+      }
+    }
+
+    // Initialize
+    loadapps();
+    
+    // ═══════════════════════════════════════════════════════
+    // PANIC KEY GLOBAL HANDLER
+    // ═══════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedKey = localStorage.getItem('nova_panic_key');
+      const savedUrl = localStorage.getItem('nova_panic_url') || 'https://classroom.google.com/';
+      const instantRedirect = localStorage.getItem('nova_instant_panic_redirect') !== 'false';
+      
+      if (!savedKey) return;
+      
+      // Remove old listener if exists
+      if (window._panicKeyHandler) {
+        document.removeEventListener('keydown', window._panicKeyHandler);
+      }
+      
+      // Add new listener
+      window._panicKeyHandler = (e) => {
+        if (e.key.toUpperCase() === savedKey.toUpperCase()) {
+          e.preventDefault();
+          
+          if (instantRedirect) {
+            window.location.href = savedUrl;
+          } else {
+            if (confirm('🚨 Activate Panic Mode?\n\nThis will redirect you to a safe page.')) {
+              window.location.href = savedUrl;
+            }
+          }
+        }
+      };
+      
+      document.addEventListener('keydown', window._panicKeyHandler);
+      console.log('🔐 Panic key active:', savedKey);
+    });
+    
+    // ═══════════════════════════════════════════════════════
+    // CUSTOM apps - Add proxied apps
+    // ═══════════════════════════════════════════════════════
+    let customapps = JSON.parse(localStorage.getItem('nova_custom_apps') || '[]');
+    
+    function openAddappModal() {
+      const modal = document.getElementById('addappModal');
+      const modalContent = modal.children[0];
+      
+      modal.style.display = 'flex';
+      
+      // Trigger animation with smooth entrance
+      setTimeout(() => {
+        modal.style.opacity = '1';
+        modalContent.style.transform = 'scale(1) translateY(0)';
+      }, 10);
+    }
+    
+    function closeAddappModal() {
+      const modal = document.getElementById('addappModal');
+      const modalContent = modal.children[0];
+      
+      // Animate out smoothly
+      modal.style.opacity = '0';
+      modalContent.style.transform = 'scale(0.95) translateY(20px)';
+      
+      setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('customappName').value = '';
+        document.getElementById('customappUrl').value = '';
+        document.getElementById('customappCover').value = '';
+        document.getElementById('customappGenre').value = 'action';
+      }, 400);
+    }
+    
+    function addCustomapp() {
+      const name = document.getElementById('customappName').value.trim();
+      const url = document.getElementById('customappUrl').value.trim();
+      const cover = document.getElementById('customappCover').value.trim();
+      const genre = document.getElementById('customappGenre').value;
+      
+      if (!name || !url) {
+        alert('Please enter a app name and URL');
+        return;
+      }
+      
+      const newapp = {
+        id: 'custom_' + Date.now(),
+        name: name,
+        url: url,
+        cover: cover || 'https://via.placeholder.com/300x400/8b5cf6/ffffff?text=' + encodeURIComponent(name),
+        genre: genre,
+        isCustom: true,
+        isProxied: true
+      };
+      
+      customapps.push(newapp);
+      localStorage.setItem('nova_custom_apps', JSON.stringify(customapps));
+      
+      // Reload apps to include custom apps
+      allapps.push(newapp);
+      displayedapps = [...allapps];
+      renderapps();
+      
+      closeAddappModal();
+      alert('✅ Custom app added!');
+    }
+    
+    function deleteCustomapp(appId) {
+      if (!confirm('Delete this custom app?')) return;
+      
+      customapps = customapps.filter(g => g.id !== appId);
+      localStorage.setItem('nova_custom_apps', JSON.stringify(customapps));
+      
+      allapps = allapps.filter(g => g.id !== appId);
+      displayedapps = displayedapps.filter(g => g.id !== appId);
+      renderapps();
+    }
+  </script>
   
-  document.addEventListener('keydown', window._panicKeyHandler);
-  console.log('🔐 Panic key active:', savedKey);
-});
-</script>
+  <!-- ADD CUSTOM app MODAL -->
+  <!-- ADD CUSTOM app MODAL -->
+  <div id="addappModal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  ">
+    <div style="
+      background: rgba(18,18,18,0.85);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 32px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 20px 60px rgba(0,0,0,0.5),
+        0 0 80px rgba(255,255,255,0.1);
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    ">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.15);
+          ">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#fff;">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </div>
+          <h2 style="font-size:22px;font-weight:700;color:#fff;margin:0;letter-spacing:-0.5px;">Add Custom app</h2>
+        </div>
+        <button onclick="closeAddappModal()" style="
+          width:36px;
+          height:36px;
+          background:rgba(255,255,255,0.05);
+          border:1px solid rgba(255,255,255,0.1);
+          border-radius:10px;
+          color:rgba(255,255,255,0.5);
+          cursor:pointer;
+          font-size:18px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        " onmouseover="this.style.background='rgba(255,0,0,0.1)';this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6b6b';this.style.transform='rotate(90deg)'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.5)';this.style.transform='rotate(0deg)'">✕</button>
+      </div>
+      
+      <!-- Form -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- app Name -->
+        <div style="animation: slideIn 0.4s ease-out 0.1s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#fff;
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">app Name</label>
+          <input id="customappName" type="text" placeholder="e.g. Shell Shockers" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+        </div>
+        
+        <!-- app URL -->
+        <div style="animation: slideIn 0.4s ease-out 0.2s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#fff;
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">app URL <span style="color:rgba(255,255,255,0.5);font-size:11px;">(will be proxied)</span></label>
+          <input id="customappUrl" type="text" placeholder="https://shellshock.io" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+        </div>
+        
+        <!-- Cover Image URL -->
+        <div style="animation: slideIn 0.4s ease-out 0.3s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#fff;
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Cover Image URL <span style="color:rgba(255,255,255,0.4);font-size:11px;">(optional)</span></label>
+          <input id="customappCover" type="text" placeholder="https://example.com/cover.jpg" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+        </div>
+        
+        <!-- Genre -->
+        <div style="animation: slideIn 0.4s ease-out 0.4s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#fff;
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Genre</label>
+          <select id="customappGenre" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor:pointer;
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow='none'">
+            <option value="action" style="background:#1a1a1a;color:#fff;">⚡ Action</option>
+            <option value="shooting" style="background:#1a1a1a;color:#fff;">🎯 Shooting</option>
+            <option value="racing" style="background:#1a1a1a;color:#fff;">🏁 Racing</option>
+            <option value="puzzle" style="background:#1a1a1a;color:#fff;">🧩 Puzzle</option>
+            <option value="sports" style="background:#1a1a1a;color:#fff;">⚽ Sports</option>
+            <option value="io" style="background:#1a1a1a;color:#fff;">🌐 IO apps</option>
+            <option value="adventure" style="background:#1a1a1a;color:#fff;">🗺️ Adventure</option>
+            <option value="strategy" style="background:#1a1a1a;color:#fff;">♟️ Strategy</option>
+            <option value="arcade" style="background:#1a1a1a;color:#fff;">🕹️ Arcade</option>
+          </select>
+        </div>
+        
+        <!-- Add Button -->
+        <button onclick="addCustomapp()" style="
+          width:100%;
+          background:rgba(255,255,255,0.08);
+          border:1px solid rgba(255,255,255,0.15);
+          border-radius:12px;
+          padding:16px;
+          color:#fff;
+          font-size:15px;
+          font-weight:700;
+          cursor:pointer;
+          font-family:inherit;
+          transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-top:8px;
+          letter-spacing:0.3px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.2);
+          animation: slideIn 0.4s ease-out 0.5s both;
+        " onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.borderColor='rgba(255,255,255,0.25)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.15)';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;margin-right:8px;">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Add app
+        </button>
+      </div>
+    </div>
+  </div>
 
-<!-- BOTTOM DOCK -->
-<div class="dock">
-  <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/>
-      <path d="M9 21v-9h6v9"/>
-    </svg>
-  </button>
+  <style>
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 
-  <button class="dock-btn" onclick="window.location.href='games.html'">
-    <i class="bi bi-controller"></i>
-  </button>
+  <!-- BOTTOM DOCK -->
+  <div class="dock">
+    <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/>
+        <path d="M9 21v-9h6v9"/>
+      </svg>
+    </button>
 
-  <button class="dock-btn active" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-    </svg>
-  </button>
+    <button class="dock-btn active" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
+      <i class="bi bi-controller"></i>
+    </button>
 
-  <div class="dock-divider"></div>
+    <button class="dock-btn" onclick="window.location.href='apps.html'">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+    </button>
+
+    <div class="dock-divider"></div>
 
     <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'openBrowser'}, '*'); } else { window.location.href='home.html'; }">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -923,44 +1342,43 @@ document.addEventListener('DOMContentLoaded', function() {
       </svg>
     </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://discord.com') + '&name=Discord&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://discord.com') + '&name=Discord&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://soundcloud.com') + '&name=SoundCloud&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=soundcloud.com&sz=128" alt="SoundCloud">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://soundcloud.com') + '&name=SoundCloud&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=soundcloud.com&sz=128" alt="SoundCloud">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://aniwatch9.com.ro/') + '&name=AniWatch&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="AniWatch">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://aniwatch9.com.ro/') + '&name=AniWatch&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="AniWatch">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://gaiaflix.live/') + '&name=GaiaFlix&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="GaiaFlix">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://gaiaflix.live/') + '&name=GaiaFlix&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="GaiaFlix">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/a/19900/b.html') + '&name=Roblox&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=roblox.com&sz=128" alt="Roblox">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/a/19900/b.html') + '&name=Roblox&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=roblox.com&sz=128" alt="Roblox">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.epicgames.fortnite') + '&name=Fortnite&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=epicgames.com&sz=128" alt="Fortnite">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.epicapps.fortnite') + '&name=Fortnite&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=epicapps.com&sz=128" alt="Fortnite">
+    </button>
 
-  <button class="dock-btn" onclick="window.open('game-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.mojang.minecrafttrialpe') + '&name=Minecraft&proxy=true', '_self')">
-    <img src="https://www.google.com/s2/favicons?domain=minecraft.net&sz=128" alt="Minecraft">
-  </button>
+    <button class="dock-btn" onclick="window.open('app-player.html?url=' + encodeURIComponent('https://nowgg.lol/apps/aptoide/5874/aptoide.html?deep_link=aptoidesearch://com.mojang.minecrafttrialpe') + '&name=Minecraft&proxy=true', '_self')">
+      <img src="https://www.google.com/s2/favicons?domain=minecraft.net&sz=128" alt="Minecraft">
+    </button>
 
-  <div class="dock-divider"></div>
+    <div class="dock-divider"></div>
 
-  <button class="dock-btn" onclick="window.location.href='settings.html'">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-    </svg>
-  </button>
-</div>
-
+    <button class="dock-btn" onclick="window.location.href='settings.html'">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
 </body>
 </html>
 
