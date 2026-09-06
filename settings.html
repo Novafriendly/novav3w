@@ -818,70 +818,6 @@
     }
 
     /* ═══════════════════════════════
-       CUSTOMIZE HOME - DOCK PREVIEW
-    ═══════════════════════════════ */
-    .dock-option {
-      padding: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 2px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      text-align: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .dock-option:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.15);
-      transform: translateY(-2px);
-    }
-    .dock-option.active {
-      background: rgba(138,43,226,0.15);
-      border-color: rgba(138,43,226,0.5);
-      box-shadow: 0 0 20px rgba(138,43,226,0.2);
-    }
-
-    .dock-preview {
-      width: 100%;
-      height: 120px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    .dock-preview-left {
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 80px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-    }
-    .dock-preview-right {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 80px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-    }
-    .dock-preview-bottom {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 40px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      backdrop-filter: blur(20px);
-    }
-
-    /* ═══════════════════════════════
        TOGGLE SWITCH
     ═══════════════════════════════ */
     .toggle-switch {
@@ -1028,12 +964,6 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </div>
         Behavior
-      </button>
-      <button class="sb-item" data-tab="customize" onclick="switchTab(this)">
-        <div class="sb-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        Customize Home
       </button>
       <button class="sb-item" data-tab="info" onclick="switchTab(this)">
         <div class="sb-icon">
@@ -1723,52 +1653,6 @@
             <div>
               <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Show Ping</div>
               <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Display network latency in top-right corner</div>
-            </div>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── CUSTOMIZE HOME ── -->
-    <div class="tab-panel" id="tab-customize">
-      <div class="panel-title">Customize Home</div>
-      
-      <!-- Dock Position -->
-      <div class="scard">
-        <div class="scard-head">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          Dock Position
-        </div>
-        <div style="margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.6);">Choose where the navigation dock appears on your home page</div>
-        
-        <div style="display:flex;gap:12px;margin-bottom:24px;">
-          <label style="flex:1;cursor:pointer;">
-            <input type="radio" name="dockPosition" value="left" onchange="saveDockPosition()" style="display:none;" />
-            <div class="dock-option" data-position="left">
-              <div class="dock-preview">
-                <div class="dock-preview-left"></div>
-              </div>
-              <div style="margin-top:12px;font-size:13px;font-weight:500;">Left Side</div>
-            </div>
-          </label>
-          
-          <label style="flex:1;cursor:pointer;">
-            <input type="radio" name="dockPosition" value="right" onchange="saveDockPosition()" style="display:none;" />
-            <div class="dock-option" data-position="right">
-              <div class="dock-preview">
-                <div class="dock-preview-right"></div>
-              </div>
-              <div style="margin-top:12px;font-size:13px;font-weight:500;">Right Side</div>
-            </div>
-          </label>
-          
-          <label style="flex:1;cursor:pointer;">
-            <input type="radio" name="dockPosition" value="bottom" onchange="saveDockPosition()" checked style="display:none;" />
-            <div class="dock-option active" data-position="bottom">
-              <div class="dock-preview">
-                <div class="dock-preview-bottom"></div>
-              </div>
-              <div style="margin-top:12px;font-size:13px;font-weight:500;">Bottom (Default)</div>
             </div>
           </label>
         </div>
@@ -4190,90 +4074,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 })();
-
-// ═══════════════════════════════════════════════════════
-//  CUSTOMIZE HOME - Phase 1
-// ═══════════════════════════════════════════════════════
-function saveDockPosition() {
-  const selected = document.querySelector('input[name="dockPosition"]:checked');
-  if (!selected) return;
-  
-  const position = selected.value;
-  localStorage.setItem('nova_dock_position', position);
-  
-  // Update visual active state
-  document.querySelectorAll('.dock-option').forEach(opt => opt.classList.remove('active'));
-  selected.parentElement.querySelector('.dock-option').classList.add('active');
-  
-  emit('dockPositionChanged', { position });
-  showToast(`Dock moved to ${position}`, 'green');
-}
-
-// ═══════════════════════════════════════════════════════
-//  CUSTOMIZE HOME
-// ═══════════════════════════════════════════════════════
-
-function saveClockFont() {
-  const select = document.getElementById('clockFontSelect');
-  const font = select.value;
-  localStorage.setItem('nova_clock_font', font);
-  
-  // Update preview
-  updateClockPreview(font);
-  
-  // Emit event to update home page
-  emit('clockFontChanged', { font });
-  showToast('Clock font updated!', 'green');
-}
-
-function updateClockPreview(font) {
-  const timeEl = document.getElementById('previewTime');
-  const dateEl = document.getElementById('previewDate');
-  
-  const fontMap = {
-    'default': '"Segoe UI", system-ui, sans-serif',
-    'mono': 'Consolas, "Courier New", monospace',
-    'serif': 'Georgia, "Times New Roman", serif',
-    'cursive': '"Comic Sans MS", cursive',
-    'fantasy': 'Impact, fantasy'
-  };
-  
-  const fontFamily = fontMap[font] || fontMap['default'];
-  timeEl.style.fontFamily = fontFamily;
-  dateEl.style.fontFamily = fontFamily;
-}
-
-function saveDockPosition(position) {
-  localStorage.setItem('nova_dock_position', position);
-  
-  // Update active state
-  document.querySelectorAll('.dock-pos-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.pos === position);
-  });
-  
-  // Emit event to update home page
-  emit('dockPositionChanged', { position });
-  showToast(`Dock moved to ${position}!`, 'green');
-}
-
-function loadCustomizeHomeSettings() {
-  // Load clock font
-  const clockFont = localStorage.getItem('nova_clock_font') || 'default';
-  const select = document.getElementById('clockFontSelect');
-  if (select) {
-    select.value = clockFont;
-    updateClockPreview(clockFont);
-  }
-  
-  // Load dock position
-  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
-  document.querySelectorAll('.dock-pos-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.pos === dockPosition);
-  });
-}
-
-// Call on page load
-loadCustomizeHomeSettings();
 
 </script>
 
