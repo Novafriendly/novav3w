@@ -816,6 +816,120 @@
     .legal-link svg {
       width: 16px; height: 16px; stroke-width: 2; flex-shrink: 0;
     }
+
+    /* ═══════════════════════════════
+       CUSTOMIZE HOME - DOCK PREVIEW
+    ═══════════════════════════════ */
+    .dock-option {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dock-option:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .dock-option.active {
+      background: rgba(138,43,226,0.15);
+      border-color: rgba(138,43,226,0.5);
+      box-shadow: 0 0 20px rgba(138,43,226,0.2);
+    }
+
+    .dock-preview {
+      width: 100%;
+      height: 120px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dock-preview-left {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+    .dock-preview-right {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+    .dock-preview-bottom {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 40px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+
+    /* ═══════════════════════════════
+       TOGGLE SWITCH
+    ═══════════════════════════════ */
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 28px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #8a2be2, #9370db);
+      border-color: rgba(138,43,226,0.5);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translate(24px, -50%);
+    }
+    .toggle-switch:hover .toggle-slider {
+      background: rgba(255,255,255,0.15);
+    }
+    .toggle-switch input:checked:hover + .toggle-slider {
+      background: linear-gradient(135deg, #9370db, #a582e8);
+    }
   </style>
 </head>
 <body>
@@ -1563,6 +1677,83 @@
               <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Display network latency in top-right corner</div>
             </div>
           </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CUSTOMIZE HOME ── -->
+    <div class="tab-panel" id="tab-customize">
+      <div class="panel-title">Customize Home</div>
+      
+      <!-- Dock Position -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Dock Position
+        </div>
+        <div style="margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.6);">Choose where the navigation dock appears on your home page</div>
+        
+        <div style="display:flex;gap:12px;margin-bottom:24px;">
+          <label style="flex:1;cursor:pointer;">
+            <input type="radio" name="dockPosition" value="left" onchange="saveDockPosition()" style="display:none;" />
+            <div class="dock-option" data-position="left">
+              <div class="dock-preview">
+                <div class="dock-preview-left"></div>
+              </div>
+              <div style="margin-top:12px;font-size:13px;font-weight:500;">Left Side</div>
+            </div>
+          </label>
+          
+          <label style="flex:1;cursor:pointer;">
+            <input type="radio" name="dockPosition" value="right" onchange="saveDockPosition()" style="display:none;" />
+            <div class="dock-option" data-position="right">
+              <div class="dock-preview">
+                <div class="dock-preview-right"></div>
+              </div>
+              <div style="margin-top:12px;font-size:13px;font-weight:500;">Right Side</div>
+            </div>
+          </label>
+          
+          <label style="flex:1;cursor:pointer;">
+            <input type="radio" name="dockPosition" value="bottom" onchange="saveDockPosition()" checked style="display:none;" />
+            <div class="dock-option active" data-position="bottom">
+              <div class="dock-preview">
+                <div class="dock-preview-bottom"></div>
+              </div>
+              <div style="margin-top:12px;font-size:13px;font-weight:500;">Bottom (Default)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Home Shortcuts Toggle -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Home Shortcuts
+        </div>
+        <div style="margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.6);">Add custom game and app shortcuts to your home page (max 40)</div>
+        
+        <label style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;">
+          <div>
+            <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.9);margin-bottom:4px;">Enable Home Shortcuts</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">Right-click home to add shortcuts</div>
+          </div>
+          <div class="toggle-switch">
+            <input type="checkbox" id="homeShortcutsEnabled" onchange="saveHomeShortcuts()" />
+            <span class="toggle-slider"></span>
+          </div>
+        </label>
+
+        <div id="shortcutPreview" style="margin-top:20px;padding:20px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;display:none;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">✨ Preview</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">
+            • Right-click anywhere on home to open menu<br/>
+            • Select "Add Game" or "Add App"<br/>
+            • Browse and add your favorites<br/>
+            • Drag to reorder, hover to create folders<br/>
+            • Right-click shortcuts to delete
+          </div>
         </div>
       </div>
     </div>
@@ -4003,3 +4194,60 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 </html>
 
+
+
+// ═══════════════════════════════════════════════════════
+//  CUSTOMIZE HOME - Phase 1
+// ═══════════════════════════════════════════════════════
+function saveDockPosition() {
+  const selected = document.querySelector('input[name="dockPosition"]:checked');
+  if (!selected) return;
+  
+  const position = selected.value;
+  localStorage.setItem('nova_dock_position', position);
+  
+  // Update visual active state
+  document.querySelectorAll('.dock-option').forEach(opt => opt.classList.remove('active'));
+  selected.parentElement.querySelector('.dock-option').classList.add('active');
+  
+  emit('dockPositionChanged', { position });
+  showToast(`Dock moved to ${position}`, 'green');
+}
+
+function saveHomeShortcuts() {
+  const enabled = document.getElementById('homeShortcutsEnabled').checked;
+  localStorage.setItem('nova_home_shortcuts_enabled', enabled ? 'true' : 'false');
+  
+  // Toggle preview
+  const preview = document.getElementById('shortcutPreview');
+  if (preview) {
+    preview.style.display = enabled ? 'block' : 'none';
+  }
+  
+  emit('homeShortcutsChanged', { enabled });
+  showToast(enabled ? 'Home shortcuts enabled! Right-click home to add.' : 'Home shortcuts disabled', 'green');
+}
+
+function loadCustomizeHomeSettings() {
+  // Load dock position
+  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
+  const radio = document.querySelector(`input[name="dockPosition"][value="${dockPosition}"]`);
+  if (radio) {
+    radio.checked = true;
+    document.querySelectorAll('.dock-option').forEach(opt => opt.classList.remove('active'));
+    radio.parentElement.querySelector('.dock-option').classList.add('active');
+  }
+  
+  // Load shortcuts toggle
+  const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
+  if (document.getElementById('homeShortcutsEnabled')) {
+    document.getElementById('homeShortcutsEnabled').checked = shortcutsEnabled;
+    const preview = document.getElementById('shortcutPreview');
+    if (preview) {
+      preview.style.display = shortcutsEnabled ? 'block' : 'none';
+    }
+  }
+}
+
+// Call on page load
+loadCustomizeHomeSettings();
