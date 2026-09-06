@@ -1863,36 +1863,6 @@
           </button>
         </div>
       </div>
-      
-      <!-- Home Shortcuts -->
-      <div class="scard">
-        <div class="scard-head">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Home Shortcuts
-        </div>
-        <div style="margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.6);">Add custom game and app shortcuts to your home page (max 40)</div>
-        
-        <label style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;">
-          <div>
-            <div style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:4px;">Enable Home Shortcuts</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);">Right-click home page to add shortcuts</div>
-          </div>
-          <div class="toggle-switch">
-            <input type="checkbox" id="homeShortcutsToggle" onchange="saveHomeShortcuts()" />
-            <span class="toggle-slider"></span>
-          </div>
-        </label>
-        
-        <div id="shortcutsInfo" style="margin-top:16px;padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;display:none;">
-          <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
-            <strong style="color:rgba(255,255,255,0.8);">How to use:</strong><br/>
-            • Right-click anywhere on home<br/>
-            • Select "Add Game" or "Add App"<br/>
-            • Click + to add up to 40 shortcuts<br/>
-            • Click shortcuts to open them
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ── INFO ── -->
@@ -4390,21 +4360,6 @@ function saveDockPosition(position) {
   showToast(`Dock moved to ${position}!`, 'green');
 }
 
-function saveHomeShortcuts() {
-  const enabled = document.getElementById('homeShortcutsToggle').checked;
-  localStorage.setItem('nova_home_shortcuts_enabled', enabled ? 'true' : 'false');
-  
-  // Show/hide info
-  const info = document.getElementById('shortcutsInfo');
-  if (info) {
-    info.style.display = enabled ? 'block' : 'none';
-  }
-  
-  // Emit event
-  emit('homeShortcutsChanged', { enabled });
-  showToast(enabled ? 'Home shortcuts enabled!' : 'Home shortcuts disabled', 'green');
-}
-
 function loadCustomizeHomeSettings() {
   // Load clock font
   const clockFont = localStorage.getItem('nova_clock_font') || 'default';
@@ -4419,17 +4374,6 @@ function loadCustomizeHomeSettings() {
   document.querySelectorAll('.dock-pos-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.pos === dockPosition);
   });
-  
-  // Load home shortcuts toggle
-  const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
-  const toggle = document.getElementById('homeShortcutsToggle');
-  if (toggle) {
-    toggle.checked = shortcutsEnabled;
-    const info = document.getElementById('shortcutsInfo');
-    if (info) {
-      info.style.display = shortcutsEnabled ? 'block' : 'none';
-    }
-  }
 }
 
 // Call on page load

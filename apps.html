@@ -708,21 +708,13 @@ function init() {
 function renderApps() {
   const grid = document.getElementById('appsGrid');
   
-  // Filter out apps already added to home shortcuts
-  const homeShortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
-  const addedAppUrls = homeShortcuts
-    .filter(s => s.type === 'app')
-    .map(s => s.url);
-  
-  const availableApps = filteredApps.filter(app => !addedAppUrls.includes(app.url));
-  
-  if (availableApps.length === 0) {
+  if (filteredApps.length === 0) {
     grid.innerHTML = '<div class="no-apps">No apps found</div>';
-    updateCounter(availableApps.length);
+    updateCounter();
     return;
   }
   
-  grid.innerHTML = availableApps.map((app, idx) => `
+  grid.innerHTML = filteredApps.map((app, idx) => `
     <div class="app-card" onclick="openApp('${escapeHtml(app.url)}', '${escapeHtml(app.name)}')" data-idx="${idx}">
       <img 
         src="${escapeHtml(app.image)}" 
@@ -734,14 +726,13 @@ function renderApps() {
     </div>
   `).join('');
   
-  updateCounter(availableApps.length);
+  updateCounter();
 }
 
 /* Update counter */
-function updateCounter(availableCount) {
+function updateCounter() {
   const counter = document.getElementById('counter');
-  const count = availableCount !== undefined ? availableCount : filteredApps.length;
-  counter.textContent = `${count} of ${allApps.length} apps`;
+  counter.textContent = `${filteredApps.length} of ${allApps.length} apps`;
 }
 
 /* Filter apps */
