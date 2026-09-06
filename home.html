@@ -684,6 +684,34 @@
         0 12px 48px rgba(0,0,0,0.6),
         0 4px 16px rgba(0,0,0,0.4),
         inset 0 1px 0 rgba(255,255,255,0.05);
+      
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Dock positioning variants */
+    .dock.dock-left {
+      bottom: auto;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+      min-width: unset;
+      min-height: 400px;
+    }
+    
+    .dock.dock-right {
+      bottom: auto;
+      left: auto;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      flex-direction: column;
+      min-width: unset;
+      min-height: 400px;
+    }
+    
+    .dock.dock-bottom {
+      /* default - already set above */
     }
 
     /* Apps label - hide it */
@@ -2200,6 +2228,24 @@
   listen('clockFontChanged', (data) => {
     applyClockFont();
   });
+  
+  // Apply dock position
+  function applyDockPosition() {
+    const position = localStorage.getItem('nova_dock_position') || 'bottom';
+    const dock = document.querySelector('.dock');
+    if (dock) {
+      dock.classList.remove('dock-left', 'dock-right', 'dock-bottom');
+      dock.classList.add(`dock-${position}`);
+    }
+  }
+  
+  // Listen for dock position changes
+  listen('dockPositionChanged', (data) => {
+    applyDockPosition();
+  });
+  
+  // Apply on load
+  applyDockPosition();
 
   /* dock active */
   function dockClick(btn) {

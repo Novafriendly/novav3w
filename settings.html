@@ -930,6 +930,54 @@
     .toggle-switch input:checked:hover + .toggle-slider {
       background: linear-gradient(135deg, #9370db, #a582e8);
     }
+    
+    /* ═══════════════════════════════
+       DOCK POSITION BUTTONS
+    ═══════════════════════════════ */
+    .dock-pos-btn {
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      font-family: inherit;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .dock-pos-btn:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .dock-pos-btn.active {
+      background: rgba(138,43,226,0.15);
+      border-color: rgba(138,43,226,0.5);
+      color: rgba(138,43,226,1);
+      box-shadow: 0 0 20px rgba(138,43,226,0.2);
+    }
+    .dock-pos-preview {
+      width: 80px;
+      height: 60px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dock-pos-bar {
+      position: absolute;
+      background: rgba(138,43,226,0.6);
+      border-radius: 8px;
+    }
+    .dock-pos-btn.active .dock-pos-bar {
+      background: rgba(138,43,226,1);
+      box-shadow: 0 0 10px rgba(138,43,226,0.5);
+    }
   </style>
 </head>
 <body>
@@ -1781,6 +1829,38 @@
         <div id="clockPreview" style="margin-top:20px;padding:24px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;text-align:center;">
           <div style="font-size:48px;font-weight:900;color:white;margin-bottom:8px;" id="previewTime">12:34</div>
           <div style="font-size:14px;color:rgba(255,255,255,0.6);" id="previewDate">SUNDAY, JANUARY 1</div>
+        </div>
+      </div>
+      
+      <!-- Dock Position -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Dock Position
+        </div>
+        <div style="margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.6);">Choose where the navigation dock appears</div>
+        
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <button class="dock-pos-btn" data-pos="left" onclick="saveDockPosition('left')">
+            <div class="dock-pos-preview">
+              <div class="dock-pos-bar" style="left:4px;top:50%;transform:translateY(-50%);width:20%;height:60%;"></div>
+            </div>
+            <span>Left</span>
+          </button>
+          
+          <button class="dock-pos-btn" data-pos="right" onclick="saveDockPosition('right')">
+            <div class="dock-pos-preview">
+              <div class="dock-pos-bar" style="right:4px;top:50%;transform:translateY(-50%);width:20%;height:60%;"></div>
+            </div>
+            <span>Right</span>
+          </button>
+          
+          <button class="dock-pos-btn active" data-pos="bottom" onclick="saveDockPosition('bottom')">
+            <div class="dock-pos-preview">
+              <div class="dock-pos-bar" style="bottom:4px;left:50%;transform:translateX(-50%);width:60%;height:20%;"></div>
+            </div>
+            <span>Bottom</span>
+          </button>
         </div>
       </div>
     </div>
@@ -4267,6 +4347,19 @@ function updateClockPreview(font) {
   dateEl.style.fontFamily = fontFamily;
 }
 
+function saveDockPosition(position) {
+  localStorage.setItem('nova_dock_position', position);
+  
+  // Update active state
+  document.querySelectorAll('.dock-pos-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pos === position);
+  });
+  
+  // Emit event to update home page
+  emit('dockPositionChanged', { position });
+  showToast(`Dock moved to ${position}!`, 'green');
+}
+
 function loadCustomizeHomeSettings() {
   // Load clock font
   const clockFont = localStorage.getItem('nova_clock_font') || 'default';
@@ -4276,11 +4369,11 @@ function loadCustomizeHomeSettings() {
     updateClockPreview(clockFont);
   }
   
-  // Load dock position (for future phases)
+  // Load dock position
   const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
-  
-  // Load shortcuts toggle (for future phases)
-  const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
+  document.querySelectorAll('.dock-pos-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pos === dockPosition);
+  });
 }
 
 // Call on page load
