@@ -733,8 +733,15 @@
     // Fetch games from zones.json
     async function loadGames() {
       try {
+        console.log('🎮 Loading games from zones.json...');
         const response = await fetch('assets-main/assets-main/zones.json');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('✅ Loaded', data.length, 'games from zones.json');
         
         // Filter out the Discord suggestion entry (id: -1) and process URLs
         allGames = data
@@ -745,6 +752,8 @@
             url: game.url.replace('{HTML_URL}', HTML_URL),
             genre: classifyGenre(game.name)
           }));
+        
+        console.log('✅ Processed', allGames.length, 'valid games');
         
         // Load proxied games from proxied-games.json (dev-added games)
         try {
@@ -759,10 +768,23 @@
         // Load custom games from localStorage (user-added games)
         const savedCustomGames = JSON.parse(localStorage.getItem('nova_custom_games') || '[]');
         allGames = [...allGames, ...savedCustomGames];
+        console.log('✅ Total games:', allGames.length);
         
         displayedGames = [...allGames];
         renderGames();
       } catch (err) {
+        console.error('❌ Error loading games:', err);
+        // Show error message to user
+        const grid = document.getElementById('gameGrid');
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+            <p style="font-size: 18px; margin-bottom: 10px;">❌ Failed to load games</p>
+            <p style="font-size: 14px;">${err.message}</p>
+            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; cursor: pointer;">Retry</button>
+          </div>
+        `;
+      }
+    }
         console.error('Failed to load games:', err);
       }
     }
