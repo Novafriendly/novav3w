@@ -995,10 +995,10 @@
       
       modal.style.display = 'flex';
       
-      // Trigger animation
+      // Trigger animation with smooth entrance
       setTimeout(() => {
         modal.style.opacity = '1';
-        modalContent.style.transform = 'scale(1)';
+        modalContent.style.transform = 'scale(1) translateY(0)';
       }, 10);
     }
     
@@ -1006,9 +1006,9 @@
       const modal = document.getElementById('addGameModal');
       const modalContent = modal.children[0];
       
-      // Animate out
+      // Animate out smoothly
       modal.style.opacity = '0';
-      modalContent.style.transform = 'scale(0.9)';
+      modalContent.style.transform = 'scale(0.95) translateY(20px)';
       
       setTimeout(() => {
         modal.style.display = 'none';
@@ -1016,7 +1016,7 @@
         document.getElementById('customGameUrl').value = '';
         document.getElementById('customGameCover').value = '';
         document.getElementById('customGameGenre').value = 'action';
-      }, 300);
+      }, 400);
     }
     
     function addCustomGame() {
@@ -1065,48 +1065,219 @@
   </script>
   
   <!-- ADD CUSTOM GAME MODAL -->
-  <div id="addGameModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;">
-    <div style="background:rgba(26,26,26,0.95);border:1px solid rgba(139,92,246,0.3);border-radius:16px;padding:24px;width:90%;max-width:480px;box-shadow:0 24px 80px rgba(0,0,0,0.7);transform:scale(0.9);transition:transform 0.3s ease;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <h2 style="font-size:18px;font-weight:700;color:#fff;margin:0;">Add Custom Game</h2>
-        <button onclick="closeAddGameModal()" style="width:32px;height:32px;background:rgba(255,255,255,0.06);border:none;border-radius:8px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">✕</button>
+  <!-- ADD CUSTOM GAME MODAL -->
+  <div id="addGameModal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  ">
+    <div style="
+      background: rgba(18,18,18,0.85);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 32px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 20px 60px rgba(0,0,0,0.5),
+        0 0 80px rgba(139,92,246,0.15);
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    ">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(59,130,246,0.2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(139,92,246,0.3);
+          ">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#a78bfa;">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </div>
+          <h2 style="font-size:22px;font-weight:700;color:#fff;margin:0;letter-spacing:-0.5px;">Add Custom Game</h2>
+        </div>
+        <button onclick="closeAddGameModal()" style="
+          width:36px;
+          height:36px;
+          background:rgba(255,255,255,0.05);
+          border:1px solid rgba(255,255,255,0.1);
+          border-radius:10px;
+          color:rgba(255,255,255,0.5);
+          cursor:pointer;
+          font-size:18px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        " onmouseover="this.style.background='rgba(255,0,0,0.1)';this.style.borderColor='rgba(255,0,0,0.3)';this.style.color='#ff6b6b';this.style.transform='rotate(90deg)'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.5)';this.style.transform='rotate(0deg)'">✕</button>
       </div>
       
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div>
-          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Game Name</label>
-          <input id="customGameName" type="text" placeholder="e.g. Shell Shockers" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;transition:all 0.2s;" onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(255,255,255,0.08)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'" />
+      <!-- Form -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Game Name -->
+        <div style="animation: slideIn 0.4s ease-out 0.1s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:rgba(255,255,255,0.7);
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Game Name</label>
+          <input id="customGameName" type="text" placeholder="e.g. Shell Shockers" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
-        <div>
-          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Game URL (will be proxied)</label>
-          <input id="customGameUrl" type="text" placeholder="https://shellshock.io" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;transition:all 0.2s;" onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(255,255,255,0.08)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'" />
+        <!-- Game URL -->
+        <div style="animation: slideIn 0.4s ease-out 0.2s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:rgba(255,255,255,0.7);
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Game URL <span style="color:rgba(139,92,246,0.8);font-size:11px;">(will be proxied)</span></label>
+          <input id="customGameUrl" type="text" placeholder="https://shellshock.io" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
-        <div>
-          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Cover Image URL (optional)</label>
-          <input id="customGameCover" type="text" placeholder="https://example.com/cover.jpg" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;transition:all 0.2s;" onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(255,255,255,0.08)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'" />
+        <!-- Cover Image URL -->
+        <div style="animation: slideIn 0.4s ease-out 0.3s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:rgba(255,255,255,0.7);
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Cover Image URL <span style="color:rgba(255,255,255,0.4);font-size:11px;">(optional)</span></label>
+          <input id="customGameCover" type="text" placeholder="https://example.com/cover.jpg" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
-        <div>
-          <label style="display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;">Genre</label>
-          <select id="customGameGenre" style="width:100%;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;font-family:inherit;transition:all 0.2s;cursor:pointer;" onfocus="this.style.borderColor='rgba(139,92,246,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-            <option value="action" style="background:#000;color:#fff;">Action</option>
-            <option value="shooting" style="background:#000;color:#fff;">Shooting</option>
-            <option value="racing" style="background:#000;color:#fff;">Racing</option>
-            <option value="puzzle" style="background:#000;color:#fff;">Puzzle</option>
-            <option value="sports" style="background:#000;color:#fff;">Sports</option>
-            <option value="io" style="background:#000;color:#fff;">IO Games</option>
-            <option value="adventure" style="background:#000;color:#fff;">Adventure</option>
-            <option value="strategy" style="background:#000;color:#fff;">Strategy</option>
-            <option value="arcade" style="background:#000;color:#fff;">Arcade</option>
+        <!-- Genre -->
+        <div style="animation: slideIn 0.4s ease-out 0.4s both;">
+          <label style="
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:rgba(255,255,255,0.7);
+            margin-bottom:8px;
+            letter-spacing:0.3px;
+          ">Genre</label>
+          <select id="customGameGenre" style="
+            width:100%;
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:12px;
+            padding:14px 16px;
+            color:#fff;
+            font-size:14px;
+            font-family:inherit;
+            transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor:pointer;
+            outline:none;
+          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow='none'">
+            <option value="action" style="background:#1a1a1a;color:#fff;">🎯 Action</option>
+            <option value="shooting" style="background:#1a1a1a;color:#fff;">🔫 Shooting</option>
+            <option value="racing" style="background:#1a1a1a;color:#fff;">🏎️ Racing</option>
+            <option value="puzzle" style="background:#1a1a1a;color:#fff;">🧩 Puzzle</option>
+            <option value="sports" style="background:#1a1a1a;color:#fff;">⚽ Sports</option>
+            <option value="io" style="background:#1a1a1a;color:#fff;">🌐 IO Games</option>
+            <option value="adventure" style="background:#1a1a1a;color:#fff;">🗺️ Adventure</option>
+            <option value="strategy" style="background:#1a1a1a;color:#fff;">♟️ Strategy</option>
+            <option value="arcade" style="background:#1a1a1a;color:#fff;">🕹️ Arcade</option>
           </select>
         </div>
         
-        <button onclick="addCustomGame()" style="width:100%;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);border-radius:8px;padding:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-top:8px;" onmouseover="this.style.background='rgba(139,92,246,0.3)';this.style.borderColor='rgba(139,92,246,0.6)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(139,92,246,0.2)';this.style.borderColor='rgba(139,92,246,0.4)';this.style.transform='translateY(0)'">Add Game</button>
+        <!-- Add Button -->
+        <button onclick="addCustomGame()" style="
+          width:100%;
+          background:linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.25));
+          border:1px solid rgba(139,92,246,0.4);
+          border-radius:12px;
+          padding:16px;
+          color:#fff;
+          font-size:15px;
+          font-weight:700;
+          cursor:pointer;
+          font-family:inherit;
+          transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-top:8px;
+          letter-spacing:0.3px;
+          box-shadow:0 4px 12px rgba(139,92,246,0.2);
+          animation: slideIn 0.4s ease-out 0.5s both;
+        " onmouseover="this.style.background='linear-gradient(135deg, rgba(139,92,246,0.35), rgba(59,130,246,0.35))';this.style.borderColor='rgba(139,92,246,0.6)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(139,92,246,0.3)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.25))';this.style.borderColor='rgba(139,92,246,0.4)';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(139,92,246,0.2)'">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;margin-right:8px;">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Add Game
+        </button>
       </div>
     </div>
   </div>
+
+  <style>
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 
   <!-- BOTTOM DOCK -->
   <div class="dock">
