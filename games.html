@@ -811,17 +811,25 @@
       
       grid.innerHTML = '';
       
-      // Update game counter
-      updateGameCounter();
+      // Filter out games already added to home shortcuts
+      const homeShortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      const addedGameIds = homeShortcuts
+        .filter(s => s.type === 'game')
+        .map(s => s.id.replace('game_', ''));
       
-      if (displayedGames.length === 0) {
+      const filteredGames = displayedGames.filter(game => !addedGameIds.includes(String(game.id)));
+      
+      // Update game counter
+      updateGameCounter(filteredGames.length);
+      
+      if (filteredGames.length === 0) {
         noResults.style.display = 'block';
         return;
       }
       
       noResults.style.display = 'none';
       
-      displayedGames.forEach(game => {
+      filteredGames.forEach(game => {
         const card = createGameCard(game);
         grid.appendChild(card);
       });
@@ -831,13 +839,13 @@
     }
     
     // Update game counter
-    function updateGameCounter() {
-      const count = displayedGames.length;
+    function updateGameCounter(filteredCount) {
+      const count = filteredCount !== undefined ? filteredCount : displayedGames.length;
       const total = allGames.length;
       const counter = document.getElementById('gameCounter');
       
       if (currentGenre === 'all' && !document.getElementById('searchInput').value) {
-        counter.textContent = `${total} games`;
+        counter.textContent = `${count} games`;
       } else {
         counter.textContent = `${count} of ${total} games`;
       }

@@ -4287,39 +4287,62 @@ brRenderBmBar();
       });
     });
     
-    // Create picker panel (reusable for games and apps)
-    const pickerPanel = document.createElement('div');
-    pickerPanel.id = 'picker-panel';
-    pickerPanel.style.cssText = `
+    // Create picker modal (centered, transparent)
+    const pickerModal = document.createElement('div');
+    pickerModal.id = 'picker-modal';
+    pickerModal.style.cssText = `
       display: none;
       position: fixed;
-      right: -400px;
-      top: 0;
-      bottom: 0;
-      width: 400px;
-      background: rgba(18,18,22,0.98);
+      inset: 0;
+      z-index: 99998;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
+    
+    const pickerBox = document.createElement('div');
+    pickerBox.style.cssText = `
+      background: rgba(18,18,22,0.85);
       backdrop-filter: blur(40px);
       -webkit-backdrop-filter: blur(40px);
-      border-left: 1px solid rgba(255,255,255,0.15);
-      box-shadow: -20px 0 60px rgba(0,0,0,0.6);
-      z-index: 99998;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 70vh;
+      overflow: hidden;
+      box-shadow: 0 32px 100px rgba(0,0,0,0.5);
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
       flex-direction: column;
     `;
-    pickerPanel.innerHTML = `
-      <div style="padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <h3 id="picker-title" style="font-size:20px;font-weight:700;margin:0;color:white;">Add Items</h3>
-          <button onclick="closePickerPanel()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
-            <svg width="16" height="16" fill="none" stroke="white" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    
+    pickerBox.innerHTML = `
+      <div style="padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 id="picker-title" style="font-size:18px;font-weight:700;margin:0;color:white;">Add Items</h3>
+          <button onclick="closePickerModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+            <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
-        <input type="text" id="picker-search" placeholder="Search..." style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:13px;outline:none;">
-        <div id="picker-count" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.5);"></div>
+        <input type="text" id="picker-search" placeholder="Search..." style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:13px;outline:none;transition:all 0.2s;" onfocus="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(138,43,226,0.4)';" onblur="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='rgba(255,255,255,0.12)';">
+        <div id="picker-count" style="margin-top:10px;font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;"></div>
       </div>
-      <div id="picker-content" style="flex:1;overflow-y:auto;padding:16px;"></div>
+      <div id="picker-content" style="flex:1;overflow-y:auto;padding:20px 24px;"></div>
     `;
-    document.body.appendChild(pickerPanel);
+    
+    pickerModal.appendChild(pickerBox);
+    document.body.appendChild(pickerModal);
+    
+    // Smooth open/close
+    pickerModal.addEventListener('click', function(e) {
+      if (e.target === pickerModal) closePickerModal();
+    });
     
     let currentPickerType = 'game';
     let allPickerItems = []; // Store current items for addShortcut
@@ -4328,8 +4351,11 @@ brRenderBmBar();
     window.openGamePicker = async function() {
       currentPickerType = 'game';
       document.getElementById('picker-title').textContent = 'Add Game';
-      pickerPanel.style.display = 'flex';
-      setTimeout(() => pickerPanel.style.right = '0', 10);
+      pickerModal.style.display = 'flex';
+      setTimeout(() => {
+        pickerModal.style.opacity = '1';
+        pickerBox.style.transform = 'scale(1) translateY(0)';
+      }, 10);
       
       // Load games from zones.json
       try {
@@ -4365,29 +4391,72 @@ brRenderBmBar();
     window.openAppPicker = function() {
       currentPickerType = 'app';
       document.getElementById('picker-title').textContent = 'Add App';
-      pickerPanel.style.display = 'flex';
-      setTimeout(() => pickerPanel.style.right = '0', 10);
+      pickerModal.style.display = 'flex';
+      setTimeout(() => {
+        pickerModal.style.opacity = '1';
+        pickerBox.style.transform = 'scale(1) translateY(0)';
+      }, 10);
       
-      allPickerItems = [
-        { id: 'app_youtube', name: 'YouTube', icon: 'Img/app/youtueb.jpg', url: 'https://youtube.com', type: 'app' },
-        { id: 'app_discord', name: 'Discord', icon: 'Img/app/discord.jpg', url: 'https://discord.com/app', type: 'app' },
-        { id: 'app_spotify', name: 'Spotify', icon: 'Img/app/spoti.jpg', url: 'https://open.spotify.com', type: 'app' },
-        { id: 'app_twitch', name: 'Twitch', icon: 'Img/app/twitch.jpg', url: 'https://twitch.tv', type: 'app' },
-        { id: 'app_reddit', name: 'Reddit', icon: 'Img/app/reddit.jpg', url: 'https://reddit.com', type: 'app' },
-        { id: 'app_github', name: 'GitHub', icon: 'Img/app/github.jpg', url: 'https://github.com', type: 'app' },
-        { id: 'app_gmail', name: 'Gmail', icon: 'Img/app/gmail.jpg', url: 'https://mail.google.com', type: 'app' },
-        { id: 'app_chatgpt', name: 'ChatGPT', icon: 'Img/app/chatgpt.jpg', url: 'https://chat.openai.com', type: 'app' },
-        { id: 'app_notion', name: 'Notion', icon: 'Img/app/notion.jpg', url: 'https://notion.so', type: 'app' },
-        { id: 'app_twitter', name: 'Twitter', icon: 'Img/app/twitter.jpg', url: 'https://twitter.com', type: 'app' }
+      // Use same APPS array from apps.html
+      const APPS = [
+        { name: 'YouTube', image: 'Img/app/youtueb.jpg', url: 'https://www.youtube.com' },
+        { name: 'Fortnite', image: 'Img/app/fortnite.jpg', url: 'https://www.fortnite.com' },
+        { name: 'Minecraft', image: 'Img/app/images (1).jpg', url: 'https://www.minecraft.net' },
+        { name: 'Discord', image: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0b5061df29d55a92d945_full_logo_blurple_RGB.svg', url: 'https://discord.com' },
+        { name: 'Reddit', image: 'https://www.redditinc.com/assets/images/site/reddit-logo.png', url: 'https://www.reddit.com' },
+        { name: 'Twitter', image: 'https://img.icons8.com/fluency/240/twitter.png', url: 'https://twitter.com' },
+        { name: 'Spotify', image: 'https://img.icons8.com/fluency/240/spotify.png', url: 'https://open.spotify.com' },
+        { name: 'Netflix', image: 'https://img.icons8.com/fluency/240/netflix.png', url: 'https://www.netflix.com' },
+        { name: 'GitHub', image: 'https://img.icons8.com/fluency/240/github.png', url: 'https://github.com' },
+        { name: 'Gmail', image: 'https://img.icons8.com/fluency/240/gmail.png', url: 'https://mail.google.com' },
+        { name: 'Google Drive', image: 'https://img.icons8.com/fluency/240/google-drive.png', url: 'https://drive.google.com' },
+        { name: 'Twitch', image: 'https://img.icons8.com/fluency/240/twitch.png', url: 'https://www.twitch.tv' },
+        { name: 'Instagram', image: 'https://img.icons8.com/fluency/240/instagram-new.png', url: 'https://www.instagram.com' },
+        { name: 'TikTok', image: 'https://img.icons8.com/fluency/240/tiktok.png', url: 'https://www.tiktok.com' },
+        { name: 'Amazon', image: 'https://img.icons8.com/fluency/240/amazon.png', url: 'https://www.amazon.com' },
+        { name: 'ChatGPT', image: 'https://img.icons8.com/fluency/240/chatgpt.png', url: 'https://chat.openai.com' },
+        { name: 'Snapchat', image: 'https://img.icons8.com/fluency/240/snapchat.png', url: 'https://web.snapchat.com' },
+        { name: 'WhatsApp', image: 'https://img.icons8.com/fluency/240/whatsapp.png', url: 'https://web.whatsapp.com' },
+        { name: 'Messenger', image: 'https://img.icons8.com/fluency/240/facebook-messenger.png', url: 'https://www.messenger.com' },
+        { name: 'Pinterest', image: 'https://img.icons8.com/fluency/240/pinterest.png', url: 'https://www.pinterest.com' },
+        { name: 'SoundCloud', image: 'https://img.icons8.com/fluency/240/soundcloud.png', url: 'https://soundcloud.com' },
+        { name: 'Roblox', image: 'https://img.icons8.com/fluency/240/roblox.png', url: 'https://www.roblox.com' },
+        { name: 'Steam', image: 'https://img.icons8.com/fluency/240/steam.png', url: 'https://store.steampowered.com' },
+        { name: 'Crunchyroll', image: 'https://img.icons8.com/fluency/240/crunchyroll.png', url: 'https://www.crunchyroll.com' },
+        { name: 'Duolingo', image: 'https://img.icons8.com/fluency/240/duolingo-logo.png', url: 'https://www.duolingo.com' },
+        { name: 'Khan Academy', image: 'https://img.icons8.com/fluency/240/khan-academy.png', url: 'https://www.khanacademy.org' },
+        { name: 'Quizlet', image: 'https://img.icons8.com/fluency/240/quizlet.png', url: 'https://quizlet.com' },
+        { name: 'Canva', image: 'https://img.icons8.com/fluency/240/canva.png', url: 'https://www.canva.com' },
+        { name: 'Figma', image: 'https://img.icons8.com/fluency/240/figma.png', url: 'https://www.figma.com' },
+        { name: 'Notion', image: 'https://img.icons8.com/fluency/240/notion.png', url: 'https://www.notion.so' },
+        { name: 'Trello', image: 'https://img.icons8.com/fluency/240/trello.png', url: 'https://trello.com' },
+        { name: 'Coolmath Games', image: 'https://www.coolmathgames.com/sites/default/files/public_games/50065/mobile_v2.jpg', url: 'https://www.coolmathgames.com' },
+        { name: 'Y8', image: 'https://img.icons8.com/fluency/240/controller.png', url: 'https://www.y8.com' },
+        { name: 'Poki', image: 'https://a.poki-cdn.com/images/poki-logo-blue.svg', url: 'https://poki.com' },
+        { name: 'GeForce NOW', image: 'https://img.icons8.com/fluency/240/nvidia.png', url: 'https://play.geforcenow.com' },
+        { name: 'Google Docs', image: 'https://img.icons8.com/fluency/240/google-docs.png', url: 'https://docs.google.com' },
+        { name: 'Google Sheets', image: 'https://img.icons8.com/fluency/240/google-sheets.png', url: 'https://sheets.google.com' },
+        { name: 'Google Slides', image: 'https://img.icons8.com/fluency/240/google-slides.png', url: 'https://slides.google.com' },
+        { name: 'Desmos', image: 'https://www.desmos.com/assets/img/apps/scientific/icon.png', url: 'https://www.desmos.com/calculator' },
+        { name: 'CodePen', image: 'https://img.icons8.com/fluency/240/codepen.png', url: 'https://codepen.io' }
       ];
+      
+      allPickerItems = APPS.map((app, index) => ({
+        id: 'app_' + app.name.toLowerCase().replace(/\s+/g, '_'),
+        name: app.name,
+        icon: app.image,
+        url: app.url,
+        type: 'app'
+      }));
       
       renderPickerItems(allPickerItems);
     };
     
-    // Close picker panel
-    window.closePickerPanel = function() {
-      pickerPanel.style.right = '-400px';
-      setTimeout(() => pickerPanel.style.display = 'none', 300);
+    // Close picker modal
+    window.closePickerModal = function() {
+      pickerModal.style.opacity = '0';
+      pickerBox.style.transform = 'scale(0.9) translateY(20px)';
+      setTimeout(() => pickerModal.style.display = 'none', 300);
     };
     
     // Render picker items
@@ -4401,20 +4470,18 @@ brRenderBmBar();
       
       const container = document.getElementById('picker-content');
       if (available.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">All items added!</div>';
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);font-size:14px;">✓ All items added!</div>';
         return;
       }
       
-      let html = '<div style="display:grid;gap:10px;">';
+      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">';
       available.forEach(item => {
         html += `
-          <div class="picker-item" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;transition:all 0.2s;">
-            <img src="${item.icon}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,0.05);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:600;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</div>
-            </div>
-            <button onclick="addShortcut('${item.id}')" style="width:32px;height:32px;border-radius:50%;background:rgba(138,43,226,0.2);border:1px solid rgba(138,43,226,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
-              <svg width="16" height="16" fill="none" stroke="rgba(138,43,226,1)" viewBox="0 0 24 24" stroke-width="3"><path d="M12 5v14m-7-7h14"/></svg>
+          <div class="picker-item" data-name="${item.name.toLowerCase()}" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;transition:all 0.2s;position:relative;">
+            <img src="${item.icon}" style="width:64px;height:64px;border-radius:10px;object-fit:cover;background:rgba(255,255,255,0.05);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
+            <div style="font-size:12px;font-weight:600;color:white;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">${item.name}</div>
+            <button onclick="addShortcut('${item.id}'); event.stopPropagation();" style="width:28px;height:28px;border-radius:50%;background:rgba(138,43,226,0.15);border:1px solid rgba(138,43,226,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+              <svg width="14" height="14" fill="none" stroke="rgba(138,43,226,1)" viewBox="0 0 24 24" stroke-width="3"><path d="M12 5v14m-7-7h14"/></svg>
             </button>
           </div>
         `;
@@ -4423,16 +4490,26 @@ brRenderBmBar();
       container.innerHTML = html;
       
       // Add hover effects
-      container.querySelectorAll('.picker-item').forEach(el => {
-        el.addEventListener('mouseenter', function() {
-          this.style.background = 'rgba(255,255,255,0.06)';
-          this.style.borderColor = 'rgba(255,255,255,0.15)';
+      setTimeout(() => {
+        container.querySelectorAll('.picker-item').forEach(el => {
+          el.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255,255,255,0.08)';
+            this.style.borderColor = 'rgba(138,43,226,0.3)';
+            this.style.transform = 'translateY(-2px)';
+            const btn = this.querySelector('button');
+            btn.style.background = 'rgba(138,43,226,0.3)';
+            btn.style.borderColor = 'rgba(138,43,226,0.5)';
+          });
+          el.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.04)';
+            this.style.borderColor = 'rgba(255,255,255,0.1)';
+            this.style.transform = 'translateY(0)';
+            const btn = this.querySelector('button');
+            btn.style.background = 'rgba(138,43,226,0.15)';
+            btn.style.borderColor = 'rgba(138,43,226,0.3)';
+          });
         });
-        el.addEventListener('mouseleave', function() {
-          this.style.background = 'rgba(255,255,255,0.03)';
-          this.style.borderColor = 'rgba(255,255,255,0.08)';
-        });
-      });
+      }, 10);
     }
     
     // Add shortcut
@@ -4440,7 +4517,7 @@ brRenderBmBar();
       const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
       
       if (shortcuts.length >= 40) {
-        alert('Maximum 40 shortcuts reached!');
+        showToast('⚠️ Maximum 40 shortcuts reached!');
         return;
       }
       
@@ -4460,55 +4537,65 @@ brRenderBmBar();
       
       localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
       
-      // Show success message
-      showToast('Added ' + item.name + '!');
+      // Show success message with icon
+      const emoji = item.type === 'game' ? '🎮' : '🌐';
+      showToast(`${emoji} Added ${item.name}!`);
       
-      // Refresh picker to remove added item
-      renderPickerItems(allPickerItems);
-      
-      // Render shortcuts on home
-      renderHomeShortcuts();
+      // Smooth button feedback
+      event.target.style.transform = 'scale(0.8)';
+      event.target.style.opacity = '0.5';
+      setTimeout(() => {
+        // Refresh picker to remove added item
+        renderPickerItems(allPickerItems);
+        
+        // Render shortcuts on home
+        renderHomeShortcuts();
+      }, 150);
     };
     
     // Show toast notification
     function showToast(message) {
       const toast = document.createElement('div');
+      toast.className = 'toast-notification';
       toast.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: rgba(138,43,226,0.95);
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-80px);
+        background: linear-gradient(135deg, rgba(138,43,226,0.98), rgba(168,85,247,0.98));
+        backdrop-filter: blur(20px);
         color: white;
-        padding: 12px 20px;
-        border-radius: 10px;
-        font-size: 13px;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-size: 14px;
         font-weight: 600;
-        box-shadow: 0 8px 24px rgba(138,43,226,0.4);
+        box-shadow: 0 12px 40px rgba(138,43,226,0.5);
         z-index: 999999;
-        animation: slideIn 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2);
+        animation: toastSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       `;
       toast.textContent = message;
       document.body.appendChild(toast);
       
       setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
+        toast.style.animation = 'toastSlideUp 0.3s cubic-bezier(0.4, 0, 0.6, 1) forwards';
         setTimeout(() => toast.remove(), 300);
-      }, 2000);
+      }, 2500);
     }
     
-    // Add animation CSS
-    const animStyle = document.createElement('style');
-    animStyle.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(400px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+    // Add animation CSS for toast
+    const toastAnimStyle = document.createElement('style');
+    toastAnimStyle.textContent = `
+      @keyframes toastSlideDown {
+        from { transform: translateX(-50%) translateY(-80px); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
       }
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(400px); opacity: 0; }
+      @keyframes toastSlideUp {
+        from { transform: translateX(-50%) translateY(0); opacity: 1; }
+        to { transform: translateX(-50%) translateY(-80px); opacity: 0; }
       }
     `;
-    document.head.appendChild(animStyle);
+    document.head.appendChild(toastAnimStyle);
     
     // Create shortcuts container
     const shortcutsContainer = document.createElement('div');
@@ -4536,7 +4623,7 @@ brRenderBmBar();
         item.className = 'home-shortcut';
         item.dataset.id = shortcut.id;
         item.dataset.index = index;
-        item.draggable = true;
+        item.draggable = editMode;
         item.style.cssText = `
           pointer-events: auto;
           display: flex;
@@ -4549,24 +4636,68 @@ brRenderBmBar();
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 16px;
-          cursor: move;
-          transition: all 0.3s;
+          cursor: ${editMode ? 'move' : 'pointer'};
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           user-select: none;
         `;
         
+        if (editMode) {
+          item.style.animation = 'shake 0.5s infinite';
+        }
+        
         item.innerHTML = `
           <img src="${shortcut.icon}" style="width:56px;height:56px;border-radius:12px;object-fit:cover;pointer-events:none;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
           <div style="font-size:11px;font-weight:600;color:white;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;">${shortcut.name}</div>
-          <button class="shortcut-delete" style="display:none;position:absolute;top:4px;right:4px;width:24px;height:24px;background:rgba(220,38,38,0.9);border:none;border-radius:50%;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-            <svg width="12" height="12" fill="white" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button class="shortcut-minus" style="opacity:0;position:absolute;top:-6px;right:-6px;width:26px;height:26px;background:rgba(220,38,38,0.95);border:2px solid white;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.2s;pointer-events:auto;z-index:10;">
+            <svg width="12" height="12" fill="white" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
           </button>
         `;
         
-        // Click to launch
+        const minusBtn = item.querySelector('.shortcut-minus');
+        
+        // Show minus on hover (when not in edit mode)
+        if (!editMode) {
+          item.addEventListener('mouseenter', function() {
+            if (!draggedElement && !editMode) {
+              this.style.background = 'rgba(255,255,255,0.12)';
+              this.style.borderColor = 'rgba(255,255,255,0.3)';
+              this.style.transform = 'translateY(-4px) scale(1.05)';
+              this.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)';
+              minusBtn.style.opacity = '1';
+            }
+          });
+          
+          item.addEventListener('mouseleave', function() {
+            if (!draggedElement && !editMode) {
+              this.style.background = 'rgba(255,255,255,0.08)';
+              this.style.borderColor = 'rgba(255,255,255,0.15)';
+              this.style.transform = 'translateY(0) scale(1)';
+              this.style.boxShadow = 'none';
+              minusBtn.style.opacity = '0';
+            }
+          });
+        } else {
+          // In edit mode, always show minus button
+          minusBtn.style.opacity = '1';
+          minusBtn.style.animation = 'pulse 1s infinite';
+        }
+        
+        // Click minus to enter edit mode (or delete if already in edit mode)
+        minusBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!editMode) {
+            enterEditMode();
+          } else {
+            deleteShortcut(shortcut.id);
+          }
+        });
+        
+        // Click to launch (only when not in edit mode)
         item.addEventListener('click', (e) => {
-          if (e.target.closest('.shortcut-delete')) return;
-          if (draggedElement) return; // Don't launch if dragging
+          if (e.target.closest('.shortcut-minus')) return;
+          if (editMode) return;
+          if (draggedElement) return;
           
           if (shortcut.type === 'game') {
             window.location.href = `game-player.html?game=${encodeURIComponent(shortcut.url)}`;
@@ -4575,55 +4706,183 @@ brRenderBmBar();
           }
         });
         
-        // Hover effects
-        item.addEventListener('mouseenter', function() {
-          if (!draggedElement) {
-            this.style.background = 'rgba(255,255,255,0.12)';
-            this.style.borderColor = 'rgba(255,255,255,0.3)';
-            this.style.transform = 'translateY(-4px) scale(1.05)';
-            this.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)';
-          }
-        });
-        
-        item.addEventListener('mouseleave', function() {
-          if (!draggedElement) {
-            this.style.background = 'rgba(255,255,255,0.08)';
-            this.style.borderColor = 'rgba(255,255,255,0.15)';
-            this.style.transform = 'translateY(0) scale(1)';
-            this.style.boxShadow = 'none';
-          }
-        });
-        
-        // Right-click to delete
-        item.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const deleteBtn = item.querySelector('.shortcut-delete');
-          deleteBtn.style.display = 'flex';
-          
-          setTimeout(() => {
-            deleteBtn.style.display = 'none';
-          }, 3000);
-        });
-        
-        // Delete handler
-        const deleteBtn = item.querySelector('.shortcut-delete');
-        deleteBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteShortcut(shortcut.id);
-        });
-        
-        // Drag & drop handlers
-        item.addEventListener('dragstart', handleDragStart);
-        item.addEventListener('dragend', handleDragEnd);
-        item.addEventListener('dragover', handleDragOver);
-        item.addEventListener('drop', handleDrop);
-        item.addEventListener('dragenter', handleDragEnter);
-        item.addEventListener('dragleave', handleDragLeave);
+        // Drag & drop handlers (only in edit mode)
+        if (editMode) {
+          item.addEventListener('dragstart', handleDragStart);
+          item.addEventListener('dragend', handleDragEnd);
+          item.addEventListener('dragover', handleDragOver);
+          item.addEventListener('drop', handleDrop);
+          item.addEventListener('dragenter', handleDragEnter);
+          item.addEventListener('dragleave', handleDragLeave);
+        }
         
         shortcutsContainer.appendChild(item);
       });
     }
+    
+    // Edit mode state
+    let editMode = false;
+    let editModeOverlay = null;
+    
+    // Enter edit mode
+    function enterEditMode() {
+      editMode = true;
+      
+      // Create overlay with "Done" button
+      editModeOverlay = document.createElement('div');
+      editModeOverlay.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999;
+        pointer-events: auto;
+        animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      `;
+      editModeOverlay.innerHTML = `
+        <button onclick="exitEditMode()" style="
+          padding: 14px 32px;
+          background: linear-gradient(135deg, rgba(138,43,226,0.95), rgba(168,85,247,0.95));
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.25);
+          border-radius: 14px;
+          color: white;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 8px 32px rgba(138,43,226,0.5);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        " onmouseover="this.style.background='linear-gradient(135deg, rgba(138,43,226,1), rgba(168,85,247,1))'; this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(138,43,226,0.6)';" onmouseout="this.style.background='linear-gradient(135deg, rgba(138,43,226,0.95), rgba(168,85,247,0.95))'; this.style.transform='scale(1)'; this.style.boxShadow='0 8px 32px rgba(138,43,226,0.5)';">
+          <span style="font-size:18px;margin-right:6px;">✓</span> Done
+        </button>
+      `;
+      document.body.appendChild(editModeOverlay);
+      
+      renderHomeShortcuts();
+      renderFolders();
+      showToast('🎯 Tap - to delete • Drag to reorder • Hold 1s to create folder');
+    }
+    
+    // Exit edit mode
+    window.exitEditMode = function() {
+      editMode = false;
+      if (editModeOverlay) {
+        editModeOverlay.style.animation = 'fadeOut 0.2s ease forwards';
+        editModeOverlay.style.opacity = '0';
+        editModeOverlay.style.transform = 'scale(0.9) translateY(-10px)';
+        setTimeout(() => {
+          editModeOverlay.remove();
+          editModeOverlay = null;
+        }, 200);
+      }
+      renderHomeShortcuts();
+      renderFolders();
+      showToast('✓ Changes saved');
+    };
+    
+    // Add fadeOut animation
+    const fadeOutAnim = document.createElement('style');
+    fadeOutAnim.textContent = `
+      @keyframes fadeOut {
+        from { opacity: 1; transform: scale(1) translateY(0); }
+        to { opacity: 0; transform: scale(0.9) translateY(-10px); }
+      }
+    `;
+    document.head.appendChild(fadeOutAnim);
+    
+    // Add shake and pulse animations + smooth polish
+    const shakeStyle = document.createElement('style');
+    shakeStyle.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0) rotate(0deg); }
+        25% { transform: translateX(-3px) rotate(-2deg); }
+        50% { transform: translateX(3px) rotate(2deg); }
+        75% { transform: translateX(-3px) rotate(-1deg); }
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(220,38,38,0.4); }
+        50% { transform: scale(1.15); box-shadow: 0 6px 20px rgba(220,38,38,0.6); }
+      }
+      @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      
+      /* Smooth scrollbar styling */
+      #picker-content::-webkit-scrollbar,
+      #folder-content::-webkit-scrollbar {
+        width: 8px;
+      }
+      #picker-content::-webkit-scrollbar-track,
+      #folder-content::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+      }
+      #picker-content::-webkit-scrollbar-thumb,
+      #folder-content::-webkit-scrollbar-thumb {
+        background: rgba(138,43,226,0.3);
+        border-radius: 10px;
+        transition: background 0.2s;
+      }
+      #picker-content::-webkit-scrollbar-thumb:hover,
+      #folder-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(138,43,226,0.5);
+      }
+      
+      /* Smooth button hover effects */
+      .shortcut-minus:hover,
+      .folder-minus:hover {
+        transform: scale(1.2) !important;
+        box-shadow: 0 6px 20px rgba(220,38,38,0.6) !important;
+      }
+      
+      /* Picker item grid animations */
+      .picker-item {
+        animation: scaleIn 0.3s ease forwards;
+      }
+      .picker-item:nth-child(1) { animation-delay: 0.02s; }
+      .picker-item:nth-child(2) { animation-delay: 0.04s; }
+      .picker-item:nth-child(3) { animation-delay: 0.06s; }
+      .picker-item:nth-child(4) { animation-delay: 0.08s; }
+      .picker-item:nth-child(5) { animation-delay: 0.10s; }
+      .picker-item:nth-child(6) { animation-delay: 0.12s; }
+      
+      /* Home shortcuts appear animation */
+      .home-shortcut {
+        animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+      }
+      .home-shortcut:nth-child(1) { animation-delay: 0.05s; }
+      .home-shortcut:nth-child(2) { animation-delay: 0.10s; }
+      .home-shortcut:nth-child(3) { animation-delay: 0.15s; }
+      .home-shortcut:nth-child(4) { animation-delay: 0.20s; }
+      .home-shortcut:nth-child(5) { animation-delay: 0.25s; }
+      .home-shortcut:nth-child(6) { animation-delay: 0.30s; }
+      
+      /* Folder animations */
+      .home-folder {
+        animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+      }
+      
+      /* Context menu animation */
+      #home-context {
+        animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      
+      /* Toast notification polish */
+      .toast-notification {
+        animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+    `;
+    document.head.appendChild(shakeStyle);
     
     // Drag & drop state
     let draggedElement = null;
@@ -4676,16 +4935,18 @@ brRenderBmBar();
         this.style.borderColor = 'rgba(138,43,226,0.6)';
         this.style.transform = 'scale(1.1)';
         
-        // Start hover timer for folder creation
-        hoveredElement = this;
-        clearTimeout(hoverTimer);
-        
-        hoverTimer = setTimeout(() => {
-          if (hoveredElement === this && draggedElement) {
-            // Create folder!
-            createFolder(draggedElement, this);
-          }
-        }, 1000); // 1 second hover to create folder
+        // Only allow folder creation in edit mode by holding drag for 1 second
+        if (editMode) {
+          hoveredElement = this;
+          clearTimeout(hoverTimer);
+          
+          hoverTimer = setTimeout(() => {
+            if (hoveredElement === this && draggedElement) {
+              // Create folder!
+              createFolder(draggedElement, this);
+            }
+          }, 1000); // 1 second hover to create folder
+        }
       }
     }
     
@@ -4759,7 +5020,7 @@ brRenderBmBar();
     document.getElementById('picker-search').addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
       document.querySelectorAll('.picker-item').forEach(item => {
-        const name = item.textContent.toLowerCase();
+        const name = item.dataset.name || item.textContent.toLowerCase();
         item.style.display = name.includes(query) ? 'flex' : 'none';
       });
     });
@@ -4834,41 +5095,103 @@ brRenderBmBar();
           -webkit-backdrop-filter: blur(20px);
           border: 2px solid rgba(138,43,226,0.4);
           border-radius: 16px;
-          cursor: pointer;
-          transition: all 0.3s;
+          cursor: ${editMode ? 'default' : 'pointer'};
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
         `;
+        
+        if (editMode) {
+          folderEl.style.animation = 'shake 0.5s infinite';
+        }
         
         folderEl.innerHTML = `
           <div style="position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center;">
             <svg width="56" height="56" fill="rgba(138,43,226,0.6)" viewBox="0 0 24 24">
               <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
             </svg>
-            <div style="position:absolute;font-size:16px;font-weight:800;color:white;">${folder.items.length}</div>
+            <div style="position:absolute;font-size:16px;font-weight:800;color:white;pointer-events:none;">${folder.items.length}</div>
           </div>
-          <div style="font-size:11px;font-weight:600;color:white;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${folder.name}</div>
+          <div style="font-size:11px;font-weight:600;color:white;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;">${folder.name}</div>
+          <button class="folder-minus" style="opacity:0;position:absolute;top:-6px;right:-6px;width:26px;height:26px;background:rgba(220,38,38,0.95);border:2px solid white;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:all 0.2s;pointer-events:auto;z-index:10;">
+            <svg width="12" height="12" fill="white" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+          </button>
         `;
         
-        // Click to open
-        folderEl.addEventListener('click', () => openFolder(folder.id));
+        const minusBtn = folderEl.querySelector('.folder-minus');
         
-        // Hover effects
-        folderEl.addEventListener('mouseenter', function() {
-          this.style.background = 'rgba(138,43,226,0.25)';
-          this.style.borderColor = 'rgba(138,43,226,0.7)';
-          this.style.transform = 'translateY(-4px) scale(1.05)';
-          this.style.boxShadow = '0 16px 40px rgba(138,43,226,0.3)';
+        // Show minus on hover or in edit mode
+        if (!editMode) {
+          folderEl.addEventListener('mouseenter', function() {
+            if (!editMode) {
+              this.style.background = 'rgba(138,43,226,0.25)';
+              this.style.borderColor = 'rgba(138,43,226,0.7)';
+              this.style.transform = 'translateY(-4px) scale(1.05)';
+              this.style.boxShadow = '0 16px 40px rgba(138,43,226,0.3)';
+              minusBtn.style.opacity = '1';
+            }
+          });
+          
+          folderEl.addEventListener('mouseleave', function() {
+            if (!editMode) {
+              this.style.background = 'rgba(138,43,226,0.15)';
+              this.style.borderColor = 'rgba(138,43,226,0.4)';
+              this.style.transform = 'translateY(0) scale(1)';
+              this.style.boxShadow = 'none';
+              minusBtn.style.opacity = '0';
+            }
+          });
+        } else {
+          minusBtn.style.opacity = '1';
+          minusBtn.style.animation = 'pulse 1s infinite';
+        }
+        
+        // Click minus button
+        minusBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!editMode) {
+            enterEditMode();
+          } else {
+            deleteFolderDirect(folder.id);
+          }
         });
         
-        folderEl.addEventListener('mouseleave', function() {
-          this.style.background = 'rgba(138,43,226,0.15)';
-          this.style.borderColor = 'rgba(138,43,226,0.4)';
-          this.style.transform = 'translateY(0) scale(1)';
-          this.style.boxShadow = 'none';
+        // Click to open folder (only when not in edit mode)
+        folderEl.addEventListener('click', (e) => {
+          if (e.target.closest('.folder-minus')) return;
+          if (!editMode) {
+            openFolder(folder.id);
+          }
         });
         
         shortcutsContainer.appendChild(folderEl);
       });
+    }
+    
+    // Delete folder directly (for edit mode)
+    function deleteFolderDirect(folderId) {
+      if (!confirm('Delete this folder? Items will be restored to home.')) return;
+      
+      let folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+      
+      // Restore items to shortcuts
+      let shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      folder.items.forEach(item => {
+        item.position = shortcuts.length;
+        shortcuts.push(item);
+      });
+      
+      // Remove folder
+      folders = folders.filter(f => f.id !== folderId);
+      
+      localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
+      localStorage.setItem('nova_home_folders', JSON.stringify(folders));
+      
+      renderHomeShortcuts();
+      renderFolders();
+      
+      showToast('Folder deleted');
     }
     
     // Create folder modal
