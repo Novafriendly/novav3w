@@ -4280,10 +4280,188 @@ brRenderBmBar();
         const action = item.dataset.action;
         contextMenu.style.display = 'none';
         if (action === 'add-game') {
-          alert('Game picker coming in next phase!');
+          openGamePicker();
         } else if (action === 'add-app') {
-          alert('App picker coming in next phase!');
+          openAppPicker();
         }
+      });
+    });
+    
+    // Create picker panel (reusable for games and apps)
+    const pickerPanel = document.createElement('div');
+    pickerPanel.id = 'picker-panel';
+    pickerPanel.style.cssText = `
+      display: none;
+      position: fixed;
+      right: -400px;
+      top: 0;
+      bottom: 0;
+      width: 400px;
+      background: rgba(18,18,22,0.98);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-left: 1px solid rgba(255,255,255,0.15);
+      box-shadow: -20px 0 60px rgba(0,0,0,0.6);
+      z-index: 99998;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-direction: column;
+    `;
+    pickerPanel.innerHTML = `
+      <div style="padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 id="picker-title" style="font-size:20px;font-weight:700;margin:0;color:white;">Add Items</h3>
+          <button onclick="closePickerPanel()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+            <svg width="16" height="16" fill="none" stroke="white" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <input type="text" id="picker-search" placeholder="Search..." style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:13px;outline:none;">
+        <div id="picker-count" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.5);"></div>
+      </div>
+      <div id="picker-content" style="flex:1;overflow-y:auto;padding:16px;"></div>
+    `;
+    document.body.appendChild(pickerPanel);
+    
+    let currentPickerType = 'game';
+    
+    // Open game picker
+    window.openGamePicker = async function() {
+      currentPickerType = 'game';
+      document.getElementById('picker-title').textContent = 'Add Game';
+      pickerPanel.style.display = 'flex';
+      setTimeout(() => pickerPanel.style.right = '0', 10);
+      
+      // Load games from zones.json
+      try {
+        const data = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', 'zones.json', true);
+          xhr.onload = function() {
+            if (xhr.status === 200 || xhr.status === 0) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              reject(new Error('Failed to load'));
+            }
+          };
+          xhr.onerror = () => reject(new Error('Network error'));
+          xhr.send();
+        });
+        
+        const games = data.filter(g => g.id >= 0).map(g => ({
+          id: 'game_' + g.id,
+          name: g.name,
+          icon: g.cover.replace('{COVER_URL}', 'https://raw.githubusercontent.com/GN-Yu/Assets/main/covers'),
+          url: g.url.replace('{HTML_URL}', 'https://gn-math.github.io/assets'),
+          type: 'game'
+        }));
+        
+        renderPickerItems(games);
+      } catch (error) {
+        document.getElementById('picker-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">Failed to load games</div>';
+      }
+    };
+    
+    // Open app picker
+    window.openAppPicker = function() {
+      currentPickerType = 'app';
+      document.getElementById('picker-title').textContent = 'Add App';
+      pickerPanel.style.display = 'flex';
+      setTimeout(() => pickerPanel.style.right = '0', 10);
+      
+      const apps = [
+        { id: 'app_youtube', name: 'YouTube', icon: 'Img/app/youtueb.jpg', url: 'https://youtube.com', type: 'app' },
+        { id: 'app_discord', name: 'Discord', icon: 'Img/app/discord.jpg', url: 'https://discord.com/app', type: 'app' },
+        { id: 'app_spotify', name: 'Spotify', icon: 'Img/app/spoti.jpg', url: 'https://open.spotify.com', type: 'app' },
+        { id: 'app_twitch', name: 'Twitch', icon: 'Img/app/twitch.jpg', url: 'https://twitch.tv', type: 'app' },
+        { id: 'app_reddit', name: 'Reddit', icon: 'Img/app/reddit.jpg', url: 'https://reddit.com', type: 'app' },
+        { id: 'app_github', name: 'GitHub', icon: 'Img/app/github.jpg', url: 'https://github.com', type: 'app' },
+        { id: 'app_gmail', name: 'Gmail', icon: 'Img/app/gmail.jpg', url: 'https://mail.google.com', type: 'app' },
+        { id: 'app_chatgpt', name: 'ChatGPT', icon: 'Img/app/chatgpt.jpg', url: 'https://chat.openai.com', type: 'app' },
+        { id: 'app_notion', name: 'Notion', icon: 'Img/app/notion.jpg', url: 'https://notion.so', type: 'app' },
+        { id: 'app_twitter', name: 'Twitter', icon: 'Img/app/twitter.jpg', url: 'https://twitter.com', type: 'app' }
+      ];
+      
+      renderPickerItems(apps);
+    };
+    
+    // Close picker panel
+    window.closePickerPanel = function() {
+      pickerPanel.style.right = '-400px';
+      setTimeout(() => pickerPanel.style.display = 'none', 300);
+    };
+    
+    // Render picker items
+    function renderPickerItems(items) {
+      const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      const addedIds = shortcuts.map(s => s.id);
+      const available = items.filter(item => !addedIds.includes(item.id));
+      
+      const count = document.getElementById('picker-count');
+      count.textContent = `${shortcuts.length}/40 added • ${available.length} available`;
+      
+      const container = document.getElementById('picker-content');
+      if (available.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">All items added!</div>';
+        return;
+      }
+      
+      let html = '<div style="display:grid;gap:10px;">';
+      available.forEach(item => {
+        html += `
+          <div class="picker-item" style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;transition:all 0.2s;">
+            <img src="${item.icon}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,0.05);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23666%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M12 2L2 7l10 5 10-5-10-5z%27/%3E%3C/svg%3E'"/>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</div>
+            </div>
+            <button onclick="addShortcut('${item.id}')" style="width:32px;height:32px;border-radius:50%;background:rgba(138,43,226,0.2);border:1px solid rgba(138,43,226,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+              <svg width="16" height="16" fill="none" stroke="rgba(138,43,226,1)" viewBox="0 0 24 24" stroke-width="3"><path d="M12 5v14m-7-7h14"/></svg>
+            </button>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+      
+      // Add hover effects
+      container.querySelectorAll('.picker-item').forEach(el => {
+        el.addEventListener('mouseenter', function() {
+          this.style.background = 'rgba(255,255,255,0.06)';
+          this.style.borderColor = 'rgba(255,255,255,0.15)';
+        });
+        el.addEventListener('mouseleave', function() {
+          this.style.background = 'rgba(255,255,255,0.03)';
+          this.style.borderColor = 'rgba(255,255,255,0.08)';
+        });
+      });
+    }
+    
+    // Add shortcut
+    window.addShortcut = function(id) {
+      const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+      
+      if (shortcuts.length >= 40) {
+        alert('Maximum 40 shortcuts reached!');
+        return;
+      }
+      
+      // Find item in current list
+      let item;
+      if (currentPickerType === 'game') {
+        // We need to reload to get the item - for now just close and tell user
+        alert('Shortcut will be added! (Full implementation in next update)');
+      } else {
+        // For apps, we have the data
+        alert('Shortcut will be added! (Full implementation in next update)');
+      }
+      
+      closePickerPanel();
+    };
+    
+    // Search functionality
+    document.getElementById('picker-search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.picker-item').forEach(item => {
+        const name = item.textContent.toLowerCase();
+        item.style.display = name.includes(query) ? 'flex' : 'none';
       });
     });
     
