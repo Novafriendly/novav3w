@@ -1117,7 +1117,7 @@
       </svg>
     </button>
 
-    <button class="dock-btn active">
+    <button class="dock-btn active" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
       <i class="bi bi-controller"></i>
     </button>
 
