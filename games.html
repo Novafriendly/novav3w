@@ -1091,7 +1091,7 @@
       box-shadow: 
         0 0 0 1px rgba(255,255,255,0.05),
         0 20px 60px rgba(0,0,0,0.5),
-        0 0 80px rgba(139,92,246,0.15);
+        0 0 80px rgba(255,255,255,0.1);
       transform: scale(0.95) translateY(20px);
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     ">
@@ -1101,14 +1101,14 @@
           <div style="
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(59,130,246,0.2));
+            background: rgba(255,255,255,0.08);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(139,92,246,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
           ">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#a78bfa;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#fff;">
               <path d="M12 5v14M5 12h14"/>
             </svg>
           </div>
@@ -1138,7 +1138,7 @@
             display:block;
             font-size:13px;
             font-weight:600;
-            color:rgba(255,255,255,0.7);
+            color:#fff;
             margin-bottom:8px;
             letter-spacing:0.3px;
           ">Game Name</label>
@@ -1153,7 +1153,7 @@
             font-family:inherit;
             transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline:none;
-          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
         <!-- Game URL -->
@@ -1162,10 +1162,10 @@
             display:block;
             font-size:13px;
             font-weight:600;
-            color:rgba(255,255,255,0.7);
+            color:#fff;
             margin-bottom:8px;
             letter-spacing:0.3px;
-          ">Game URL <span style="color:rgba(139,92,246,0.8);font-size:11px;">(will be proxied)</span></label>
+          ">Game URL <span style="color:rgba(255,255,255,0.5);font-size:11px;">(will be proxied)</span></label>
           <input id="customGameUrl" type="text" placeholder="https://shellshock.io" style="
             width:100%;
             background:rgba(255,255,255,0.04);
@@ -1177,7 +1177,7 @@
             font-family:inherit;
             transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline:none;
-          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
         <!-- Cover Image URL -->
@@ -1186,7 +1186,7 @@
             display:block;
             font-size:13px;
             font-weight:600;
-            color:rgba(255,255,255,0.7);
+            color:#fff;
             margin-bottom:8px;
             letter-spacing:0.3px;
           ">Cover Image URL <span style="color:rgba(255,255,255,0.4);font-size:11px;">(optional)</span></label>
@@ -1201,7 +1201,7 @@
             font-family:inherit;
             transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline:none;
-          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.background='rgba(139,92,246,0.08)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.08)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)';this.style.boxShadow='none'" />
         </div>
         
         <!-- Genre -->
@@ -1210,7 +1210,7 @@
             display:block;
             font-size:13px;
             font-weight:600;
-            color:rgba(255,255,255,0.7);
+            color:#fff;
             margin-bottom:8px;
             letter-spacing:0.3px;
           ">Genre</label>
@@ -1226,10 +1226,10 @@
             transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor:pointer;
             outline:none;
-          " onfocus="this.style.borderColor='rgba(139,92,246,0.5)';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow='none'">
-            <option value="action" style="background:#1a1a1a;color:#fff;">🎯 Action</option>
-            <option value="shooting" style="background:#1a1a1a;color:#fff;">🔫 Shooting</option>
-            <option value="racing" style="background:#1a1a1a;color:#fff;">🏎️ Racing</option>
+          " onfocus="this.style.borderColor='rgba(255,255,255,0.3)';this.style.boxShadow='0 0 0 3px rgba(255,255,255,0.05)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow='none'">
+            <option value="action" style="background:#1a1a1a;color:#fff;">⚡ Action</option>
+            <option value="shooting" style="background:#1a1a1a;color:#fff;">🎯 Shooting</option>
+            <option value="racing" style="background:#1a1a1a;color:#fff;">🏁 Racing</option>
             <option value="puzzle" style="background:#1a1a1a;color:#fff;">🧩 Puzzle</option>
             <option value="sports" style="background:#1a1a1a;color:#fff;">⚽ Sports</option>
             <option value="io" style="background:#1a1a1a;color:#fff;">🌐 IO Games</option>
@@ -1242,8 +1242,8 @@
         <!-- Add Button -->
         <button onclick="addCustomGame()" style="
           width:100%;
-          background:linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.25));
-          border:1px solid rgba(139,92,246,0.4);
+          background:rgba(255,255,255,0.08);
+          border:1px solid rgba(255,255,255,0.15);
           border-radius:12px;
           padding:16px;
           color:#fff;
@@ -1254,9 +1254,9 @@
           transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           margin-top:8px;
           letter-spacing:0.3px;
-          box-shadow:0 4px 12px rgba(139,92,246,0.2);
+          box-shadow:0 4px 12px rgba(0,0,0,0.2);
           animation: slideIn 0.4s ease-out 0.5s both;
-        " onmouseover="this.style.background='linear-gradient(135deg, rgba(139,92,246,0.35), rgba(59,130,246,0.35))';this.style.borderColor='rgba(139,92,246,0.6)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(139,92,246,0.3)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.25))';this.style.borderColor='rgba(139,92,246,0.4)';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(139,92,246,0.2)'">
+        " onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.borderColor='rgba(255,255,255,0.25)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.15)';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="display:inline-block;vertical-align:middle;margin-right:8px;">
             <path d="M12 5v14M5 12h14"/>
           </svg>
