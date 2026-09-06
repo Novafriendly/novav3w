@@ -733,15 +733,32 @@
     // Fetch games from zones.json
     async function loadGames() {
       try {
-        console.log('🎮 Loading games from zones.json...');
-        const response = await fetch('zones.json');
+        console.log('🎮 Loading games...');
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Use XMLHttpRequest for file:// protocol compatibility
+        const data = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', 'zones.json', true);
+          xhr.onload = function() {
+            if (xhr.status === 200 || xhr.status === 0) { // 0 for file://
+              try {
+                resolve(JSON.parse(xhr.responseText));
+              } catch (e) {
+                reject(new Error('Failed to parse JSON: ' + e.message));
+              }
+            } else {
+              reject(new Error('HTTP error! status: ' + xhr.status));
+            }
+          };
+          xhr.onerror = () => reject(new Error('Network error'));
+          xhr.send();
+        });
+        
+        if (!data) {
+          throw new Error('Failed to load game data');
         }
         
-        const data = await response.json();
-        console.log('✅ Loaded', data.length, 'games from zones.json');
+        console.log('✅ Loaded game data');
         
         // Filter out the Discord suggestion entry (id: -1) and process URLs
         allGames = data
