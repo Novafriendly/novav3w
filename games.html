@@ -734,7 +734,7 @@
     async function loadGames() {
       try {
         console.log('🎮 Loading games from zones.json...');
-        const response = await fetch('assets-main/assets-main/zones.json');
+        const response = await fetch('zones.json');
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
