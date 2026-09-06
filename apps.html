@@ -200,13 +200,14 @@
     .apps-grid {
       flex: 1; 
       overflow-y: auto; 
+      overflow-x: hidden;
       padding: 16px;
-      display: grid; 
-      grid-template-columns: repeat(5, 1fr);
+      display: grid !important;
+      grid-template-columns: repeat(5, 1fr) !important;
       gap: 16px;
       align-content: start;
       justify-content: center;
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
     }
     
