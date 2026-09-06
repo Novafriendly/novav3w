@@ -928,15 +928,10 @@
         console.error('❌ Failed to send tracking message:', e);
       }
       
-      // If it's a proxied custom game, open through game-player.html with proxy
-      if (isProxied) {
-        const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=true`;
-        window.location.href = playerUrl;
-      } else {
-        // Regular game - open normally
-        const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}`;
-        window.location.href = playerUrl;
-      }
+      // ALWAYS use proxy for ALL games to bypass school blocks
+      // This routes ALL traffic through Scramjet proxy
+      const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=true`;
+      window.location.href = playerUrl;
     }
 
     // Random game

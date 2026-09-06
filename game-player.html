@@ -464,9 +464,14 @@
       
       // If proxy is requested, route through Scramjet proxy
       if (useProxy && currentGameUrl) {
-        const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl) + '&transport=libcurl';
-        currentGameUrl = proxyUrl;
-        console.log('🔒 Using proxy for custom game:', currentGameUrl);
+        // Check if URL is already proxied to avoid double-proxying
+        if (!currentGameUrl.includes('scracmjetfornovatesters.onrender.com')) {
+          const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl) + '&transport=libcurl&codec=xor';
+          currentGameUrl = proxyUrl;
+          console.log('🔒 Using Scramjet proxy:', currentGameUrl);
+        } else {
+          console.log('✅ Already proxied');
+        }
       }
       
       // Detect Retro Bowl games
