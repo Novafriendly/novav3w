@@ -1564,7 +1564,7 @@
             </div>
           </label>
           <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;cursor:pointer;">
-            <input type="checkbox" id="warnBeforeClosing" onchange="saveBehaviorSettings()" checked />
+            <input type="checkbox" id="warnBeforeClosing" onchange="saveBehaviorSettings()" />
             <div>
               <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:4px;">Warn before closing</div>
               <div style="font-size:11.5px;color:rgba(255,255,255,0.4);">Confirm before you leave the tab</div>
@@ -3852,7 +3852,7 @@ function saveBehaviorSettings() {
 
 function loadBehaviorSettings() {
   const openCloakedBlob = localStorage.getItem('nova_open_cloaked_blob') === 'true';
-  const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') !== 'false'; // default true
+  const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') === 'true'; // default false
   
   document.getElementById('openCloakedBlob').checked = openCloakedBlob;
   document.getElementById('warnBeforeClosing').checked = warnBeforeClosing;

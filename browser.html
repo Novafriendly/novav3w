@@ -293,181 +293,227 @@
     .tab-frame.visible { display: block; }
 
     /* ═══════════════════════════════
-       NEW TAB PAGE
+       NEW TAB PAGE - REDESIGNED
     ═══════════════════════════════ */
     .newtab-page {
       flex: 1;
       background: transparent;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 34px;
-      padding: 0 24px 60px;
+      gap: 40px;
+      padding: 0 32px 60px;
       overflow-y: auto;
     }
     .newtab-page.hidden { display: none; }
 
+    .nova-logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
     .nova-title {
-      font-size: clamp(48px, 9vw, 76px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1;
+      font-size: clamp(64px, 11vw, 96px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
       text-align: center;
-      margin-bottom: 12px;
-      transform-style: preserve-3d;
-      perspective: 1000px;
-    }
-    .nova-title span { 
-      display: inline-block; 
-      animation: float3d 3s ease-in-out infinite;
-      color: #fff;
-      text-shadow:
-        0 1px 0 #ccc,
-        0 2px 0 #c9c9c9,
-        0 3px 0 #bbb,
-        0 4px 0 #b9b9b9,
-        0 5px 0 #aaa,
-        0 6px 1px rgba(0,0,0,.1),
-        0 0 5px rgba(0,0,0,.1),
-        0 1px 3px rgba(0,0,0,.3),
-        0 3px 5px rgba(0,0,0,.2),
-        0 5px 10px rgba(0,0,0,.25),
-        0 10px 20px rgba(0,0,0,.2),
-        0 20px 40px rgba(0,0,0,.15),
-        0 0 80px rgba(255,255,255,0.4);
-      transition: all 0.3s ease;
-    }
-    .nova-title span:hover {
-      transform: translateY(-10px) scale(1.1);
-      text-shadow:
-        0 1px 0 #ccc,
-        0 2px 0 #c9c9c9,
-        0 3px 0 #bbb,
-        0 4px 0 #b9b9b9,
-        0 5px 0 #aaa,
-        0 6px 1px rgba(0,0,0,.1),
-        0 0 5px rgba(0,0,0,.1),
-        0 1px 3px rgba(0,0,0,.3),
-        0 3px 5px rgba(0,0,0,.2),
-        0 5px 10px rgba(0,0,0,.25),
-        0 10px 20px rgba(0,0,0,.2),
-        0 20px 40px rgba(0,0,0,.15),
-        0 0 120px rgba(255,255,255,0.8),
-        0 0 200px rgba(255,255,255,0.4);
-    }
-    .nova-title span:nth-child(1) { animation-delay:0s; }
-    .nova-title span:nth-child(2) { animation-delay:0.15s; }
-    .nova-title span:nth-child(3) { animation-delay:0.3s; }
-    .nova-title span:nth-child(4) { animation-delay:0.45s; }
-    
-    @keyframes float3d {
-      0%, 100% { 
-        transform: translateY(0px) translateZ(0px);
-      }
-      50% { 
-        transform: translateY(-8px) translateZ(20px);
-      }
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 24px rgba(255,255,255,0.15));
     }
     
     .nova-tagline {
-      font-size: 14px;
-      color: rgba(255,255,255,0.6);
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
       text-align: center;
-      margin-bottom: 32px;
       font-weight: 500;
-      letter-spacing: 0.3px;
-      animation: fadeIn 1s ease-out 0.5s both;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      letter-spacing: 0.5px;
     }
 
-    /* newtab search */
+    /* newtab search - cleaner design */
     .nts-wrap {
-      position: relative; width: 100%; max-width: 500px;
+      position: relative; 
+      width: 100%; 
+      max-width: 620px;
     }
     .nts-input {
       width: 100%;
-      background: rgba(26,26,26,0.6);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 13px;
-      padding: 15px 50px 15px 18px;
-      font-size: 14px; color: #fff;
-      outline: none; font-family: inherit;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 18px 56px 18px 22px;
+      font-size: 15px; 
+      color: #fff;
+      outline: none; 
+      font-family: inherit;
+      transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
       user-select: text;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
-    .nts-input::placeholder { color: rgba(255,255,255,0.2); }
+    .nts-input::placeholder { 
+      color: rgba(255,255,255,0.3);
+      font-weight: 400;
+    }
     .nts-input:focus {
-      border-color: rgba(255,255,255,0.22);
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2), 0 0 0 4px rgba(255,255,255,0.03);
+      transform: translateY(-1px);
     }
     .nts-btn {
-      position: absolute; right: 9px; top: 50%;
+      position: absolute; 
+      right: 10px; 
+      top: 50%;
       transform: translateY(-50%);
-      width: 34px; height: 34px;
-      background: rgba(255,255,255,0.07);
-      border: none; border-radius: 8px;
-      color: rgba(255,255,255,0.45);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, color 0.15s;
+      width: 38px; 
+      height: 38px;
+      background: rgba(255,255,255,0.1);
+      border: none; 
+      border-radius: 11px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      transition: all 0.2s;
     }
-    .nts-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
-    .nts-btn svg { width: 15px; height: 15px; stroke-width: 2; }
-    .nts-sugg { position: absolute; top: calc(100% + 5px); left:0; right:0; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); border-radius:11px; overflow:hidden; z-index:300; display:none; box-shadow:0 8px 32px rgba(0,0,0,0.6); }
-    .nts-sugg.show { display:block; }
+    .nts-btn:hover { 
+      background: rgba(255,255,255,0.18); 
+      color: #fff;
+      transform: translateY(-50%) scale(1.05);
+    }
+    .nts-btn svg { width: 16px; height: 16px; stroke-width: 2.5; }
+    .nts-sugg { 
+      position: absolute; 
+      top: calc(100% + 8px); 
+      left: 0; 
+      right: 0; 
+      background: rgba(26,26,26,0.95); 
+      border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 14px; 
+      overflow: hidden; 
+      z-index: 300; 
+      display: none; 
+      box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .nts-sugg.show { display: block; }
 
-    /* apps */
-    .apps-section { width: 100%; max-width: 540px; }
-    .apps-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .apps-lbl { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.22); }
-    .apps-add-btn {
-      display:flex; align-items:center; gap:4px;
-      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07);
-      border-radius:7px; padding:4px 9px;
-      font-size:10px; font-weight:600; color:rgba(255,255,255,0.35);
-      cursor:pointer; transition:background 0.15s,color 0.15s; font-family:inherit;
+    /* apps section - cleaner grid */
+    .apps-section { 
+      width: 100%; 
+      max-width: 620px;
     }
-    .apps-add-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
-    .apps-add-btn svg { width:10px; height:10px; stroke-width:2.5; }
+    .apps-hd { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 16px;
+    }
+    .apps-lbl { 
+      font-size: 11px; 
+      font-weight: 600; 
+      letter-spacing: 0.12em; 
+      text-transform: uppercase; 
+      color: rgba(255,255,255,0.35);
+    }
+    .apps-add-btn {
+      display: flex; 
+      align-items: center; 
+      gap: 5px;
+      background: rgba(255,255,255,0.07); 
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 9px; 
+      padding: 6px 11px;
+      font-size: 11px; 
+      font-weight: 600; 
+      color: rgba(255,255,255,0.45);
+      cursor: pointer; 
+      transition: all 0.2s; 
+      font-family: inherit;
+    }
+    .apps-add-btn:hover { 
+      background: rgba(255,255,255,0.12); 
+      color: rgba(255,255,255,0.9);
+      transform: translateY(-1px);
+    }
+    .apps-add-btn svg { width: 11px; height: 11px; stroke-width: 2.5; }
 
     .apps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
-      gap: 9px;
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap: 12px;
     }
     .app-item {
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      padding:12px 6px 10px;
-      background:rgba(26,26,26,0.6); border:1px solid rgba(255,255,255,0.05);
-      border-radius:13px; cursor:pointer; position:relative;
-      transition:background 0.18s, transform 0.15s, border-color 0.18s;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 8px;
+      padding: 16px 8px 12px;
+      background: rgba(255,255,255,0.04); 
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; 
+      cursor: pointer; 
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-    .app-item:hover { background:rgba(34,34,34,0.7); transform:translateY(-2px); border-color:rgba(255,255,255,0.1); }
-    .app-item:active { transform:scale(0.95); }
+    .app-item:hover { 
+      background: rgba(255,255,255,0.08); 
+      transform: translateY(-3px); 
+      border-color: rgba(255,255,255,0.14);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .app-item:active { transform: translateY(-1px) scale(0.98); }
     .app-icon-wrap {
-      width:36px; height:36px; border-radius:9px;
-      display:flex; align-items:center; justify-content:center;
+      width: 40px; 
+      height: 40px; 
+      border-radius: 11px;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
     }
-    .app-icon-wrap svg { width:20px; height:20px; stroke-width:1.6; }
-    .app-lbl { font-size:9.5px; color:rgba(255,255,255,0.45); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+    .app-icon-wrap svg { width: 22px; height: 22px; stroke-width: 1.8; }
+    .app-lbl { 
+      font-size: 10.5px; 
+      color: rgba(255,255,255,0.6); 
+      text-align: center; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      width: 100%;
+      font-weight: 500;
+    }
     .app-rm {
-      position:absolute; top:4px; right:4px;
-      width:15px; height:15px; border-radius:50%;
-      background:rgba(255,60,60,0.75); border:none;
-      color:#fff; font-size:8px; display:none;
-      align-items:center; justify-content:center; cursor:pointer;
+      position: absolute; 
+      top: 6px; 
+      right: 6px;
+      width: 18px; 
+      height: 18px; 
+      border-radius: 50%;
+      background: rgba(255,60,60,0.85); 
+      border: none;
+      color: #fff; 
+      font-size: 10px; 
+      display: none;
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .app-item:hover .app-rm { display:flex; }
+    .app-item:hover .app-rm { display: flex; }
+    .app-rm:hover {
+      background: rgba(255,40,40,1);
+      transform: scale(1.1);
+    }
 
     /* ═══════════════════════════════
        ERROR FIX OVERLAY
@@ -851,8 +897,10 @@ function renderViews() {
 ═══════════════════════ */
 function buildNTP(tabId) {
   return `
-    <div class="nova-title"><span>N</span><span>O</span><span>V</span><span>A</span></div>
-    <div class="nova-tagline">Search Privately on Nova Browser • It will not track nothing • Have fun :}</div>
+    <div class="nova-logo-container">
+      <div class="nova-title">NOVA</div>
+      <div class="nova-tagline">Browse privately, search freely</div>
+    </div>
     <div class="nts-wrap">
       <input class="nts-input" id="nts-${tabId}" placeholder="Search the web or enter a URL" autocomplete="off" spellcheck="false" />
       <button class="nts-btn" onclick="ntSearch('${tabId}')">
@@ -862,7 +910,7 @@ function buildNTP(tabId) {
     </div>
     <div class="apps-section">
       <div class="apps-hd">
-        <span class="apps-lbl">App Shortcuts</span>
+        <span class="apps-lbl">Quick Access</span>
         <button class="apps-add-btn" onclick="openAppsModal()">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
           Add Apps

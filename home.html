@@ -1864,6 +1864,76 @@
      SCRIPT
 ══════════════════════════════════════════ -->
 <script>
+
+  /* ═══════════════════════════════════════
+     WARN BEFORE CLOSING
+  ═══════════════════════════════════════ */
+  window.addEventListener('beforeunload', (e) => {
+    const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') === 'true';
+    if (warnBeforeClosing) {
+      e.preventDefault();
+      e.returnValue = ''; // Required for Chrome
+      return ''; // Some browsers show this message
+    }
+  });
+
+  /* ═══════════════════════════════════════
+     PERFORMANCE MODE
+  ═══════════════════════════════════════ */
+  function applyPerformanceMode() {
+    const performanceMode = localStorage.getItem('nova_performance_mode') === 'true';
+    const root = document.documentElement;
+    
+    if (performanceMode) {
+      // Reduce animations
+      root.style.setProperty('--transition-speed', '0.1s');
+      // Disable backdrop filters (expensive)
+      root.style.setProperty('--backdrop-blur', '0px');
+      // Reduce shadows
+      root.style.setProperty('--shadow-sm', 'none');
+      root.style.setProperty('--shadow-md', 'none');
+      root.style.setProperty('--shadow-lg', 'none');
+      // Add performance class
+      document.body.classList.add('performance-mode');
+    } else {
+      // Reset to defaults
+      root.style.removeProperty('--transition-speed');
+      root.style.removeProperty('--backdrop-blur');
+      root.style.removeProperty('--shadow-sm');
+      root.style.removeProperty('--shadow-md');
+      root.style.removeProperty('--shadow-lg');
+      document.body.classList.remove('performance-mode');
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     GLOBAL FOV (ZOOM)
+  ═══════════════════════════════════════ */
+  function applyGlobalFOV() {
+    const fovValue = parseInt(localStorage.getItem('nova_fov') || '100');
+    const zoomLevel = fovValue / 100;
+    document.documentElement.style.setProperty('--global-zoom', zoomLevel);
+    // Apply zoom to body
+    document.body.style.transform = `scale(${zoomLevel})`;
+    document.body.style.transformOrigin = 'top left';
+    document.body.style.width = `${100 / zoomLevel}%`;
+    document.body.style.height = `${100 / zoomLevel}%`;
+  }
+
+  // Apply on load
+  applyPerformanceMode();
+  applyGlobalFOV();
+
+  // Listen for settings changes
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'nova_performance_mode') {
+      applyPerformanceMode();
+    }
+    if (e.key === 'nova_fov') {
+      applyGlobalFOV();
+    }
+  });
+
   /* ── screen transition ── */
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => {
