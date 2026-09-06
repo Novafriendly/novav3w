@@ -3282,6 +3282,14 @@ brRenderBmBar();
       }
     }
     
+    if (d.novaAction === 'openBrowser') {
+      // Open browser via home's browser function
+      if (typeof brOpen === 'function') {
+        const browserBtn = document.getElementById('dock-browser');
+        brOpen(browserBtn);
+      }
+    }
+    
     // Track game played
     if (d.novaAction === 'gamePlayed') {
       trackGamePlayed(d.gameName, d.gameImage);

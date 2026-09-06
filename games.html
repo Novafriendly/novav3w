@@ -1132,7 +1132,7 @@
 
     <div class="dock-divider"></div>
 
-    <button class="dock-btn" onclick="window.location.href='browser.html'">
+    <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'openBrowser'}, '*'); } else { window.location.href='home.html'; }">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/>
         <path d="M21 21l-4.35-4.35"/>
