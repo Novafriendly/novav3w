@@ -3158,14 +3158,13 @@ brRenderBmBar();
   .panel-overlay {
     position: fixed; inset: 0; z-index: 25;
     display: flex; flex-direction: column;
-    opacity: 0; transform: translateY(100%);
+    opacity: 0; 
     pointer-events: none;
     background: transparent;
-    transition: opacity 0.42s cubic-bezier(0.22,1,0.36,1),
-                transform 0.42s cubic-bezier(0.22,1,0.36,1);
+    transition: opacity 0.3s ease-in-out;
   }
   .panel-overlay.open {
-    opacity: 1; transform: translateY(0);
+    opacity: 1;
     pointer-events: none;
   }
   .panel-overlay.open iframe {
@@ -3200,11 +3199,20 @@ brRenderBmBar();
     const frame   = document.getElementById('frame-' + name);
     if (!overlay || !frame) return;
     
-    // lazy-load
-    if (!frame.src || frame.src === window.location.href) {
-      frame.src = PANEL_SRCS[name];
-    }
-    overlay.classList.add('open');
+    // Close other overlays with smooth fade
+    document.querySelectorAll('.panel-overlay.open').forEach(o => {
+      if (o !== overlay) o.classList.remove('open');
+    });
+    
+    // Small delay for smooth cross-fade
+    setTimeout(() => {
+      // lazy-load
+      if (!frame.src || frame.src === window.location.href) {
+        frame.src = PANEL_SRCS[name];
+      }
+      overlay.classList.add('open');
+    }, 50);
+    
     document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
     if (btn) btn.classList.add('active','app-open');
     
