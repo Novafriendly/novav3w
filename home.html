@@ -1126,6 +1126,7 @@
 
     /* ntp search — enhanced */
     .br-nts-wrap { 
+      display: none !important; /* HIDDEN - not needed on home */
       position: relative; 
       width: 100%; 
       max-width: 600px;
@@ -4225,11 +4226,13 @@ document.body.appendChild(contextMenu);
 
 // Show context menu on right-click
 document.addEventListener('contextmenu', (e) => {
-  const shortcutsEnabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
-  if (!shortcutsEnabled) return;
+  // Always show context menu on home page (removed enable check)
   
   // Only show on home (not on dock or modals)
   if (e.target.closest('.dock-bar') || e.target.closest('.modal') || e.target.closest('#home-context-menu')) return;
+  
+  // Don't show if clicking on browser/settings areas
+  if (e.target.closest('#browser-modal') || e.target.closest('.br-tab-area')) return;
   
   e.preventDefault();
   
@@ -4759,8 +4762,9 @@ function handleDrop(e) {
   return false;
 }
 
-// Initialize shortcuts on load
-if (localStorage.getItem('nova_home_shortcuts_enabled') === 'true') {
+// Initialize shortcuts on load (always render if there are shortcuts)
+const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+if (shortcuts.length > 0) {
   renderHomeShortcuts();
 }
 
@@ -5040,8 +5044,9 @@ document.querySelectorAll('.home-shortcut').forEach(item => {
   item.addEventListener('dragleave', handleDragLeaveWithFolder);
 });
 
-// Initialize folders on load
-if (localStorage.getItem('nova_home_shortcuts_enabled') === 'true') {
+// Initialize folders on load (always render if there are folders)
+const folders = JSON.parse(localStorage.getItem('nova_home_folders') || '[]');
+if (folders.length > 0) {
   renderFolders();
 }
 
