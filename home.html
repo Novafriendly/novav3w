@@ -4208,6 +4208,88 @@ brRenderBmBar();
     updateOverlayVisibility();
   })();
 
+  // ═══════════════════════════════════════════════════════
+  //  HOME SHORTCUTS SYSTEM - Phase 3
+  // ═══════════════════════════════════════════════════════
+  
+  (function initHomeShortcuts() {
+    // Create right-click context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.id = 'home-context';
+    contextMenu.style.cssText = `
+      display: none;
+      position: fixed;
+      z-index: 99999;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      min-width: 160px;
+    `;
+    contextMenu.innerHTML = `
+      <div class="ctx-item" data-action="add-game" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.9);font-size:13px;font-weight:500;transition:all 0.2s;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>Add Game</span>
+      </div>
+      <div class="ctx-item" data-action="add-app" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.9);font-size:13px;font-weight:500;transition:all 0.2s;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Add App</span>
+      </div>
+    `;
+    document.body.appendChild(contextMenu);
+    
+    // Add hover styles
+    const style = document.createElement('style');
+    style.textContent = `
+      .ctx-item:hover {
+        background: rgba(255,255,255,0.1) !important;
+        transform: translateX(2px);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Show context menu on right-click
+    document.addEventListener('contextmenu', (e) => {
+      const enabled = localStorage.getItem('nova_home_shortcuts_enabled') === 'true';
+      if (!enabled) return;
+      
+      // Don't show on dock, modals, browser
+      if (e.target.closest('.dock') || e.target.closest('.modal') || e.target.closest('#browser-modal')) return;
+      
+      e.preventDefault();
+      const x = Math.min(e.clientX, window.innerWidth - 180);
+      const y = Math.min(e.clientY, window.innerHeight - 100);
+      contextMenu.style.left = x + 'px';
+      contextMenu.style.top = y + 'px';
+      contextMenu.style.display = 'block';
+    });
+    
+    // Close context menu
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#home-context')) {
+        contextMenu.style.display = 'none';
+      }
+    });
+    
+    // Handle context menu clicks
+    contextMenu.querySelectorAll('.ctx-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.dataset.action;
+        contextMenu.style.display = 'none';
+        if (action === 'add-game') {
+          alert('Game picker coming in next phase!');
+        } else if (action === 'add-app') {
+          alert('App picker coming in next phase!');
+        }
+      });
+    });
+    
+    console.log('✅ Phase 3: Right-click menu initialized');
+  })();
+
 </script>
 </body>
 </html>
