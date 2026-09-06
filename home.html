@@ -1743,12 +1743,12 @@
         <span>Home</span>
       </button>
 
-      <button class="dock-btn" id="dock-games" onclick="openPanel('games', this)">
+      <button class="dock-btn" id="dock-games" onclick="togglePanel('games', this)">
         <i class="bi bi-controller"></i>
         <span>Games</span>
       </button>
 
-      <button class="dock-btn" id="dock-apps" onclick="openPanel('apps', this)">
+      <button class="dock-btn" id="dock-apps" onclick="togglePanel('apps', this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5"/>
@@ -3228,6 +3228,19 @@ brRenderBmBar();
     
     // show dock briefly then let it hide
     if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
+  }
+  
+  // Toggle panel - close if already open, open if closed (for games/apps)
+  function togglePanel(name, btn) {
+    const overlay = document.getElementById('overlay-' + name);
+    if (!overlay) return;
+    
+    // If already open, close it
+    if (overlay.classList.contains('open')) {
+      closePanel(name);
+    } else {
+      openPanel(name, btn);
+    }
   }
   
   // Open proxied app (Discord, Netflix, etc.) in app-player overlay
