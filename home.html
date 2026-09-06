@@ -4531,10 +4531,12 @@ brRenderBmBar();
       const shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
       shortcutsContainer.innerHTML = '';
       
-      shortcuts.forEach(shortcut => {
+      shortcuts.forEach((shortcut, index) => {
         const item = document.createElement('div');
         item.className = 'home-shortcut';
         item.dataset.id = shortcut.id;
+        item.dataset.index = index;
+        item.draggable = true;
         item.style.cssText = `
           pointer-events: auto;
           display: flex;
@@ -4547,9 +4549,10 @@ brRenderBmBar();
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 16px;
-          cursor: pointer;
+          cursor: move;
           transition: all 0.3s;
           position: relative;
+          user-select: none;
         `;
         
         item.innerHTML = `
@@ -4563,6 +4566,8 @@ brRenderBmBar();
         // Click to launch
         item.addEventListener('click', (e) => {
           if (e.target.closest('.shortcut-delete')) return;
+          if (draggedElement) return; // Don't launch if dragging
+          
           if (shortcut.type === 'game') {
             window.location.href = `game-player.html?game=${encodeURIComponent(shortcut.url)}`;
           } else {
@@ -4572,17 +4577,21 @@ brRenderBmBar();
         
         // Hover effects
         item.addEventListener('mouseenter', function() {
-          this.style.background = 'rgba(255,255,255,0.12)';
-          this.style.borderColor = 'rgba(255,255,255,0.3)';
-          this.style.transform = 'translateY(-4px) scale(1.05)';
-          this.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)';
+          if (!draggedElement) {
+            this.style.background = 'rgba(255,255,255,0.12)';
+            this.style.borderColor = 'rgba(255,255,255,0.3)';
+            this.style.transform = 'translateY(-4px) scale(1.05)';
+            this.style.boxShadow = '0 16px 40px rgba(0,0,0,0.3)';
+          }
         });
         
         item.addEventListener('mouseleave', function() {
-          this.style.background = 'rgba(255,255,255,0.08)';
-          this.style.borderColor = 'rgba(255,255,255,0.15)';
-          this.style.transform = 'translateY(0) scale(1)';
-          this.style.boxShadow = 'none';
+          if (!draggedElement) {
+            this.style.background = 'rgba(255,255,255,0.08)';
+            this.style.borderColor = 'rgba(255,255,255,0.15)';
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = 'none';
+          }
         });
         
         // Right-click to delete
@@ -4604,8 +4613,100 @@ brRenderBmBar();
           deleteShortcut(shortcut.id);
         });
         
+        // Drag & drop handlers
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragenter', handleDragEnter);
+        item.addEventListener('dragleave', handleDragLeave);
+        
         shortcutsContainer.appendChild(item);
       });
+    }
+    
+    // Drag & drop state
+    let draggedElement = null;
+    let draggedIndex = null;
+    
+    function handleDragStart(e) {
+      draggedElement = this;
+      draggedIndex = parseInt(this.dataset.index);
+      this.style.opacity = '0.5';
+      this.style.cursor = 'grabbing';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+    
+    function handleDragEnd(e) {
+      this.style.opacity = '1';
+      this.style.cursor = 'move';
+      
+      // Remove all drag-over effects
+      document.querySelectorAll('.home-shortcut').forEach(item => {
+        item.style.background = 'rgba(255,255,255,0.08)';
+        item.style.borderColor = 'rgba(255,255,255,0.15)';
+        item.style.transform = 'scale(1)';
+      });
+      
+      draggedElement = null;
+      draggedIndex = null;
+    }
+    
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+    
+    function handleDragEnter(e) {
+      if (this !== draggedElement) {
+        this.style.background = 'rgba(138,43,226,0.2)';
+        this.style.borderColor = 'rgba(138,43,226,0.6)';
+        this.style.transform = 'scale(1.1)';
+      }
+    }
+    
+    function handleDragLeave(e) {
+      if (this !== draggedElement) {
+        this.style.background = 'rgba(255,255,255,0.08)';
+        this.style.borderColor = 'rgba(255,255,255,0.15)';
+        this.style.transform = 'scale(1)';
+      }
+    }
+    
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      
+      if (draggedElement !== this) {
+        const targetIndex = parseInt(this.dataset.index);
+        
+        // Reorder shortcuts
+        let shortcuts = JSON.parse(localStorage.getItem('nova_home_shortcuts') || '[]');
+        const draggedItem = shortcuts[draggedIndex];
+        
+        // Remove from old position
+        shortcuts.splice(draggedIndex, 1);
+        
+        // Insert at new position
+        shortcuts.splice(targetIndex, 0, draggedItem);
+        
+        // Update positions
+        shortcuts.forEach((s, i) => s.position = i);
+        
+        localStorage.setItem('nova_home_shortcuts', JSON.stringify(shortcuts));
+        
+        // Re-render
+        renderHomeShortcuts();
+        
+        showToast('Shortcut moved!');
+      }
+      
+      return false;
     }
     
     // Delete shortcut
