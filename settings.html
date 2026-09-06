@@ -2360,9 +2360,17 @@ function makeSwatchEl(wp, isCustom, customIndex) {
     // Show thumb image if provided, else show video preview frame
     if (wp.thumbImg) {
       const img = document.createElement('img');
+      img.loading = 'lazy'; // Native lazy loading
       img.src = wp.thumbImg;
       img.alt = wp.label;
       img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;transition:opacity 0.3s;z-index:1;';
+      
+      // Show loading placeholder
+      img.addEventListener('load', () => {
+        img.style.opacity = '1';
+      });
+      img.style.opacity = '0';
+      
       el.appendChild(img);
     } else {
       // Create a video element for preview frame
@@ -2656,6 +2664,56 @@ function clearAllCustomBackgrounds() {
 }
 
 function applyPreset(wp, el) {
+  // Show loading indicator
+  const loadingOverlay = document.createElement('div');
+  loadingOverlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 24px 32px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+    animation: fadeIn 0.2s ease;
+  `;
+  loadingOverlay.innerHTML = `
+    <div style="
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    "></div>
+    <span>Loading background...</span>
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      }
+    </style>
+  `;
+  document.body.appendChild(loadingOverlay);
+  
+  // Remove loading after a short delay (or when background loads)
+  setTimeout(() => {
+    loadingOverlay.style.opacity = '0';
+    loadingOverlay.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    setTimeout(() => loadingOverlay.remove(), 200);
+  }, 1500);
+  
   // Remove selection from BOTH grids
   document.querySelectorAll('.bg-swatch').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
