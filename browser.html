@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nova Browser</title>
   
+  <!-- Preconnect to proxy for faster loading -->
+  <link rel="preconnect" href="https://scracmjetfornovatesters.onrender.com" crossorigin>
+  <link rel="dns-prefetch" href="https://scracmjetfornovatesters.onrender.com">
+  
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
   <script>
@@ -709,7 +713,8 @@
 ═══════════════════════ */
 const PROXY_BASE = 'https://scracmjetfornovatesters.onrender.com/?url=';
 const SEARCH_BASE = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent('https://search.brave.com/search?q=');
-const SEARCH_SUFFIX = '&source=web&transport=libcurl';
+// Add connection optimization params
+const SEARCH_SUFFIX = '&source=web&transport=libcurl&codec=xor';
 
 const ERROR_URLS = [
   'https://scracmjetfornovatesters.onrender.com/',
