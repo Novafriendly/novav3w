@@ -479,8 +479,15 @@
       if (useProxy && currentGameUrl) {
         console.log('🔒 Proxy requested for:', currentGameUrl);
         
-        // Method 1: Try direct load first with sandbox attributes
-        tryDirectLoad();
+        // For external URLs (gameLinks), ALWAYS use proxy immediately
+        // Check if it's an external URL (not our local HTML files)
+        if (currentGameUrl.includes('http://') || currentGameUrl.includes('https://')) {
+          console.log('🌐 External URL detected - using proxy immediately');
+          tryProxyLoad();
+        } else {
+          // For local files, try direct load first
+          tryDirectLoad();
+        }
       } else {
         // Normal load without proxy
         loadGame(currentGameUrl);
