@@ -3648,14 +3648,22 @@ function emit(action, data) {
 }
 
 function closePage() {
+  console.log('🚪 Closing settings page...');
+  
   // Mark as internal navigation to avoid "warn before closing" dialog
   isInternalNavigation = true;
   
   // Try to emit to parent (if opened from home.html)
-  emit('closeApp', { app: 'settings' }); 
+  try {
+    window.parent.postMessage({ novaAction: 'closeApp', app: 'settings' }, '*');
+    console.log('✅ Sent close message to parent');
+  } catch(e) {
+    console.error('❌ Failed to send close message:', e);
+  }
   
   // If opened directly (not in iframe), navigate
   if (window.self === window.top) {
+    console.log('📱 Settings opened directly - navigating back');
     setTimeout(() => {
       if (document.referrer) {
         window.history.back();
