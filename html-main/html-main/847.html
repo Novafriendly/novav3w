@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <base href="../../assets-main/assets-main/847/title>
+    <base href="/assets-main/assets-main/847/title>
     <style>
       /* black, not the Unity brown: whatever the canvas does not cover reads as a
          letterbox bar rather than a strip of a different colour hanging off the bottom */
@@ -82,7 +82,7 @@
       // this page; this stamps the same root onto our own URL so the C# level streamer
       // (which resolves bundle URLs against Application.absoluteURL, ignoring <base>)
       // fetches LevelBundles from the CDN too instead of from wherever the page is hosted.
-      var CDN_BASE = "../../assets-main/assets-main/847// Total download size, measured at package time — no HEAD requests needed, and it
+      var CDN_BASE = "/assets-main/assets-main/847// Total download size, measured at package time — no HEAD requests needed, and it
       // stays correct even if the CDN omits Content-Length on a streamed response.
       var TOTAL = MANIFEST.data.bytes + MANIFEST.framework.bytes + MANIFEST.code.bytes;
       var downloaded = 0;

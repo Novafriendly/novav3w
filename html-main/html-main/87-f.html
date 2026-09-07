@@ -325,7 +325,7 @@
                 addOptions(version_select, versions.versions, versions.default);
                 version_select.addEventListener("change", () => {
                     localStorage.setItem("version", version_select[version_select.selectedIndex].textContent);
-                    window.cdn = "../../assets-main/assets-main/87-f/SuperGrafx/PC Engine": "pce",
+                    window.cdn = "/assets-main/assets-main/87-f/SuperGrafx/PC Engine": "pce",
                             "NEC PC-FX": "pcfx",
                             "SNK NeoGeo Pocket (Color)": "ngp",
                             "Bandai WonderSwan (Color)": "ws",
@@ -369,7 +369,7 @@
                 div.appendChild(sub)
                 document.body.appendChild(div)
 
-                const cdn = window.cdn || "../../assets-main/assets-main/87-f//ads.emulatorjs.org/";
+                const cdn = window.cdn || "/assets-main/assets-main/87-f//ads.emulatorjs.org/";
                 if (core === "psp") {
                     window.EJS_threads = true;
                 }
@@ -431,7 +431,7 @@
                         option.textContent = version;
                     }
                     option.selected = true;
-                    window.cdn = "../../assets-main/assets-main/87-f/Private mode.";
+                    window.cdn = "/assets-main/assets-main/87-f/Private mode.";
                 }
                 
             }

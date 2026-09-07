@@ -128,17 +128,17 @@
                 EJS_core = "psx";
                 EJS_color = "#000000";
                 EJS_startOnLoaded = true;
-                EJS_pathtodata = "../../assets-main/assets-main/524/emulatorjs/data";
+                EJS_pathtodata = "/assets-main/assets-main/524/emulatorjs/data";
                 EJS_gameUrl = "https://bbcdn.githack.com/johnbones/john/raw/main/PaRappa%20the%20Rapper%20(USA)%20(En,Fr,De,Es,It).zip";
                 loadGame(); 
             } 
             document.getElementById("startButton").addEventListener("click", startGame);
             function loadGame() {
                 var script = document.createElement("script");
-                script.src = "../../assets-main/assets-main/524/emulatorjs/data/loader.js";
+                script.src = "/assets-main/assets-main/524/emulatorjs/data/loader.js";
                 document.body.appendChild(script);
 		var script = document.createElement("script");
-                script.src = "../../assets-main/assets-main/524/js/cloak.js";
+                script.src = "/assets-main/assets-main/524/js/cloak.js";
                 document.body.appendChild(script);
             }
 	</script><div id="sidebarad1">
