@@ -462,16 +462,15 @@
       currentGameIcon = params.get('icon') || '';
       const useProxy = params.get('proxy') === 'true';
       
-      // If proxy is requested, route through Scramjet proxy
+      // If proxy is requested, try multiple methods
       if (useProxy && currentGameUrl) {
-        // Check if URL is already proxied to avoid double-proxying
-        if (!currentGameUrl.includes('scracmjetfornovatesters.onrender.com')) {
-          const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl) + '&transport=libcurl&codec=xor';
-          currentGameUrl = proxyUrl;
-          console.log('🔒 Using Scramjet proxy:', currentGameUrl);
-        } else {
-          console.log('✅ Already proxied');
-        }
+        console.log('🔒 Proxy requested for:', currentGameUrl);
+        
+        // Method 1: Try direct load first with sandbox attributes
+        tryDirectLoad();
+      } else {
+        // Normal load without proxy
+        loadGame(currentGameUrl);
       }
       
       // Detect Retro Bowl games
@@ -488,42 +487,116 @@
         console.log('🏈 Retro Bowl detected - cheat button enabled');
       }
       
-      if (currentGameUrl) {
-        gameFrame.src = currentGameUrl;
+      gameTitle.textContent = currentGameName;
+      if (currentGameIcon) {
+        gameIcon.src = currentGameIcon;
+      }
+    }
+    
+    // Try to load game directly with sandbox
+    function tryDirectLoad() {
+      console.log('📦 Attempting direct load with sandbox...');
+      
+      // Set sandbox attributes for better compatibility
+      gameFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-modals allow-downloads');
+      gameFrame.setAttribute('referrerpolicy', 'no-referrer');
+      
+      // Try loading directly
+      gameFrame.src = currentGameUrl;
+      
+      // Check if it loads successfully
+      let loadTimeout = setTimeout(() => {
+        console.log('❌ Direct load failed, trying proxy...');
+        tryProxyLoad();
+      }, 5000);
+      
+      gameFrame.onload = function() {
+        clearTimeout(loadTimeout);
+        console.log('✅ Direct load successful!');
+        applyAdBlocker();
+      };
+      
+      gameFrame.onerror = function() {
+        clearTimeout(loadTimeout);
+        console.log('❌ Direct load error, trying proxy...');
+        tryProxyLoad();
+      };
+    }
+    
+    // Try loading through proxy
+    function tryProxyLoad() {
+      console.log('🔄 Attempting proxy load...');
+      
+      // Try Scramjet proxy
+      if (!currentGameUrl.includes('scracmjetfornovatesters.onrender.com')) {
+        const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl);
+        console.log('🌐 Using Scramjet proxy:', proxyUrl);
         
-        // Apply ad blocker if enabled
+        gameFrame.src = proxyUrl;
+        
+        // Check if proxy loads successfully
+        let proxyTimeout = setTimeout(() => {
+          console.log('❌ Proxy failed, trying alternative method...');
+          tryAlternativeMethod();
+        }, 8000);
+        
         gameFrame.onload = function() {
-          const blockAds = localStorage.getItem('nova_block_game_ads') !== 'false'; // default true
-          if (blockAds) {
-            try {
-              const frameDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
-              const style = frameDoc.createElement('style');
-              style.textContent = `
-                /* Block common ad containers */
-                iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
-                iframe[src*="googleads"], iframe[src*="adserver"],
-                div[id*="ad-"], div[class*="ad-"], div[id*="Ad"], div[class*="Ad"],
-                ins.adsbygoogle, .advertisement, .ad-container, .ads,
-                [id*="google_ads"], [class*="google-ad"] {
-                  display: none !important;
-                  visibility: hidden !important;
-                  opacity: 0 !important;
-                  height: 0 !important;
-                  width: 0 !important;
-                }
-              `;
-              frameDoc.head.appendChild(style);
-              console.log('✅ Ad blocker applied to game');
-            } catch (e) {
-              // Cross-origin frame, can't inject CSS
-              console.log('ℹ️ Cannot apply ad blocker to cross-origin frame');
-            }
-          }
+          clearTimeout(proxyTimeout);
+          console.log('✅ Proxy load successful!');
+          applyAdBlocker();
         };
-        
-        gameTitle.textContent = currentGameName;
-        if (currentGameIcon) {
-          gameIcon.src = currentGameIcon;
+      } else {
+        tryAlternativeMethod();
+      }
+    }
+    
+    // Alternative method: Use blob URL or data URL
+    function tryAlternativeMethod() {
+      console.log('🔧 Trying alternative embedding method...');
+      showNotification('Game may be blocked by network. Opening in new tab...', 'info');
+      
+      // Open in about:blank as fallback
+      setTimeout(() => {
+        openInAboutBlank();
+      }, 2000);
+    }
+    
+    // Load game normally
+    function loadGame(url) {
+      if (url) {
+        gameFrame.src = url;
+        gameFrame.onload = function() {
+          applyAdBlocker();
+        };
+      }
+    }
+    
+    // Apply ad blocker
+    function applyAdBlocker() {
+      const blockAds = localStorage.getItem('nova_block_game_ads') !== 'false'; // default true
+      if (blockAds) {
+        try {
+          const frameDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+          const style = frameDoc.createElement('style');
+          style.textContent = `
+            /* Block common ad containers */
+            iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
+            iframe[src*="googleads"], iframe[src*="adserver"],
+            div[id*="ad-"], div[class*="ad-"], div[id*="Ad"], div[class*="Ad"],
+            ins.adsbygoogle, .advertisement, .ad-container, .ads,
+            [id*="google_ads"], [class*="google-ad"] {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              height: 0 !important;
+              width: 0 !important;
+            }
+          `;
+          frameDoc.head.appendChild(style);
+          console.log('✅ Ad blocker applied to game');
+        } catch (e) {
+          // Cross-origin frame, can't inject CSS
+          console.log('ℹ️ Cannot apply ad blocker to cross-origin frame');
         }
       }
     }
