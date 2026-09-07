@@ -1868,14 +1868,24 @@
   /* ═══════════════════════════════════════
      WARN BEFORE CLOSING
   ═══════════════════════════════════════ */
+  let isInternalNavigation = false;
+  
   window.addEventListener('beforeunload', (e) => {
     const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') === 'true';
-    if (warnBeforeClosing) {
+    
+    // Only warn if it's actually closing/leaving the site, not internal navigation
+    if (warnBeforeClosing && !isInternalNavigation) {
       e.preventDefault();
       e.returnValue = ''; // Required for Chrome
       return ''; // Some browsers show this message
     }
   });
+  
+  // Helper function to allow internal navigation without warning
+  window.allowInternalNavigation = function() {
+    isInternalNavigation = true;
+    setTimeout(() => { isInternalNavigation = false; }, 100);
+  };
 
   /* ═══════════════════════════════════════
      PERFORMANCE MODE

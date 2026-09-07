@@ -650,6 +650,31 @@
   </div>
 
   <script>
+    /* ══════════════════════════════════
+       WARN BEFORE CLOSING - Only when opened directly
+    ══════════════════════════════════ */
+    let isInternalNavigation = false;
+
+    // Only add beforeunload if NOT in an iframe (opened directly)
+    if (window.self === window.top) {
+      window.addEventListener('beforeunload', (e) => {
+        const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') === 'true';
+        
+        // Only warn if it's actually closing/leaving the site, not internal navigation
+        if (warnBeforeClosing && !isInternalNavigation) {
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        }
+      });
+    }
+
+    // Helper to mark internal navigation
+    window.markInternalNav = function() {
+      isInternalNavigation = true;
+      setTimeout(() => { isInternalNavigation = false; }, 100);
+    };
+
     let allapps = [];
     let displayedapps = [];
     let currentGenre = 'all';
@@ -1316,7 +1341,7 @@
 
   <!-- BOTTOM DOCK -->
   <div class="dock">
-    <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
+    <button class="dock-btn" onclick="markInternalNav(); if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/>
         <path d="M9 21v-9h6v9"/>

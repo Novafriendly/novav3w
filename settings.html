@@ -1781,6 +1781,25 @@
 
 <script>
 /* ══════════════════════════════════
+   WARN BEFORE CLOSING - Only when opened directly
+══════════════════════════════════ */
+let isInternalNavigation = false;
+
+// Only add beforeunload if NOT in an iframe (opened directly)
+if (window.self === window.top) {
+  window.addEventListener('beforeunload', (e) => {
+    const warnBeforeClosing = localStorage.getItem('nova_warn_before_closing') === 'true';
+    
+    // Only warn if it's actually closing/leaving the site, not internal navigation
+    if (warnBeforeClosing && !isInternalNavigation) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  });
+}
+
+/* ══════════════════════════════════
    TAB SWITCHING
 ══════════════════════════════════ */
 function switchTab(btn) {
@@ -3628,18 +3647,23 @@ function emit(action, data) {
   try { window.parent.postMessage({ novaAction: action, ...data }, '*'); } catch(e) {}
 }
 
-function closePage() { 
+function closePage() {
+  // Mark as internal navigation to avoid "warn before closing" dialog
+  isInternalNavigation = true;
+  
   // Try to emit to parent (if opened from home.html)
   emit('closeApp', { app: 'settings' }); 
   
-  // If navigated directly, use history or go to home
-  setTimeout(() => {
-    if (document.referrer) {
-      window.history.back();
-    } else {
-      window.location.href = 'home.html';
-    }
-  }, 100);
+  // If opened directly (not in iframe), navigate
+  if (window.self === window.top) {
+    setTimeout(() => {
+      if (document.referrer) {
+        window.history.back();
+      } else {
+        window.location.href = 'home.html';
+      }
+    }, 100);
+  }
 }
 
 /* ══════════════════════════════════
