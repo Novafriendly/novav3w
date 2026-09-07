@@ -65,7 +65,7 @@ Write-Host "Copied $copiedCount games to the games/ folder`n" -ForegroundColor G
 if (!(Test-Path "self-hosted-games.json")) {
     Write-Host "📝 Creating self-hosted-games.json..." -ForegroundColor Yellow
     
-    $gamesJson = @"
+    $gamesJson = @'
 [
   {
     "id": "1v1lol_selfhosted",
@@ -104,7 +104,7 @@ if (!(Test-Path "self-hosted-games.json")) {
     "isSelfHosted": true
   }
 ]
-"@
+'@
     
     $gamesJson | Out-File -FilePath "self-hosted-games.json" -Encoding UTF8
     Write-Host "✅ Created self-hosted-games.json`n" -ForegroundColor Green
@@ -120,4 +120,5 @@ Write-Host "   git push" -ForegroundColor Gray
 Write-Host "4. Deploy to Vercel`n" -ForegroundColor White
 
 Write-Host "Games will be accessible at:" -ForegroundColor Cyan
-Write-Host "https://your-site.vercel.app/games/1v1lol/`n" -ForegroundColor Gray
+Write-Host "https://your-site.vercel.app/games/1v1lol/" -ForegroundColor Gray
+Write-Host ""
