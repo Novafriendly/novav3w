@@ -8,62 +8,7 @@
 </script><!DOCTYPE html>
 <html>
     <head>
-        <base href="https://corsproxy.io/?https://raw.githubusercontent.com/web-ports/in-stars-and-time@27e9333ba913797a32bd6c4c630e532aff97e967/">
-        <script>
-(() => {
-    const PARAM_NAME = "test";
-    const PARAM_VALUE = "1";
-
-    function addParam(url) {
-        try {
-            const u = new URL(url, document.baseURI);
-            u.searchParams.set(PARAM_NAME, PARAM_VALUE);
-            return u.href;
-        } catch {
-            return url;
-        }
-    }    const originalFetch = window.fetch;
-    window.fetch = function(input, init) {
-        if (typeof input === "string") {
-            input = addParam(input);
-        } else if (input instanceof Request) {
-            input = new Request(addParam(input.url), input);
-        }
-
-        return originalFetch.call(this, input, init);
-    };
-
-    const originalOpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-        return originalOpen.call(this, method, addParam(url), ...rest);
-    };
-
-    const srcDescriptor = Object.getOwnPropertyDescriptor(
-        HTMLScriptElement.prototype,
-        "src"
-    );
-
-    Object.defineProperty(HTMLScriptElement.prototype, "src", {
-        get() {
-            return srcDescriptor.get.call(this);
-        },
-        set(value) {
-            return srcDescriptor.set.call(this, addParam(value));
-        }
-    });
-    const originalSetAttribute = Element.prototype.setAttribute;
-    Element.prototype.setAttribute = function(name, value) {
-        if (
-            this instanceof HTMLScriptElement &&
-            name.toLowerCase() === "src"
-        ) {
-            value = addParam(value);
-        }
-
-        return originalSetAttribute.call(this, name, value);
-    };
-})();
-        </script>
+        <base href="../../assets-main/assets-main/667-fixes2/script>
         <script>
             		fetch("data/Translations.json").then(res => res.json()).then(json => {
 			window.$dataTranslations = json;

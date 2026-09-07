@@ -128,17 +128,11 @@
                 EJS_core = "nes";
                 EJS_color = "#000000";
                 EJS_startOnLoaded = true;
-                EJS_pathtodata = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@81f551ca0aa8e3d6018d32d8ac5904ac9bc78f76/storage/emulatorjs/data";
-                EJS_gameUrl = "https://corsproxy.io/?https://raw.githubusercontent.com/bubbls/UGS-file-encryption@e0c78a58432c6486ebe1a50a78d263df65809a83/Super%20Mario%20Bros.%20(Europe).zip";
-                loadGame();  
-            }
-            document.getElementById("startButton").addEventListener("click", startGame);
-            function loadGame() {
-                var script = document.createElement("script");
-                script.src = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@81f551ca0aa8e3d6018d32d8ac5904ac9bc78f76/storage/emulatorjs/data/loader.js";
+                EJS_pathtodata = "../../assets-main/assets-main/508/emulatorjs/data";
+                EJS_gameUrl = "../../assets-main/assets-main/508//corsproxy.io/?../../assets-main/assets-main/508/data/loader.js";
                 document.body.appendChild(script);
 		var script = document.createElement("script");
-                script.src = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@ae2fcc6d6a9cd051654fcc0519080db1f79cf2a7/storage/js/cloak.js";
+                script.src = "../../assets-main/assets-main/508/js/cloak.js";
                 document.body.appendChild(script);
             }
 	</script><div id="sidebarad1">

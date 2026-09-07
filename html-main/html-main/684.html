@@ -128,17 +128,11 @@
                 EJS_core = "nds";
                 EJS_color = "#000000";
                 EJS_startOnLoaded = true;
-                EJS_pathtodata = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@81f551ca0aa8e3d6018d32d8ac5904ac9bc78f76/storage/emulatorjs/data";
-                EJS_gameUrl = "https://corsproxy.io/?https://raw.githubusercontent.com/bubbls/UGS-file-encryption@4646aee334062e3f502dc8769ebd35f15cb451b3/Kirby%20-%20Squeak%20Squad%20(USA).zip";
-                loadGame(); 
-            }
-            document.getElementById("startButton").addEventListener("click", startGame);
-            function loadGame() {
-                var script = document.createElement("script");
-                script.src = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@81f551ca0aa8e3d6018d32d8ac5904ac9bc78f76/storage/emulatorjs/data/loader.js";
+                EJS_pathtodata = "../../assets-main/assets-main/684/emulatorjs/data";
+                EJS_gameUrl = "../../assets-main/assets-main/684//corsproxy.io/?../../assets-main/assets-main/684/data/loader.js";
                 document.body.appendChild(script);
 		var script = document.createElement("script");
-                script.src = "https://corsproxy.io/?https://raw.githubusercontent.com/a456pur/seraph@ae2fcc6d6a9cd051654fcc0519080db1f79cf2a7/storage/js/cloak.js";
+                script.src = "../../assets-main/assets-main/684/js/cloak.js";
                 document.body.appendChild(script);
             }
 	</script>

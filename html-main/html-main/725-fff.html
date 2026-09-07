@@ -8,7 +8,7 @@
 </script><!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://corsproxy.io/?https://raw.githubusercontent.com/taskmaster773/google-class@main/shredsauce/">
+    <base href="../../assets-main/assets-main/725-fff/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity Web Player | ShredSauce</title>
@@ -86,32 +86,7 @@
 
         if (urlString.includes("get_latest_news.php")) {
           if (input instanceof Request) {
-              input = new Request("https://corsproxy.io/?https://raw.githubusercontent.com/genizy/awesome@tree/main", input);
-          } else {
-              input = "https://corsproxy.io/?https://raw.githubusercontent.com/genizy/awesome@tree/main";
-          }
-        }
-
-        return originalFetch(input, init);
-      };
-
-    async function fetchWithProgress(url) {
-      const response = await fetch(url);
-      const reader = response.body.getReader();
-      let chunks = [];
-      let received = 0;
-      while (true) {
-        const {
-          done,
-          value
-        } = await reader.read();
-        if (done) break;
-        received += value.length;
-        loadedBytes += value.length;
-        chunks.push(value);
-        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-        let mbTotal = '76.41';
-        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
+              input = new Request("../../assets-main/assets-main/725-fff//corsproxy.io/?../../assets-main/assets-main/725-fff/ ${mbTotal} MB`;
       }
       let fullBuffer = new Uint8Array(received);
       let offset = 0;

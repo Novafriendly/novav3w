@@ -3,8 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <base href="https://corsproxy.io/?https://raw.githubusercontent.com/wasmdotrip/Peak-Port@main/">
-    <title>PEAK</title>
+    <base href="../../assets-main/assets-main/847/title>
     <style>
       /* black, not the Unity brown: whatever the canvas does not cover reads as a
          letterbox bar rather than a strip of a different colour hanging off the bottom */
@@ -83,24 +82,7 @@
       // this page; this stamps the same root onto our own URL so the C# level streamer
       // (which resolves bundle URLs against Application.absoluteURL, ignoring <base>)
       // fetches LevelBundles from the CDN too instead of from wherever the page is hosted.
-      var CDN_BASE = "https://corsproxy.io/?https://raw.githubusercontent.com/wasmdotrip/Peak-Port@main";
-      if (CDN_BASE) {
-        var u = new URL(window.location.href);
-        if (u.searchParams.get("cdn") !== CDN_BASE) {
-          u.searchParams.set("cdn", CDN_BASE);
-          history.replaceState(null, "", u.toString());
-        }
-      }
-
-      var canvas  = document.querySelector("#unity-canvas");
-      var bar     = document.querySelector("#bar");
-      var barfill = document.querySelector("#barfill");
-      var msg     = document.querySelector("#msg");
-
-      function setMsg(t) { msg.textContent = t; }
-      function mb(bytes) { return (bytes / 1048576).toFixed(1); }
-
-      // Total download size, measured at package time — no HEAD requests needed, and it
+      var CDN_BASE = "../../assets-main/assets-main/847// Total download size, measured at package time — no HEAD requests needed, and it
       // stays correct even if the CDN omits Content-Length on a streamed response.
       var TOTAL = MANIFEST.data.bytes + MANIFEST.framework.bytes + MANIFEST.code.bytes;
       var downloaded = 0;

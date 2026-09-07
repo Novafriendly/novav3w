@@ -325,62 +325,7 @@
                 addOptions(version_select, versions.versions, versions.default);
                 version_select.addEventListener("change", () => {
                     localStorage.setItem("version", version_select[version_select.selectedIndex].textContent);
-                    window.cdn = "https://corsproxy.io/?https://raw.githubusercontent.com/ant9012/emu-updated@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
-                });
-            }
-            input.addEventListener("change", async () => {
-                const url = input.files[0];
-                const parts = input.files[0].name.split(".");
-
-                const core = await (async (ext) => {
-                    if (["fds", "nes", "unif", "unf"].includes(ext))
-                        return "nes"
-
-                    if (["smc", "fig", "sfc", "gd3", "gd7", "dx2", "bsx", "swc"].includes(ext))
-                        return "snes"
-
-                    if (["z64", "n64"].includes(ext))
-                        return "n64"
-
-                    if (["pce"].includes(ext))
-                        return "pce"
-
-                    if (["ngp", "ngc"].includes(ext))
-                        return "ngp"
-
-                    if (["ws", "wsc"].includes(ext))
-                        return "ws"
-
-                    if (["col", "cv"].includes(ext))
-                        return "coleco"
-
-                    if (["d64"].includes(ext))
-                        return "vice_x64"
-
-                    if (["nds", "gba", "gb", "z64", "n64"].includes(ext))
-                        return ext
-
-                    return await new Promise(resolve => {
-                        const cores = {
-                            "Nintendo 64": "n64",
-                            "Nintendo Game Boy": "gb",
-                            "Nintendo Game Boy Advance": "gba",
-                            "Nintendo DS": "nds",
-                            "Nintendo Entertainment System": "nes",
-                            "Super Nintendo Entertainment System": "snes",
-                            "PlayStation": "psx",
-                            "Virtual Boy": "vb",
-                            "Sega Mega Drive": "segaMD",
-                            "Sega Master System": "segaMS",
-                            "Sega CD": "segaCD",
-                            "Atari Lynx": "lynx",
-                            "Sega 32X": "sega32x",
-                            "Atari Jaguar": "jaguar",
-                            "Sega Game Gear": "segaGG",
-                            "Sega Saturn": "segaSaturn",
-                            "Atari 7800": "atari7800",
-                            "Atari 2600": "atari2600",
-                            "NEC TurboGrafx-16/SuperGrafx/PC Engine": "pce",
+                    window.cdn = "../../assets-main/assets-main/87-f/SuperGrafx/PC Engine": "pce",
                             "NEC PC-FX": "pcfx",
                             "SNK NeoGeo Pocket (Color)": "ngp",
                             "Bandai WonderSwan (Color)": "ws",
@@ -424,16 +369,7 @@
                 div.appendChild(sub)
                 document.body.appendChild(div)
 
-                const cdn = window.cdn || "https://corsproxy.io/?https://raw.githubusercontent.com/ant9012/emu-updated@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/"
-
-                window.EJS_player = "#game";
-                window.EJS_gameName = parts.shift();
-                window.EJS_biosUrl = "";
-                window.EJS_gameUrl = url;
-                window.EJS_core = core;
-                window.EJS_pathtodata = cdn;
-                window.EJS_startOnLoaded = true;
-                window.EJS_AdUrl = "https://ads.emulatorjs.org/";
+                const cdn = window.cdn || "../../assets-main/assets-main/87-f//ads.emulatorjs.org/";
                 if (core === "psp") {
                     window.EJS_threads = true;
                 }
@@ -495,71 +431,7 @@
                         option.textContent = version;
                     }
                     option.selected = true;
-                    window.cdn = "https://corsproxy.io/?https://raw.githubusercontent.com/ant9012/emu-updated@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
-                    select.appendChild(option);
-                }
-            }
-
-            function openSettings() {
-                document.getElementById("popup-settings").classList.add("show");
-                if (localStorage.getItem("pwa") == "false") {
-                    checkinstall();
-                }
-            }
-
-            function closeSettings() {
-                document.getElementById("popup-settings").classList.remove("show");
-            }
-
-            let installPrompt = null;
-            const installButton = document.querySelector("#install");
-            const installBox = document.querySelector("#installbox");
-            const installBoxText = document.querySelector("#installboxtext");
-            localStorage.setItem("pwa", "false");
-
-            window.addEventListener("beforeinstallprompt", (event) => {
-                event.preventDefault();
-                installPrompt = event;
-                localStorage.setItem("pwa", "true");
-                installButton.textContent = "Install";
-                installButton.disabled = false;
-                console.log("Supported");
-            });
-            installButton.addEventListener("click", async () => {
-                if (!installPrompt) {
-                    return;
-                }
-                const result = await installPrompt.prompt();
-                console.log(`Install prompt was: ${result.outcome}`);
-                installPrompt = null;
-            });
-            function checkinstall(overide) {
-                console.log("Checking install");
-                if (navigator.userAgent.includes("Firefox") || (navigator.userAgent.includes("OPR") && !navigator.userAgent.includes("Mobile"))) {
-                    installButton.style.display = "none";
-                    installBoxText.innerHTML = "PWA's are not supported on this browser.";
-                    return;
-                }
-                if (window.matchMedia('(display-mode: standalone)').matches || overide) {
-                    installButton.textContent = "Installed";
-                    installButton.disabled = true;
-                    installButton.style.display = "inline";
-                    installBoxText.innerHTML = "Install PWA: ";
-                } else {
-                    installButton.style.display = "none";
-                    if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
-                        installBoxText.innerHTML = "PWA's are supported on this browser, but prompt is not supported.<br> Please install manually";
-                        return;
-                    }
-                    if ('getInstalledRelatedApps' in navigator) {
-                        navigator.getInstalledRelatedApps().then((relatedApps) => {
-                            if (relatedApps.length > 0) {
-                                checkinstall(true);
-                                return;
-                            }
-                        });
-                    }
-                    installBoxText.innerHTML = "PWA is either already installed, or prompt is not supported on this browser.<br> Please install manually.<br>Note: PWA's are not supported in Incognito/Private mode.";
+                    window.cdn = "../../assets-main/assets-main/87-f/Private mode.";
                 }
                 
             }
