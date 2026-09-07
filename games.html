@@ -792,6 +792,7 @@
             ...game,
             cover: game.cover.replace('{COVER_URL}', COVER_URL),
             url: game.url.replace('{HTML_URL}', HTML_URL),
+            gameLink: game.gameLink, // Preserve gameLink for external URLs
             genre: classifyGenre(game.name)
           }));
         
