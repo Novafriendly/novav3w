@@ -872,7 +872,7 @@
     function createGameCard(game) {
       const card = document.createElement('div');
       card.className = 'game-card';
-      card.onclick = () => openGame(game.url, game.name, game.cover, game.isProxied);
+      card.onclick = () => openGame(game.url, game.name, game.cover, game.isProxied, game.gameLink);
       
       card.innerHTML = `
         <div class="game-card-placeholder">?</div>
@@ -975,8 +975,8 @@
     }
 
     // Open game
-    function openGame(url, name, coverImage, isProxied = false) {
-      console.log('🎮 Opening game:', name, coverImage, 'Proxied:', isProxied);
+    function openGame(url, name, coverImage, isProxied = false, gameLink = null) {
+      console.log('🎮 Opening game:', name, coverImage, 'Proxied:', isProxied, 'GameLink:', gameLink);
       
       // Track the game being played
       try {
@@ -990,9 +990,12 @@
         console.error('❌ Failed to send tracking message:', e);
       }
       
-      // ALWAYS use proxy for ALL games to bypass school blocks
-      // This routes ALL traffic through Scramjet proxy
-      const playerUrl = `game-player.html?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=true`;
+      // If gameLink exists, use it through proxy (like apps)
+      // Otherwise use local HTML file
+      const targetUrl = gameLink || url;
+      const useProxy = gameLink ? true : true; // Always use proxy for now
+      
+      const playerUrl = `game-player.html?url=${encodeURIComponent(targetUrl)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=${useProxy}`;
       window.location.href = playerUrl;
     }
 
@@ -1000,7 +1003,7 @@
     function openRandomGame() {
       if (displayedGames.length > 0) {
         const randomGame = displayedGames[Math.floor(Math.random() * displayedGames.length)];
-        openGame(randomGame.url, randomGame.name, randomGame.cover, randomGame.isProxied);
+        openGame(randomGame.url, randomGame.name, randomGame.cover, randomGame.isProxied, randomGame.gameLink);
       }
     }
 
