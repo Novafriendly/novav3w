@@ -12,7 +12,7 @@
   
   
   <meta charset="utf-8">
-  <base href="https://cdn.statically.io/gh/bubblfan/sprunki/">
+  <base href="https://corsproxy.io/?https://raw.githubusercontent.com/bubblfan/sprunki/">
   <title>Sprunki</title>
   <style>
     body {
@@ -339,7 +339,7 @@
       storage.onprogress = (total, loaded) => {
         setProgress(interpolate(0.2, 0.98, loaded / total));
       };
-      storage.addWebStore([storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound, storage.AssetType.Font].filter(i => i), (asset) => new URL('https://cdn.statically.io/gh/bubblfan/sprunki/assets/' + asset.assetId + '.' + asset.dataFormat, location).href);
+      storage.addWebStore([storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound, storage.AssetType.Font].filter(i => i), (asset) => new URL('https://corsproxy.io/?https://raw.githubusercontent.com/bubblfan/sprunki/assets/' + asset.assetId + '.' + asset.dataFormat, location).href);
       return () => new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.onload = () => {
@@ -358,7 +358,7 @@
           }
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open('GET', "https://cdn.statically.io/gh/bubblfan/sprunki/assets/project.json");
+        xhr.open('GET', "https://corsproxy.io/?https://raw.githubusercontent.com/bubblfan/sprunki/assets/project.json");
         xhr.send();
       });
     })();

@@ -439,6 +439,19 @@
   </div>
 
   <script>
+    // ═══════════════════════════════════════════════════════
+    // CDN PROXY SERVICE WORKER REGISTRATION
+    // ═══════════════════════════════════════════════════════
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/cdn-proxy-worker.js')
+        .then(registration => {
+          console.log('✅ CDN Proxy Worker registered:', registration);
+        })
+        .catch(error => {
+          console.log('❌ CDN Proxy Worker registration failed:', error);
+        });
+    }
+    
     const gameFrame = document.getElementById('gameFrame');
     const controlBar = document.getElementById('controlBar');
     const notification = document.getElementById('notification');

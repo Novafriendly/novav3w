@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <base href="https://cdn.statically.io/gh/wasmdotrip/Peak-Port@main/">
+    <base href="https://corsproxy.io/?https://raw.githubusercontent.com/wasmdotrip/Peak-Port@main/">
     <title>PEAK</title>
     <style>
       /* black, not the Unity brown: whatever the canvas does not cover reads as a
@@ -83,7 +83,7 @@
       // this page; this stamps the same root onto our own URL so the C# level streamer
       // (which resolves bundle URLs against Application.absoluteURL, ignoring <base>)
       // fetches LevelBundles from the CDN too instead of from wherever the page is hosted.
-      var CDN_BASE = "https://cdn.jsdelivr.net/gh/wasmdotrip/Peak-Port@main";
+      var CDN_BASE = "https://corsproxy.io/?https://raw.githubusercontent.com/wasmdotrip/Peak-Port@main";
       if (CDN_BASE) {
         var u = new URL(window.location.href);
         if (u.searchParams.get("cdn") !== CDN_BASE) {

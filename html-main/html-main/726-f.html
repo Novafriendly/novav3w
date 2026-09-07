@@ -10,7 +10,7 @@
 	alert("Just so you know, this game doesn't run that well on a browser. If you are ok with this, you may disregard this message.")
       window.gameconfig = {
         name: "about:blank",
-        url: "https://cdn.jsdelivr.net/gh/schoolstuff1337/supplies@main/nds/botwnds/BotwDS.iso",
+        url: "https://corsproxy.io/?https://raw.githubusercontent.com/schoolstuff1337/supplies@main/nds/botwnds/BotwDS.iso",
         core: "nds",
         min: 1,
         max: 4
@@ -110,11 +110,11 @@ getParts("asd.js", 0, 100)
           EJS_gameName = window.gameconfig.name;
           EJS_color = "#0064ff";
           EJS_startOnLoaded = true;
-          EJS_pathtodata = "https://cdn.jsdelivr.net/gh/ant9012/emu-updated@master/";
+          EJS_pathtodata = "https://corsproxy.io/?https://raw.githubusercontent.com/ant9012/emu-updated@master/";
           EJS_gameUrl = gameUrl;
           const script = document.createElement("script");
           script.src =
-            "https://cdn.jsdelivr.net/gh/ant9012/emu-updated@master/loader.js";
+            "https://corsproxy.io/?https://raw.githubusercontent.com/ant9012/emu-updated@master/loader.js";
           document.body.appendChild(script);
         })
         .catch((error) => {

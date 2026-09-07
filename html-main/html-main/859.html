@@ -3,7 +3,7 @@
     <script>
       window.gameconfig = {
         name: "JoJo's Bizarre Adventure: Heritage for the Future",
-        url: "https://cdn.jsdelivr.net/gh/playlettee/jojo@main/JoJos Bizarre Adventure (USA).zip",
+        url: "https://corsproxy.io/?https://raw.githubusercontent.com/playlettee/jojo@main/JoJos Bizarre Adventure (USA).zip",
         core: "psx",
         min: 1,
         max: 22,
@@ -102,12 +102,12 @@ getParts("asd.js", 0, 100)
           EJS_gameName = window.gameconfig.name;
           EJS_color = "#0064ff";
           EJS_startOnLoaded = true;
-          EJS_pathtodata = "https://cdn.jsdelivr.net/gh/bubblfan/emu@master/";
+          EJS_pathtodata = "https://corsproxy.io/?https://raw.githubusercontent.com/bubblfan/emu@master/";
           EJS_gameUrl = gameUrl;
-          EJS_biosUrl = "https://cdn.jsdelivr.net/gh/Abdess/retroarch_system@5f96368f6dbad5851cdb16a5041fefec4bdcd305/Sony%20-%20PlayStation/scph5501.bin";
+          EJS_biosUrl = "https://corsproxy.io/?https://raw.githubusercontent.com/Abdess/retroarch_system@5f96368f6dbad5851cdb16a5041fefec4bdcd305/Sony%20-%20PlayStation/scph5501.bin";
           const script = document.createElement("script");
           script.src =
-            "https://cdn.jsdelivr.net/gh/bubblfan/emu@master/loader.js";
+            "https://corsproxy.io/?https://raw.githubusercontent.com/bubblfan/emu@master/loader.js";
           document.body.appendChild(script);
         })
         .catch((error) => {

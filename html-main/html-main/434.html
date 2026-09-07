@@ -9,7 +9,7 @@
 <!-- Created with https://packager.turbowarp.org/ -->
 <html>
 <head>
-  <base href="https://cdn.statically.io/gh/freebuisness/assets@main/434/">
+  <base href="https://corsproxy.io/?https://raw.githubusercontent.com/freebuisness/assets@main/434/">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <!-- We only include this to explicitly loosen the CSP of various packager environments. It does not provide any security. -->
@@ -325,7 +325,7 @@
             storage.AssetType.Sound,
             storage.AssetType.Font
           ].filter(i => i),
-          (asset) => new URL('assets/' + asset.assetId + '.' + asset.dataFormat, "https://cdn.statically.io/gh/freebuisness/assets@main/434/").href
+          (asset) => new URL('assets/' + asset.assetId + '.' + asset.dataFormat, "https://corsproxy.io/?https://raw.githubusercontent.com/freebuisness/assets@main/434/").href
         );
         return () => new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -341,7 +341,7 @@
           }
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open('GET', "https://cdn.statically.io/gh/freebuisness/assets@main/434/assets/project.json");
+        xhr.open('GET', "https://corsproxy.io/?https://raw.githubusercontent.com/freebuisness/assets@main/434/assets/project.json");
         xhr.send();
       });
       })();
