@@ -547,6 +547,9 @@
     function tryProxyLoad() {
       console.log('🔄 Attempting proxy load...');
       
+      // Show proxy loading notification
+      showProxyNotification();
+      
       // Try Scramjet proxy
       if (!currentGameUrl.includes('scracmjetfornovatesters.onrender.com')) {
         const proxyUrl = 'https://scracmjetfornovatesters.onrender.com/?url=' + encodeURIComponent(currentGameUrl);
@@ -563,6 +566,7 @@
         gameFrame.onload = function() {
           clearTimeout(proxyTimeout);
           console.log('✅ Proxy load successful!');
+          hideProxyNotification();
           applyAdBlocker();
         };
       } else {
@@ -752,6 +756,24 @@
         alert("❌ Error activating cheat!\n\nPlease try again or check the console for details.");
         showNotification('Cheat activation failed', 'error');
       }
+    }
+    
+    // Show proxy loading notification (persistent)
+    function showProxyNotification() {
+      notificationText.textContent = '⚠️ Using proxy - loading may be slow. Please wait. If game doesn\'t load, try refreshing or report the issue.';
+      
+      // Warning icon
+      const warningIcon = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+      
+      notificationIcon.innerHTML = warningIcon;
+      notification.classList.add('show');
+      notification.style.maxWidth = '380px'; // Wider for longer message
+    }
+    
+    // Hide proxy notification
+    function hideProxyNotification() {
+      notification.classList.remove('show');
+      notification.style.maxWidth = '300px'; // Reset width
     }
     
     // Show notification
