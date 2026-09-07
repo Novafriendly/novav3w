@@ -1,0 +1,47 @@
+[
+  {
+    "id": "slope_selfhosted",
+    "name": "Slope",
+    "path": "games/slope/",
+    "cover": "covers-main/covers-main/slope.png",
+    "author": "Y8 Games",
+    "genre": "arcade",
+    "isSelfHosted": true
+  },
+  {
+    "id": "1v1lol_selfhosted",
+    "name": "1v1.LOL",
+    "path": "games/1v1lol/",
+    "cover": "covers-main/covers-main/116.png",
+    "author": "JustPlay.LOL",
+    "genre": "shooting",
+    "isSelfHosted": true
+  },
+  {
+    "id": "retrobowl_selfhosted",
+    "name": "Retro Bowl",
+    "path": "games/retrobowl/",
+    "cover": "covers-main/covers-main/retro-bowl.png",
+    "author": "New Star Games",
+    "genre": "sports",
+    "isSelfHosted": true
+  },
+  {
+    "id": "subwaysurfers_selfhosted",
+    "name": "Subway Surfers",
+    "path": "games/subwaysurfers/",
+    "cover": "covers-main/covers-main/subway.png",
+    "author": "Kiloo Games",
+    "genre": "arcade",
+    "isSelfHosted": true
+  },
+  {
+    "id": "driftboss_selfhosted",
+    "name": "Drift Boss",
+    "path": "games/driftboss/",
+    "cover": "covers-main/covers-main/drift.png",
+    "author": "Drift Games",
+    "genre": "racing",
+    "isSelfHosted": true
+  }
+]
