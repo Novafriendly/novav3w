@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Chat - Live Community Chat</title>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-BMCLEN1ZWQ');
+  </script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .chat-container {
+      width: 95%;
+      max-width: 900px;
+      height: 90vh;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* Header */
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .online-count {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .home-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .home-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    /* Messages Area */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .messages-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Message Bubble */
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .message.own {
+      align-self: flex-end;
+    }
+    
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      padding: 0 4px;
+    }
+    
+    .message.own .message-header {
+      justify-content: flex-end;
+    }
+    
+    .username {
+      font-weight: 700;
+      font-size: 13px;
+      color: #667eea;
+    }
+    
+    .message.own .username {
+      color: #764ba2;
+    }
+    
+    .timestamp {
+      font-size: 11px;
+      color: #999;
+    }
+    
+    .message-bubble {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 18px;
+      word-wrap: break-word;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      line-height: 1.4;
+    }
+    
+    .message.own .message-bubble {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    /* System Message */
+    .system-message {
+      align-self: center;
+      background: rgba(0, 0, 0, 0.1);
+      color: #666;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-style: italic;
+      max-width: 80%;
+      text-align: center;
+    }
+    
+    /* Input Area */
+    .input-area {
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 12px;
+    }
+    
+    .message-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .message-input:focus {
+      border-color: #667eea;
+    }
+    
+    .send-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    .send-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Username Modal */
+    .username-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .username-modal.hidden {
+      display: none;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-content h2 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .modal-content p {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    .username-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+    
+    .username-input:focus {
+      border-color: #667eea;
+    }
+    
+    .join-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .join-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #999;
+      gap: 10px;
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      opacity: 0.3;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chat-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+      
+      .message {
+        max-width: 85%;
+      }
+      
+      .chat-header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Username Modal -->
+  <div class="username-modal" id="usernameModal">
+    <div class="modal-content">
+      <h2>🚀 Welcome to Nova Chat!</h2>
+      <p>Choose a username to get started</p>
+      <input 
+        type="text" 
+        class="username-input" 
+        id="usernameInput" 
+        placeholder="Enter your username..."
+        maxlength="20"
+        autocomplete="off"
+      >
+      <button class="join-btn" onclick="joinChat()">Join Chat</button>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+      <h1>
+        💬 Nova Chat
+      </h1>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="online-count" id="onlineCount">🟢 0 online</div>
+        <button class="home-btn" onclick="window.location.href='home.html'">Home</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-container" id="messagesContainer">
+      <div class="empty-state">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        <p>No messages yet. Be the first to say hi! 👋</p>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <input 
+        type="text" 
+        class="message-input" 
+        id="messageInput" 
+        placeholder="Type a message..."
+        maxlength="500"
+        autocomplete="off"
+      >
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, push, onValue, onDisconnect, set, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
+      authDomain: "nova-chat-43a18.firebaseapp.com",
+      databaseURL: "https://nova-chat-43a18-default-rtdb.firebaseio.com",
+      projectId: "nova-chat-43a18",
+      storageBucket: "nova-chat-43a18.firebasestorage.app",
+      messagingSenderId: "1090469740208",
+      appId: "1:1090469740208:web:94adbe3ee21abb3cf14575"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Global variables
+    let currentUsername = localStorage.getItem('nova_chat_username') || '';
+    let userPresenceRef = null;
+    let messagesRef = ref(database, 'messages');
+    let presenceRef = ref(database, 'presence');
+
+    // Show username modal if no username
+    if (!currentUsername) {
+      document.getElementById('usernameModal').classList.remove('hidden');
+    } else {
+      initializeChat();
+    }
+
+    // Join chat function
+    window.joinChat = function() {
+      const input = document.getElementById('usernameInput');
+      const username = input.value.trim();
+      
+      if (username.length < 2) {
+        alert('Username must be at least 2 characters');
+        return;
+      }
+      
+      if (username.length > 20) {
+        alert('Username must be less than 20 characters');
+        return;
+      }
+      
+      // Check for inappropriate words (basic filter)
+      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'damn', 'hell'];
+      const lowerUsername = username.toLowerCase();
+      if (badWords.some(word => lowerUsername.includes(word))) {
+        alert('Please choose an appropriate username');
+        return;
+      }
+      
+      currentUsername = username;
+      localStorage.setItem('nova_chat_username', username);
+      document.getElementById('usernameModal').classList.add('hidden');
+      initializeChat();
+    };
+
+    // Enter key for username
+    document.getElementById('usernameInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        joinChat();
+      }
+    });
+
+    // Initialize chat
+    function initializeChat() {
+      // Set up user presence
+      const userId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+      userPresenceRef = ref(database, `presence/${userId}`);
+      
+      set(userPresenceRef, {
+        username: currentUsername,
+        timestamp: Date.now()
+      });
+      
+      onDisconnect(userPresenceRef).remove();
+      
+      // Listen for online users
+      onValue(presenceRef, (snapshot) => {
+        const users = snapshot.val();
+        const count = users ? Object.keys(users).length : 0;
+        document.getElementById('onlineCount').textContent = `🟢 ${count} online`;
+      });
+      
+      // Listen for messages
+      onValue(messagesRef, (snapshot) => {
+        const messages = snapshot.val();
+        displayMessages(messages);
+      });
+      
+      // Enable message input
+      document.getElementById('messageInput').disabled = false;
+    }
+
+    // Send message
+    window.sendMessage = function() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      
+      if (!text) return;
+      if (text.length > 500) {
+        alert('Message too long (max 500 characters)');
+        return;
+      }
+      
+      // Basic profanity filter
+      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'damn', 'hell', 'crap'];
+      let filteredText = text;
+      badWords.forEach(word => {
+        const regex = new RegExp(word, 'gi');
+        filteredText = filteredText.replace(regex, '*'.repeat(word.length));
+      });
+      
+      const message = {
+        username: currentUsername,
+        text: filteredText,
+        timestamp: Date.now()
+      };
+      
+      push(messagesRef, message);
+      input.value = '';
+    };
+
+    // Enter key to send
+    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Display messages
+    function displayMessages(messages) {
+      const container = document.getElementById('messagesContainer');
+      
+      if (!messages) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <p>No messages yet. Be the first to say hi! 👋</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const messagesArray = Object.entries(messages)
+        .map(([id, msg]) => ({ id, ...msg }))
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .slice(-100); // Keep last 100 messages
+      
+      container.innerHTML = messagesArray.map(msg => {
+        const isOwn = msg.username === currentUsername;
+        const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        
+        return `
+          <div class="message ${isOwn ? 'own' : ''}">
+            <div class="message-header">
+              <span class="username">${escapeHtml(msg.username)}</span>
+              <span class="timestamp">${time}</span>
+            </div>
+            <div class="message-bubble">
+              ${escapeHtml(msg.text)}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Auto scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Clean up old messages (keep last 100)
+    setInterval(() => {
+      onValue(messagesRef, (snapshot) => {
+        const messages = snapshot.val();
+        if (!messages) return;
+        
+        const messagesArray = Object.entries(messages);
+        if (messagesArray.length > 100) {
+          const toDelete = messagesArray
+            .sort((a, b) => a[1].timestamp - b[1].timestamp)
+            .slice(0, messagesArray.length - 100);
+          
+          toDelete.forEach(([id]) => {
+            remove(ref(database, `messages/${id}`));
+          });
+        }
+      }, { onlyOnce: true });
+    }, 60000); // Check every minute
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (userPresenceRef) {
+        remove(userPresenceRef);
+      }
+    });
+  </script>
+</body>
+</html>
