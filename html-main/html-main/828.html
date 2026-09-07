@@ -2,39 +2,7 @@
 	<html lang=en>
 
 	<head>
-        <base href="/assets-main/assets-main/828/png sizes=192x192>
-		<link href=icon-192.png rel=apple-touch-icon>
-		<link href=fonts/work-sans-400.woff2 rel=preload type=font/woff2 as=font crossorigin>
-		<link href=fonts/fragment-mono-400.woff2 rel=preload type=font/woff2 as=font crossorigin>
-		<link href=shell.css rel=stylesheet>
-		<style>
-			#rom-picker { display: none !important; }
-			body { background: #000; }
-			#loading-text {
-				position: fixed;
-				top: 20px;
-				left: 50%;
-				transform: translateX(-50%);
-				z-index: 999999;
-				font-size: 48px;
-				font-family: cursive;
-				font-weight: bold;
-				pointer-events: none;
-				white-space: nowrap;
-				background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
-				background-size: 400% 400%;
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				animation: rainbow 3s ease infinite;
-			}
-			@keyframes rainbow {
-				0% { background-position: 0% 50%; }
-				50% { background-position: 100% 50%; }
-				100% { background-position: 0% 50%; }
-			}
-		</style>
-		<title>Slider</title>
-		<script>
+        <base href="/assets-main/assets-main/828/">
 			! function() {
 				var e = HTMLCanvasElement.prototype.getContext;
 				HTMLCanvasElement.prototype.getContext = function(t, n) {

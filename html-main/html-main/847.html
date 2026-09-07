@@ -3,34 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <base href="/assets-main/assets-main/847/title>
-    <style>
-      /* black, not the Unity brown: whatever the canvas does not cover reads as a
-         letterbox bar rather than a strip of a different colour hanging off the bottom */
-      html, body { margin: 0; padding: 0; background: #000; height: 100%;
-                   overflow: hidden; }
-      #wrap { display: flex; flex-direction: column; align-items: center;
-              justify-content: center; height: 100%; background: #000; }
-      #unity-canvas { background: #000; max-width: 100%; max-height: 100%;
-                      outline: none; display: block; }
-      #bar { width: 320px; height: 12px; margin-top: 14px; border: 1px solid #555;
-             display: none; }
-      #barfill { width: 0%; height: 100%; background: #7cc242; }
-      #msg { color: #bbb; font: 13px/1.5 system-ui, sans-serif; margin-top: 10px;
-             text-align: center; }
-      #credit { position: fixed; right: 10px; bottom: 8px; z-index: 10;
-                color: #8a8a8a; font: 12px/1.4 system-ui, sans-serif;
-                text-align: right; pointer-events: auto; }
-      #credit a { color: #7cc242; text-decoration: none; }
-      #credit a:hover { text-decoration: underline; }
-      #fs { position: fixed; left: 10px; bottom: 8px; z-index: 10; display: none;
-            background: rgba(255,255,255,0.08); color: #ddd; border: 1px solid #555;
-            border-radius: 4px; padding: 6px 12px; cursor: pointer;
-            font: 12px/1 system-ui, sans-serif; }
-      #fs:hover { background: rgba(255,255,255,0.18); }
-    </style>
-  </head>
-  <body>
+    <base href="/assets-main/assets-main/847/">
     <div id="wrap">
       <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
       <div id="bar"><div id="barfill"></div></div>
