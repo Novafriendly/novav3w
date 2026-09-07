@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova Chat - Live Community Chat</title>
+  <title>Nova Chat</title>
   
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
@@ -23,106 +23,228 @@
     
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       height: 100vh;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      /* Dynamic background - will be set by JS */
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-size: cover;
+      background-position: center;
     }
     
-    .chat-container {
-      width: 95%;
-      max-width: 900px;
-      height: 90vh;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    .chat-app {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      backdrop-filter: blur(20px);
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    /* ========== SIDEBAR (Servers/DMs) ========== */
+    .sidebar {
+      width: 280px;
+      background: rgba(15, 15, 20, 0.85);
+      backdrop-filter: blur(40px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
     
-    /* Header */
-    .chat-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .sidebar-tabs {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      gap: 8px;
     }
     
-    .chat-header h1 {
-      font-size: 24px;
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .tab-btn.active {
+      background: rgba(103, 126, 234, 0.5);
+      border-color: rgba(103, 126, 234, 0.8);
+      color: white;
+    }
+    
+    .channels-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 8px;
+    }
+    
+    .channel-category {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 12px 6px;
+      margin-top: 12px;
+    }
+    
+    .channel-category:first-child {
+      margin-top: 0;
+    }
+    
+    .channel-item, .dm-item {
+      padding: 10px 12px;
+      margin: 2px 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 10px;
     }
     
-    .online-count {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    
-    .home-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
+    .channel-item:hover, .dm-item:hover {
+      background: rgba(255, 255, 255, 0.1);
       color: white;
-      padding: 8px 16px;
+    }
+    
+    .channel-item.active, .dm-item.active {
+      background: rgba(103, 126, 234, 0.4);
+      color: white;
+    }
+    
+    .channel-icon {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+    
+    .dm-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+    
+    .dm-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .online-indicator {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      background: #10b981;
+      border-radius: 50%;
+      border: 2px solid rgba(15, 15, 20, 0.9);
+      box-shadow: 0 0 8px #10b981;
+    }
+    
+    .add-dm-btn {
+      width: 100%;
+      padding: 10px;
+      background: rgba(103, 126, 234, 0.3);
+      border: 1px dashed rgba(103, 126, 234, 0.6);
       border-radius: 8px;
-      cursor: pointer;
+      color: white;
+      font-size: 13px;
       font-weight: 600;
-      transition: all 0.3s;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
     }
     
-    .home-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.05);
+    .add-dm-btn:hover {
+      background: rgba(103, 126, 234, 0.5);
+      border-style: solid;
     }
     
-    /* Messages Area */
-    .messages-container {
+    /* ========== CHAT AREA ========== */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .channel-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    
+    .channel-desc {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-left: 30px;
+    }
+    
+    .chat-messages {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: #f7f7f7;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
     
-    .messages-container::-webkit-scrollbar {
+    .chat-messages::-webkit-scrollbar {
       width: 8px;
     }
     
-    .messages-container::-webkit-scrollbar-track {
-      background: #f1f1f1;
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
     }
     
-    .messages-container::-webkit-scrollbar-thumb {
-      background: #888;
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 10px;
     }
     
-    .messages-container::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-    
-    /* Message Bubble */
-    .message {
+    .message-group {
       display: flex;
-      flex-direction: column;
-      max-width: 70%;
-      animation: slideIn 0.3s ease;
+      gap: 12px;
+      animation: messageSlide 0.3s ease;
     }
     
-    @keyframes slideIn {
+    @keyframes messageSlide {
       from {
         opacity: 0;
         transform: translateY(10px);
@@ -133,277 +255,529 @@
       }
     }
     
-    .message.own {
-      align-self: flex-end;
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+    }
+    
+    .message-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .message-content {
+      flex: 1;
     }
     
     .message-header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 4px;
-      padding: 0 4px;
     }
     
-    .message.own .message-header {
-      justify-content: flex-end;
-    }
-    
-    .username {
-      font-weight: 700;
-      font-size: 13px;
-      color: #667eea;
-    }
-    
-    .message.own .username {
-      color: #764ba2;
-    }
-    
-    .timestamp {
-      font-size: 11px;
-      color: #999;
-    }
-    
-    .message-bubble {
-      background: white;
-      padding: 12px 16px;
-      border-radius: 18px;
-      word-wrap: break-word;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      line-height: 1.4;
-    }
-    
-    .message.own .message-bubble {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .message-author {
       color: white;
+      font-weight: 700;
+      font-size: 15px;
     }
     
-    /* System Message */
+    .message-author.bot {
+      background: rgba(88, 101, 242, 0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .message-time {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+    }
+    
+    .message-text {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+    
+    .message-text a {
+      color: #5865F2;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .message-text a:hover {
+      text-decoration: underline;
+    }
+    
     .system-message {
-      align-self: center;
-      background: rgba(0, 0, 0, 0.1);
-      color: #666;
-      padding: 6px 12px;
-      border-radius: 12px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
       font-size: 12px;
       font-style: italic;
-      max-width: 80%;
-      text-align: center;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      margin: 8px 0;
     }
     
-    /* Input Area */
-    .input-area {
+    /* ========== MESSAGE INPUT ========== */
+    .chat-input-container {
       padding: 20px;
-      background: white;
-      border-top: 1px solid #e0e0e0;
-      display: flex;
-      gap: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .message-input {
-      flex: 1;
+    .chat-input-wrapper {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
       padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 25px;
-      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    
+    .chat-input-wrapper:focus-within {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(103, 126, 234, 0.6);
+    }
+    
+    .emoji-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.2s;
+      padding: 4px;
+    }
+    
+    .emoji-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    .chat-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
       outline: none;
-      transition: all 0.3s;
       font-family: inherit;
     }
     
-    .message-input:focus {
-      border-color: #667eea;
+    .chat-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
     
     .send-btn {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
       border: none;
-      padding: 12px 28px;
-      border-radius: 25px;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 700;
-      font-size: 15px;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.2s;
     }
     
     .send-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(103, 126, 234, 0.4);
     }
     
-    .send-btn:active {
-      transform: translateY(0);
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
     
-    /* Username Modal */
-    .username-modal {
+    /* ========== MEMBERS SIDEBAR ========== */
+    .members-sidebar {
+      width: 240px;
+      background: rgba(15, 15, 20, 0.85);
+      backdrop-filter: blur(40px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .members-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .members-list {
+      padding: 12px 8px;
+    }
+    
+    .member-item {
+      padding: 8px 12px;
+      margin: 2px 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .member-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .member-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+    
+    .member-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .member-name {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .member-item:hover .member-name {
+      color: white;
+    }
+    
+    /* ========== EMOJI PICKER ========== */
+    .emoji-picker {
+      position: absolute;
+      bottom: 90px;
+      left: 20px;
+      background: rgba(20, 20, 25, 0.98);
+      backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 300px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+    
+    .emoji-picker.show {
+      display: flex;
+    }
+    
+    .emoji {
+      font-size: 24px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .emoji:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.2);
+    }
+    
+    /* ========== DM MODAL ========== */
+    .dm-modal {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
       background: rgba(0, 0, 0, 0.8);
-      display: flex;
+      backdrop-filter: blur(10px);
+      display: none;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
     }
     
-    .username-modal.hidden {
-      display: none;
+    .dm-modal.show {
+      display: flex;
     }
     
-    .modal-content {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      max-width: 400px;
+    .dm-modal-content {
+      background: rgba(20, 20, 25, 0.98);
+      backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 24px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
     
-    .modal-content h2 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 28px;
+    .dm-modal-header {
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
     }
     
-    .modal-content p {
-      color: #666;
-      margin-bottom: 30px;
-    }
-    
-    .username-input {
+    .dm-search {
       width: 100%;
-      padding: 14px 18px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
       outline: none;
-      transition: all 0.3s;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     
-    .username-input:focus {
-      border-color: #667eea;
+    .dm-search::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
     
-    .join-btn {
-      width: 100%;
+    .dm-users-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    
+    .dm-user-item {
+      padding: 12px;
+      margin: 4px 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .dm-user-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dm-modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
     
-    .join-btn:hover {
+    .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      box-shadow: 0 6px 20px rgba(103, 126, 234, 0.4);
     }
     
-    /* Empty State */
-    .empty-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #999;
-      gap: 10px;
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
     }
     
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      opacity: 0.3;
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
     
-    /* Responsive */
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1024px) {
+      .members-sidebar {
+        display: none;
+      }
+    }
+    
     @media (max-width: 768px) {
-      .chat-container {
-        width: 100%;
-        height: 100vh;
-        border-radius: 0;
+      .sidebar {
+        position: absolute;
+        left: -280px;
+        z-index: 100;
+        height: 100%;
+        transition: left 0.3s;
       }
       
-      .message {
-        max-width: 85%;
+      .sidebar.show {
+        left: 0;
       }
       
-      .chat-header h1 {
-        font-size: 20px;
+      .chat-messages {
+        padding: 12px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Username Modal -->
-  <div class="username-modal" id="usernameModal">
-    <div class="modal-content">
-      <h2>🚀 Welcome to Nova Chat!</h2>
-      <p>Choose a username to get started</p>
-      <input 
-        type="text" 
-        class="username-input" 
-        id="usernameInput" 
-        placeholder="Enter your username..."
-        maxlength="20"
-        autocomplete="off"
-      >
-      <button class="join-btn" onclick="joinChat()">Join Chat</button>
+  <div class="chat-app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-tabs">
+          <button class="tab-btn active" onclick="switchTab('server')">
+            <span>🏠 Server</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('dms')">
+            <span>💬 DMs</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="channels-list" id="channelsList">
+        <!-- Server Channels -->
+        <div class="channel-category">📢 INFO</div>
+        <div class="channel-item active" onclick="switchChannel('announcements')">
+          <span class="channel-icon">📣</span>
+          <span>announcements</span>
+        </div>
+        
+        <div class="channel-category">💬 CHAT</div>
+        <div class="channel-item" onclick="switchChannel('general')">
+          <span class="channel-icon">#</span>
+          <span>general</span>
+        </div>
+        
+        <div class="channel-category">🔗 LINKS</div>
+        <div class="channel-item" onclick="switchChannel('community-links')">
+          <span class="channel-icon">🌐</span>
+          <span>community-links</span>
+        </div>
+      </div>
+      
+      <div class="channels-list" id="dmsList" style="display: none;">
+        <!-- Direct Messages will be populated here -->
+        <button class="add-dm-btn" onclick="openDMModal()">
+          ➕ Start New DM
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div>
+          <div class="channel-name" id="channelName">
+            <span>📣</span>
+            <span>announcements</span>
+          </div>
+          <div class="channel-desc" id="channelDesc">Important updates and news from Nova</div>
+        </div>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be populated here -->
+      </div>
+      
+      <div class="chat-input-container">
+        <div class="emoji-picker" id="emojiPicker">
+          <span class="emoji" onclick="insertEmoji('😀')">😀</span>
+          <span class="emoji" onclick="insertEmoji('😂')">😂</span>
+          <span class="emoji" onclick="insertEmoji('😍')">😍</span>
+          <span class="emoji" onclick="insertEmoji('🥰')">🥰</span>
+          <span class="emoji" onclick="insertEmoji('😎')">😎</span>
+          <span class="emoji" onclick="insertEmoji('🤔')">🤔</span>
+          <span class="emoji" onclick="insertEmoji('😊')">😊</span>
+          <span class="emoji" onclick="insertEmoji('🎮')">🎮</span>
+          <span class="emoji" onclick="insertEmoji('🎉')">🎉</span>
+          <span class="emoji" onclick="insertEmoji('❤️')">❤️</span>
+          <span class="emoji" onclick="insertEmoji('👍')">👍</span>
+          <span class="emoji" onclick="insertEmoji('👎')">👎</span>
+          <span class="emoji" onclick="insertEmoji('🔥')">🔥</span>
+          <span class="emoji" onclick="insertEmoji('💯')">💯</span>
+          <span class="emoji" onclick="insertEmoji('✨')">✨</span>
+          <span class="emoji" onclick="insertEmoji('🚀')">🚀</span>
+        </div>
+        
+        <div class="chat-input-wrapper">
+          <button class="emoji-btn" onclick="toggleEmojiPicker()">😀</button>
+          <input 
+            type="text" 
+            class="chat-input" 
+            id="messageInput" 
+            placeholder="Message #announcements"
+            maxlength="2000"
+          >
+          <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Members Sidebar -->
+    <div class="members-sidebar">
+      <div class="members-header">
+        <span id="memberCount">ONLINE — 0</span>
+      </div>
+      <div class="members-list" id="membersList">
+        <!-- Members will be populated here -->
+      </div>
     </div>
   </div>
-
-  <!-- Chat Container -->
-  <div class="chat-container">
-    <!-- Header -->
-    <div class="chat-header">
-      <h1>
-        💬 Nova Chat
-      </h1>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div class="online-count" id="onlineCount">🟢 0 online</div>
-        <button class="home-btn" onclick="window.location.href='home.html'">Home</button>
-      </div>
-    </div>
-
-    <!-- Messages -->
-    <div class="messages-container" id="messagesContainer">
-      <div class="empty-state">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-        </svg>
-        <p>No messages yet. Be the first to say hi! 👋</p>
-      </div>
-    </div>
-
-    <!-- Input Area -->
-    <div class="input-area">
+  
+  <!-- DM Modal -->
+  <div class="dm-modal" id="dmModal">
+    <div class="dm-modal-content">
+      <div class="dm-modal-header">Start a Direct Message</div>
       <input 
         type="text" 
-        class="message-input" 
-        id="messageInput" 
-        placeholder="Type a message..."
-        maxlength="500"
-        autocomplete="off"
+        class="dm-search" 
+        id="dmSearch" 
+        placeholder="Search users..."
       >
-      <button class="send-btn" onclick="sendMessage()">Send</button>
+      <div class="dm-users-list" id="dmUsersList">
+        <!-- Online users will be listed here -->
+      </div>
+      <div class="dm-modal-buttons">
+        <button class="btn btn-secondary" onclick="closeDMModal()">Cancel</button>
+      </div>
     </div>
   </div>
 
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue, onDisconnect, set, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getDatabase, ref, push, onValue, onDisconnect, set, remove, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
     // Firebase configuration
     const firebaseConfig = {
@@ -420,83 +794,172 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Global variables
-    let currentUsername = localStorage.getItem('nova_chat_username') || '';
-    let userPresenceRef = null;
-    let messagesRef = ref(database, 'messages');
-    let presenceRef = ref(database, 'presence');
+    // Get user info from Nova localStorage
+    const username = localStorage.getItem('nova_user') || 'Guest';
+    const profilePic = localStorage.getItem('nova_profile_pic') || '';
+    const userId = username + '-' + Date.now().toString(36);
 
-    // Show username modal if no username
-    if (!currentUsername) {
-      document.getElementById('usernameModal').classList.remove('hidden');
-    } else {
-      initializeChat();
+    // Current state
+    let currentTab = 'server';
+    let currentChannel = 'announcements';
+    let currentDM = null;
+    let userPresenceRef = null;
+    let onlineUsers = {};
+
+    // Set background from Nova settings
+    const novaBackground = localStorage.getItem('nova_background_url');
+    if (novaBackground) {
+      document.body.style.backgroundImage = `url(${novaBackground})`;
     }
 
-    // Join chat function
-    window.joinChat = function() {
-      const input = document.getElementById('usernameInput');
-      const username = input.value.trim();
-      
-      if (username.length < 2) {
-        alert('Username must be at least 2 characters');
-        return;
-      }
-      
-      if (username.length > 20) {
-        alert('Username must be less than 20 characters');
-        return;
-      }
-      
-      // Check for inappropriate words (basic filter)
-      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'damn', 'hell'];
-      const lowerUsername = username.toLowerCase();
-      if (badWords.some(word => lowerUsername.includes(word))) {
-        alert('Please choose an appropriate username');
-        return;
-      }
-      
-      currentUsername = username;
-      localStorage.setItem('nova_chat_username', username);
-      document.getElementById('usernameModal').classList.add('hidden');
-      initializeChat();
-    };
+    // Initialize
+    initializeChat();
 
-    // Enter key for username
-    document.getElementById('usernameInput')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        joinChat();
-      }
-    });
-
-    // Initialize chat
     function initializeChat() {
       // Set up user presence
-      const userId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
       userPresenceRef = ref(database, `presence/${userId}`);
-      
       set(userPresenceRef, {
-        username: currentUsername,
+        username: username,
+        profilePic: profilePic,
         timestamp: Date.now()
       });
-      
       onDisconnect(userPresenceRef).remove();
-      
+
       // Listen for online users
-      onValue(presenceRef, (snapshot) => {
-        const users = snapshot.val();
-        const count = users ? Object.keys(users).length : 0;
-        document.getElementById('onlineCount').textContent = `🟢 ${count} online`;
+      onValue(ref(database, 'presence'), (snapshot) => {
+        onlineUsers = snapshot.val() || {};
+        updateMembersList();
+        updateDMUsersList();
       });
+
+      // Load initial channel
+      loadChannel('announcements');
       
-      // Listen for messages
-      onValue(messagesRef, (snapshot) => {
+      // Add Nova Bot announcement
+      setTimeout(() => {
+        addSystemMessage('announcements', 'Welcome to Nova Chat! 🎉');
+      }, 500);
+    }
+
+    // Switch tabs
+    window.switchTab = function(tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.closest('.tab-btn').classList.add('active');
+      
+      if (tab === 'server') {
+        document.getElementById('channelsList').style.display = 'block';
+        document.getElementById('dmsList').style.display = 'none';
+        switchChannel('announcements');
+      } else {
+        document.getElementById('channelsList').style.display = 'none';
+        document.getElementById('dmsList').style.display = 'block';
+        loadDMs();
+      }
+    };
+
+    // Switch channel
+    window.switchChannel = function(channel) {
+      currentChannel = channel;
+      currentDM = null;
+      
+      document.querySelectorAll('.channel-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.closest('.channel-item').classList.add('active');
+      
+      const channelNames = {
+        'announcements': { name: '📣 announcements', desc: 'Important updates and news from Nova' },
+        'general': { name: '# general', desc: 'General chat and discussion' },
+        'community-links': { name: '🌐 community-links', desc: 'Share your favorite links and websites' }
+      };
+      
+      const info = channelNames[channel] || { name: channel, desc: '' };
+      document.getElementById('channelName').innerHTML = `<span>${info.name.split(' ')[0]}</span><span>${info.name.split(' ')[1]}</span>`;
+      document.getElementById('channelDesc').textContent = info.desc;
+      document.getElementById('messageInput').placeholder = `Message ${info.name}`;
+      
+      loadChannel(channel);
+    };
+
+    // Load channel messages
+    function loadChannel(channel) {
+      const messagesRef = ref(database, `channels/${channel}/messages`);
+      const messagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(50));
+      
+      onValue(messagesQuery, (snapshot) => {
         const messages = snapshot.val();
-        displayMessages(messages);
+        displayMessages(messages, channel);
       });
+    }
+
+    // Display messages
+    function displayMessages(messages, channel) {
+      const container = document.getElementById('chatMessages');
       
-      // Enable message input
-      document.getElementById('messageInput').disabled = false;
+      if (!messages) {
+        // Show channel-specific welcome message
+        if (channel === 'announcements') {
+          container.innerHTML = `
+            <div class="message-group">
+              <div class="message-avatar">
+                <span>🤖</span>
+              </div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author bot">Nova Bot</span>
+                  <span class="message-time">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                </div>
+                <div class="message-text">Welcome to Nova Chat! 🎉<br>We're still working on this server. Stay tuned for updates!</div>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `<div class="system-message">No messages yet. Be the first to say something! 👋</div>`;
+        }
+        return;
+      }
+      
+      const messagesArray = Object.entries(messages)
+        .map(([id, msg]) => ({ id, ...msg }))
+        .sort((a, b) => a.timestamp - b.timestamp);
+      
+      container.innerHTML = messagesArray.map(msg => {
+        const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        
+        const isBot = msg.username === 'Nova Bot';
+        const avatarContent = msg.profilePic 
+          ? `<img src="${escapeHtml(msg.profilePic)}" alt="${escapeHtml(msg.username)}">` 
+          : `<span>${getInitial(msg.username)}</span>`;
+        
+        // Convert URLs to clickable links
+        let messageText = escapeHtml(msg.text);
+        messageText = messageText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+        
+        return `
+          <div class="message-group">
+            <div class="message-avatar">
+              ${avatarContent}
+            </div>
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-author ${isBot ? 'bot' : ''}">${escapeHtml(msg.username)}</span>
+                <span class="message-time">${time}</span>
+              </div>
+              <div class="message-text">${messageText}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.scrollTop = container.scrollHeight;
     }
 
     // Send message
@@ -505,107 +968,170 @@
       const text = input.value.trim();
       
       if (!text) return;
-      if (text.length > 500) {
-        alert('Message too long (max 500 characters)');
+      if (text.length > 2000) {
+        alert('Message too long (max 2000 characters)');
         return;
       }
       
-      // Basic profanity filter
-      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'damn', 'hell', 'crap'];
-      let filteredText = text;
-      badWords.forEach(word => {
-        const regex = new RegExp(word, 'gi');
-        filteredText = filteredText.replace(regex, '*'.repeat(word.length));
-      });
-      
       const message = {
-        username: currentUsername,
-        text: filteredText,
+        username: username,
+        profilePic: profilePic,
+        text: text,
         timestamp: Date.now()
       };
       
-      push(messagesRef, message);
+      const channel = currentDM || currentChannel;
+      const path = currentDM ? `dms/${currentDM}/messages` : `channels/${currentChannel}/messages`;
+      
+      push(ref(database, path), message);
       input.value = '';
     };
 
     // Enter key to send
-    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         sendMessage();
       }
     });
 
-    // Display messages
-    function displayMessages(messages) {
-      const container = document.getElementById('messagesContainer');
-      
-      if (!messages) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-            <p>No messages yet. Be the first to say hi! 👋</p>
-          </div>
-        `;
-        return;
+    // Emoji picker
+    window.toggleEmojiPicker = function() {
+      document.getElementById('emojiPicker').classList.toggle('show');
+    };
+
+    window.insertEmoji = function(emoji) {
+      const input = document.getElementById('messageInput');
+      input.value += emoji;
+      input.focus();
+      document.getElementById('emojiPicker').classList.remove('show');
+    };
+
+    // Close emoji picker when clicking outside
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('emojiPicker');
+      const emojiBtn = document.querySelector('.emoji-btn');
+      if (!picker.contains(e.target) && !emojiBtn.contains(e.target)) {
+        picker.classList.remove('show');
       }
+    });
+
+    // Update members list
+    function updateMembersList() {
+      const container = document.getElementById('membersList');
+      const count = Object.keys(onlineUsers).length;
       
-      const messagesArray = Object.entries(messages)
-        .map(([id, msg]) => ({ id, ...msg }))
-        .sort((a, b) => a.timestamp - b.timestamp)
-        .slice(-100); // Keep last 100 messages
+      document.getElementById('memberCount').textContent = `ONLINE — ${count}`;
       
-      container.innerHTML = messagesArray.map(msg => {
-        const isOwn = msg.username === currentUsername;
-        const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
-        });
+      const members = Object.values(onlineUsers)
+        .sort((a, b) => a.username.localeCompare(b.username));
+      
+      container.innerHTML = members.map(user => {
+        const avatarContent = user.profilePic 
+          ? `<img src="${escapeHtml(user.profilePic)}" alt="${escapeHtml(user.username)}">` 
+          : `<span>${getInitial(user.username)}</span>`;
         
         return `
-          <div class="message ${isOwn ? 'own' : ''}">
-            <div class="message-header">
-              <span class="username">${escapeHtml(msg.username)}</span>
-              <span class="timestamp">${time}</span>
+          <div class="member-item" onclick="startDM('${escapeHtml(user.username)}')">
+            <div class="member-avatar">
+              ${avatarContent}
+              <div class="online-indicator"></div>
             </div>
-            <div class="message-bubble">
-              ${escapeHtml(msg.text)}
-            </div>
+            <div class="member-name">${escapeHtml(user.username)}</div>
           </div>
         `;
       }).join('');
-      
-      // Auto scroll to bottom
-      container.scrollTop = container.scrollHeight;
     }
 
-    // Escape HTML to prevent XSS
+    // DM Modal
+    window.openDMModal = function() {
+      document.getElementById('dmModal').classList.add('show');
+      updateDMUsersList();
+    };
+
+    window.closeDMModal = function() {
+      document.getElementById('dmModal').classList.remove('show');
+    };
+
+    function updateDMUsersList() {
+      const container = document.getElementById('dmUsersList');
+      const users = Object.values(onlineUsers)
+        .filter(user => user.username !== username)
+        .sort((a, b) => a.username.localeCompare(b.username));
+      
+      if (users.length === 0) {
+        container.innerHTML = '<div class="system-message">No other users online right now 😔</div>';
+        return;
+      }
+      
+      container.innerHTML = users.map(user => {
+        const avatarContent = user.profilePic 
+          ? `<img src="${escapeHtml(user.profilePic)}" alt="${escapeHtml(user.username)}">` 
+          : `<span>${getInitial(user.username)}</span>`;
+        
+        return `
+          <div class="dm-user-item" onclick="startDM('${escapeHtml(user.username)}')">
+            <div class="dm-avatar">
+              ${avatarContent}
+              <div class="online-indicator"></div>
+            </div>
+            <div style="color: white;">${escapeHtml(user.username)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.startDM = function(targetUsername) {
+      closeDMModal();
+      
+      // Create DM ID (sorted usernames for consistency)
+      const users = [username, targetUsername].sort();
+      const dmId = `${users[0]}_${users[1]}`;
+      
+      currentDM = dmId;
+      currentChannel = null;
+      
+      document.getElementById('channelName').innerHTML = `<span>💬</span><span>${escapeHtml(targetUsername)}</span>`;
+      document.getElementById('channelDesc').textContent = `Direct message with ${targetUsername}`;
+      document.getElementById('messageInput').placeholder = `Message @${targetUsername}`;
+      
+      // Load DM
+      const dmRef = ref(database, `dms/${dmId}/messages`);
+      onValue(dmRef, (snapshot) => {
+        const messages = snapshot.val();
+        displayMessages(messages, dmId);
+      });
+      
+      // Switch to DMs tab
+      switchTab('dms');
+      loadDMs();
+    };
+
+    function loadDMs() {
+      // This would load user's DM list from Firebase
+      // For now, just show the add DM button
+    }
+
+    function addSystemMessage(channel, text) {
+      const message = {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: text,
+        timestamp: Date.now()
+      };
+      
+      push(ref(database, `channels/${channel}/messages`), message);
+    }
+
+    // Helper functions
+    function getInitial(name) {
+      return name.charAt(0).toUpperCase();
+    }
+
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
-
-    // Clean up old messages (keep last 100)
-    setInterval(() => {
-      onValue(messagesRef, (snapshot) => {
-        const messages = snapshot.val();
-        if (!messages) return;
-        
-        const messagesArray = Object.entries(messages);
-        if (messagesArray.length > 100) {
-          const toDelete = messagesArray
-            .sort((a, b) => a[1].timestamp - b[1].timestamp)
-            .slice(0, messagesArray.length - 100);
-          
-          toDelete.forEach(([id]) => {
-            remove(ref(database, `messages/${id}`));
-          });
-        }
-      }, { onlyOnce: true });
-    }, 60000); // Check every minute
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
