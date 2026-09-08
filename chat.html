@@ -51,6 +51,7 @@
     .user-profile-role.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .user-profile-role.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
     .settings-btn svg { width: 20px; height: 20px; }
@@ -72,12 +73,13 @@
     .message-author.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .message-author.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .role-badge { padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
     .role-badge.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
     .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .role-badge.member { background: #4e5058; color: white; }
+    .role-badge.member { background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
     
     * { font-family: 'gg sans', 'Noto Sans', 'Segoe UI', sans-serif; }
@@ -139,6 +141,7 @@
     .member-name.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .member-name.online { background: linear-gradient(90deg, #dcddde, #ffffff, #f0f0f0, #dcddde); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .add-friend-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #5865f2; border-radius: 50%; cursor: pointer; opacity: 0; transition: all 0.15s; }
     .add-friend-icon:hover { background: #4752c4; }
     .add-friend-icon svg { width: 16px; height: 16px; color: white; }
@@ -180,7 +183,7 @@
     .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-role-badge-large.member { background: #4e5058; color: white; }
+    .profile-role-badge-large.member { background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-bio { margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; color: #dcddde; font-size: 14px; line-height: 1.5; }
     .profile-streak { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 12px; background: linear-gradient(90deg, #ff6b35, #f7931e); border-radius: 8px; }
     .profile-streak-icon { font-size: 24px; animation: flameFlicker 1s ease-in-out infinite; }
