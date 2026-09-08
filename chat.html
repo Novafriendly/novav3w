@@ -846,6 +846,194 @@
       <div id="reactionPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;"></div>
     </div>
   </div>
+  
+  <!-- Owner Admin Panel Modal -->
+  <div class="modal" id="adminPanelModal">
+    <div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+      <div class="modal-header">⚙️ Owner Admin Panel</div>
+      
+      <!-- Tabs -->
+      <div style="display: flex; gap: 8px; margin: 16px 0; border-bottom: 2px solid rgba(0,0,0,0.3);">
+        <button class="admin-tab active" onclick="switchAdminTab('users')">Users</button>
+        <button class="admin-tab" onclick="switchAdminTab('announce')">Announcements</button>
+        <button class="admin-tab" onclick="switchAdminTab('roles')">Roles</button>
+        <button class="admin-tab" onclick="switchAdminTab('bans')">Bans</button>
+      </div>
+      
+      <!-- Users Tab -->
+      <div class="admin-tab-content" id="adminTabUsers">
+        <div style="margin-bottom: 16px;">
+          <input type="text" id="userSearchInput" class="modal-input" placeholder="Search users..." style="margin: 0;">
+        </div>
+        <div id="adminUsersList" style="max-height: 400px; overflow-y: auto;"></div>
+      </div>
+      
+      <!-- Announcements Tab -->
+      <div class="admin-tab-content" id="adminTabAnnounce" style="display: none;">
+        <p style="color: #b9bbbe; margin-bottom: 12px;">Post a message to #announcements:</p>
+        <textarea 
+          id="adminAnnounceText" 
+          class="modal-input" 
+          placeholder="Type your announcement..." 
+          style="min-height: 120px; resize: vertical; font-family: inherit;"
+        ></textarea>
+        <button class="btn btn-primary" onclick="postAnnouncement()" style="width: 100%; margin-top: 12px;">
+          📢 Post Announcement
+        </button>
+      </div>
+      
+      <!-- Roles Tab -->
+      <div class="admin-tab-content" id="adminTabRoles" style="display: none;">
+        <p style="color: #b9bbbe; margin-bottom: 16px;">Assign roles to users:</p>
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+          <input type="text" id="roleUsername" class="modal-input" placeholder="Username" style="flex: 1; margin: 0;">
+          <select id="roleSelect" class="modal-input" style="flex: 1; margin: 0;">
+            <option value="Nova">Nova (Default)</option>
+            <option value="Admin">Admin</option>
+            <option value="Owner">Owner</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="assignRole()" style="width: 100%;">
+          Assign Role
+        </button>
+        <div id="rolesUsersList" style="margin-top: 24px; max-height: 300px; overflow-y: auto;"></div>
+      </div>
+      
+      <!-- Bans Tab -->
+      <div class="admin-tab-content" id="adminTabBans" style="display: none;">
+        <p style="color: #b9bbbe; margin-bottom: 16px;">Manage banned users:</p>
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+          <input type="text" id="banUsername" class="modal-input" placeholder="Username to ban" style="flex: 1; margin: 0;">
+          <button class="btn btn-danger" onclick="banUser()" style="flex-shrink: 0;">
+            🔨 Ban User
+          </button>
+        </div>
+        <div id="bannedUsersList" style="margin-top: 24px;"></div>
+      </div>
+      
+      <div class="modal-buttons" style="margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="closeAdminPanel()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    .admin-tab {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #b9bbbe;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .admin-tab:hover {
+      color: white;
+    }
+    
+    .admin-tab.active {
+      color: white;
+      border-bottom-color: #5865f2;
+    }
+    
+    .user-admin-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .user-admin-item:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .user-admin-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .user-admin-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-admin-info {
+      flex: 1;
+    }
+    
+    .user-admin-name {
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .user-admin-role {
+      color: #8e9297;
+      font-size: 13px;
+    }
+    
+    .user-admin-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .admin-action-btn {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .admin-action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .admin-action-btn.danger {
+      background: rgba(237, 66, 69, 0.2);
+      border-color: rgba(237, 66, 69, 0.4);
+      color: #ed4245;
+    }
+    
+    .admin-action-btn.danger:hover {
+      background: rgba(237, 66, 69, 0.3);
+    }
+    
+    .banned-user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(237, 66, 69, 0.1);
+      border: 1px solid rgba(237, 66, 69, 0.3);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .banned-user-name {
+      color: white;
+      font-weight: 600;
+    }
+  </style>
+
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -1118,7 +1306,7 @@
 
     window.openOwnerAccess = function() {
       if (isOwner) {
-        alert('Owner panel coming soon!');
+        openAdminPanel();
       } else {
         document.getElementById('ownerModal').classList.add('show');
       }
@@ -1199,6 +1387,287 @@
     function checkDMNotifications() {
       // TODO: Implement DM notification checking
     }
+
+    // ========== ADMIN PANEL FUNCTIONS ==========
+    
+    window.openAdminPanel = function() {
+      document.getElementById('adminPanelModal').classList.add('show');
+      loadAdminUsers();
+      loadBannedUsers();
+    };
+    
+    window.closeAdminPanel = function() {
+      document.getElementById('adminPanelModal').classList.remove('show');
+    };
+    
+    window.switchAdminTab = function(tab) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('adminTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+      
+      if (tab === 'users') loadAdminUsers();
+      if (tab === 'roles') loadRolesUsers();
+      if (tab === 'bans') loadBannedUsers();
+    };
+    
+    function loadAdminUsers() {
+      const container = document.getElementById('adminUsersList');
+      const searchInput = document.getElementById('userSearchInput');
+      
+      const users = Object.values(onlineUsers);
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+      const filteredUsers = users.filter(u => u.username.toLowerCase().includes(searchTerm));
+      
+      container.innerHTML = filteredUsers.map(user => {
+        const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
+        const role = user.role || 'Nova';
+        
+        return `
+          <div class="user-admin-item">
+            <div class="user-admin-avatar">${avatarContent}</div>
+            <div class="user-admin-info">
+              <div class="user-admin-name">${esc(user.username)}</div>
+              <div class="user-admin-role">Role: ${role}</div>
+            </div>
+            <div class="user-admin-actions">
+              <button class="admin-action-btn" onclick="quickAssignRole('${esc(user.username)}', 'Admin')">
+                Make Admin
+              </button>
+              <button class="admin-action-btn danger" onclick="quickBanUser('${esc(user.username)}')">
+                Ban
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    window.postAnnouncement = function() {
+      const text = document.getElementById('adminAnnounceText').value.trim();
+      if (!text) {
+        alert('Please enter announcement text');
+        return;
+      }
+      
+      const message = {
+        username: username,
+        profilePic: profilePic,
+        text: text,
+        timestamp: Date.now(),
+        isBot: false,
+        role: 'Owner'
+      };
+      
+      push(ref(database, 'channels/announcements/messages'), message);
+      document.getElementById('adminAnnounceText').value = '';
+      alert('✅ Announcement posted!');
+    };
+    
+    window.assignRole = function() {
+      const targetUsername = document.getElementById('roleUsername').value.trim();
+      const newRole = document.getElementById('roleSelect').value;
+      
+      if (!targetUsername) {
+        alert('Please enter a username');
+        return;
+      }
+      
+      // Find user in online users
+      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
+        user.username.toLowerCase() === targetUsername.toLowerCase()
+      );
+      
+      if (!targetUser) {
+        alert('User not found or not online');
+        return;
+      }
+      
+      const [targetUserId, userData] = targetUser;
+      
+      // Update their role in presence
+      update(ref(database, `presence/${targetUserId}`), { role: newRole });
+      
+      // Store role assignment in database
+      set(ref(database, `roles/${targetUsername}`), newRole);
+      
+      alert(`✅ ${targetUsername} is now ${newRole}!`);
+      document.getElementById('roleUsername').value = '';
+      loadRolesUsers();
+    };
+    
+    function loadRolesUsers() {
+      const container = document.getElementById('rolesUsersList');
+      
+      onValue(ref(database, 'roles'), (snapshot) => {
+        const roles = snapshot.val() || {};
+        
+        if (Object.keys(roles).length === 0) {
+          container.innerHTML = '<p style="color: #8e9297; text-align: center; padding: 20px;">No custom roles assigned yet</p>';
+          return;
+        }
+        
+        container.innerHTML = Object.entries(roles).map(([username, role]) => `
+          <div class="user-admin-item">
+            <div class="user-admin-info">
+              <div class="user-admin-name">${esc(username)}</div>
+              <div class="user-admin-role">Role: ${role}</div>
+            </div>
+            <div class="user-admin-actions">
+              <button class="admin-action-btn danger" onclick="removeRole('${esc(username)}')">
+                Remove Role
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }, { onlyOnce: true });
+    }
+    
+    window.removeRole = function(username) {
+      if (!confirm(`Remove custom role from ${username}?`)) return;
+      
+      remove(ref(database, `roles/${username}`));
+      
+      // Find and update their presence
+      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
+        user.username === username
+      );
+      
+      if (targetUser) {
+        const [targetUserId] = targetUser;
+        update(ref(database, `presence/${targetUserId}`), { role: 'Nova' });
+      }
+      
+      alert('✅ Role removed!');
+      loadRolesUsers();
+    };
+    
+    window.quickAssignRole = function(username, role) {
+      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
+        user.username === username
+      );
+      
+      if (!targetUser) {
+        alert('User not found');
+        return;
+      }
+      
+      const [targetUserId] = targetUser;
+      update(ref(database, `presence/${targetUserId}`), { role: role });
+      set(ref(database, `roles/${username}`), role);
+      
+      alert(`✅ ${username} is now ${role}!`);
+      loadAdminUsers();
+    };
+    
+    window.banUser = function() {
+      const username = document.getElementById('banUsername').value.trim();
+      if (!username) {
+        alert('Please enter a username');
+        return;
+      }
+      
+      set(ref(database, `bans/${username}`), {
+        bannedBy: username,
+        timestamp: Date.now(),
+        reason: 'Banned by admin'
+      });
+      
+      // Remove from online presence
+      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
+        user.username === username
+      );
+      
+      if (targetUser) {
+        const [targetUserId] = targetUser;
+        remove(ref(database, `presence/${targetUserId}`));
+      }
+      
+      alert(`🔨 ${username} has been banned!`);
+      document.getElementById('banUsername').value = '';
+      loadBannedUsers();
+    };
+    
+    window.quickBanUser = function(username) {
+      if (!confirm(`Ban ${username}?`)) return;
+      
+      set(ref(database, `bans/${username}`), {
+        bannedBy: username,
+        timestamp: Date.now(),
+        reason: 'Banned by admin'
+      });
+      
+      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
+        user.username === username
+      );
+      
+      if (targetUser) {
+        const [targetUserId] = targetUser;
+        remove(ref(database, `presence/${targetUserId}`));
+      }
+      
+      alert(`🔨 ${username} has been banned!`);
+      loadAdminUsers();
+      loadBannedUsers();
+    };
+    
+    window.unbanUser = function(username) {
+      if (!confirm(`Unban ${username}?`)) return;
+      
+      remove(ref(database, `bans/${username}`));
+      alert(`✅ ${username} has been unbanned!`);
+      loadBannedUsers();
+    };
+    
+    function loadBannedUsers() {
+      const container = document.getElementById('bannedUsersList');
+      
+      onValue(ref(database, 'bans'), (snapshot) => {
+        const bans = snapshot.val() || {};
+        
+        if (Object.keys(bans).length === 0) {
+          container.innerHTML = '<p style="color: #8e9297; text-align: center; padding: 20px;">No banned users</p>';
+          return;
+        }
+        
+        container.innerHTML = Object.entries(bans).map(([username, banData]) => `
+          <div class="banned-user-item">
+            <div>
+              <div class="banned-user-name">${esc(username)}</div>
+              <div style="color: #ed4245; font-size: 12px;">
+                Banned ${new Date(banData.timestamp).toLocaleDateString()}
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="unbanUser('${esc(username)}')">
+              Unban
+            </button>
+          </div>
+        `).join('');
+      }, { onlyOnce: true });
+    }
+    
+    // User search in admin panel
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('userSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          loadAdminUsers();
+        });
+      }
+    });
+    
+    // Check if user is banned on load
+    function checkIfBanned() {
+      get(ref(database, `bans/${username}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          alert('⛔ You have been banned from Nova Chat.');
+          window.location.href = 'home.html';
+        }
+      });
+    }
+    
+    checkIfBanned();
 
     function getInitial(name) {
       return name.charAt(0).toUpperCase();
