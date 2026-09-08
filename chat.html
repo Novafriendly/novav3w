@@ -72,6 +72,9 @@
     .role-badge.vip { background: linear-gradient(90deg, #10b981, #34d399, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.member { background: #4e5058; color: white; }
     @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    
+    * { font-family: 'gg sans', 'Noto Sans', 'Segoe UI', sans-serif; }
+    .message-author, .member-name, .settings-section-title, .admin-section-title, .modal-header, .channel-name, .profile-username { font-weight: 800 !important; letter-spacing: 0.3px; }
     .message-time { color: #a3a6aa; font-size: 12px; font-weight: 500; }
     .message-text { color: #dcddde; line-height: 1.375; word-wrap: break-word; font-size: 15px; }
     .mention { background: rgba(88,101,242,0.3); color: #dee0fc; padding: 0 2px; border-radius: 3px; font-weight: 500; cursor: pointer; }
@@ -140,9 +143,11 @@
     .btn-accept { background: #23a559; color: white; }
     .btn-accept:hover { background: #1e8e4e; }
     
-    .profile-modal { background: linear-gradient(to bottom, #2b5278 0%, #000 120px); border-radius: 8px; padding: 0; max-width: 500px; }
+    .profile-modal { background: linear-gradient(to bottom, #2b5278 0%, #000 120px); border-radius: 8px; padding: 0; max-width: 500px; position: relative; }
     .profile-banner { height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0; position: relative; }
-    .profile-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .profile-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .profile-home-btn { position: absolute; top: 16px; left: 16px; padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 10; transition: all 0.15s; text-decoration: none; }
+    .profile-home-btn:hover { background: rgba(88,101,242,0.8); transform: translateY(-2px); }
     .profile-info { padding: 16px 24px 24px; }
     .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; background: #5865f2; margin-top: -40px; border: 6px solid #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; }
     .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
@@ -301,12 +306,17 @@
   <div class="modal" id="userProfileModal">
     <div class="modal-content profile-modal">
       <div class="profile-banner">
+        <a href="home.html" class="profile-home-btn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Home
+        </a>
         <button class="profile-close" onclick="closeModal('userProfileModal')">×</button>
       </div>
       <div class="profile-info">
         <div class="profile-avatar-large" id="profileModalAvatar"></div>
         <div class="profile-username" id="profileModalUsername"></div>
         <span class="profile-role-badge-large owner" id="profileModalRole">MEMBER</span>
+        <div id="profileBioContainer"></div>
         <div class="profile-stats">
           <div class="profile-stat">
             <div class="profile-stat-value" id="profileFriends">0</div>
@@ -317,6 +327,7 @@
             <div class="profile-stat-label">Joined</div>
           </div>
         </div>
+        <div id="profileStreakContainer"></div>
         <div class="profile-actions">
           <button class="btn btn-primary" onclick="addFriend(currentProfileUser)">Add Friend</button>
           <button class="btn btn-secondary" onclick="closeModal('userProfileModal')">Close</button>
@@ -588,7 +599,10 @@
           let html = query ? '' : '<div class="dm-section-title">All Users</div>';
           html += allUsers.map(u => {
             const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
-            return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')"><div class="member-avatar">${av}</div><div><div style="color:white;font-weight:600">${u.username}</div><div style="color:#80848e;font-size:12px">${u.role || 'Member'}</div></div></div>`;
+            return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')">
+              <div class="member-avatar">${av}</div>
+              <div><div style="color:white;font-weight:700">${u.username}</div><div style="color:#80848e;font-size:12px">${u.role || 'Member'}</div></div>
+            </div>`;
           }).join('');
           results.innerHTML = html;
         }
@@ -898,11 +912,14 @@
           document.getElementById('profileFriends').textContent = Object.keys(friends).length;
         });
         
-        // Show bio
-        const bioHtml = u.bio ? `<div class="profile-bio">${u.bio}</div>` : '';
-        document.getElementById('profileModalUsername').insertAdjacentHTML('afterend', bioHtml);
+        // Show bio - don't stack
+        const bioContainer = document.getElementById('profileBioContainer');
+        bioContainer.innerHTML = u.bio ? `<div class="profile-bio">${u.bio}</div>` : '';
         
-        // Show streak if in DM
+        // Show streak if in DM - don't stack
+        const streakContainer = document.getElementById('profileStreakContainer');
+        streakContainer.innerHTML = '';
+        
         if (user !== username) {
           get(ref(db, `friends/${username}/${user}`)).then(fSnap => {
             if (fSnap.exists()) {
@@ -910,8 +927,7 @@
               get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
                 const streak = streakSnap.val();
                 if (streak && streak.count > 0) {
-                  const streakHtml = `<div class="profile-streak"><div class="profile-streak-icon">🔥</div><div style="flex:1"><div class="profile-streak-text">Chat Streak</div><div class="profile-streak-count">${streak.count} ${streak.count === 1 ? 'day' : 'days'}</div></div></div>`;
-                  document.querySelector('.profile-stats').insertAdjacentHTML('afterend', streakHtml);
+                  streakContainer.innerHTML = `<div class="profile-streak"><div class="profile-streak-icon">🔥</div><div style="flex:1"><div class="profile-streak-text">Chat Streak</div><div class="profile-streak-count">${streak.count} ${streak.count === 1 ? 'day' : 'days'}</div></div></div>`;
                 }
               });
             }
