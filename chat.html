@@ -82,8 +82,11 @@
     .user-search-suggestions.show { display: block; }
     .user-suggestion { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
     .user-suggestion:hover { background: rgba(88,101,242,0.2); }
-    .user-suggestion-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; }
+    .user-suggestion-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; position: relative; }
     .user-suggestion-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-suggestion-status { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid #1a1d29; border-radius: 50%; }
+    .user-suggestion-status.online { background: #23a559; }
+    .user-suggestion-status.offline { background: #ed4245; }
     .user-suggestion-info { flex: 1; }
     .user-suggestion-name { color: white; font-weight: 600; }
     .user-suggestion-role { color: #b5bac1; font-size: 12px; }
@@ -1311,28 +1314,44 @@
       
       get(ref(db, 'users')).then(snap => {
         const users = snap.val() || {};
-        const matches = Object.values(users)
-          .filter(u => u.username.toLowerCase().includes(query.toLowerCase()) && u.username !== username)
-          .slice(0, 5);
         
-        const container = document.getElementById(`${type}UserSuggestions`);
-        if (matches.length > 0) {
-          container.innerHTML = matches.map(u => {
-            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
-            return `
-              <div class="user-suggestion" onclick="selectUser('${u.username}', '${type}')">
-                <div class="user-suggestion-avatar">${av}</div>
-                <div class="user-suggestion-info">
-                  <div class="user-suggestion-name">${u.username}</div>
-                  <div class="user-suggestion-role">${u.role || 'Member'}</div>
+        // Get online status
+        get(ref(db, 'presence')).then(pSnap => {
+          const presence = pSnap.val() || {};
+          const onlineUsers = new Set();
+          Object.values(presence).forEach(p => {
+            if (p.online && p.username) onlineUsers.add(p.username);
+          });
+          
+          const matches = Object.values(users)
+            .filter(u => u.username.toLowerCase().includes(query.toLowerCase()) && u.username !== username)
+            .slice(0, 5);
+          
+          const container = document.getElementById(`${type}UserSuggestions`);
+          if (matches.length > 0) {
+            container.innerHTML = matches.map(u => {
+              const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+              const isOnline = onlineUsers.has(u.username);
+              const statusClass = isOnline ? 'online' : 'offline';
+              
+              return `
+                <div class="user-suggestion" onclick="selectUser('${u.username}', '${type}')">
+                  <div class="user-suggestion-avatar">
+                    ${av}
+                    <div class="user-suggestion-status ${statusClass}"></div>
+                  </div>
+                  <div class="user-suggestion-info">
+                    <div class="user-suggestion-name">${u.username}</div>
+                    <div class="user-suggestion-role">${u.role || 'Member'} • ${isOnline ? 'Online' : 'Offline'}</div>
+                  </div>
                 </div>
-              </div>
-            `;
-          }).join('');
-          container.classList.add('show');
-        } else {
-          container.classList.remove('show');
-        }
+              `;
+            }).join('');
+            container.classList.add('show');
+          } else {
+            container.classList.remove('show');
+          }
+        });
       });
     };
     
