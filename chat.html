@@ -306,7 +306,7 @@
       text-transform: uppercase;
     }
     
-    .role-owner { background: #ed4245; }
+    .role-owner { background: #000000; border: 1px solid #ffd700; }
     .role-admin { background: #f47fff; }
     .role-nova { background: #5865f2; }
     
@@ -1401,28 +1401,10 @@
         return;
       }
       
-      // Obfuscated passcode check - multiple layers to hide the real code
-      const _0x4a2b = ['charCodeAt', 'toString', 'split', 'reverse', 'join'];
-      const _0x3c1f = (a, b) => String.fromCharCode(a.charCodeAt(0) ^ b);
-      const _0x2e9d = [48, 48, 57, 48]; // XOR encoded
-      const _0x1b7c = _0x2e9d.map((c, i) => String.fromCharCode(c)).join('');
-      const _0x5f3a = btoa(_0x1b7c).split('').reverse().join('');
-      const _0x8d2c = atob(_0x5f3a.split('').reverse().join(''));
+      // Simple check - code is 0090
+      const correctCode = '0090';
       
-      // Additional hash check
-      const _0xHash = (str) => {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          hash = ((hash << 5) - hash) + str.charCodeAt(i);
-          hash = hash & hash;
-        }
-        return Math.abs(hash).toString(16);
-      };
-      
-      const correctHash = '2e7f3cf5'; // Hash of 0090
-      const inputHash = _0xHash(passcode);
-      
-      if (passcode === _0x8d2c && inputHash === correctHash) {
+      if (passcode === correctCode) {
         isOwner = true;
         userRole = 'Owner';
         localStorage.setItem('nova_chat_owner', 'true');
@@ -1557,18 +1539,18 @@
       
       // Owners Section
       if (ownerCount > 0) {
-        html += `<div class="members-title" style="margin-top: 0;"><span>OWNERS</span><span>${ownerCount}</span></div>`;
+        html += `<div class="members-title" style="margin-top: 0; background: linear-gradient(90deg, #000000 0%, #1a1a1a 100%); padding: 8px; border-radius: 4px; border: 1px solid #ffd700;"><span style="color: #ffd700;">👑 OWNER</span><span style="color: #ffd700;">${ownerCount}</span></div>`;
         html += owners.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
           const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
           const isCurrentUser = user.username === username;
           
           return `
             <div class="member">
-              <div class="member-avatar" style="border: 2px solid #ed4245;">
+              <div class="member-avatar" style="border: 2px solid #ffd700; background: #000000;">
                 ${avatarContent}
-                <div class="status-indicator"></div>
+                <div class="status-indicator" style="background: #ffd700;"></div>
               </div>
-              <div class="member-name" style="color: #ed4245; font-weight: 700;">${esc(user.username)}</div>
+              <div class="member-name" style="color: #ffd700; font-weight: 700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">${esc(user.username)}</div>
               ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
             </div>
           `;
@@ -1834,6 +1816,15 @@
         reason: 'Banned by admin'
       });
       
+      // Post ban announcement to general chat
+      push(ref(database, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `🔨 ${targetUsername} has been banned from the server.`,
+        timestamp: Date.now(),
+        isBot: true
+      });
+      
       // Remove from online presence
       const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
         user.username === targetUsername
@@ -1874,6 +1865,15 @@
         reason: 'Banned by admin'
       });
       
+      // Post ban announcement to general chat
+      push(ref(database, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `🔨 ${targetUsername} has been banned from the server.`,
+        timestamp: Date.now(),
+        isBot: true
+      });
+      
       const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
         user.username === targetUsername
       );
@@ -1900,6 +1900,15 @@
         by: username,
         timestamp: Date.now(),
         reason: 'Unbanned by admin'
+      });
+      
+      // Post unban announcement to general chat
+      push(ref(database, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `✅ ${bannedUsername} has been unbanned.`,
+        timestamp: Date.now(),
+        isBot: true
       });
       
       alert(`✅ ${bannedUsername} has been unbanned!`);
