@@ -14,28 +14,58 @@
   </script>
   
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #36393f;
       color: #dcddde;
+      height: 100vh;
       overflow: hidden;
-      pointer-events: auto;
     }
     
-    .chat-container {
-      width: 100%;
-      height: 100%;
+    .chat-app {
       display: flex;
+      height: 100vh;
       padding-bottom: 70px;
-      background: transparent;
       position: relative;
+      z-index: 1;
     }
     
-    /* ========== SERVER LIST (FAR LEFT) ========== */
+    /* Banned Screen Overlay */
+    .banned-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .banned-screen.show {
+      display: flex;
+    }
+    
+    .banned-title {
+      font-size: 48px;
+      color: #ed4245;
+      font-weight: 700;
+    }
+    
+    .banned-message {
+      font-size: 20px;
+      color: white;
+      text-align: center;
+      max-width: 500px;
+    }
+    
+    /* Server Icons (Far Left) */
     .server-list {
       width: 72px;
       background: #202225;
@@ -44,7 +74,7 @@
       align-items: center;
       padding: 12px 0;
       gap: 8px;
-      border-right: 1px solid rgba(0, 0, 0, 0.3);
+      z-index: 10;
     }
     
     .server-icon {
@@ -58,47 +88,17 @@
       cursor: pointer;
       transition: all 0.2s;
       position: relative;
-      overflow: hidden;
     }
     
-    .server-icon:hover {
+    .server-icon:hover, .server-icon.active {
       border-radius: 16px;
       background: #5865f2;
     }
     
-    .server-icon.active {
-      border-radius: 16px;
-      background: #5865f2;
-    }
-    
-    .server-icon.active::before {
-      content: '';
-      position: absolute;
-      left: -12px;
-      width: 8px;
-      height: 40px;
-      background: white;
-      border-radius: 0 4px 4px 0;
-    }
-    
-    .server-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .server-icon svg {
+    .server-icon img, .server-icon svg {
       width: 28px;
       height: 28px;
       color: white;
-    }
-    
-    .server-divider {
-      width: 32px;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 1px;
-      margin: 4px 0;
     }
     
     .notification-badge {
@@ -112,100 +112,144 @@
       padding: 2px 6px;
       border-radius: 8px;
       min-width: 18px;
-      text-align: center;
+      z-index: 11;
     }
     
-    /* ========== SIDEBAR ========== */
+    /* Sidebar */
     .sidebar {
       width: 240px;
       background: #2f3136;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid rgba(0, 0, 0, 0.3);
+      z-index: 10;
     }
     
-    .server-header {
+    .sidebar-header {
       padding: 16px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid #000;
       font-weight: 700;
-      font-size: 15px;
       color: white;
-      background: rgba(0, 0, 0, 0.2);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
       cursor: pointer;
-      transition: background 0.15s;
     }
     
-    .server-header:hover {
-      background: rgba(0, 0, 0, 0.3);
+    .search-box {
+      padding: 8px;
+      background: #202225;
+      border-bottom: 1px solid #000;
     }
     
-    .channels-container {
+    .search-input {
+      width: 100%;
+      padding: 8px;
+      background: #000;
+      border: none;
+      border-radius: 4px;
+      color: #dcddde;
+      font-size: 14px;
+    }
+    
+    .channels-list {
       flex: 1;
       overflow-y: auto;
-      padding: 8px;
+      padding: 16px 8px 70px;
     }
     
-    .channels-container::-webkit-scrollbar { width: 6px; }
-    .channels-container::-webkit-scrollbar-track { background: transparent; }
-    .channels-container::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.4); border-radius: 3px; }
-    
     .channel-category {
-      padding: 12px 8px 4px;
+      padding: 8px;
       color: #8e9297;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       margin-top: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-    
-    .channel-category:first-child { margin-top: 0; }
     
     .channel {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px;
-      margin: 1px 0;
       border-radius: 4px;
       color: #96989d;
-      font-size: 15px;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
-      position: relative;
+      margin: 1px 0;
     }
     
-    .channel:hover { background: rgba(79, 84, 92, 0.4); color: #dcddde; }
-    .channel.active { background: rgba(79, 84, 92, 0.6); color: white; }
-    .channel.locked { opacity: 0.6; }
+    .channel:hover {
+      background: rgba(79, 84, 92, 0.4);
+      color: #dcddde;
+    }
     
-    .channel-icon {
-      width: 20px;
-      height: 20px;
+    .channel.active {
+      background: rgba(79, 84, 92, 0.6);
+      color: white;
+    }
+    
+    /* User Card (Bottom Left) */
+    .user-card {
+      position: fixed;
+      bottom: 70px;
+      left: 72px;
+      width: 240px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+    
+    .user-card-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #5865f2;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      font-weight: 700;
+      overflow: hidden;
     }
     
-    .channel-icon svg { width: 18px; height: 18px; stroke-width: 2; }
-    
-    .lock-icon {
-      margin-left: auto;
-      color: #8e9297;
+    .user-card-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     
-    /* ========== MAIN CHAT ========== */
+    .user-card-info {
+      flex: 1;
+    }
+    
+    .user-card-name {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .user-card-status {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .user-card-status.owner {
+      color: #ffd700;
+    }
+    
+    .user-card-status.admin {
+      color: #a855f7;
+    }
+    
+    .user-card-status.member {
+      color: #b9bbbe;
+    }
+    
+    /* Main Chat */
     .chat-main {
       flex: 1;
       display: flex;
       flex-direction: column;
       background: #36393f;
+      z-index: 10;
     }
     
     .chat-header {
@@ -214,14 +258,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid #000;
       background: rgba(0, 0, 0, 0.15);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    }
-    
-    .channel-info {
-      display: flex;
-      align-items: center;
     }
     
     .channel-name {
@@ -229,37 +267,41 @@
       align-items: center;
       gap: 8px;
       color: white;
-      font-size: 16px;
       font-weight: 700;
     }
     
-    .channel-name svg { width: 20px; height: 20px; color: #8e9297; }
-    .channel-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.06); margin: 0 12px; }
-    .channel-topic { color: #8e9297; font-size: 14px; font-weight: 400; }
+    .admin-panel-btn {
+      padding: 8px 16px;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .admin-panel-btn:hover {
+      background: #ffed4e;
+    }
     
     .messages-area {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
     }
-    
-    .messages-area::-webkit-scrollbar { width: 14px; }
-    .messages-area::-webkit-scrollbar-track { background: transparent; }
-    .messages-area::-webkit-scrollbar-thumb { background: #202225; border: 3px solid #36393f; border-radius: 8px; }
     
     .message {
       display: flex;
       gap: 16px;
-      padding: 4px 0;
-      margin: 4px 0;
-      transition: background 0.1s;
+      padding: 8px 16px;
       position: relative;
+      transition: background 0.1s;
     }
     
-    .message:hover { background: rgba(4, 4, 5, 0.07); }
+    .message:hover {
+      background: rgba(4, 4, 5, 0.07);
+    }
     
     .message-avatar {
       width: 40px;
@@ -270,16 +312,20 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 16px;
-      color: white;
       overflow: hidden;
       flex-shrink: 0;
-      cursor: pointer;
     }
     
-    .message-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .message-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     
-    .message-content { flex: 1; min-width: 0; }
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
     
     .message-header {
       display: flex;
@@ -291,53 +337,53 @@
     .message-author {
       color: white;
       font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
     }
     
-    .message-author:hover { text-decoration: underline; }
-    
-    .role-tag {
-      color: white;
-      font-size: 11px;
-      font-weight: 600;
+    .role-badge {
       padding: 2px 6px;
-      border-radius: 3px;
-      text-transform: uppercase;
-    }
-    
-    .role-owner { background: #000000; border: 1px solid #ffd700; }
-    .role-admin { background: #f47fff; }
-    .role-nova { background: #5865f2; }
-    
-    .bot-tag {
-      background: #5865f2;
-      color: white;
+      border-radius: 4px;
       font-size: 10px;
       font-weight: 700;
-      padding: 2px 4px;
-      border-radius: 3px;
       text-transform: uppercase;
     }
     
-    .message-timestamp { color: #a3a6aa; font-size: 12px; font-weight: 500; }
+    .role-badge.owner {
+      background: #ffd700;
+      color: #000;
+    }
+    
+    .role-badge.admin {
+      background: #a855f7;
+      color: white;
+    }
+    
+    .message-time {
+      color: #a3a6aa;
+      font-size: 12px;
+    }
     
     .message-text {
       color: #dcddde;
-      font-size: 15px;
       line-height: 1.375;
       word-wrap: break-word;
     }
     
-    .message-text a { color: #00aff4; text-decoration: none; }
-    .message-text a:hover { text-decoration: underline; }
-    
-    .message-image, .message-video {
-      max-width: 400px;
-      max-height: 300px;
-      border-radius: 8px;
-      margin-top: 8px;
+    .reply-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 2px solid #4e5058;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #b9bbbe;
       cursor: pointer;
+    }
+    
+    .reply-preview:hover {
+      background: rgba(0, 0, 0, 0.3);
     }
     
     .message-reactions {
@@ -356,30 +402,34 @@
       border-radius: 8px;
       padding: 4px 8px;
       cursor: pointer;
-      transition: all 0.15s;
-      font-size: 13px;
+      font-size: 14px;
     }
     
-    .reaction:hover { background: rgba(79, 84, 92, 0.6); border-color: rgba(255, 255, 255, 0.15); }
-    .reaction.reacted { background: rgba(88, 101, 242, 0.3); border-color: #5865f2; }
+    .reaction:hover {
+      background: rgba(79, 84, 92, 0.6);
+    }
     
-    .reaction-emoji { font-size: 16px; }
-    .reaction-count { color: #b9bbbe; font-weight: 600; }
+    .reaction.reacted {
+      background: rgba(88, 101, 242, 0.3);
+      border-color: #5865f2;
+    }
     
     .message-actions {
       position: absolute;
       top: -16px;
       right: 16px;
       background: #2f3136;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      border: 1px solid #000;
       border-radius: 8px;
       padding: 4px;
       display: none;
       gap: 4px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      z-index: 50;
     }
     
-    .message:hover .message-actions { display: flex; }
+    .message:hover .message-actions {
+      display: flex;
+    }
     
     .action-btn {
       width: 32px;
@@ -392,75 +442,77 @@
       color: #b9bbbe;
       cursor: pointer;
       border-radius: 4px;
-      transition: all 0.15s;
+      font-size: 18px;
     }
     
-    .action-btn:hover { background: rgba(79, 84, 92, 0.4); color: white; }
-    .action-btn svg { width: 18px; height: 18px; }
+    .action-btn:hover {
+      background: rgba(79, 84, 92, 0.4);
+      color: white;
+    }
     
-    /* ========== MESSAGE INPUT ========== */
-    .message-input-container { padding: 16px; }
+    /* Message Input */
+    .message-input-container {
+      padding: 16px;
+      z-index: 10;
+    }
     
-    .message-input-wrapper {
-      background: rgba(64, 68, 75, 0.6);
+    .reply-bar {
+      display: none;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px 12px;
+      margin-bottom: 8px;
       border-radius: 8px;
-      padding: 0 16px;
-      display: flex;
       align-items: center;
-      gap: 8px;
-      min-height: 44px;
+      justify-content: space-between;
     }
     
-    .message-input-wrapper:focus-within { background: rgba(64, 68, 75, 0.8); }
-    .message-input-wrapper.disabled { opacity: 0.5; pointer-events: none; }
-    
-    .input-buttons { display: flex; gap: 4px; }
-    
-    .input-btn {
-      width: 32px;
-      height: 32px;
+    .reply-bar.show {
       display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+    
+    .reply-info {
+      color: #b9bbbe;
+      font-size: 13px;
+    }
+    
+    .cancel-reply {
       background: none;
       border: none;
       color: #b9bbbe;
       cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.15s;
-      position: relative;
+      font-size: 20px;
     }
     
-    .input-btn:hover { color: #dcddde; background: rgba(79, 84, 92, 0.4); }
-    .input-btn svg { width: 20px; height: 20px; }
-    .input-btn input[type="file"] { display: none; }
+    .message-input-wrapper {
+      background: rgba(64, 68, 75, 0.6);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     
     .message-input {
       flex: 1;
       background: none;
       border: none;
-      color: #dcddde;
+      color: white;
       font-size: 15px;
-      font-family: inherit;
       outline: none;
     }
     
-    .message-input::placeholder { color: #72767d; }
-    .message-input:disabled { opacity: 0.5; }
-    
-    /* ========== MEMBERS SIDEBAR ========== */
+    /* Members Sidebar */
     .members-sidebar {
       width: 240px;
       background: #2f3136;
-      border-left: 1px solid rgba(0, 0, 0, 0.3);
       overflow-y: auto;
+      padding: 24px 8px;
+      z-index: 10;
     }
     
-    .members-sidebar::-webkit-scrollbar { width: 6px; }
-    .members-sidebar::-webkit-scrollbar-track { background: transparent; }
-    .members-sidebar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.4); border-radius: 3px; }
-    
-    .members-section { padding: 24px 8px 0; }
+    .members-section {
+      margin-bottom: 24px;
+    }
     
     .members-title {
       padding: 0 8px 4px;
@@ -468,10 +520,8 @@
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
     
     .member {
@@ -479,14 +529,13 @@
       align-items: center;
       gap: 12px;
       padding: 6px 8px;
-      margin: 1px 0;
       border-radius: 4px;
       cursor: pointer;
-      transition: all 0.15s;
-      position: relative;
     }
     
-    .member:hover { background: rgba(79, 84, 92, 0.3); }
+    .member:hover {
+      background: rgba(79, 84, 92, 0.3);
+    }
     
     .member-avatar {
       width: 32px;
@@ -497,16 +546,18 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 14px;
-      color: white;
       overflow: hidden;
       position: relative;
       flex-shrink: 0;
     }
     
-    .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .member-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     
-    .status-indicator {
+    .online-indicator {
       position: absolute;
       bottom: -2px;
       right: -2px;
@@ -517,37 +568,29 @@
       border-radius: 50%;
     }
     
+    .member-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
     .member-name {
-      color: #b9bbbe;
+      color: #dcddde;
       font-size: 14px;
       font-weight: 500;
-      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     
-    .member:hover .member-name { color: #dcddde; }
-    
-    .add-friend-btn {
-      width: 24px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: #5865f2;
-      border: none;
-      border-radius: 50%;
-      color: white;
-      cursor: pointer;
-      transition: all 0.15s;
+    .member-name.owner {
+      color: #ffd700;
     }
     
-    .member:hover .add-friend-btn { display: flex; }
-    .add-friend-btn:hover { background: #4752c4; transform: scale(1.1); }
-    .add-friend-btn svg { width: 14px; height: 14px; }
+    .member-name.admin {
+      color: #a855f7;
+    }
     
-    /* ========== MODALS ========== */
+    /* Modals */
     .modal {
       position: fixed;
       top: 0;
@@ -561,15 +604,18 @@
       z-index: 10000;
     }
     
-    .modal.show { display: flex; }
+    .modal.show {
+      display: flex;
+    }
     
     .modal-content {
       background: #2f3136;
       border-radius: 8px;
       padding: 24px;
+      max-width: 600px;
       width: 90%;
-      max-width: 500px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      max-height: 80vh;
+      overflow-y: auto;
     }
     
     .modal-header {
@@ -587,17 +633,8 @@
       border-radius: 4px;
       color: white;
       font-size: 15px;
-      font-family: inherit;
       outline: none;
       margin-bottom: 16px;
-    }
-    
-    .modal-input:focus { border-color: #5865f2; }
-    
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
     }
     
     .btn {
@@ -605,9 +642,8 @@
       border: none;
       border-radius: 4px;
       font-weight: 600;
-      font-size: 14px;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.2s;
     }
     
     .btn-primary {
@@ -615,485 +651,211 @@
       color: white;
     }
     
-    .btn-primary:hover { background: #4752c4; }
-    
-    .btn-secondary {
-      background: transparent;
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .btn-primary:hover {
+      background: #4752c4;
     }
-    
-    .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
     
     .btn-danger {
       background: #ed4245;
       color: white;
     }
     
-    .btn-danger:hover { background: #c53639; }
+    .btn-danger:hover {
+      background: #c23538;
+    }
     
-    /* ========== EMOJI PICKER ========== */
+    .btn-secondary {
+      background: #4e5058;
+      color: white;
+      margin-left: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: #5d6269;
+    }
+    
+    .admin-section {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .admin-section-title {
+      color: #ffd700;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .ban-log-entry {
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      color: #dcddde;
+      font-size: 14px;
+    }
+    
+    .admin-list-entry {
+      padding: 8px;
+      background: rgba(168, 85, 247, 0.2);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      color: #a855f7;
+      font-weight: 600;
+    }
+    
     .emoji-picker {
       position: absolute;
-      bottom: 100px;
-      right: 16px;
+      bottom: 60px;
+      right: 20px;
       background: #2f3136;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      border: 1px solid #000;
       border-radius: 8px;
       padding: 12px;
       display: none;
+      gap: 8px;
       flex-wrap: wrap;
-      gap: 4px;
-      width: 320px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-      z-index: 1000;
-      max-height: 300px;
+      width: 300px;
+      max-height: 200px;
       overflow-y: auto;
+      z-index: 1000;
     }
     
-    .emoji-picker.show { display: flex; }
+    .emoji-picker.show {
+      display: flex;
+    }
     
-    .emoji-item {
-      font-size: 28px;
+    .emoji-btn {
+      font-size: 24px;
+      background: none;
+      border: none;
       cursor: pointer;
-      padding: 6px;
+      padding: 4px;
       border-radius: 4px;
-      transition: all 0.15s;
-      line-height: 1;
+      transition: background 0.1s;
     }
     
-    .emoji-item:hover { background: rgba(79, 84, 92, 0.4); transform: scale(1.1); }
-    
-    /* ========== RESPONSIVE ========== */
-    @media (max-width: 1024px) {
-      .members-sidebar { display: none; }
-    }
-    
-    @media (max-width: 768px) {
-      .server-list { width: 60px; }
-      .sidebar { width: 200px; }
+    .emoji-btn:hover {
+      background: rgba(79, 84, 92, 0.4);
     }
   </style>
 </head>
 <body>
-  <!-- Ban Screen (Full Page Overlay) -->
-  <div id="banScreen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1a1a1a 0%, #2d0a0a 100%); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;">
-    <div style="max-width: 500px;">
-      <div style="font-size: 80px; margin-bottom: 24px;">🔨</div>
-      <h1 style="color: #ed4245; font-size: 48px; font-weight: 700; margin-bottom: 16px;">You've Been Banned</h1>
-      <p style="color: #b9bbbe; font-size: 18px; margin-bottom: 12px;" id="banReason">You have been banned from Nova Chat.</p>
-      <p style="color: #8e9297; font-size: 14px; margin-bottom: 32px;" id="banDate"></p>
-      <div style="background: rgba(237, 66, 69, 0.1); border: 2px solid rgba(237, 66, 69, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-        <p style="color: #ed4245; font-size: 16px; font-weight: 600; margin-bottom: 8px;">⚠️ Ban Appeal</p>
-        <p style="color: #b9bbbe; font-size: 14px;">If you believe this ban was a mistake, please contact the server owner.</p>
-      </div>
-      <button onclick="window.location.href='home.html'" style="background: #5865f2; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
-        Return to Home
-      </button>
-    </div>
+  <!-- Banned Screen -->
+  <div class="banned-screen" id="bannedScreen">
+    <div class="banned-title">🚫 BANNED</div>
+    <div class="banned-message">You have been banned from Nova Chat by an administrator. Contact the server owner if you believe this is a mistake.</div>
   </div>
 
-  <div class="chat-container" id="chatContainer">
-    <!-- Server List (Far Left) -->
+  <div class="chat-app">
+    <!-- Server List -->
     <div class="server-list">
-      <div class="server-icon active" onclick="switchToServer()" title="Nova Server">
-        <img src="Nova12.png" alt="Nova" onerror="this.innerHTML='<svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M13 10V3L4 14h7v7l9-11h-7z\'/></svg>'">
+      <div class="server-icon active" id="serverIcon" onclick="switchView('server')">
+        <img src="Nova12.png" alt="Nova" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=font-size:28px;font-weight:700>N</span>'">
       </div>
-      
-      <div class="server-divider"></div>
-      
-      <div class="server-icon" onclick="switchToDMs()" title="Direct Messages">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>
-        </svg>
-        <div class="notification-badge" id="dmNotificationBadge" style="display: none;">0</div>
+      <div style="width: 32px; height: 2px; background: rgba(255,255,255,0.06); margin: 4px 0;"></div>
+      <div class="server-icon" id="dmIcon" onclick="switchView('dms')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <div class="notification-badge" id="dmBadge" style="display: none;">0</div>
       </div>
     </div>
     
     <!-- Sidebar -->
     <div class="sidebar">
-      <div class="server-header" id="serverHeader">Nova Chat</div>
-      
-      <div class="channels-container" id="channelsContainer">
-        <!-- Server Channels -->
-        <div id="serverChannels">
-          <div class="channel-category">📢 INFO</div>
-          <div class="channel active" onclick="switchChannel('announcements')">
-            <div class="channel-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
-              </svg>
-            </div>
-            <span>announcements</span>
-            <div class="lock-icon">🔒</div>
-          </div>
-          
-          <div class="channel-category">💬 CHAT</div>
-          <div class="channel" onclick="switchChannel('general')">
-            <div class="channel-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-              </svg>
-            </div>
-            <span>general</span>
-          </div>
-          
-          <div class="channel-category">🔗 LINKS</div>
-          <div class="channel" onclick="switchChannel('community-links')">
-            <div class="channel-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-              </svg>
-            </div>
-            <span>community-links</span>
-          </div>
-          
-          <div class="channel-category">
-            <span>⚙️ ADMIN</span>
-          </div>
-          <div class="channel locked" onclick="openOwnerAccess()">
-            <div class="channel-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-              </svg>
-            </div>
-            <span>owner-access</span>
-            <div class="lock-icon">🔒</div>
-          </div>
-        </div>
-        
-        <!-- DM Channels (Hidden by default) -->
-        <div id="dmChannels" style="display: none;">
-          <div class="channel-category">DIRECT MESSAGES</div>
-          <!-- DMs will be populated here -->
-        </div>
+      <div class="sidebar-header" id="sidebarHeader">Nova Chat</div>
+      <div class="search-box" id="searchBox" style="display: none;">
+        <input type="text" class="search-input" placeholder="Search for users..." id="userSearch">
+      </div>
+      <div class="channels-list" id="channelsList"></div>
+    </div>
+    
+    <!-- User Card -->
+    <div class="user-card">
+      <div class="user-card-avatar" id="userAvatar"></div>
+      <div class="user-card-info">
+        <div class="user-card-name" id="userName">Loading...</div>
+        <div class="user-card-status member" id="userRole">Member</div>
       </div>
     </div>
     
     <!-- Main Chat -->
     <div class="chat-main">
       <div class="chat-header">
-        <div class="channel-info">
-          <div class="channel-name">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
-            </svg>
-            <span id="channelNameText">announcements</span>
-          </div>
-          <div class="channel-divider"></div>
-          <div class="channel-topic" id="channelTopic">Important updates and news from Nova</div>
-        </div>
-        <button class="input-btn" onclick="openChatSettings()" title="Chat Settings" style="margin-right: 8px;">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-        </button>
+        <div class="channel-name" id="channelName"># general</div>
+        <button class="admin-panel-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">OWNER PANEL</button>
       </div>
-      
       <div class="messages-area" id="messagesArea"></div>
-      
       <div class="message-input-container">
-        <div class="emoji-picker" id="emojiPicker"></div>
-        
-        <div class="message-input-wrapper" id="inputWrapper">
-          <div class="input-buttons">
-            <label class="input-btn" title="Upload Image/Video">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              <input type="file" id="fileInput" accept="image/*,video/*" onchange="handleFileUpload(event)">
-            </label>
-            <button class="input-btn" onclick="toggleEmojiPicker()" title="Add Emoji">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </button>
-          </div>
-          <input 
-            type="text" 
-            class="message-input" 
-            id="messageInput" 
-            placeholder="Message #announcements"
-            maxlength="2000"
-          >
+        <div class="reply-bar" id="replyBar">
+          <div class="reply-info" id="replyInfo"></div>
+          <button class="cancel-reply" onclick="cancelReply()">×</button>
         </div>
-      </div>
-    </div>
-    
-    <!-- Members Sidebar -->
-    <div class="members-sidebar">
-      <div class="members-section">
-        <div class="members-title">
-          <span>ONLINE</span>
-          <span id="onlineCount">0</span>
-        </div>
-        <div id="membersList"></div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Owner Access Modal -->
-  <div class="modal" id="ownerModal">
-    <div class="modal-content">
-      <div class="modal-header">🔒 Owner Access</div>
-      <p style="color: #b9bbbe; margin-bottom: 16px;">Enter the 4-digit owner passcode:</p>
-      <input 
-        type="password" 
-        class="modal-input" 
-        id="ownerPasscode" 
-        placeholder="Enter passcode..."
-        maxlength="4"
-      >
-      <div class="modal-buttons">
-        <button class="btn btn-secondary" onclick="closeOwnerModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="verifyOwnerAccess()">Verify</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Friend Request Modal -->
-  <div class="modal" id="friendRequestModal">
-    <div class="modal-content">
-      <div class="modal-header" id="friendRequestTitle">Friend Request</div>
-      <p style="color: #b9bbbe; margin-bottom: 16px;" id="friendRequestText"></p>
-      <div class="modal-buttons" id="friendRequestButtons"></div>
-    </div>
-  </div>
-  
-  <!-- Reaction Picker Modal -->
-  <div class="modal" id="reactionModal">
-    <div class="modal-content" style="max-width: 400px;">
-      <div class="modal-header">Add Reaction</div>
-      <div id="reactionPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;"></div>
-    </div>
-  </div>
-  
-  <!-- Owner Admin Panel Modal -->
-  <div class="modal" id="adminPanelModal">
-    <div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
-      <div class="modal-header">⚙️ Owner Admin Panel</div>
-      
-      <!-- Tabs -->
-      <div style="display: flex; gap: 8px; margin: 16px 0; border-bottom: 2px solid rgba(0,0,0,0.3);">
-        <button class="admin-tab active" onclick="switchAdminTab('users')">Users</button>
-        <button class="admin-tab" onclick="switchAdminTab('announce')">Announcements</button>
-        <button class="admin-tab" onclick="switchAdminTab('roles')">Roles</button>
-        <button class="admin-tab" onclick="switchAdminTab('bans')">Bans</button>
-        <button class="admin-tab" onclick="switchAdminTab('logs')">Ban Logs</button>
-      </div>
-      
-      <!-- Users Tab -->
-      <div class="admin-tab-content" id="adminTabUsers">
-        <div style="margin-bottom: 16px;">
-          <input type="text" id="userSearchInput" class="modal-input" placeholder="Search users..." style="margin: 0;">
-        </div>
-        <div id="adminUsersList" style="max-height: 400px; overflow-y: auto;"></div>
-      </div>
-      
-      <!-- Announcements Tab -->
-      <div class="admin-tab-content" id="adminTabAnnounce" style="display: none;">
-        <p style="color: #b9bbbe; margin-bottom: 12px;">Post a message to #announcements:</p>
-        <textarea 
-          id="adminAnnounceText" 
-          class="modal-input" 
-          placeholder="Type your announcement..." 
-          style="min-height: 120px; resize: vertical; font-family: inherit;"
-        ></textarea>
-        <button class="btn btn-primary" onclick="postAnnouncement()" style="width: 100%; margin-top: 12px;">
-          📢 Post Announcement
-        </button>
-      </div>
-      
-      <!-- Roles Tab -->
-      <div class="admin-tab-content" id="adminTabRoles" style="display: none;">
-        <p style="color: #b9bbbe; margin-bottom: 16px;">Assign roles to users:</p>
-        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-          <input type="text" id="roleUsername" class="modal-input" placeholder="Username" style="flex: 1; margin: 0;">
-          <select id="roleSelect" class="modal-input" style="flex: 1; margin: 0;">
-            <option value="Nova">Nova (Default)</option>
-            <option value="Admin">Admin</option>
-            <option value="Owner">Owner</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" onclick="assignRole()" style="width: 100%;">
-          Assign Role
-        </button>
-        <div id="rolesUsersList" style="margin-top: 24px; max-height: 300px; overflow-y: auto;"></div>
-      </div>
-      
-      <!-- Bans Tab -->
-      <div class="admin-tab-content" id="adminTabBans" style="display: none;">
-        <p style="color: #b9bbbe; margin-bottom: 16px;">Manage banned users:</p>
-        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-          <input type="text" id="banUsername" class="modal-input" placeholder="Username to ban" style="flex: 1; margin: 0;">
-          <button class="btn btn-danger" onclick="banUser()" style="flex-shrink: 0;">
-            🔨 Ban User
+        <div class="message-input-wrapper">
+          <input type="text" class="message-input" id="messageInput" placeholder="Message #general">
+          <button class="action-btn" onclick="sendMessage()">
+            <svg fill="currentColor" viewBox="0 0 24 24" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
-        <div id="bannedUsersList" style="margin-top: 24px;"></div>
-      </div>
-      
-      <!-- Ban Logs Tab -->
-      <div class="admin-tab-content" id="adminTabLogs" style="display: none;">
-        <p style="color: #b9bbbe; margin-bottom: 16px;">Recent ban activity:</p>
-        <div id="banLogsList" style="max-height: 400px; overflow-y: auto;"></div>
-      </div>
-      
-      <div class="modal-buttons" style="margin-top: 24px;">
-        <button class="btn btn-secondary" onclick="closeAdminPanel()">Close</button>
       </div>
     </div>
+    
+    <!-- Members -->
+    <div class="members-sidebar" id="membersSidebar"></div>
   </div>
-  
-  <!-- Chat Settings Modal -->
-  <div class="modal" id="chatSettingsModal">
-    <div class="modal-content" style="max-width: 600px;">
-      <div class="modal-header">⚙️ Chat Settings</div>
-      
-      <div style="margin: 24px 0;">
-        <h3 style="color: white; font-size: 16px; margin-bottom: 12px;">Friend Requests</h3>
-        <div id="friendRequestsList"></div>
-      </div>
-      
-      <div style="margin: 24px 0;">
-        <h3 style="color: white; font-size: 16px; margin-bottom: 12px;">Blocked Users</h3>
-        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-          <input type="text" id="blockUsername" class="modal-input" placeholder="Username to block" style="flex: 1; margin: 0;">
-          <button class="btn btn-danger" onclick="blockUser()">Block</button>
-        </div>
-        <div id="blockedUsersList"></div>
-      </div>
-      
-      <div class="modal-buttons">
-        <button class="btn btn-secondary" onclick="closeChatSettings()">Close</button>
-      </div>
-    </div>
-  </div>
-  
-  <style>
-    .admin-tab {
-      padding: 10px 20px;
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: #b9bbbe;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    
-    .admin-tab:hover {
-      color: white;
-    }
-    
-    .admin-tab.active {
-      color: white;
-      border-bottom-color: #5865f2;
-    }
-    
-    .user-admin-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .user-admin-item:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .user-admin-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #5865f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      color: white;
-      overflow: hidden;
-    }
-    
-    .user-admin-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .user-admin-info {
-      flex: 1;
-    }
-    
-    .user-admin-name {
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-    }
-    
-    .user-admin-role {
-      color: #8e9297;
-      font-size: 13px;
-    }
-    
-    .user-admin-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .admin-action-btn {
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      color: white;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    
-    .admin-action-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    
-    .admin-action-btn.danger {
-      background: rgba(237, 66, 69, 0.2);
-      border-color: rgba(237, 66, 69, 0.4);
-      color: #ed4245;
-    }
-    
-    .admin-action-btn.danger:hover {
-      background: rgba(237, 66, 69, 0.3);
-    }
-    
-    .banned-user-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      background: rgba(237, 66, 69, 0.1);
-      border: 1px solid rgba(237, 66, 69, 0.3);
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .banned-user-name {
-      color: white;
-      font-weight: 600;
-    }
-  </style>
 
+  <!-- Emoji Picker -->
+  <div class="emoji-picker" id="emojiPicker"></div>
+
+  <!-- Owner Access Modal -->
+  <div class="modal" id="ownerAccessModal">
+    <div class="modal-content">
+      <div class="modal-header">🔐 Owner Access Verification</div>
+      <p style="color: #b9bbbe; margin-bottom: 16px;">Enter the 4-digit owner passcode to gain full administrative access.</p>
+      <input type="password" class="modal-input" id="ownerPasscode" placeholder="Enter passcode" maxlength="4">
+      <div id="ownerError" style="color: #ed4245; margin-bottom: 12px; display: none;"></div>
+      <button class="btn btn-primary" onclick="verifyOwnerAccess()">Verify</button>
+      <button class="btn btn-secondary" onclick="closeModal('ownerAccessModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div class="modal" id="adminPanelModal">
+    <div class="modal-content">
+      <div class="modal-header">👑 OWNER ADMIN PANEL</div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">📋 CURRENT ADMINS</div>
+        <div id="adminsList"></div>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">🚫 BAN USER</div>
+        <input type="text" class="modal-input" id="banUsername" placeholder="Enter username to ban">
+        <button class="btn btn-danger" onclick="banUser()">Ban User</button>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">✅ UNBAN USER</div>
+        <input type="text" class="modal-input" id="unbanUsername" placeholder="Enter username to unban">
+        <button class="btn btn-primary" onclick="unbanUser()">Unban User</button>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">📜 BAN LOGS</div>
+        <div id="banLogs"></div>
+      </div>
+      
+      <button class="btn btn-secondary" onclick="closeModal('adminPanelModal')">Close Panel</button>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue, onDisconnect, set, remove, update, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getDatabase, ref, push, onValue, set, remove, get, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-    const firebaseConfig = {
+    const app = initializeApp({
       apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
       authDomain: "nova-chat-43a18.firebaseapp.com",
       databaseURL: "https://nova-chat-43a18-default-rtdb.firebaseio.com",
@@ -1101,1079 +863,518 @@
       storageBucket: "nova-chat-43a18.firebasestorage.app",
       messagingSenderId: "1090469740208",
       appId: "1:1090469740208:web:94adbe3ee21abb3cf14575"
-    };
+    });
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-
+    const db = getDatabase(app);
     const username = localStorage.getItem('nova_user') || 'Guest';
     const profilePic = localStorage.getItem('nova_profile_pic') || '';
-    const userId = username + '-' + Date.now().toString(36);
+    let userRole = localStorage.getItem('nova_chat_role') || 'Member';
+    const userId = username + '_' + Date.now();
 
     let currentView = 'server';
-    let currentChannel = 'announcements';
-    let currentDM = null;
-    let userPresenceRef = null;
-    let onlineUsers = {};
-    let isOwner = localStorage.getItem('nova_chat_owner') === 'true';
-    let userRole = localStorage.getItem('nova_chat_role') || 'Nova';
-    let selectedMessageId = null;
+    let currentChannel = 'general';
+    let replyingTo = null;
+    let currentEmojiMessageId = null;
+    let ownerAttempts = 0;
 
-    const emojis = ['😀','😂','😍','🥰','😎','🤔','😊','😭','😡','🤯','🎮','🎉','❤️','💀','👍','👎','🔥','💯','✨','🚀','⭐','💪','👀','🤝','💩','😈'];
+    const OWNER_PASSCODE = '0090';
+    const emojis = ['😀', '😂', '❤️', '👍', '👎', '🔥', '✨', '💯', '🎉', '👀', '😍', '🤔', '😎', '👏', '🙌'];
 
-    initializeChat();
+    // Check if banned
+    checkBanStatus();
 
-    function initializeChat() {
-      userPresenceRef = ref(database, `presence/${userId}`);
-      set(userPresenceRef, { username, profilePic, timestamp: Date.now(), role: userRole });
-      onDisconnect(userPresenceRef).remove();
+    // Initialize
+    document.getElementById('userName').textContent = username;
+    updateUserRole();
+    document.getElementById('userAvatar').innerHTML = profilePic ? `<img src="${profilePic}">` : username.charAt(0).toUpperCase();
+    
+    // Set presence
+    set(ref(db, `presence/${userId}`), { 
+      username, 
+      profilePic, 
+      role: userRole, 
+      timestamp: Date.now() 
+    });
+    
+    // Load channels
+    loadChannels();
+    loadMessages('general');
+    loadMembers();
+    
+    // Initialize emoji picker
+    const emojiPicker = document.getElementById('emojiPicker');
+    emojis.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.textContent = emoji;
+      btn.onclick = () => addReaction(emoji);
+      emojiPicker.appendChild(btn);
+    });
 
-      onValue(ref(database, 'presence'), (snapshot) => {
-        onlineUsers = snapshot.val() || {};
-        updateMembersList();
-        checkDMNotifications();
+    // Welcome message (once per user)
+    get(ref(db, `channels/announcements/welcomed/${username}`)).then(snap => {
+      if (!snap.exists()) {
+        push(ref(db, 'channels/announcements/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `Welcome to Nova Chat, ${username}! 🎉 We're still building this server. Stay tuned for updates!`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        set(ref(db, `channels/announcements/welcomed/${username}`), true);
+      }
+    });
+
+    function checkBanStatus() {
+      get(ref(db, `bans/${username}`)).then(snap => {
+        if (snap.exists() && snap.val().banned === true) {
+          document.getElementById('bannedScreen').classList.add('show');
+          document.querySelector('.chat-app').style.display = 'none';
+        }
       });
-
-      loadChannel('announcements');
-      initWelcomeMessage();
-      setupEmojiPicker();
-    }
-
-    function initWelcomeMessage() {
-      const welcomeRef = ref(database, 'system/welcomeMessageSent');
-      get(welcomeRef).then((snapshot) => {
-        if (!snapshot.exists()) {
-          push(ref(database, 'channels/announcements/messages'), {
-            username: 'Nova Bot',
-            profilePic: '',
-            text: 'Welcome to Nova Chat! 🎉\nWe\'re still working on this server. Stay tuned for updates!',
-            timestamp: Date.now(),
-            isBot: true
-          });
-          set(welcomeRef, true);
+      
+      // Listen for real-time ban updates
+      onValue(ref(db, `bans/${username}`), (snapshot) => {
+        if (snapshot.exists() && snapshot.val().banned === true) {
+          document.getElementById('bannedScreen').classList.add('show');
+          document.querySelector('.chat-app').style.display = 'none';
+        } else {
+          document.getElementById('bannedScreen').classList.remove('show');
+          document.querySelector('.chat-app').style.display = 'flex';
         }
       });
     }
 
+    function updateUserRole() {
+      userRole = localStorage.getItem('nova_chat_role') || 'Member';
+      const roleElement = document.getElementById('userRole');
+      roleElement.textContent = userRole;
+      roleElement.className = `user-card-status ${userRole.toLowerCase()}`;
+      
+      if (userRole === 'Owner') {
+        document.getElementById('adminPanelBtn').style.display = 'block';
+      }
+    }
+    
+    function loadChannels() {
+      const isOwner = userRole === 'Owner';
+      document.getElementById('channelsList').innerHTML = `
+        <div class="channel-category">TEXT CHANNELS</div>
+        <div class="channel active" onclick="switchChannel('general')"># general</div>
+        <div class="channel" onclick="switchChannel('announcements')">📢 announcements</div>
+        <div class="channel" onclick="switchChannel('community-links')">🔗 community-links</div>
+        ${isOwner ? '<div class="channel" onclick="requestOwnerAccess()">👑 owner-access</div>' : ''}
+      `;
+    }
+    
     window.switchChannel = function(channel) {
       currentChannel = channel;
-      currentDM = null;
-      
-      document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
-      event.target.closest('.channel').classList.add('active');
-      
-      const channelInfo = {
-        'announcements': {
-          name: 'announcements',
-          topic: 'Important updates and news from Nova - Read Only',
-          icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>',
-          readOnly: true
-        },
-        'general': {
-          name: 'general',
-          topic: 'General chat and discussion',
-          icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>',
-          readOnly: false
-        },
-        'community-links': {
-          name: 'community-links',
-          topic: 'Share your favorite links and websites',
-          icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>',
-          readOnly: false
-        }
-      };
-      
-      const info = channelInfo[channel];
-      document.querySelector('.channel-name svg').innerHTML = info.icon;
-      document.getElementById('channelNameText').textContent = info.name;
-      document.getElementById('channelTopic').textContent = info.topic;
-      document.getElementById('messageInput').placeholder = `Message #${info.name}`;
-      
-      const inputWrapper = document.getElementById('inputWrapper');
-      if (info.readOnly && !isOwner) {
-        inputWrapper.classList.add('disabled');
-        document.getElementById('messageInput').disabled = true;
-        document.getElementById('messageInput').placeholder = '🔒 Only owners can post in this channel';
-      } else {
-        inputWrapper.classList.remove('disabled');
-        document.getElementById('messageInput').disabled = false;
-      }
-      
-      loadChannel(channel);
+      document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('channelName').textContent = `# ${channel}`;
+      document.getElementById('messageInput').placeholder = `Message #${channel}`;
+      loadMessages(channel);
+      cancelReply();
     };
-
-    function loadChannel(channel) {
-      onValue(ref(database, `channels/${channel}/messages`), (snapshot) => {
-        displayMessages(snapshot.val());
-      });
-    }
-
-    function displayMessages(messages) {
-      const container = document.getElementById('messagesArea');
+    
+    window.switchView = function(view) {
+      currentView = view;
+      document.querySelectorAll('.server-icon').forEach(icon => icon.classList.remove('active'));
       
-      if (!messages) {
-        container.innerHTML = `<div style="text-align: center; padding: 40px; color: #8e9297;">No messages yet. Be the first to say something!</div>`;
-        return;
+      if (view === 'dms') {
+        document.getElementById('dmIcon').classList.add('active');
+        document.getElementById('searchBox').style.display = 'block';
+        document.getElementById('channelsList').innerHTML = '<div class="channel-category">DIRECT MESSAGES</div><p style="padding: 16px; color: #8e9297; font-size: 13px;">Use the search box above to find users and start conversations.</p>';
+        document.getElementById('membersSidebar').style.display = 'none';
+        document.getElementById('adminPanelBtn').style.display = 'none';
+      } else {
+        document.getElementById('serverIcon').classList.add('active');
+        document.getElementById('searchBox').style.display = 'none';
+        loadChannels();
+        document.getElementById('membersSidebar').style.display = 'block';
+        loadMembers();
+        if (userRole === 'Owner') {
+          document.getElementById('adminPanelBtn').style.display = 'block';
+        }
+      }
+    };
+    
+    function loadMessages(channel) {
+      const isReadOnly = channel === 'announcements' && userRole !== 'Owner';
+      
+      if (isReadOnly) {
+        document.getElementById('messageInput').disabled = true;
+        document.getElementById('messageInput').placeholder = 'Read-only channel';
+      } else {
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('messageInput').placeholder = `Message #${channel}`;
       }
       
-      // Get blocked users list
-      get(ref(database, `blocks/${username}`)).then((snapshot) => {
-        const blockedUsers = snapshot.val() || {};
+      onValue(ref(db, `channels/${channel}/messages`), (snapshot) => {
+        const messages = snapshot.val() || {};
+        const area = document.getElementById('messagesArea');
         
-        const messagesArray = Object.entries(messages)
-          .map(([id, msg]) => ({ id, ...msg }))
-          .filter(msg => !blockedUsers[msg.username]) // Filter blocked users
-          .sort((a, b) => a.timestamp - b.timestamp);
-      
-      container.innerHTML = messagesArray.map(msg => {
-        const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        const avatarContent = msg.profilePic ? `<img src="${esc(msg.profilePic)}">` : `<span>${getInitial(msg.username)}</span>`;
-        const botTag = msg.isBot ? '<span class="bot-tag">BOT</span>' : '';
-        const roleTag = msg.role && msg.role !== 'Nova' ? `<span class="role-tag role-${msg.role.toLowerCase()}">${msg.role}</span>` : '';
-        
-        let messageText = esc(msg.text).replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-        
-        let mediaContent = '';
-        if (msg.imageUrl) {
-          mediaContent = `<img src="${esc(msg.imageUrl)}" class="message-image" onclick="window.open('${esc(msg.imageUrl)}', '_blank')">`;
-        } else if (msg.videoUrl) {
-          mediaContent = `<video src="${esc(msg.videoUrl)}" class="message-video" controls></video>`;
-        }
-        
-        let reactionsHtml = '';
-        if (msg.reactions) {
-          reactionsHtml = '<div class="message-reactions">';
-          Object.entries(msg.reactions).forEach(([emoji, users]) => {
-            const count = Object.keys(users).length;
-            const reacted = users[userId] ? 'reacted' : '';
-            reactionsHtml += `<div class="reaction ${reacted}" onclick="toggleReaction('${msg.id}', '${emoji}')"><span class="reaction-emoji">${emoji}</span><span class="reaction-count">${count}</span></div>`;
-          });
-          reactionsHtml += '</div>';
-        }
-        
-        return `
-          <div class="message">
-            <div class="message-avatar">${avatarContent}</div>
-            <div class="message-content">
-              <div class="message-header">
-                <span class="message-author">${esc(msg.username)}</span>
-                ${botTag}
-                ${roleTag}
-                <span class="message-timestamp">${time}</span>
+        area.innerHTML = Object.entries(messages).map(([id, msg]) => {
+          const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+          const avatar = msg.profilePic ? `<img src="${msg.profilePic}">` : (msg.username.charAt(0).toUpperCase());
+          
+          const roleClass = msg.role === 'Owner' ? 'owner' : msg.role === 'Admin' ? 'admin' : '';
+          const roleBadge = msg.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : msg.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : '';
+          
+          const canDelete = username === msg.username || userRole === 'Owner';
+          
+          const replyHtml = msg.replyTo ? `
+            <div class="reply-preview">
+              <strong>↩ ${msg.replyTo.username}:</strong> ${msg.replyTo.text.substring(0, 50)}${msg.replyTo.text.length > 50 ? '...' : ''}
+            </div>
+          ` : '';
+          
+          const reactions = msg.reactions ? Object.entries(msg.reactions).map(([emoji, users]) => {
+            const userList = Object.keys(users);
+            const count = userList.length;
+            const reacted = userList.includes(username);
+            return `<div class="reaction ${reacted ? 'reacted' : ''}" onclick="toggleReaction('${id}', '${emoji}')">${emoji} ${count}</div>`;
+          }).join('') : '';
+          
+          return `
+            <div class="message" id="msg-${id}">
+              <div class="message-avatar">${avatar}</div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author ${roleClass}">${msg.username}</span>
+                  ${roleBadge}
+                  <span class="message-time">${time}</span>
+                </div>
+                ${replyHtml}
+                <div class="message-text">${msg.text}</div>
+                ${reactions ? `<div class="message-reactions">${reactions}</div>` : ''}
               </div>
-              <div class="message-text">${messageText}</div>
-              ${mediaContent}
-              ${reactionsHtml}
+              <div class="message-actions">
+                <button class="action-btn" onclick="replyToMessage('${id}', '${msg.username}', \`${msg.text.replace(/`/g, '\\`')}\`)" title="Reply">↩</button>
+                <button class="action-btn" onclick="openEmojiPicker('${id}')" title="React">😀</button>
+                ${canDelete ? `<button class="action-btn" onclick="deleteMessage('${channel}', '${id}')" title="Delete">🗑️</button>` : ''}
+              </div>
             </div>
-            <div class="message-actions">
-              <button class="action-btn" onclick="openReactionPicker('${msg.id}')" title="Add Reaction">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </button>
-              ${msg.username === username || isOwner ? `<button class="action-btn" onclick="deleteMessage('${msg.id}')" title="Delete Message"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-        container.scrollTop = container.scrollHeight;
+          `;
+        }).join('');
+        
+        area.scrollTop = area.scrollHeight;
       });
     }
-
+    
+    function loadMembers() {
+      onValue(ref(db, 'presence'), (snapshot) => {
+        const members = snapshot.val() || {};
+        const sidebar = document.getElementById('membersSidebar');
+        
+        const owners = [];
+        const admins = [];
+        const regular = [];
+        
+        Object.values(members).forEach(member => {
+          if (member.role === 'Owner') owners.push(member);
+          else if (member.role === 'Admin') admins.push(member);
+          else regular.push(member);
+        });
+        
+        let html = '';
+        
+        if (owners.length > 0) {
+          html += `<div class="members-section">
+            <div class="members-title">👑 OWNER — ${owners.length}</div>`;
+          owners.forEach(m => {
+            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+            html += `
+              <div class="member">
+                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
+                <div class="member-info">
+                  <div class="member-name owner">${m.username}</div>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        
+        if (admins.length > 0) {
+          html += `<div class="members-section">
+            <div class="members-title">⚡ ADMINS — ${admins.length}</div>`;
+          admins.forEach(m => {
+            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+            html += `
+              <div class="member">
+                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
+                <div class="member-info">
+                  <div class="member-name admin">${m.username}</div>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        
+        if (regular.length > 0) {
+          html += `<div class="members-section">
+            <div class="members-title">MEMBERS — ${regular.length}</div>`;
+          regular.forEach(m => {
+            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+            html += `
+              <div class="member">
+                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
+                <div class="member-info">
+                  <div class="member-name">${m.username}</div>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        
+        sidebar.innerHTML = html;
+      });
+    }
+    
     window.sendMessage = function() {
+      if (currentChannel === 'announcements' && userRole !== 'Owner') return;
+      
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text) return;
       
-      const message = {
+      const messageData = {
         username,
         profilePic,
         text,
         timestamp: Date.now(),
-        isBot: false,
         role: userRole
       };
       
-      // Send to DM or channel
-      const path = currentDM ? `dms/${currentDM}/messages` : `channels/${currentChannel}/messages`;
-      push(ref(database, path), message);
-      input.value = '';
-    };
-
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+      if (replyingTo) {
+        messageData.replyTo = replyingTo;
       }
-    });
-
-    window.handleFileUpload = function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const message = {
-          username,
-          profilePic,
-          text: '',
-          timestamp: Date.now(),
-          isBot: false,
-          role: userRole,
-          [file.type.startsWith('video') ? 'videoUrl' : 'imageUrl']: e.target.result
-        };
-        
-        const path = currentDM ? `dms/${currentDM}/messages` : `channels/${currentChannel}/messages`;
-        push(ref(database, path), message);
-      };
-      reader.readAsDataURL(file);
-      event.target.value = '';
+      push(ref(db, `channels/${currentChannel}/messages`), messageData);
+      
+      input.value = '';
+      cancelReply();
     };
-
-    function setupEmojiPicker() {
+    
+    window.replyToMessage = function(msgId, msgUsername, msgText) {
+      replyingTo = { username: msgUsername, text: msgText };
+      document.getElementById('replyBar').classList.add('show');
+      document.getElementById('replyInfo').innerHTML = `Replying to <strong>${msgUsername}</strong>`;
+      document.getElementById('messageInput').focus();
+    };
+    
+    window.cancelReply = function() {
+      replyingTo = null;
+      document.getElementById('replyBar').classList.remove('show');
+    };
+    
+    window.openEmojiPicker = function(msgId) {
+      currentEmojiMessageId = msgId;
       const picker = document.getElementById('emojiPicker');
-      picker.innerHTML = emojis.map(e => `<span class="emoji-item" onclick="insertEmoji('${e}')">${e}</span>`).join('');
-    }
-
-    window.toggleEmojiPicker = function() {
-      document.getElementById('emojiPicker').classList.toggle('show');
+      picker.classList.toggle('show');
     };
-
-    window.insertEmoji = function(emoji) {
-      const input = document.getElementById('messageInput');
-      input.value += emoji + ' ';
-      input.focus();
-      document.getElementById('emojiPicker').classList.remove('show');
-    };
-
-    window.openReactionPicker = function(messageId) {
-      selectedMessageId = messageId;
-      const picker = document.getElementById('reactionPicker');
-      picker.innerHTML = emojis.map(e => `<span class="emoji-item" onclick="addReaction('${messageId}', '${e}')">${e}</span>`).join('');
-      document.getElementById('reactionModal').classList.add('show');
-    };
-
-    window.addReaction = function(messageId, emoji) {
-      const reactionPath = `channels/${currentChannel}/messages/${messageId}/reactions/${emoji}/${userId}`;
-      set(ref(database, reactionPath), username);
-      document.getElementById('reactionModal').classList.remove('show');
-    };
-
-    window.toggleReaction = function(messageId, emoji) {
-      const reactionPath = `channels/${currentChannel}/messages/${messageId}/reactions/${emoji}/${userId}`;
-      get(ref(database, reactionPath)).then((snapshot) => {
-        if (snapshot.exists()) {
-          remove(ref(database, reactionPath));
+    
+    window.addReaction = function(emoji) {
+      if (!currentEmojiMessageId) return;
+      
+      const reactionPath = `channels/${currentChannel}/messages/${currentEmojiMessageId}/reactions/${emoji}/${username}`;
+      
+      get(ref(db, reactionPath)).then(snap => {
+        if (snap.exists()) {
+          remove(ref(db, reactionPath));
         } else {
-          set(ref(database, reactionPath), username);
+          set(ref(db, reactionPath), true);
+        }
+      });
+      
+      document.getElementById('emojiPicker').classList.remove('show');
+      currentEmojiMessageId = null;
+    };
+    
+    window.toggleReaction = function(msgId, emoji) {
+      const reactionPath = `channels/${currentChannel}/messages/${msgId}/reactions/${emoji}/${username}`;
+      
+      get(ref(db, reactionPath)).then(snap => {
+        if (snap.exists()) {
+          remove(ref(db, reactionPath));
+        } else {
+          set(ref(db, reactionPath), true);
         }
       });
     };
-
-    let failedAttempts = 0;
-    let lockoutUntil = 0;
-
-    window.openOwnerAccess = function() {
-      if (isOwner) {
-        openAdminPanel();
-      } else {
-        // Check if locked out
-        if (Date.now() < lockoutUntil) {
-          const remainingSeconds = Math.ceil((lockoutUntil - Date.now()) / 1000);
-          alert(`⏳ Too many failed attempts. Try again in ${remainingSeconds} seconds.`);
-          return;
-        }
-        document.getElementById('ownerModal').classList.add('show');
+    
+    window.deleteMessage = function(channel, msgId) {
+      if (confirm('Delete this message?')) {
+        remove(ref(db, `channels/${channel}/messages/${msgId}`));
       }
     };
-
-    window.closeOwnerModal = function() {
-      document.getElementById('ownerModal').classList.remove('show');
-      document.getElementById('ownerPasscode').value = '';
-    };
-
-    window.verifyOwnerAccess = function() {
-      const passcode = document.getElementById('ownerPasscode').value;
-      
-      // Check lockout
-      if (Date.now() < lockoutUntil) {
-        const remainingSeconds = Math.ceil((lockoutUntil - Date.now()) / 1000);
-        alert(`⏳ Too many failed attempts. Try again in ${remainingSeconds} seconds.`);
+    
+    window.requestOwnerAccess = function() {
+      if (localStorage.getItem('nova_owner_verified') === 'true') {
+        switchChannel('owner-access');
         return;
       }
+      document.getElementById('ownerAccessModal').classList.add('show');
+      document.getElementById('ownerPasscode').value = '';
+      document.getElementById('ownerError').style.display = 'none';
+      ownerAttempts = 0;
+    };
+    
+    window.verifyOwnerAccess = function() {
+      const input = document.getElementById('ownerPasscode').value;
+      const errorDiv = document.getElementById('ownerError');
       
-      // Simple check - code is 0090
-      const correctCode = '0090';
-      
-      if (passcode === correctCode) {
-        isOwner = true;
-        userRole = 'Owner';
-        localStorage.setItem('nova_chat_owner', 'true');
+      if (input === OWNER_PASSCODE) {
+        localStorage.setItem('nova_owner_verified', 'true');
         localStorage.setItem('nova_chat_role', 'Owner');
-        update(userPresenceRef, { role: 'Owner' });
+        userRole = 'Owner';
+        updateUserRole();
+        closeModal('ownerAccessModal');
+        loadChannels();
+        switchChannel('owner-access');
         
-        // Reset failed attempts on success
-        failedAttempts = 0;
-        lockoutUntil = 0;
-        
-        alert('✅ Owner access granted!');
-        closeOwnerModal();
-        location.reload();
+        // Update presence
+        set(ref(db, `presence/${userId}/role`), 'Owner');
       } else {
-        // Increment failed attempts
-        failedAttempts++;
+        ownerAttempts++;
+        errorDiv.textContent = `Incorrect passcode. ${3 - ownerAttempts} attempts remaining.`;
+        errorDiv.style.display = 'block';
         
-        // Exponential backoff lockout
-        if (failedAttempts >= 3) {
-          const lockoutDuration = Math.pow(2, failedAttempts - 2) * 30000; // 30s, 60s, 120s, etc
-          lockoutUntil = Date.now() + lockoutDuration;
-          alert(`❌ Too many failed attempts! Locked out for ${lockoutDuration / 1000} seconds.`);
-          closeOwnerModal();
-        } else {
-          alert(`❌ Incorrect passcode! (${failedAttempts}/3 attempts)`);
+        if (ownerAttempts >= 3) {
+          errorDiv.textContent = 'Too many failed attempts. Refresh the page to try again.';
+          document.getElementById('ownerPasscode').disabled = true;
+          setTimeout(() => {
+            closeModal('ownerAccessModal');
+          }, 2000);
         }
       }
     };
-
-    window.switchToServer = function() {
-      currentView = 'server';
-      document.querySelectorAll('.server-icon').forEach(icon => icon.classList.remove('active'));
-      event.target.closest('.server-icon').classList.add('active');
-      document.getElementById('serverChannels').style.display = 'block';
-      document.getElementById('dmChannels').style.display = 'none';
-      document.getElementById('serverHeader').textContent = 'Nova Chat';
-      switchChannel('announcements');
-    };
-
-    window.switchToDMs = function() {
-      currentView = 'dms';
-      document.querySelectorAll('.server-icon').forEach(icon => icon.classList.remove('active'));
-      event.target.closest('.server-icon').classList.add('active');
-      document.getElementById('serverChannels').style.display = 'none';
-      document.getElementById('dmChannels').style.display = 'block';
-      document.getElementById('serverHeader').textContent = 'Direct Messages';
-      loadDMList();
-    };
-    
-    function loadDMList() {
-      const container = document.getElementById('dmChannels');
-      
-      // Get friends list
-      get(ref(database, `friends/${username}`)).then((snapshot) => {
-        const friends = snapshot.val() || {};
-        const friendsList = Object.keys(friends);
-        
-        if (friendsList.length === 0) {
-          container.innerHTML = `
-            <div class="channel-category">DIRECT MESSAGES</div>
-            <div style="padding: 16px; text-align: center; color: #8e9297; font-size: 13px;">
-              <p style="margin-bottom: 8px;">No friends yet!</p>
-              <p>Add friends from the members list to start chatting.</p>
-            </div>
-          `;
-          return;
-        }
-        
-        container.innerHTML = `
-          <div class="channel-category">DIRECT MESSAGES</div>
-          ${friendsList.map(friendUsername => `
-            <div class="channel" onclick="openDM('${esc(friendUsername)}')">
-              <div class="dm-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white;">
-                ${getInitial(friendUsername)}
-              </div>
-              <span>${esc(friendUsername)}</span>
-            </div>
-          `).join('')}
-        `;
-      });
-    }
-    
-    window.openDM = function(friendUsername) {
-      // Create DM ID (sorted usernames for consistency)
-      const users = [username, friendUsername].sort();
-      const dmId = users.join('_');
-      
-      currentDM = dmId;
-      currentChannel = null;
-      
-      // Update UI
-      document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
-      event.target.closest('.channel').classList.add('active');
-      
-      document.querySelector('.channel-name svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>';
-      document.getElementById('channelNameText').textContent = friendUsername;
-      document.getElementById('channelTopic').textContent = `Direct message with ${friendUsername}`;
-      document.getElementById('messageInput').placeholder = `Message @${friendUsername}`;
-      
-      // Enable input
-      const inputWrapper = document.getElementById('inputWrapper');
-      inputWrapper.classList.remove('disabled');
-      document.getElementById('messageInput').disabled = false;
-      
-      // Load DM messages
-      loadDM(dmId);
-    };
-    
-    function loadDM(dmId) {
-      onValue(ref(database, `dms/${dmId}/messages`), (snapshot) => {
-        const messages = snapshot.val();
-        displayMessages(messages);
-      });
-    }
-
-    function updateMembersList() {
-      const container = document.getElementById('membersList');
-      const users = Object.values(onlineUsers);
-      
-      // Separate by roles
-      const owners = users.filter(u => u.role === 'Owner');
-      const admins = users.filter(u => u.role === 'Admin');
-      const members = users.filter(u => !u.role || u.role === 'Nova');
-      
-      const ownerCount = owners.length;
-      const adminCount = admins.length;
-      const memberCount = members.length;
-      
-      document.getElementById('onlineCount').textContent = users.length;
-      
-      let html = '';
-      
-      // Owners Section
-      if (ownerCount > 0) {
-        html += `<div class="members-title" style="margin-top: 0; background: linear-gradient(90deg, #000000 0%, #1a1a1a 100%); padding: 8px; border-radius: 4px; border: 1px solid #ffd700;"><span style="color: #ffd700;">👑 OWNER</span><span style="color: #ffd700;">${ownerCount}</span></div>`;
-        html += owners.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
-          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
-          const isCurrentUser = user.username === username;
-          
-          return `
-            <div class="member">
-              <div class="member-avatar" style="border: 2px solid #ffd700; background: #000000;">
-                ${avatarContent}
-                <div class="status-indicator" style="background: #ffd700;"></div>
-              </div>
-              <div class="member-name" style="color: #ffd700; font-weight: 700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">${esc(user.username)}</div>
-              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
-            </div>
-          `;
-        }).join('');
-      }
-      
-      // Admins Section
-      if (adminCount > 0) {
-        html += `<div class="members-title" style="margin-top: 16px;"><span>ADMINS</span><span>${adminCount}</span></div>`;
-        html += admins.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
-          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
-          const isCurrentUser = user.username === username;
-          
-          return `
-            <div class="member">
-              <div class="member-avatar" style="border: 2px solid #f47fff;">
-                ${avatarContent}
-                <div class="status-indicator"></div>
-              </div>
-              <div class="member-name" style="color: #f47fff; font-weight: 600;">${esc(user.username)}</div>
-              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
-            </div>
-          `;
-        }).join('');
-      }
-      
-      // Members Section
-      if (memberCount > 0) {
-        html += `<div class="members-title" style="margin-top: 16px;"><span>MEMBERS</span><span>${memberCount}</span></div>`;
-        html += members.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
-          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
-          const isCurrentUser = user.username === username;
-          
-          return `
-            <div class="member">
-              <div class="member-avatar">
-                ${avatarContent}
-                <div class="status-indicator"></div>
-              </div>
-              <div class="member-name">${esc(user.username)}</div>
-              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
-            </div>
-          `;
-        }).join('');
-      }
-      
-      container.innerHTML = html;
-    }
-
-    window.sendFriendRequest = function(targetUsername) {
-      push(ref(database, `friendRequests/${targetUsername}`), {
-        from: username,
-        timestamp: Date.now()
-      });
-      alert(`Friend request sent to ${targetUsername}!`);
-    };
-
-    function checkDMNotifications() {
-      // TODO: Implement DM notification checking
-    }
-
-    // ========== ADMIN PANEL FUNCTIONS ==========
     
     window.openAdminPanel = function() {
       document.getElementById('adminPanelModal').classList.add('show');
-      loadAdminUsers();
-      loadBannedUsers();
+      loadAdminPanel();
     };
     
-    window.closeAdminPanel = function() {
-      document.getElementById('adminPanelModal').classList.remove('show');
-    };
-    
-    window.switchAdminTab = function(tab) {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
-      document.getElementById('adminTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-      
-      if (tab === 'users') loadAdminUsers();
-      if (tab === 'roles') loadRolesUsers();
-      if (tab === 'bans') loadBannedUsers();
-      if (tab === 'logs') loadBanLogs();
-    };
-    
-    function loadAdminUsers() {
-      const container = document.getElementById('adminUsersList');
-      const searchInput = document.getElementById('userSearchInput');
-      
-      const users = Object.values(onlineUsers);
-      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-      const filteredUsers = users.filter(u => u.username.toLowerCase().includes(searchTerm));
-      
-      container.innerHTML = filteredUsers.map(user => {
-        const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
-        const role = user.role || 'Nova';
+    function loadAdminPanel() {
+      // Load admins list
+      get(ref(db, 'presence')).then(snap => {
+        const members = snap.val() || {};
+        const admins = Object.values(members).filter(m => m.role === 'Admin' || m.role === 'Owner');
         
-        return `
-          <div class="user-admin-item">
-            <div class="user-admin-avatar">${avatarContent}</div>
-            <div class="user-admin-info">
-              <div class="user-admin-name">${esc(user.username)}</div>
-              <div class="user-admin-role">Role: ${role}</div>
-            </div>
-            <div class="user-admin-actions">
-              <button class="admin-action-btn" onclick="quickAssignRole('${esc(user.username)}', 'Admin')">
-                Make Admin
-              </button>
-              <button class="admin-action-btn danger" onclick="quickBanUser('${esc(user.username)}')">
-                Ban
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    window.postAnnouncement = function() {
-      const text = document.getElementById('adminAnnounceText').value.trim();
-      if (!text) {
-        alert('Please enter announcement text');
-        return;
-      }
-      
-      const message = {
-        username: username,
-        profilePic: profilePic,
-        text: text,
-        timestamp: Date.now(),
-        isBot: false,
-        role: 'Owner'
-      };
-      
-      push(ref(database, 'channels/announcements/messages'), message);
-      document.getElementById('adminAnnounceText').value = '';
-      alert('✅ Announcement posted!');
-    };
-    
-    window.assignRole = function() {
-      const targetUsername = document.getElementById('roleUsername').value.trim();
-      const newRole = document.getElementById('roleSelect').value;
-      
-      if (!targetUsername) {
-        alert('Please enter a username');
-        return;
-      }
-      
-      // Find user in online users
-      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
-        user.username.toLowerCase() === targetUsername.toLowerCase()
-      );
-      
-      if (!targetUser) {
-        alert('User not found or not online');
-        return;
-      }
-      
-      const [targetUserId, userData] = targetUser;
-      
-      // Update their role in presence
-      update(ref(database, `presence/${targetUserId}`), { role: newRole });
-      
-      // Store role assignment in database
-      set(ref(database, `roles/${targetUsername}`), newRole);
-      
-      alert(`✅ ${targetUsername} is now ${newRole}!`);
-      document.getElementById('roleUsername').value = '';
-      loadRolesUsers();
-    };
-    
-    function loadRolesUsers() {
-      const container = document.getElementById('rolesUsersList');
-      
-      onValue(ref(database, 'roles'), (snapshot) => {
-        const roles = snapshot.val() || {};
-        
-        if (Object.keys(roles).length === 0) {
-          container.innerHTML = '<p style="color: #8e9297; text-align: center; padding: 20px;">No custom roles assigned yet</p>';
-          return;
+        const adminsList = document.getElementById('adminsList');
+        if (admins.length === 0) {
+          adminsList.innerHTML = '<p style="color: #8e9297;">No admins assigned yet.</p>';
+        } else {
+          adminsList.innerHTML = admins.map(a => `
+            <div class="admin-list-entry">${a.username} - ${a.role}</div>
+          `).join('');
         }
+      });
+      
+      // Load ban logs
+      get(ref(db, 'bans')).then(snap => {
+        const bans = snap.val() || {};
+        const banLogs = document.getElementById('banLogs');
         
-        container.innerHTML = Object.entries(roles).map(([username, role]) => `
-          <div class="user-admin-item">
-            <div class="user-admin-info">
-              <div class="user-admin-name">${esc(username)}</div>
-              <div class="user-admin-role">Role: ${role}</div>
-            </div>
-            <div class="user-admin-actions">
-              <button class="admin-action-btn danger" onclick="removeRole('${esc(username)}')">
-                Remove Role
-              </button>
-            </div>
-          </div>
-        `).join('');
-      }, { onlyOnce: true });
+        const activeBans = Object.entries(bans).filter(([_, data]) => data.banned === true);
+        
+        if (activeBans.length === 0) {
+          banLogs.innerHTML = '<p style="color: #8e9297;">No active bans.</p>';
+        } else {
+          banLogs.innerHTML = activeBans.map(([user, data]) => {
+            const date = new Date(data.timestamp).toLocaleString();
+            return `<div class="ban-log-entry">🚫 ${user} - Banned on ${date}</div>`;
+          }).join('');
+        }
+      });
     }
-    
-    window.removeRole = function(username) {
-      if (!confirm(`Remove custom role from ${username}?`)) return;
-      
-      remove(ref(database, `roles/${username}`));
-      
-      // Find and update their presence
-      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
-        user.username === username
-      );
-      
-      if (targetUser) {
-        const [targetUserId] = targetUser;
-        update(ref(database, `presence/${targetUserId}`), { role: 'Nova' });
-      }
-      
-      alert('✅ Role removed!');
-      loadRolesUsers();
-    };
-    
-    window.quickAssignRole = function(username, role) {
-      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
-        user.username === username
-      );
-      
-      if (!targetUser) {
-        alert('User not found');
-        return;
-      }
-      
-      const [targetUserId] = targetUser;
-      update(ref(database, `presence/${targetUserId}`), { role: role });
-      set(ref(database, `roles/${username}`), role);
-      
-      alert(`✅ ${username} is now ${role}!`);
-      loadAdminUsers();
-    };
     
     window.banUser = function() {
-      const targetUsername = document.getElementById('banUsername').value.trim();
-      if (!targetUsername) {
+      const targetUser = document.getElementById('banUsername').value.trim();
+      if (!targetUser) {
         alert('Please enter a username');
         return;
       }
       
-      if (targetUsername === username) {
+      if (targetUser === username) {
         alert('You cannot ban yourself!');
         return;
       }
       
-      const banData = {
-        bannedBy: username,
-        timestamp: Date.now(),
-        reason: 'Banned by admin'
-      };
-      
-      // Add to bans
-      set(ref(database, `bans/${targetUsername}`), banData);
-      
-      // Add to ban logs
-      push(ref(database, 'banLogs'), {
-        action: 'ban',
-        username: targetUsername,
-        by: username,
-        timestamp: Date.now(),
-        reason: 'Banned by admin'
-      });
-      
-      // Post ban announcement to general chat
-      push(ref(database, 'channels/general/messages'), {
-        username: 'Nova Bot',
-        profilePic: '',
-        text: `🔨 ${targetUsername} has been banned from the server.`,
-        timestamp: Date.now(),
-        isBot: true
-      });
-      
-      // Remove from online presence
-      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
-        user.username === targetUsername
-      );
-      
-      if (targetUser) {
-        const [targetUserId] = targetUser;
-        remove(ref(database, `presence/${targetUserId}`));
-      }
-      
-      alert(`🔨 ${targetUsername} has been banned!`);
-      document.getElementById('banUsername').value = '';
-      loadBannedUsers();
-    };
-    
-    window.quickBanUser = function(targetUsername) {
-      if (!confirm(`Ban ${targetUsername}?`)) return;
-      
-      if (targetUsername === username) {
-        alert('You cannot ban yourself!');
-        return;
-      }
-      
-      const banData = {
-        bannedBy: username,
-        timestamp: Date.now(),
-        reason: 'Banned by admin'
-      };
-      
-      set(ref(database, `bans/${targetUsername}`), banData);
-      
-      // Add to ban logs
-      push(ref(database, 'banLogs'), {
-        action: 'ban',
-        username: targetUsername,
-        by: username,
-        timestamp: Date.now(),
-        reason: 'Banned by admin'
-      });
-      
-      // Post ban announcement to general chat
-      push(ref(database, 'channels/general/messages'), {
-        username: 'Nova Bot',
-        profilePic: '',
-        text: `🔨 ${targetUsername} has been banned from the server.`,
-        timestamp: Date.now(),
-        isBot: true
-      });
-      
-      const targetUser = Object.entries(onlineUsers).find(([id, user]) => 
-        user.username === targetUsername
-      );
-      
-      if (targetUser) {
-        const [targetUserId] = targetUser;
-        remove(ref(database, `presence/${targetUserId}`));
-      }
-      
-      alert(`🔨 ${targetUsername} has been banned!`);
-      loadAdminUsers();
-      loadBannedUsers();
-    };
-    
-    window.unbanUser = function(bannedUsername) {
-      if (!confirm(`Unban ${bannedUsername}?`)) return;
-      
-      remove(ref(database, `bans/${bannedUsername}`));
-      
-      // Add to ban logs
-      push(ref(database, 'banLogs'), {
-        action: 'unban',
-        username: bannedUsername,
-        by: username,
-        timestamp: Date.now(),
-        reason: 'Unbanned by admin'
-      });
-      
-      // Post unban announcement to general chat
-      push(ref(database, 'channels/general/messages'), {
-        username: 'Nova Bot',
-        profilePic: '',
-        text: `✅ ${bannedUsername} has been unbanned.`,
-        timestamp: Date.now(),
-        isBot: true
-      });
-      
-      alert(`✅ ${bannedUsername} has been unbanned!`);
-      loadBannedUsers();
-    };
-    
-    function loadBanLogs() {
-      const container = document.getElementById('banLogsList');
-      
-      onValue(ref(database, 'banLogs'), (snapshot) => {
-        const logs = snapshot.val() || {};
-        const logsArray = Object.entries(logs)
-          .map(([id, log]) => ({ id, ...log }))
-          .sort((a, b) => b.timestamp - a.timestamp)
-          .slice(0, 50); // Show last 50 logs
-        
-        if (logsArray.length === 0) {
-          container.innerHTML = '<p style="color: #8e9297; text-align: center; padding: 20px;">No ban activity yet</p>';
-          return;
-        }
-        
-        container.innerHTML = logsArray.map(log => {
-          const date = new Date(log.timestamp).toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-          
-          const isBan = log.action === 'ban';
-          const color = isBan ? '#ed4245' : '#23a559';
-          const icon = isBan ? '🔨' : '✅';
-          
-          return `
-            <div class="user-admin-item">
-              <div style="font-size: 24px;">${icon}</div>
-              <div class="user-admin-info">
-                <div class="user-admin-name">${esc(log.username)} was ${log.action}ned</div>
-                <div class="user-admin-role">
-                  By ${esc(log.by)} • ${date}
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }, { onlyOnce: true });
-    }
-    
-    function loadBannedUsers() {
-      const container = document.getElementById('bannedUsersList');
-      
-      onValue(ref(database, 'bans'), (snapshot) => {
-        const bans = snapshot.val() || {};
-        
-        if (Object.keys(bans).length === 0) {
-          container.innerHTML = '<p style="color: #8e9297; text-align: center; padding: 20px;">No banned users</p>';
-          return;
-        }
-        
-        container.innerHTML = Object.entries(bans).map(([username, banData]) => `
-          <div class="banned-user-item">
-            <div>
-              <div class="banned-user-name">${esc(username)}</div>
-              <div style="color: #ed4245; font-size: 12px;">
-                Banned ${new Date(banData.timestamp).toLocaleDateString()}
-              </div>
-            </div>
-            <button class="btn btn-primary" onclick="unbanUser('${esc(username)}')">
-              Unban
-            </button>
-          </div>
-        `).join('');
-      }, { onlyOnce: true });
-    }
-    
-    // User search in admin panel
-    document.addEventListener('DOMContentLoaded', () => {
-      const searchInput = document.getElementById('userSearchInput');
-      if (searchInput) {
-        searchInput.addEventListener('input', () => {
-          loadAdminUsers();
+      if (confirm(`Ban ${targetUser}? They will be unable to access the chat.`)) {
+        set(ref(db, `bans/${targetUser}`), {
+          banned: true,
+          bannedBy: username,
+          timestamp: Date.now()
         });
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `⚠️ ${targetUser} has been banned by ${username}.`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        
+        document.getElementById('banUsername').value = '';
+        loadAdminPanel();
       }
-    });
-    
-    // Check if user is banned on load
-    function checkIfBanned() {
-      get(ref(database, `bans/${username}`)).then((snapshot) => {
-        if (snapshot.exists()) {
-          const banData = snapshot.val();
-          const banDate = new Date(banData.timestamp).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-          
-          // Show ban screen
-          document.getElementById('banScreen').style.display = 'flex';
-          document.getElementById('chatContainer').style.display = 'none';
-          document.getElementById('banReason').textContent = banData.reason || 'You have been banned from Nova Chat.';
-          document.getElementById('banDate').textContent = `Banned on ${banDate}`;
-          
-          // Remove user from presence
-          if (userPresenceRef) {
-            remove(userPresenceRef);
-          }
-        }
-      });
-    }
-    
-    checkIfBanned();
-    
-    // ========== DELETE MESSAGE ==========
-    window.deleteMessage = function(messageId) {
-      if (!confirm('Delete this message?')) return;
-      remove(ref(database, `channels/${currentChannel}/messages/${messageId}`));
     };
     
-    // ========== CHAT SETTINGS ==========
-    window.openChatSettings = function() {
-      document.getElementById('chatSettingsModal').classList.add('show');
-      loadFriendRequests();
-      loadBlockedUsers();
-    };
-    
-    window.closeChatSettings = function() {
-      document.getElementById('chatSettingsModal').classList.remove('show');
-    };
-    
-    function loadFriendRequests() {
-      const container = document.getElementById('friendRequestsList');
-      
-      onValue(ref(database, `friendRequests/${username}`), (snapshot) => {
-        const requests = snapshot.val() || {};
-        
-        if (Object.keys(requests).length === 0) {
-          container.innerHTML = '<p style="color: #8e9297; padding: 12px;">No pending friend requests</p>';
-          return;
-        }
-        
-        container.innerHTML = Object.entries(requests).map(([id, request]) => `
-          <div class="user-admin-item">
-            <div class="user-admin-info">
-              <div class="user-admin-name">${esc(request.from)}</div>
-              <div class="user-admin-role">wants to be friends</div>
-            </div>
-            <div class="user-admin-actions">
-              <button class="admin-action-btn" onclick="acceptFriendRequest('${id}', '${esc(request.from)}')">
-                Accept
-              </button>
-              <button class="admin-action-btn danger" onclick="declineFriendRequest('${id}')">
-                Decline
-              </button>
-            </div>
-          </div>
-        `).join('');
-      }, { onlyOnce: true });
-    }
-    
-    window.acceptFriendRequest = function(requestId, fromUsername) {
-      // Add to friends list
-      set(ref(database, `friends/${username}/${fromUsername}`), true);
-      set(ref(database, `friends/${fromUsername}/${username}`), true);
-      
-      // Remove request
-      remove(ref(database, `friendRequests/${username}/${requestId}`));
-      
-      alert(`✅ You are now friends with ${fromUsername}!`);
-      loadFriendRequests();
-    };
-    
-    window.declineFriendRequest = function(requestId) {
-      remove(ref(database, `friendRequests/${username}/${requestId}`));
-      loadFriendRequests();
-    };
-    
-    window.blockUser = function() {
-      const blockUsername = document.getElementById('blockUsername').value.trim();
-      if (!blockUsername) {
+    window.unbanUser = function() {
+      const targetUser = document.getElementById('unbanUsername').value.trim();
+      if (!targetUser) {
         alert('Please enter a username');
         return;
       }
       
-      if (blockUsername === username) {
-        alert('You cannot block yourself!');
-        return;
+      if (confirm(`Unban ${targetUser}?`)) {
+        remove(ref(db, `bans/${targetUser}`));
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `✅ ${targetUser} has been unbanned by ${username}.`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        
+        document.getElementById('unbanUsername').value = '';
+        loadAdminPanel();
       }
-      
-      set(ref(database, `blocks/${username}/${blockUsername}`), true);
-      document.getElementById('blockUsername').value = '';
-      alert(`🚫 ${blockUsername} has been blocked!`);
-      loadBlockedUsers();
     };
     
-    window.unblockUser = function(blockedUsername) {
-      if (!confirm(`Unblock ${blockedUsername}?`)) return;
-      
-      remove(ref(database, `blocks/${username}/${blockedUsername}`));
-      alert(`✅ ${blockedUsername} has been unblocked!`);
-      loadBlockedUsers();
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('show');
     };
     
-    function loadBlockedUsers() {
-      const container = document.getElementById('blockedUsersList');
-      
-      onValue(ref(database, `blocks/${username}`), (snapshot) => {
-        const blocks = snapshot.val() || {};
-        
-        if (Object.keys(blocks).length === 0) {
-          container.innerHTML = '<p style="color: #8e9297; padding: 12px;">No blocked users</p>';
-          return;
-        }
-        
-        container.innerHTML = Object.keys(blocks).map(blockedUsername => `
-          <div class="banned-user-item">
-            <div class="banned-user-name">${esc(blockedUsername)}</div>
-            <button class="btn btn-primary" onclick="unblockUser('${esc(blockedUsername)}')">
-              Unblock
-            </button>
-          </div>
-        `).join('');
-      }, { onlyOnce: true });
-    }
-    
-    // Check friend requests on load
-    function checkFriendRequests() {
-      onValue(ref(database, `friendRequests/${username}`), (snapshot) => {
-        const requests = snapshot.val() || {};
-        const count = Object.keys(requests).length;
-        
-        if (count > 0) {
-          // Show notification somewhere
-          console.log(`You have ${count} friend request(s)`);
-        }
-      });
-    }
-    
-    checkFriendRequests();
-
-    function getInitial(name) {
-      return name.charAt(0).toUpperCase();
-    }
-
-    function esc(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
+    // Click outside to close emoji picker
     document.addEventListener('click', (e) => {
       const picker = document.getElementById('emojiPicker');
-      const modal = document.getElementById('reactionModal');
-      if (!e.target.closest('.input-btn') && !picker.contains(e.target)) {
+      if (!picker.contains(e.target) && !e.target.closest('.action-btn')) {
         picker.classList.remove('show');
       }
-      if (!modal.querySelector('.modal-content').contains(e.target) && modal.classList.contains('show')) {
-        modal.classList.remove('show');
-      }
     });
-
+    
+    // Enter to send message
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+    
+    // Enter to verify owner
+    document.getElementById('ownerPasscode').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyOwnerAccess();
+    });
+    
+    // Cleanup on exit
     window.addEventListener('beforeunload', () => {
-      if (userPresenceRef) remove(userPresenceRef);
+      remove(ref(db, `presence/${userId}`));
     });
   </script>
 </body>
