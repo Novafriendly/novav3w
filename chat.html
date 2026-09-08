@@ -97,6 +97,22 @@
     .action-btn:hover { background: rgba(79,84,92,0.6); color: #dcddde; }
     .action-btn svg { width: 20px; height: 20px; }
     
+    .reply-preview { padding: 8px 16px; background: rgba(88,101,242,0.1); border-left: 3px solid #5865f2; margin-bottom: 8px; display: none; align-items: center; gap: 12px; }
+    .reply-preview.show { display: flex; }
+    .reply-preview-content { flex: 1; }
+    .reply-preview-user { color: #5865f2; font-weight: 700; font-size: 13px; }
+    .reply-preview-text { color: #b5bac1; font-size: 13px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reply-preview-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; }
+    .reply-preview-close:hover { background: rgba(79,84,92,0.4); color: white; }
+    
+    .message-reply { padding: 4px 12px 4px 38px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .message-reply:hover { background: rgba(79,84,92,0.2); }
+    .message-reply-line { width: 2px; height: 100%; background: #4e5058; border-radius: 2px; margin-right: 8px; }
+    .message-reply-avatar { width: 16px; height: 16px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; overflow: hidden; }
+    .message-reply-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .message-reply-user { color: #b5bac1; font-weight: 600; font-size: 13px; }
+    .message-reply-text { color: #80848e; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    
     .message-input-container { padding: 16px; z-index: 10; }
     .message-input-wrapper { background: #000; border-radius: 8px; padding: 11px; display: flex; align-items: center; gap: 8px; }
     .message-input { flex: 1; background: none; border: none; color: #dcddde; font-size: 15px; outline: none; }
@@ -274,6 +290,13 @@
       </div>
       <div class="messages-area" id="messagesArea"></div>
       <div class="message-input-container">
+        <div class="reply-preview" id="replyPreview">
+          <div class="reply-preview-content">
+            <div class="reply-preview-user" id="replyPreviewUser"></div>
+            <div class="reply-preview-text" id="replyPreviewText"></div>
+          </div>
+          <button class="reply-preview-close" onclick="cancelReply()">×</button>
+        </div>
         <div class="message-input-wrapper">
           <button class="upload-btn" onclick="document.getElementById('fileUpload').click()">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
@@ -469,6 +492,7 @@
     let currentSettingsTab = 'user-info';
     let userBio = localStorage.getItem('nova_user_bio') || '';
     let dmChannels = {};
+    let replyingTo = null;
 
     const OWNER_PASSCODE = '0090';
     const emojis = ['😀','😂','🤣','😊','😍','🥰','😘','😎','🤔','😮','😢','😭','😡','🔥','✨','💯','❤️','💙','💚','💛','👍','👎','👏','🙌','🎉','🎊','💪','✅','❌','⭐'];
@@ -644,7 +668,15 @@
             return `<div class="reaction ${r?'reacted':''}" onclick="toggleReaction('${id}','${e}')">${e} ${ul.length}</div>`;
           }).join('') : '';
           
-          return `<div class="message"><div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${badge}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
+          // Reply preview
+          let replyHtml = '';
+          if (m.replyTo && msgs[m.replyTo]) {
+            const reply = msgs[m.replyTo];
+            const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : reply.username.charAt(0).toUpperCase();
+            replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')"><div class="message-reply-line"></div><div class="message-reply-avatar">${replyAv}</div><span class="message-reply-user">${reply.username}</span><span class="message-reply-text">${reply.text}</span></div>`;
+          }
+          
+          return `<div class="message" id="msg-${id}">${replyHtml}<div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${badge}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
         }).join('');
         area.scrollTop = area.scrollHeight;
         
@@ -887,10 +919,38 @@
       const text = input.value.trim();
       if (!text || (currentChannel === 'announcements' && userRole !== 'Owner')) return;
       
-      push(ref(db, `channels/${currentChannel}/messages`), {username, profilePic, text, timestamp: Date.now(), role: userRole});
+      const msgData = {username, profilePic, text, timestamp: Date.now(), role: userRole};
+      if (replyingTo) {
+        msgData.replyTo = replyingTo;
+      }
+      
+      push(ref(db, `channels/${currentChannel}/messages`), msgData);
       input.value = '';
       remove(ref(db, `typing/${currentChannel}/${username}`));
+      cancelReply();
     }
+    
+    window.startReply = function(msgId, msgUser, msgText) {
+      replyingTo = msgId;
+      document.getElementById('replyPreviewUser').textContent = msgUser;
+      document.getElementById('replyPreviewText').textContent = msgText.length > 50 ? msgText.substring(0, 50) + '...' : msgText;
+      document.getElementById('replyPreview').classList.add('show');
+      document.getElementById('messageInput').focus();
+    };
+    
+    window.cancelReply = function() {
+      replyingTo = null;
+      document.getElementById('replyPreview').classList.remove('show');
+    };
+    
+    window.scrollToMessage = function(msgId) {
+      const el = document.getElementById(`msg-${msgId}`);
+      if (el) {
+        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        el.style.background = 'rgba(88,101,242,0.2)';
+        setTimeout(() => el.style.background = '', 2000);
+      }
+    };
 
     window.openEmojiPicker = function(id) {
       currentEmojiMessageId = id;
