@@ -35,7 +35,8 @@
     .channel.active { background: rgba(79,84,92,0.4); color: white; }
     .channel-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .channel-lock { width: 16px; height: 16px; margin-left: auto; color: #80848e; }
-    .channel-streak { position: absolute; right: 8px; font-size: 16px; animation: fireFlicker 1.5s ease-in-out infinite; }
+    .channel-streak { position: absolute; right: 8px; font-size: 14px; animation: fireFlicker 1.5s ease-in-out infinite; display: flex; align-items: center; gap: 4px; font-weight: 700; color: #ff6b35; }
+    .channel-streak-fire { font-size: 16px; }
     @keyframes fireFlicker { 0%, 100% { transform: scale(1) rotate(-5deg); filter: brightness(1); } 25% { transform: scale(1.1) rotate(5deg); filter: brightness(1.2); } 50% { transform: scale(0.95) rotate(-3deg); filter: brightness(0.9); } 75% { transform: scale(1.05) rotate(3deg); filter: brightness(1.1); } }
     
     .user-profile-card { position: fixed; bottom: 0; left: 72px; width: 240px; background: rgba(0,0,0,0.98); padding: 10px; display: flex; align-items: center; gap: 10px; z-index: 100; border-top: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
@@ -837,7 +838,7 @@
           // Check for streak
           get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
             const streak = streakSnap.val();
-            const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak">🔥</span>` : '';
+            const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak"><span class="channel-streak-fire">🔥</span>${streak.count}</span>` : '';
             
             html += `<div class="channel ${active}" onclick="switchToDM('${dmId}', '${f.username}')"><div class="channel-icon">${avatar}</div>${f.username}${streakBadge}</div>`;
             
