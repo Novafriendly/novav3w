@@ -113,12 +113,12 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚠️ Reset All Users</h1>
-    <p>This will permanently delete ALL users, presence data, and custom roles from Nova Chat.</p>
+    <h1>⚠️ COMPLETE RESET</h1>
+    <p>This will permanently delete EVERYTHING from Nova Chat database.</p>
     
     <div class="warning">
       <div class="warning-title">⚠️ Warning</div>
-      <div class="warning-text">This action cannot be undone! All user accounts, roles, and presence data will be permanently deleted.</div>
+      <div class="warning-text">This action cannot be undone! All users, messages, channels, roles, bans, mutes, and ALL data will be permanently deleted.</div>
     </div>
     
     <input 
@@ -129,7 +129,7 @@
     >
     
     <button class="btn btn-danger" onclick="resetAllUsers()">
-      Delete All Users
+      DELETE EVERYTHING
     </button>
     
     <div id="status"></div>
@@ -163,11 +163,11 @@
         return;
       }
       
-      if (!confirm('Are you ABSOLUTELY SURE? This will delete ALL users permanently!')) {
+      if (!confirm('Are you ABSOLUTELY SURE? This will delete EVERYTHING in the database permanently!')) {
         return;
       }
       
-      if (!confirm('Last chance! Click OK to proceed with deletion.')) {
+      if (!confirm('FINAL WARNING: All users, messages, channels, and data will be GONE FOREVER. Continue?')) {
         return;
       }
       
@@ -188,8 +188,20 @@
         // Delete all bans
         await remove(ref(db, 'bans'));
         
+        // Delete all mutes
+        await remove(ref(db, 'mutes'));
+        
+        // Delete all channels and messages
+        await remove(ref(db, 'channels'));
+        
+        // Delete all DMs
+        await remove(ref(db, 'directMessages'));
+        
+        // Delete typing indicators
+        await remove(ref(db, 'typing'));
+        
         status.className = 'success';
-        status.textContent = '✅ All users, presence data, custom roles, and bans deleted successfully!';
+        status.textContent = '✅ EVERYTHING deleted successfully! Database completely wiped.';
         btn.textContent = 'Completed';
         
         setTimeout(() => {
@@ -200,7 +212,7 @@
         status.className = 'error';
         status.textContent = '❌ Error: ' + error.message;
         btn.disabled = false;
-        btn.textContent = 'Delete All Users';
+        btn.textContent = 'DELETE EVERYTHING';
       }
     };
     
