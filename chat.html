@@ -44,10 +44,10 @@
     .user-profile-info { flex: 1; min-width: 0; }
     .user-profile-name { color: white; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .user-profile-role { color: #b5bac1; font-size: 12px; font-weight: 500; }
-    .user-profile-role.owner { color: #ffd700; }
-    .user-profile-role.admin { color: #a855f7; }
-    .user-profile-role.moderator { color: #3b82f6; }
-    .user-profile-role.vip { color: #10b981; }
+    .user-profile-role.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .user-profile-role.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .user-profile-role.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .user-profile-role.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
     .settings-btn svg { width: 20px; height: 20px; }
@@ -65,6 +65,10 @@
     .message-content { flex: 1; min-width: 0; }
     .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
     .message-author { color: white; font-weight: 600; font-size: 15px; }
+    .message-author.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .message-author.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .message-author.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .message-author.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .role-badge { padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
     .role-badge.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
     .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
@@ -112,10 +116,10 @@
     .member-info { flex: 1; min-width: 0; }
     .member-name { color: #949ba4; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .member-name.online { color: #dcddde; }
-    .member-name.owner { color: #ffd700; }
-    .member-name.admin { color: #a855f7; }
-    .member-name.moderator { color: #3b82f6; }
-    .member-name.vip { color: #10b981; }
+    .member-name.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .member-name.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .member-name.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .member-name.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .add-friend-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #5865f2; border-radius: 50%; cursor: pointer; opacity: 0; transition: all 0.15s; }
     .add-friend-icon:hover { background: #4752c4; }
     .add-friend-icon svg { width: 16px; height: 16px; color: white; }
@@ -617,6 +621,7 @@
           const time = new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
           const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
           const roleClass = (m.role || 'member').toLowerCase();
+          const authorClass = `message-author ${roleClass}`;
           const badge = m.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : 
                        m.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : 
                        m.role === 'Moderator' ? '<span class="role-badge moderator">MODERATOR</span>' :
@@ -638,7 +643,7 @@
             return `<div class="reaction ${r?'reacted':''}" onclick="toggleReaction('${id}','${e}')">${e} ${ul.length}</div>`;
           }).join('') : '';
           
-          return `<div class="message"><div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="message-author">${m.username}</span>${badge}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
+          return `<div class="message"><div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${badge}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
         }).join('');
         area.scrollTop = area.scrollHeight;
         
