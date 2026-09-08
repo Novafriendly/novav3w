@@ -33,7 +33,12 @@
       padding-bottom: 70px;
       background: transparent;
       position: relative;
-      z-index: 1;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    .chat-container > * {
+      pointer-events: auto;
     }
     
     /* ========== SERVER LIST (FAR LEFT) ========== */
@@ -767,6 +772,12 @@
           <div class="channel-divider"></div>
           <div class="channel-topic" id="channelTopic">Important updates and news from Nova</div>
         </div>
+        <button class="input-btn" onclick="openChatSettings()" title="Chat Settings" style="margin-right: 8px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </button>
       </div>
       
       <div class="messages-area" id="messagesArea"></div>
@@ -913,6 +924,31 @@
       
       <div class="modal-buttons" style="margin-top: 24px;">
         <button class="btn btn-secondary" onclick="closeAdminPanel()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Chat Settings Modal -->
+  <div class="modal" id="chatSettingsModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">⚙️ Chat Settings</div>
+      
+      <div style="margin: 24px 0;">
+        <h3 style="color: white; font-size: 16px; margin-bottom: 12px;">Friend Requests</h3>
+        <div id="friendRequestsList"></div>
+      </div>
+      
+      <div style="margin: 24px 0;">
+        <h3 style="color: white; font-size: 16px; margin-bottom: 12px;">Blocked Users</h3>
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+          <input type="text" id="blockUsername" class="modal-input" placeholder="Username to block" style="flex: 1; margin: 0;">
+          <button class="btn btn-danger" onclick="blockUser()">Block</button>
+        </div>
+        <div id="blockedUsersList"></div>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeChatSettings()">Close</button>
       </div>
     </div>
   </div>
@@ -1162,9 +1198,14 @@
         return;
       }
       
-      const messagesArray = Object.entries(messages)
-        .map(([id, msg]) => ({ id, ...msg }))
-        .sort((a, b) => a.timestamp - b.timestamp);
+      // Get blocked users list
+      get(ref(database, `blocks/${username}`)).then((snapshot) => {
+        const blockedUsers = snapshot.val() || {};
+        
+        const messagesArray = Object.entries(messages)
+          .map(([id, msg]) => ({ id, ...msg }))
+          .filter(msg => !blockedUsers[msg.username]) // Filter blocked users
+          .sort((a, b) => a.timestamp - b.timestamp);
       
       container.innerHTML = messagesArray.map(msg => {
         const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -1210,12 +1251,14 @@
               <button class="action-btn" onclick="openReactionPicker('${msg.id}')" title="Add Reaction">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </button>
+              ${msg.username === username || isOwner ? `<button class="action-btn" onclick="deleteMessage('${msg.id}')" title="Delete Message"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
             </div>
           </div>
         `;
       }).join('');
       
-      container.scrollTop = container.scrollHeight;
+        container.scrollTop = container.scrollHeight;
+      });
     }
 
     window.sendMessage = function() {
@@ -1668,6 +1711,133 @@
     }
     
     checkIfBanned();
+    
+    // ========== DELETE MESSAGE ==========
+    window.deleteMessage = function(messageId) {
+      if (!confirm('Delete this message?')) return;
+      remove(ref(database, `channels/${currentChannel}/messages/${messageId}`));
+    };
+    
+    // ========== CHAT SETTINGS ==========
+    window.openChatSettings = function() {
+      document.getElementById('chatSettingsModal').classList.add('show');
+      loadFriendRequests();
+      loadBlockedUsers();
+    };
+    
+    window.closeChatSettings = function() {
+      document.getElementById('chatSettingsModal').classList.remove('show');
+    };
+    
+    function loadFriendRequests() {
+      const container = document.getElementById('friendRequestsList');
+      
+      onValue(ref(database, `friendRequests/${username}`), (snapshot) => {
+        const requests = snapshot.val() || {};
+        
+        if (Object.keys(requests).length === 0) {
+          container.innerHTML = '<p style="color: #8e9297; padding: 12px;">No pending friend requests</p>';
+          return;
+        }
+        
+        container.innerHTML = Object.entries(requests).map(([id, request]) => `
+          <div class="user-admin-item">
+            <div class="user-admin-info">
+              <div class="user-admin-name">${esc(request.from)}</div>
+              <div class="user-admin-role">wants to be friends</div>
+            </div>
+            <div class="user-admin-actions">
+              <button class="admin-action-btn" onclick="acceptFriendRequest('${id}', '${esc(request.from)}')">
+                Accept
+              </button>
+              <button class="admin-action-btn danger" onclick="declineFriendRequest('${id}')">
+                Decline
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }, { onlyOnce: true });
+    }
+    
+    window.acceptFriendRequest = function(requestId, fromUsername) {
+      // Add to friends list
+      set(ref(database, `friends/${username}/${fromUsername}`), true);
+      set(ref(database, `friends/${fromUsername}/${username}`), true);
+      
+      // Remove request
+      remove(ref(database, `friendRequests/${username}/${requestId}`));
+      
+      alert(`✅ You are now friends with ${fromUsername}!`);
+      loadFriendRequests();
+    };
+    
+    window.declineFriendRequest = function(requestId) {
+      remove(ref(database, `friendRequests/${username}/${requestId}`));
+      loadFriendRequests();
+    };
+    
+    window.blockUser = function() {
+      const blockUsername = document.getElementById('blockUsername').value.trim();
+      if (!blockUsername) {
+        alert('Please enter a username');
+        return;
+      }
+      
+      if (blockUsername === username) {
+        alert('You cannot block yourself!');
+        return;
+      }
+      
+      set(ref(database, `blocks/${username}/${blockUsername}`), true);
+      document.getElementById('blockUsername').value = '';
+      alert(`🚫 ${blockUsername} has been blocked!`);
+      loadBlockedUsers();
+    };
+    
+    window.unblockUser = function(blockedUsername) {
+      if (!confirm(`Unblock ${blockedUsername}?`)) return;
+      
+      remove(ref(database, `blocks/${username}/${blockedUsername}`));
+      alert(`✅ ${blockedUsername} has been unblocked!`);
+      loadBlockedUsers();
+    };
+    
+    function loadBlockedUsers() {
+      const container = document.getElementById('blockedUsersList');
+      
+      onValue(ref(database, `blocks/${username}`), (snapshot) => {
+        const blocks = snapshot.val() || {};
+        
+        if (Object.keys(blocks).length === 0) {
+          container.innerHTML = '<p style="color: #8e9297; padding: 12px;">No blocked users</p>';
+          return;
+        }
+        
+        container.innerHTML = Object.keys(blocks).map(blockedUsername => `
+          <div class="banned-user-item">
+            <div class="banned-user-name">${esc(blockedUsername)}</div>
+            <button class="btn btn-primary" onclick="unblockUser('${esc(blockedUsername)}')">
+              Unblock
+            </button>
+          </div>
+        `).join('');
+      }, { onlyOnce: true });
+    }
+    
+    // Check friend requests on load
+    function checkFriendRequests() {
+      onValue(ref(database, `friendRequests/${username}`), (snapshot) => {
+        const requests = snapshot.val() || {};
+        const count = Object.keys(requests).length;
+        
+        if (count > 0) {
+          // Show notification somewhere
+          console.log(`You have ${count} friend request(s)`);
+        }
+      });
+    }
+    
+    checkFriendRequests();
 
     function getInitial(name) {
       return name.charAt(0).toUpperCase();
