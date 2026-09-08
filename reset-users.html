@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Chat - Reset Users</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      background: #000; 
+      color: white; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 500px; 
+      background: #111; 
+      border: 1px solid #333; 
+      border-radius: 12px; 
+      padding: 40px;
+      text-align: center;
+    }
+    h1 { 
+      font-size: 24px; 
+      margin-bottom: 16px; 
+      color: #ff4444;
+    }
+    p { 
+      color: #999; 
+      margin-bottom: 24px; 
+      line-height: 1.6;
+    }
+    .warning {
+      background: rgba(255,68,68,0.1);
+      border: 1px solid rgba(255,68,68,0.3);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+    .warning-title {
+      color: #ff4444;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .warning-text {
+      color: #ff8888;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #ff4444;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger {
+      background: #ff4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #ff6666;
+      transform: translateY(-2px);
+    }
+    .btn-danger:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    #status.success {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #22c55e;
+      display: block;
+    }
+    #status.error {
+      background: rgba(255,68,68,0.1);
+      border: 1px solid rgba(255,68,68,0.3);
+      color: #ff4444;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚠️ Reset All Users</h1>
+    <p>This will permanently delete ALL users, presence data, and custom roles from Nova Chat.</p>
+    
+    <div class="warning">
+      <div class="warning-title">⚠️ Warning</div>
+      <div class="warning-text">This action cannot be undone! All user accounts, roles, and presence data will be permanently deleted.</div>
+    </div>
+    
+    <input 
+      type="password" 
+      id="passcode" 
+      placeholder="Enter owner passcode (0090)" 
+      maxlength="4"
+    >
+    
+    <button class="btn btn-danger" onclick="resetAllUsers()">
+      Delete All Users
+    </button>
+    
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    const app = initializeApp({
+      apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
+      authDomain: "nova-chat-43a18.firebaseapp.com",
+      databaseURL: "https://nova-chat-43a18-default-rtdb.firebaseio.com",
+      projectId: "nova-chat-43a18",
+      storageBucket: "nova-chat-43a18.firebasestorage.app",
+      messagingSenderId: "1090469740208",
+      appId: "1:1090469740208:web:94adbe3ee21abb3cf14575"
+    });
+
+    const db = getDatabase(app);
+    const OWNER_PASSCODE = '0090';
+
+    window.resetAllUsers = async function() {
+      const passcode = document.getElementById('passcode').value;
+      const status = document.getElementById('status');
+      const btn = document.querySelector('.btn-danger');
+      
+      if (passcode !== OWNER_PASSCODE) {
+        status.className = 'error';
+        status.textContent = '❌ Incorrect passcode!';
+        return;
+      }
+      
+      if (!confirm('Are you ABSOLUTELY SURE? This will delete ALL users permanently!')) {
+        return;
+      }
+      
+      if (!confirm('Last chance! Click OK to proceed with deletion.')) {
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Deleting...';
+      status.style.display = 'none';
+      
+      try {
+        // Delete all users
+        await remove(ref(db, 'users'));
+        
+        // Delete all presence data
+        await remove(ref(db, 'presence'));
+        
+        // Delete all custom roles
+        await remove(ref(db, 'customRoles'));
+        
+        // Delete all bans
+        await remove(ref(db, 'bans'));
+        
+        status.className = 'success';
+        status.textContent = '✅ All users, presence data, custom roles, and bans deleted successfully!';
+        btn.textContent = 'Completed';
+        
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 3000);
+        
+      } catch (error) {
+        status.className = 'error';
+        status.textContent = '❌ Error: ' + error.message;
+        btn.disabled = false;
+        btn.textContent = 'Delete All Users';
+      }
+    };
+    
+    // Allow Enter key to submit
+    document.getElementById('passcode').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        resetAllUsers();
+      }
+    });
+  </script>
+</body>
+</html>
