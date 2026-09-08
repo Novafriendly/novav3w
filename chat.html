@@ -59,8 +59,9 @@
     .user-profile-role.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
-    .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; }
-    .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
+    .profile-icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; flex-shrink: 0; }
+    .profile-icon-btn svg { width: 18px; height: 18px; }
+    .profile-icon-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
     .owner-admin-btn { background: rgba(79,84,92,0.4) !important; color: white !important; }
     .owner-admin-btn:hover { background: rgba(79,84,92,0.6) !important; transform: translateY(-2px); }
     
@@ -447,13 +448,13 @@
         <div class="user-profile-name" id="profileName">Loading...</div>
         <div class="user-profile-role member" id="profileRole">Member</div>
       </div>
-      <a href="home.html" class="settings-btn" title="Back to Home" onclick="event.stopPropagation()">
+      <a href="home.html" class="profile-icon-btn" title="Back to Home" onclick="event.stopPropagation()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       </a>
-      <button class="settings-btn owner-admin-btn" id="adminBtn" onclick="event.stopPropagation(); openAdminPanel()" title="Admin Panel" style="display:none">
+      <button class="profile-icon-btn owner-admin-btn" id="adminBtn" onclick="event.stopPropagation(); openAdminPanel()" title="Admin Panel" style="display:none">
         <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/></svg>
       </button>
-      <button class="settings-btn" onclick="event.stopPropagation(); openSettings()" title="Settings">
+      <button class="profile-icon-btn" onclick="event.stopPropagation(); openSettings()" title="Settings">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </button>
     </div>
