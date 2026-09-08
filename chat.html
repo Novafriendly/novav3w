@@ -47,49 +47,74 @@
     .user-profile-info { flex: 1; min-width: 0; }
     .user-profile-name { color: white; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .user-profile-role { color: #b5bac1; font-size: 12px; font-weight: 500; }
-    .user-profile-role.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .user-profile-role.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .user-profile-role.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
-    .owner-admin-btn { background: linear-gradient(45deg, #ffd700, #ff9d00) !important; }
-    .owner-admin-btn:hover { background: linear-gradient(45deg, #ffed4e, #ffd700) !important; transform: translateY(-2px); }
+    .owner-admin-btn { background: linear-gradient(45deg, #dc2626, #ef4444) !important; }
+    .owner-admin-btn:hover { background: linear-gradient(45deg, #ef4444, #f87171) !important; transform: translateY(-2px); }
     
-    .admin-modal-content { background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%); border-radius: 16px; padding: 0; max-width: 900px; width: 95%; max-height: 90vh; overflow: hidden; border: 1px solid rgba(88,101,242,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-    .admin-modal-header { background: linear-gradient(90deg, #5865f2, #a855f7); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .admin-modal-title { color: white; font-size: 24px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 12px; }
-    .admin-close-btn { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-    .admin-close-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+    .admin-panel-container { display: flex; width: 100vw; height: 100vh; background: #0a0a0a; }
     
-    .admin-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .admin-tab { flex: 1; padding: 16px 20px; color: #b5bac1; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; border-right: 1px solid rgba(255,255,255,0.05); }
-    .admin-tab:last-child { border-right: none; }
-    .admin-tab:hover { background: rgba(88,101,242,0.1); color: white; }
-    .admin-tab.active { background: linear-gradient(90deg, rgba(88,101,242,0.3), rgba(168,85,247,0.2)); color: white; border-bottom: 3px solid #5865f2; }
+    .admin-sidebar { width: 280px; background: linear-gradient(180deg, #1a1a1a 0%, #0d1117 100%); border-right: 1px solid #30363d; display: flex; flex-direction: column; }
+    .admin-sidebar-header { padding: 24px 20px; border-bottom: 1px solid #30363d; }
+    .admin-sidebar-header h2 { color: #f0f6fc; font-size: 18px; font-weight: 700; margin: 0; letter-spacing: 1px; }
+    .admin-close { position: absolute; top: 20px; right: 20px; width: 32px; height: 32px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: 6px; color: #f87171; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .admin-close:hover { background: rgba(248,113,113,0.2); transform: scale(1.1); }
     
-    .admin-content { padding: 24px; max-height: 70vh; overflow-y: auto; }
-    .admin-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .admin-stat-card { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
-    .admin-stat-card:hover { transform: translateY(-4px); border-color: #5865f2; box-shadow: 0 8px 25px rgba(88,101,242,0.2); }
-    .admin-stat-title { color: #b5bac1; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-    .admin-stat-value { color: #5865f2; font-size: 32px; font-weight: 800; }
-    .admin-stat-icon { float: right; opacity: 0.3; font-size: 24px; }
+    .admin-nav { padding: 16px 0; }
+    .admin-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #7d8590; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .admin-nav-item:hover { background: rgba(56,139,253,0.1); color: #f0f6fc; }
+    .admin-nav-item.active { background: rgba(56,139,253,0.15); color: #58a6ff; border-left-color: #58a6ff; }
+    .admin-nav-item svg { flex-shrink: 0; }
+    .admin-nav-item span { font-weight: 600; font-size: 14px; }
     
-    .user-search-container { position: relative; margin-bottom: 16px; }
-    .user-search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
-    .user-search-suggestions.show { display: block; }
-    .user-suggestion { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
-    .user-suggestion:hover { background: rgba(88,101,242,0.2); }
-    .user-suggestion-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; position: relative; }
-    .user-suggestion-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .user-suggestion-status { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border: 2px solid #1a1d29; border-radius: 50%; }
-    .user-suggestion-status.online { background: #23a559; }
-    .user-suggestion-status.offline { background: #ed4245; }
-    .user-suggestion-info { flex: 1; }
-    .user-suggestion-name { color: white; font-weight: 600; }
-    .user-suggestion-role { color: #b5bac1; font-size: 12px; }
+    .admin-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .admin-content-area { flex: 1; padding: 32px; overflow-y: auto; }
+    
+    .admin-page-title { color: #f0f6fc; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .admin-page-subtitle { color: #7d8590; font-size: 16px; margin-bottom: 32px; }
+    
+    .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .admin-stat-card { background: linear-gradient(135deg, #161b22 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 12px; padding: 24px; position: relative; overflow: hidden; transition: all 0.3s; }
+    .admin-stat-card:hover { transform: translateY(-4px); border-color: #58a6ff; box-shadow: 0 8px 32px rgba(88,166,255,0.15); }
+    .admin-stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .admin-stat-icon { width: 48px; height: 48px; background: rgba(88,166,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .admin-stat-icon svg { width: 24px; height: 24px; color: #58a6ff; }
+    .admin-stat-value { color: #f0f6fc; font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+    .admin-stat-label { color: #7d8590; font-size: 14px; font-weight: 600; }
+    
+    .admin-section { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .admin-section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .admin-section-title { color: #f0f6fc; font-size: 20px; font-weight: 700; margin: 0; }
+    .admin-section-icon { width: 24px; height: 24px; color: #58a6ff; }
+    
+    .admin-user-card { display: flex; align-items: center; gap: 16px; padding: 16px; background: #0d1117; border: 1px solid #21262d; border-radius: 8px; margin-bottom: 12px; transition: all 0.2s; }
+    .admin-user-card:hover { border-color: #30363d; background: #161b22; }
+    .admin-user-avatar { width: 48px; height: 48px; border-radius: 50%; background: #58a6ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; position: relative; overflow: hidden; }
+    .admin-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .admin-user-info { flex: 1; }
+    .admin-user-name { color: #f0f6fc; font-weight: 600; margin-bottom: 4px; }
+    .admin-user-role { color: #7d8590; font-size: 13px; }
+    .admin-user-actions { display: flex; gap: 8px; }
+    .admin-action-btn { padding: 8px 16px; border: 1px solid; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .admin-action-btn.primary { background: #238636; border-color: #2ea043; color: white; }
+    .admin-action-btn.primary:hover { background: #2ea043; }
+    .admin-action-btn.danger { background: #da3633; border-color: #f85149; color: white; }
+    .admin-action-btn.danger:hover { background: #f85149; }
+    .admin-action-btn.secondary { background: #21262d; border-color: #30363d; color: #f0f6fc; }
+    .admin-action-btn.secondary:hover { background: #30363d; }
+    
+    .admin-search-box { width: 100%; padding: 12px 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #f0f6fc; font-size: 14px; margin-bottom: 20px; }
+    .admin-search-box:focus { outline: none; border-color: #58a6ff; box-shadow: 0 0 0 2px rgba(88,166,255,0.2); }
+    
+    .admin-log-entry { padding: 12px 16px; background: #0d1117; border-left: 3px solid #58a6ff; margin-bottom: 8px; border-radius: 0 6px 6px 0; }
+    .admin-log-time { color: #7d8590; font-size: 12px; margin-bottom: 4px; }
+    .admin-log-message { color: #f0f6fc; font-size: 14px; }
+    .admin-log-user { color: #58a6ff; font-weight: 600; }
     
     .chat-main { flex: 1; display: flex; flex-direction: column; background: transparent; z-index: 10; }
     .chat-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.4); background: rgba(0,0,0,0.85); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
@@ -104,13 +129,13 @@
     .message-content { flex: 1; min-width: 0; }
     .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
     .message-author { color: white; font-weight: 600; font-size: 15px; }
-    .message-author.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .message-author.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .role-badge { padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .role-badge.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
+    .role-badge.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
@@ -172,7 +197,7 @@
     .member-info { flex: 1; min-width: 0; }
     .member-name { color: #949ba4; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .member-name.online { color: #dcddde; }
-    .member-name.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
+    .member-name.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
@@ -217,7 +242,7 @@
     .profile-status-indicator.offline { background: #80848e; }
     .profile-username { color: white; font-size: 20px; font-weight: 700; margin-top: 12px; }
     .profile-role-badge-large { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
-    .profile-role-badge-large.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
+    .profile-role-badge-large.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
@@ -460,19 +485,38 @@
   </div>
 
   <div class="modal" id="adminPanelModal">
-    <div class="admin-modal-content">
-      <div class="admin-modal-header">
-        <h1 class="admin-modal-title">👑 OWNER ADMIN PANEL</h1>
-        <button class="admin-close-btn" onclick="closeModal('adminPanelModal')">×</button>
+    <div class="admin-panel-container">
+      <!-- Left Sidebar -->
+      <div class="admin-sidebar">
+        <div class="admin-sidebar-header">
+          <h2>ADMIN PANEL</h2>
+          <button class="admin-close" onclick="closeModal('adminPanelModal')">×</button>
+        </div>
+        <nav class="admin-nav">
+          <div class="admin-nav-item active" onclick="switchAdminTab('dashboard')" data-tab="dashboard">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+            <span>Dashboard</span>
+          </div>
+          <div class="admin-nav-item" onclick="switchAdminTab('users')" data-tab="users">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+            <span>Users</span>
+          </div>
+          <div class="admin-nav-item" onclick="switchAdminTab('moderation')" data-tab="moderation">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            <span>Moderation</span>
+          </div>
+          <div class="admin-nav-item" onclick="switchAdminTab('logs')" data-tab="logs">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15.586 13H14a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+            <span>Chat Logs</span>
+          </div>
+        </nav>
       </div>
-      <div class="admin-tabs">
-        <div class="admin-tab active" onclick="switchAdminTab('overview')">📊 Overview</div>
-        <div class="admin-tab" onclick="switchAdminTab('roles')">⭐ Roles</div>
-        <div class="admin-tab" onclick="switchAdminTab('moderation')">🛡️ Moderation</div>
-        <div class="admin-tab" onclick="switchAdminTab('logs')">📜 Logs</div>
-      </div>
-      <div class="admin-content" id="adminTabContent">
-        <!-- Content will be loaded here -->
+      
+      <!-- Main Content -->
+      <div class="admin-main">
+        <div class="admin-content-area" id="adminContentArea">
+          <!-- Dynamic content loads here -->
+        </div>
       </div>
     </div>
   </div>
