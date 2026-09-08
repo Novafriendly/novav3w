@@ -32,7 +32,7 @@
       z-index: 1;
     }
     
-    /* Banned Screen Overlay */
+    /* Banned Screen */
     .banned-screen {
       position: fixed;
       top: 0;
@@ -48,9 +48,7 @@
       gap: 20px;
     }
     
-    .banned-screen.show {
-      display: flex;
-    }
+    .banned-screen.show { display: flex; }
     
     .banned-title {
       font-size: 48px;
@@ -65,7 +63,7 @@
       max-width: 500px;
     }
     
-    /* Server Icons (Far Left) */
+    /* Server Icons */
     .server-list {
       width: 72px;
       background: #202225;
@@ -184,18 +182,19 @@
       color: white;
     }
     
-    /* User Card (Bottom Left) */
+    /* User Card - BLACK BACKGROUND */
     .user-card {
       position: fixed;
       bottom: 70px;
       left: 72px;
       width: 240px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
+      background: #000;
+      padding: 10px;
       display: flex;
       align-items: center;
       gap: 10px;
       z-index: 100;
+      border-top: 1px solid #1a1a1a;
     }
     
     .user-card-avatar {
@@ -216,9 +215,7 @@
       object-fit: cover;
     }
     
-    .user-card-info {
-      flex: 1;
-    }
+    .user-card-info { flex: 1; }
     
     .user-card-name {
       color: white;
@@ -231,17 +228,9 @@
       font-weight: 500;
     }
     
-    .user-card-status.owner {
-      color: #ffd700;
-    }
-    
-    .user-card-status.admin {
-      color: #a855f7;
-    }
-    
-    .user-card-status.member {
-      color: #b9bbbe;
-    }
+    .user-card-status.owner { color: #ffd700; }
+    .user-card-status.admin { color: #a855f7; }
+    .user-card-status.member { color: #b9bbbe; }
     
     /* Main Chat */
     .chat-main {
@@ -259,7 +248,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid #000;
-      background: rgba(0, 0, 0, 0.15);
+      background: #202225;
     }
     
     .channel-name {
@@ -281,9 +270,7 @@
       transition: all 0.2s;
     }
     
-    .admin-panel-btn:hover {
-      background: #ffed4e;
-    }
+    .admin-panel-btn:hover { background: #ffed4e; }
     
     .messages-area {
       flex: 1;
@@ -297,11 +284,11 @@
       padding: 8px 16px;
       position: relative;
       transition: background 0.1s;
+      border-radius: 4px;
+      margin-bottom: 4px;
     }
     
-    .message:hover {
-      background: rgba(4, 4, 5, 0.07);
-    }
+    .message:hover { background: rgba(4, 4, 5, 0.07); }
     
     .message-avatar {
       width: 40px;
@@ -331,7 +318,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     
     .message-author {
@@ -341,7 +328,7 @@
     
     .role-badge {
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: 3px;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -368,27 +355,32 @@
       word-wrap: break-word;
     }
     
+    .message-image, .message-video {
+      max-width: 400px;
+      max-height: 300px;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
+    
     .reply-preview {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 4px;
-      padding: 4px 8px;
-      background: rgba(0, 0, 0, 0.2);
-      border-left: 2px solid #4e5058;
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid #4e5058;
       border-radius: 4px;
       font-size: 13px;
       color: #b9bbbe;
       cursor: pointer;
     }
     
-    .reply-preview:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
+    .reply-preview:hover { background: rgba(0, 0, 0, 0.4); }
     
     .message-reactions {
       display: flex;
-      gap: 4px;
+      gap: 6px;
       margin-top: 8px;
       flex-wrap: wrap;
     }
@@ -396,18 +388,17 @@
     .reaction {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: rgba(79, 84, 92, 0.4);
       border: 1px solid transparent;
       border-radius: 8px;
-      padding: 4px 8px;
+      padding: 5px 10px;
       cursor: pointer;
       font-size: 14px;
+      transition: all 0.2s;
     }
     
-    .reaction:hover {
-      background: rgba(79, 84, 92, 0.6);
-    }
+    .reaction:hover { background: rgba(79, 84, 92, 0.6); }
     
     .reaction.reacted {
       background: rgba(88, 101, 242, 0.3);
@@ -418,7 +409,7 @@
       position: absolute;
       top: -16px;
       right: 16px;
-      background: #2f3136;
+      background: #18191c;
       border: 1px solid #000;
       border-radius: 8px;
       padding: 4px;
@@ -427,9 +418,7 @@
       z-index: 50;
     }
     
-    .message:hover .message-actions {
-      display: flex;
-    }
+    .message:hover .message-actions { display: flex; }
     
     .action-btn {
       width: 32px;
@@ -458,7 +447,7 @@
     
     .reply-bar {
       display: none;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
       padding: 8px 12px;
       margin-bottom: 8px;
       border-radius: 8px;
@@ -466,9 +455,7 @@
       justify-content: space-between;
     }
     
-    .reply-bar.show {
-      display: flex;
-    }
+    .reply-bar.show { display: flex; }
     
     .reply-info {
       color: #b9bbbe;
@@ -480,11 +467,12 @@
       border: none;
       color: #b9bbbe;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 24px;
+      line-height: 1;
     }
     
     .message-input-wrapper {
-      background: rgba(64, 68, 75, 0.6);
+      background: #40444b;
       border-radius: 8px;
       padding: 12px;
       display: flex;
@@ -501,6 +489,25 @@
       outline: none;
     }
     
+    .upload-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #b9bbbe;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 20px;
+    }
+    
+    .upload-btn:hover {
+      color: white;
+      background: rgba(79, 84, 92, 0.4);
+    }
+    
     /* Members Sidebar */
     .members-sidebar {
       width: 240px;
@@ -515,7 +522,7 @@
     }
     
     .members-title {
-      padding: 0 8px 4px;
+      padding: 0 8px 8px;
       color: #8e9297;
       font-size: 11px;
       font-weight: 700;
@@ -528,14 +535,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 6px 8px;
+      padding: 8px;
       border-radius: 4px;
       cursor: pointer;
+      position: relative;
     }
     
-    .member:hover {
-      background: rgba(79, 84, 92, 0.3);
-    }
+    .member:hover { background: rgba(79, 84, 92, 0.3); }
     
     .member-avatar {
       width: 32px;
@@ -557,16 +563,18 @@
       object-fit: cover;
     }
     
-    .online-indicator {
+    .status-indicator {
       position: absolute;
       bottom: -2px;
       right: -2px;
       width: 12px;
       height: 12px;
-      background: #23a559;
       border: 3px solid #2f3136;
       border-radius: 50%;
     }
+    
+    .status-indicator.online { background: #23a559; }
+    .status-indicator.offline { background: #80848e; }
     
     .member-info {
       flex: 1;
@@ -582,12 +590,34 @@
       white-space: nowrap;
     }
     
-    .member-name.owner {
-      color: #ffd700;
+    .member-name.owner { color: #ffd700; }
+    .member-name.admin { color: #a855f7; }
+    
+    .member-status-text {
+      font-size: 11px;
+      color: #72767d;
     }
     
-    .member-name.admin {
-      color: #a855f7;
+    .add-friend-btn {
+      padding: 4px 8px;
+      background: #5865f2;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .add-friend-btn:hover { background: #4752c4; }
+    
+    .add-friend-btn.pending {
+      background: #faa61a;
+    }
+    
+    .add-friend-btn.friends {
+      background: #23a559;
     }
     
     /* Modals */
@@ -604,9 +634,7 @@
       z-index: 10000;
     }
     
-    .modal.show {
-      display: flex;
-    }
+    .modal.show { display: flex; }
     
     .modal-content {
       background: #2f3136;
@@ -651,18 +679,14 @@
       color: white;
     }
     
-    .btn-primary:hover {
-      background: #4752c4;
-    }
+    .btn-primary:hover { background: #4752c4; }
     
     .btn-danger {
       background: #ed4245;
       color: white;
     }
     
-    .btn-danger:hover {
-      background: #c23538;
-    }
+    .btn-danger:hover { background: #c23538; }
     
     .btn-secondary {
       background: #4e5058;
@@ -670,9 +694,7 @@
       margin-left: 8px;
     }
     
-    .btn-secondary:hover {
-      background: #5d6269;
-    }
+    .btn-secondary:hover { background: #5d6269; }
     
     .admin-section {
       background: rgba(0, 0, 0, 0.2);
@@ -708,37 +730,78 @@
     
     .emoji-picker {
       position: absolute;
-      bottom: 60px;
+      bottom: 70px;
       right: 20px;
-      background: #2f3136;
+      background: #18191c;
       border: 1px solid #000;
       border-radius: 8px;
       padding: 12px;
       display: none;
       gap: 8px;
       flex-wrap: wrap;
-      width: 300px;
-      max-height: 200px;
+      width: 320px;
+      max-height: 240px;
       overflow-y: auto;
       z-index: 1000;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
     }
     
-    .emoji-picker.show {
-      display: flex;
-    }
+    .emoji-picker.show { display: flex; }
     
     .emoji-btn {
-      font-size: 24px;
+      font-size: 28px;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
+      padding: 6px;
+      border-radius: 6px;
       transition: background 0.1s;
+      line-height: 1;
     }
     
-    .emoji-btn:hover {
-      background: rgba(79, 84, 92, 0.4);
+    .emoji-btn:hover { background: rgba(79, 84, 92, 0.4); }
+    
+    .user-search-results {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+    
+    .user-search-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .user-search-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .user-search-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-search-info { flex: 1; }
+    
+    .user-search-name {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -746,7 +809,7 @@
   <!-- Banned Screen -->
   <div class="banned-screen" id="bannedScreen">
     <div class="banned-title">🚫 BANNED</div>
-    <div class="banned-message">You have been banned from Nova Chat by an administrator. Contact the server owner if you believe this is a mistake.</div>
+    <div class="banned-message">You have been banned from Nova Chat. Contact the server owner if you believe this is a mistake.</div>
   </div>
 
   <div class="chat-app">
@@ -766,12 +829,12 @@
     <div class="sidebar">
       <div class="sidebar-header" id="sidebarHeader">Nova Chat</div>
       <div class="search-box" id="searchBox" style="display: none;">
-        <input type="text" class="search-input" placeholder="Search for users..." id="userSearch">
+        <input type="text" class="search-input" placeholder="Search for users..." id="userSearch" oninput="searchUsers()">
       </div>
       <div class="channels-list" id="channelsList"></div>
     </div>
     
-    <!-- User Card -->
+    <!-- User Card - BLACK BACKGROUND -->
     <div class="user-card">
       <div class="user-card-avatar" id="userAvatar"></div>
       <div class="user-card-info">
@@ -784,7 +847,7 @@
     <div class="chat-main">
       <div class="chat-header">
         <div class="channel-name" id="channelName"># general</div>
-        <button class="admin-panel-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">OWNER PANEL</button>
+        <button class="admin-panel-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">👑 OWNER PANEL</button>
       </div>
       <div class="messages-area" id="messagesArea"></div>
       <div class="message-input-container">
@@ -793,6 +856,8 @@
           <button class="cancel-reply" onclick="cancelReply()">×</button>
         </div>
         <div class="message-input-wrapper">
+          <button class="upload-btn" onclick="document.getElementById('fileUpload').click()">📎</button>
+          <input type="file" id="fileUpload" accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
           <input type="text" class="message-input" id="messageInput" placeholder="Message #general">
           <button class="action-btn" onclick="sendMessage()">
             <svg fill="currentColor" viewBox="0 0 24 24" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
@@ -812,7 +877,7 @@
   <div class="modal" id="ownerAccessModal">
     <div class="modal-content">
       <div class="modal-header">🔐 Owner Access Verification</div>
-      <p style="color: #b9bbbe; margin-bottom: 16px;">Enter the 4-digit owner passcode to gain full administrative access.</p>
+      <p style="color: #b9bbbe; margin-bottom: 16px;">Enter the 4-digit owner passcode.</p>
       <input type="password" class="modal-input" id="ownerPasscode" placeholder="Enter passcode" maxlength="4">
       <div id="ownerError" style="color: #ed4245; margin-bottom: 12px; display: none;"></div>
       <button class="btn btn-primary" onclick="verifyOwnerAccess()">Verify</button>
@@ -876,11 +941,12 @@
     let replyingTo = null;
     let currentEmojiMessageId = null;
     let ownerAttempts = 0;
+    let allUsers = [];
 
     const OWNER_PASSCODE = '0090';
-    const emojis = ['😀', '😂', '❤️', '👍', '👎', '🔥', '✨', '💯', '🎉', '👀', '😍', '🤔', '😎', '👏', '🙌'];
+    const emojis = ['😀', '😂', '🤣', '😊', '😍', '🥰', '😘', '😎', '🤔', '😮', '😢', '😭', '😡', '🔥', '✨', '💯', '❤️', '💙', '💚', '💛', '👍', '👎', '👏', '🙌', '🎉', '🎊', '💪', '✅', '❌', '⭐'];
 
-    // Check if banned
+    // Check ban status
     checkBanStatus();
 
     // Initialize
@@ -889,14 +955,24 @@
     document.getElementById('userAvatar').innerHTML = profilePic ? `<img src="${profilePic}">` : username.charAt(0).toUpperCase();
     
     // Set presence
-    set(ref(db, `presence/${userId}`), { 
+    const presenceRef = ref(db, `presence/${userId}`);
+    set(presenceRef, { 
       username, 
       profilePic, 
       role: userRole, 
-      timestamp: Date.now() 
+      timestamp: Date.now(),
+      online: true
     });
     
-    // Load channels
+    // Store all users for later
+    set(ref(db, `users/${username}`), {
+      username,
+      profilePic,
+      role: userRole,
+      lastSeen: Date.now()
+    });
+    
+    // Load
     loadChannels();
     loadMessages('general');
     loadMembers();
@@ -917,7 +993,7 @@
         push(ref(db, 'channels/announcements/messages'), {
           username: 'Nova Bot',
           profilePic: '',
-          text: `Welcome to Nova Chat, ${username}! 🎉 We're still building this server. Stay tuned for updates!`,
+          text: `Welcome to Nova Chat, ${username}! 🎉 We're still building this server. Stay tuned!`,
           timestamp: Date.now(),
           role: 'Bot',
           isBot: true
@@ -934,7 +1010,6 @@
         }
       });
       
-      // Listen for real-time ban updates
       onValue(ref(db, `bans/${username}`), (snapshot) => {
         if (snapshot.exists() && snapshot.val().banned === true) {
           document.getElementById('bannedScreen').classList.add('show');
@@ -985,7 +1060,7 @@
       if (view === 'dms') {
         document.getElementById('dmIcon').classList.add('active');
         document.getElementById('searchBox').style.display = 'block';
-        document.getElementById('channelsList').innerHTML = '<div class="channel-category">DIRECT MESSAGES</div><p style="padding: 16px; color: #8e9297; font-size: 13px;">Use the search box above to find users and start conversations.</p>';
+        document.getElementById('channelsList').innerHTML = '<div class="channel-category">DIRECT MESSAGES</div><p style="padding: 16px; color: #8e9297; font-size: 13px;">Use the search box above to find and add users.</p><div id="searchResults"></div>';
         document.getElementById('membersSidebar').style.display = 'none';
         document.getElementById('adminPanelBtn').style.display = 'none';
       } else {
@@ -998,6 +1073,60 @@
           document.getElementById('adminPanelBtn').style.display = 'block';
         }
       }
+    };
+    
+    window.searchUsers = function() {
+      const query = document.getElementById('userSearch').value.toLowerCase().trim();
+      if (!query) {
+        const resultsDiv = document.getElementById('channelsList').querySelector('#searchResults');
+        if (resultsDiv) resultsDiv.innerHTML = '';
+        return;
+      }
+      
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const results = Object.values(users).filter(u => 
+          u.username.toLowerCase().includes(query) && u.username !== username
+        );
+        
+        let html = '<div class="user-search-results">';
+        if (results.length === 0) {
+          html += '<p style="padding: 16px; color: #8e9297;">No users found.</p>';
+        } else {
+          results.forEach(user => {
+            const avatar = user.profilePic ? `<img src="${user.profilePic}">` : user.username.charAt(0).toUpperCase();
+            const roleClass = user.role === 'Owner' ? 'owner' : user.role === 'Admin' ? 'admin' : '';
+            html += `
+              <div class="user-search-item">
+                <div class="user-search-avatar">${avatar}</div>
+                <div class="user-search-info">
+                  <div class="user-search-name ${roleClass}">${user.username}</div>
+                  <div class="member-status-text">${user.role || 'Member'}</div>
+                </div>
+                <button class="add-friend-btn" onclick="addFriend('${user.username}')">Add Friend</button>
+              </div>
+            `;
+          });
+        }
+        html += '</div>';
+        
+        let resultsDiv = document.getElementById('channelsList').querySelector('#searchResults');
+        if (!resultsDiv) {
+          resultsDiv = document.createElement('div');
+          resultsDiv.id = 'searchResults';
+          document.getElementById('channelsList').appendChild(resultsDiv);
+        }
+        resultsDiv.innerHTML = html;
+      });
+    };
+    
+    window.addFriend = function(targetUser) {
+      push(ref(db, `friendRequests/${targetUser}`), {
+        from: username,
+        fromPic: profilePic,
+        timestamp: Date.now()
+      });
+      alert(`Friend request sent to ${targetUser}!`);
     };
     
     function loadMessages(channel) {
@@ -1030,6 +1159,13 @@
             </div>
           ` : '';
           
+          let mediaHtml = '';
+          if (msg.imageUrl) {
+            mediaHtml = `<img src="${msg.imageUrl}" class="message-image" alt="Image">`;
+          } else if (msg.videoUrl) {
+            mediaHtml = `<video src="${msg.videoUrl}" class="message-video" controls></video>`;
+          }
+          
           const reactions = msg.reactions ? Object.entries(msg.reactions).map(([emoji, users]) => {
             const userList = Object.keys(users);
             const count = userList.length;
@@ -1048,6 +1184,7 @@
                 </div>
                 ${replyHtml}
                 <div class="message-text">${msg.text}</div>
+                ${mediaHtml}
                 ${reactions ? `<div class="message-reactions">${reactions}</div>` : ''}
               </div>
               <div class="message-actions">
@@ -1064,76 +1201,138 @@
     }
     
     function loadMembers() {
-      onValue(ref(db, 'presence'), (snapshot) => {
-        const members = snapshot.val() || {};
-        const sidebar = document.getElementById('membersSidebar');
+      // Load online users from presence
+      onValue(ref(db, 'presence'), (presenceSnap) => {
+        const presenceData = presenceSnap.val() || {};
+        const onlineUsers = Object.values(presenceData).map(u => u.username);
         
-        const owners = [];
-        const admins = [];
-        const regular = [];
-        
-        Object.values(members).forEach(member => {
-          if (member.role === 'Owner') owners.push(member);
-          else if (member.role === 'Admin') admins.push(member);
-          else regular.push(member);
+        // Load all users from users node
+        get(ref(db, 'users')).then(usersSnap => {
+          const allUsersData = usersSnap.val() || {};
+          const sidebar = document.getElementById('membersSidebar');
+          
+          const owners = [];
+          const admins = [];
+          const regular = [];
+          
+          Object.values(allUsersData).forEach(user => {
+            const isOnline = onlineUsers.includes(user.username);
+            const userData = { ...user, online: isOnline };
+            
+            if (user.role === 'Owner') owners.push(userData);
+            else if (user.role === 'Admin') admins.push(userData);
+            else regular.push(userData);
+          });
+          
+          let html = '';
+          
+          if (owners.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">👑 OWNER — ${owners.length}</div>`;
+            owners.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="member-name owner">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          if (admins.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">⚡ ADMINS — ${admins.length}</div>`;
+            admins.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="member-name admin">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          if (regular.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">MEMBERS — ${regular.length}</div>`;
+            regular.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="member-name">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          sidebar.innerHTML = html;
         });
-        
-        let html = '';
-        
-        if (owners.length > 0) {
-          html += `<div class="members-section">
-            <div class="members-title">👑 OWNER — ${owners.length}</div>`;
-          owners.forEach(m => {
-            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
-            html += `
-              <div class="member">
-                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
-                <div class="member-info">
-                  <div class="member-name owner">${m.username}</div>
-                </div>
-              </div>
-            `;
-          });
-          html += `</div>`;
-        }
-        
-        if (admins.length > 0) {
-          html += `<div class="members-section">
-            <div class="members-title">⚡ ADMINS — ${admins.length}</div>`;
-          admins.forEach(m => {
-            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
-            html += `
-              <div class="member">
-                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
-                <div class="member-info">
-                  <div class="member-name admin">${m.username}</div>
-                </div>
-              </div>
-            `;
-          });
-          html += `</div>`;
-        }
-        
-        if (regular.length > 0) {
-          html += `<div class="members-section">
-            <div class="members-title">MEMBERS — ${regular.length}</div>`;
-          regular.forEach(m => {
-            const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
-            html += `
-              <div class="member">
-                <div class="member-avatar">${avatar}<div class="online-indicator"></div></div>
-                <div class="member-info">
-                  <div class="member-name">${m.username}</div>
-                </div>
-              </div>
-            `;
-          });
-          html += `</div>`;
-        }
-        
-        sidebar.innerHTML = html;
       });
     }
+    
+    window.handleFileUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const isVideo = file.type.startsWith('video/');
+        
+        const messageData = {
+          username,
+          profilePic,
+          text: isVideo ? '📹 Shared a video' : '🖼️ Shared an image',
+          timestamp: Date.now(),
+          role: userRole
+        };
+        
+        if (isVideo) {
+          messageData.videoUrl = dataUrl;
+        } else {
+          messageData.imageUrl = dataUrl;
+        }
+        
+        if (replyingTo) {
+          messageData.replyTo = replyingTo;
+        }
+        
+        push(ref(db, `channels/${currentChannel}/messages`), messageData);
+        cancelReply();
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    };
     
     window.sendMessage = function() {
       if (currentChannel === 'announcements' && userRole !== 'Owner') return;
@@ -1237,15 +1436,15 @@
         loadChannels();
         switchChannel('owner-access');
         
-        // Update presence
         set(ref(db, `presence/${userId}/role`), 'Owner');
+        set(ref(db, `users/${username}/role`), 'Owner');
       } else {
         ownerAttempts++;
         errorDiv.textContent = `Incorrect passcode. ${3 - ownerAttempts} attempts remaining.`;
         errorDiv.style.display = 'block';
         
         if (ownerAttempts >= 3) {
-          errorDiv.textContent = 'Too many failed attempts. Refresh the page to try again.';
+          errorDiv.textContent = 'Too many failed attempts. Refresh to try again.';
           document.getElementById('ownerPasscode').disabled = true;
           setTimeout(() => {
             closeModal('ownerAccessModal');
@@ -1260,14 +1459,13 @@
     };
     
     function loadAdminPanel() {
-      // Load admins list
-      get(ref(db, 'presence')).then(snap => {
-        const members = snap.val() || {};
-        const admins = Object.values(members).filter(m => m.role === 'Admin' || m.role === 'Owner');
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const admins = Object.values(users).filter(u => u.role === 'Admin' || u.role === 'Owner');
         
         const adminsList = document.getElementById('adminsList');
         if (admins.length === 0) {
-          adminsList.innerHTML = '<p style="color: #8e9297;">No admins assigned yet.</p>';
+          adminsList.innerHTML = '<p style="color: #8e9297;">No admins assigned.</p>';
         } else {
           adminsList.innerHTML = admins.map(a => `
             <div class="admin-list-entry">${a.username} - ${a.role}</div>
@@ -1275,7 +1473,6 @@
         }
       });
       
-      // Load ban logs
       get(ref(db, 'bans')).then(snap => {
         const bans = snap.val() || {};
         const banLogs = document.getElementById('banLogs');
@@ -1305,7 +1502,7 @@
         return;
       }
       
-      if (confirm(`Ban ${targetUser}? They will be unable to access the chat.`)) {
+      if (confirm(`Ban ${targetUser}?`)) {
         set(ref(db, `bans/${targetUser}`), {
           banned: true,
           bannedBy: username,
@@ -1362,19 +1559,19 @@
       }
     });
     
-    // Enter to send message
+    // Enter to send
     document.getElementById('messageInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') sendMessage();
     });
     
-    // Enter to verify owner
+    // Enter to verify
     document.getElementById('ownerPasscode').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') verifyOwnerAccess();
     });
     
     // Cleanup on exit
     window.addEventListener('beforeunload', () => {
-      remove(ref(db, `presence/${userId}`));
+      set(ref(db, `presence/${userId}/online`), false);
     });
   </script>
 </body>
