@@ -241,35 +241,55 @@
     .btn-accept { background: #23a559; color: white; }
     .btn-accept:hover { background: #1e8e4e; }
     
-    .profile-modal { background: linear-gradient(to bottom, #2b5278 0%, #000 120px); border-radius: 8px; padding: 0; max-width: 500px; position: relative; }
-    .profile-banner { height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0; position: relative; }
-    .profile-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
-    .profile-home-btn { position: absolute; top: 16px; left: 16px; padding: 8px 16px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 10; transition: all 0.15s; text-decoration: none; }
-    .profile-home-btn:hover { background: rgba(88,101,242,0.8); transform: translateY(-2px); }
-    .profile-info { padding: 16px 24px 24px; }
-    .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; background: #5865f2; margin-top: -40px; border: 6px solid #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; }
+    .profile-modal { background: rgba(20,20,25,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 0; max-width: 560px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+    .profile-banner { height: 140px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; position: relative; }
+    .profile-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; font-size: 20px; font-weight: 300; }
+    .profile-close:hover { background: rgba(237,66,69,0.8); border-color: #ed4245; transform: rotate(90deg) scale(1.1); }
+    .profile-home-btn { position: absolute; top: 16px; left: 16px; padding: 10px 18px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 10; transition: all 0.2s; text-decoration: none; font-size: 14px; }
+    .profile-home-btn:hover { background: rgba(88,101,242,0.8); border-color: #5865f2; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(88,101,242,0.4); }
+    .profile-info { padding: 20px 32px 28px; }
+    .profile-avatar-large { width: 92px; height: 92px; border-radius: 50%; background: linear-gradient(135deg, #5865f2, #7289da); margin-top: -46px; border: 6px solid rgba(20,20,25,0.95); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-status-indicator { position: absolute; bottom: 2px; right: 2px; width: 20px; height: 20px; border: 4px solid #000; border-radius: 50%; }
-    .profile-status-indicator.online { background: #23a559; }
+    .profile-status-indicator { position: absolute; bottom: 4px; right: 4px; width: 24px; height: 24px; border: 5px solid rgba(20,20,25,0.95); border-radius: 50%; }
+    .profile-status-indicator.online { background: #23a559; box-shadow: 0 0 12px rgba(35,165,89,0.6); }
     .profile-status-indicator.offline { background: #80848e; }
-    .profile-username { color: white; font-size: 20px; font-weight: 700; margin-top: 12px; }
-    .profile-role-badge-large { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .profile-username { color: white; font-size: 24px; font-weight: 800; margin-top: 16px; letter-spacing: 0.3px; }
+    .profile-role-badge-large { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
     .profile-role-badge-large.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.member { background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-bio { margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; color: #dcddde; font-size: 14px; line-height: 1.5; }
-    .profile-streak { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 12px; background: linear-gradient(90deg, #ff6b35, #f7931e); border-radius: 8px; }
-    .profile-streak-icon { font-size: 24px; animation: flameFlicker 1s ease-in-out infinite; }
-    @keyframes flameFlicker { 0%, 100% { transform: scale(1) rotate(-5deg); } 50% { transform: scale(1.1) rotate(5deg); } }
-    .profile-streak-text { color: white; font-weight: 600; }
-    .profile-streak-count { font-size: 20px; }
-    .profile-stats { display: flex; gap: 16px; margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; }
-    .profile-stat { text-align: center; }
-    .profile-stat-value { color: white; font-size: 16px; font-weight: 700; }
-    .profile-stat-label { color: #b5bac1; font-size: 12px; margin-top: 4px; }
-    .profile-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .profile-bio { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: #dcddde; font-size: 14px; line-height: 1.6; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
+    .profile-streak { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); border-radius: 12px; box-shadow: 0 4px 16px rgba(255,107,53,0.4); }
+    .profile-streak-icon { font-size: 28px; animation: flameFlicker 1s ease-in-out infinite; }
+    @keyframes flameFlicker { 0%, 100% { transform: scale(1) rotate(-5deg); } 50% { transform: scale(1.15) rotate(5deg); } }
+    .profile-streak-text { color: white; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .profile-streak-count { font-size: 22px; font-weight: 800; color: white; }
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .profile-stat { text-align: center; padding: 16px; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.2s; cursor: pointer; }
+    .profile-stat:hover { background: rgba(88,101,242,0.2); border-color: rgba(88,101,242,0.4); transform: translateY(-2px); }
+    .profile-stat-value { color: white; font-size: 20px; font-weight: 800; }
+    .profile-stat-label { color: #b5bac1; font-size: 11px; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .profile-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .profile-actions .btn { flex: 1; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; transition: all 0.2s; }
+    .profile-actions .btn-primary { background: linear-gradient(135deg, #5865f2, #7289da); border: none; box-shadow: 0 4px 12px rgba(88,101,242,0.4); }
+    .profile-actions .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(88,101,242,0.6); }
+    .profile-actions .btn-secondary { background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    .profile-actions .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    
+    .profile-friends-section { margin-top: 20px; }
+    .profile-friends-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
+    .profile-friends-title { color: white; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    .profile-friends-title svg { width: 18px; height: 18px; }
+    .profile-friends-count { color: #b5bac1; font-size: 13px; }
+    .profile-friends-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 200px; overflow-y: auto; padding: 4px; }
+    .profile-friend-card { background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 8px; text-align: center; transition: all 0.2s; cursor: pointer; }
+    .profile-friend-card:hover { background: rgba(88,101,242,0.2); border-color: rgba(88,101,242,0.4); transform: translateY(-2px); }
+    .profile-friend-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #5865f2, #7289da); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; overflow: hidden; }
+    .profile-friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-friend-name { color: #dcddde; font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-mutual-badge { background: rgba(88,101,242,0.3); color: #7289da; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
     
     .admin-section { background: linear-gradient(135deg, rgba(88,101,242,0.1) 0%, rgba(168,85,247,0.1) 100%); padding: 20px; border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(88,101,242,0.2); }
     .admin-section-title { color: #ffd700; font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
@@ -501,13 +521,21 @@
             <div class="profile-stat-label">Friends</div>
           </div>
           <div class="profile-stat">
+            <div class="profile-stat-value" id="profileMutual">0</div>
+            <div class="profile-stat-label">Mutual</div>
+          </div>
+          <div class="profile-stat">
             <div class="profile-stat-value" id="profileJoined">Aug 2026</div>
             <div class="profile-stat-label">Joined</div>
           </div>
         </div>
         <div id="profileStreakContainer"></div>
+        <div id="profileFriendsContainer"></div>
         <div class="profile-actions">
-          <button class="btn btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">Add Friend</button>
+          <button class="btn btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/></svg>
+            Add Friend
+          </button>
           <button class="btn btn-secondary" onclick="closeModal('userProfileModal')">Close</button>
         </div>
       </div>
@@ -1304,8 +1332,55 @@
         });
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
-          const friends = fSnap.val() || {};
-          document.getElementById('profileFriends').textContent = Object.keys(friends).length;
+          const theirFriends = fSnap.val() || {};
+          const theirFriendsList = Object.keys(theirFriends);
+          document.getElementById('profileFriends').textContent = theirFriendsList.length;
+          
+          // Calculate mutual friends
+          get(ref(db, `friends/${username}`)).then(myFSnap => {
+            const myFriends = myFSnap.val() || {};
+            const myFriendsList = Object.keys(myFriends);
+            const mutualFriends = theirFriendsList.filter(f => myFriendsList.includes(f));
+            document.getElementById('profileMutual').textContent = mutualFriends.length;
+            
+            // Display friends list
+            const friendsContainer = document.getElementById('profileFriendsContainer');
+            if (theirFriendsList.length > 0) {
+              const friendsHTML = `
+                <div class="profile-friends-section">
+                  <div class="profile-friends-header">
+                    <div class="profile-friends-title">
+                      <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                      Friends
+                    </div>
+                    <div class="profile-friends-count">${theirFriendsList.length} total</div>
+                  </div>
+                  <div class="profile-friends-list" id="friendsList"></div>
+                </div>
+              `;
+              friendsContainer.innerHTML = friendsHTML;
+              
+              // Load friend details
+              const friendsListEl = document.getElementById('friendsList');
+              Promise.all(theirFriendsList.slice(0, 12).map(friendName => 
+                get(ref(db, `users/${friendName}`)).then(snap => ({name: friendName, data: snap.val()}))
+              )).then(friends => {
+                friendsListEl.innerHTML = friends.map(({name, data}) => {
+                  const av = data?.profilePic ? `<img src="${data.profilePic}">` : name.charAt(0).toUpperCase();
+                  const isMutual = mutualFriends.includes(name);
+                  return `
+                    <div class="profile-friend-card" onclick="openUserProfile('${name}')">
+                      <div class="profile-friend-avatar">${av}</div>
+                      <div class="profile-friend-name">${name}</div>
+                      ${isMutual ? '<div class="profile-mutual-badge">Mutual</div>' : ''}
+                    </div>
+                  `;
+                }).join('');
+              });
+            } else {
+              friendsContainer.innerHTML = '';
+            }
+          });
         });
         
         // Show bio - don't stack
