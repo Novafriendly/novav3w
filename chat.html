@@ -46,6 +46,8 @@
     .user-profile-role { color: #b5bac1; font-size: 12px; font-weight: 500; }
     .user-profile-role.owner { color: #ffd700; }
     .user-profile-role.admin { color: #a855f7; }
+    .user-profile-role.moderator { color: #3b82f6; }
+    .user-profile-role.vip { color: #10b981; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
     .settings-btn svg { width: 20px; height: 20px; }
@@ -64,8 +66,12 @@
     .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
     .message-author { color: white; font-weight: 600; font-size: 15px; }
     .role-badge { padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .role-badge.owner { background: #ffd700; color: #000; }
-    .role-badge.admin { background: #a855f7; color: white; }
+    .role-badge.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
+    .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .role-badge.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .role-badge.vip { background: linear-gradient(90deg, #10b981, #34d399, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .role-badge.member { background: #4e5058; color: white; }
+    @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
     .message-time { color: #a3a6aa; font-size: 12px; font-weight: 500; }
     .message-text { color: #dcddde; line-height: 1.375; word-wrap: break-word; font-size: 15px; }
     .mention { background: rgba(88,101,242,0.3); color: #dee0fc; padding: 0 2px; border-radius: 3px; font-weight: 500; cursor: pointer; }
@@ -105,6 +111,8 @@
     .member-name.online { color: #dcddde; }
     .member-name.owner { color: #ffd700; }
     .member-name.admin { color: #a855f7; }
+    .member-name.moderator { color: #3b82f6; }
+    .member-name.vip { color: #10b981; }
     .add-friend-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #5865f2; border-radius: 50%; cursor: pointer; opacity: 0; transition: all 0.15s; }
     .add-friend-icon:hover { background: #4752c4; }
     .add-friend-icon svg { width: 16px; height: 16px; color: white; }
@@ -133,25 +141,40 @@
     .btn-accept:hover { background: #1e8e4e; }
     
     .profile-modal { background: linear-gradient(to bottom, #2b5278 0%, #000 120px); border-radius: 8px; padding: 0; max-width: 500px; }
-    .profile-banner { height: 120px; background: #2b5278; border-radius: 8px 8px 0 0; position: relative; }
+    .profile-banner { height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0; position: relative; }
     .profile-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .profile-info { padding: 16px 24px 24px; }
     .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; background: #5865f2; margin-top: -40px; border: 6px solid #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; }
     .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
     .profile-username { color: white; font-size: 20px; font-weight: 700; margin-top: 12px; }
-    .profile-role-badge-large { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .profile-role-badge-large { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .profile-role-badge-large.owner { background: linear-gradient(90deg, #ffd700, #ffed4e); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
+    .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .profile-role-badge-large.vip { background: linear-gradient(90deg, #10b981, #34d399); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .profile-role-badge-large.member { background: #4e5058; color: white; }
+    .profile-bio { margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; color: #dcddde; font-size: 14px; line-height: 1.5; }
+    .profile-streak { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 12px; background: linear-gradient(90deg, #ff6b35, #f7931e); border-radius: 8px; }
+    .profile-streak-icon { font-size: 24px; animation: flameFlicker 1s ease-in-out infinite; }
+    @keyframes flameFlicker { 0%, 100% { transform: scale(1) rotate(-5deg); } 50% { transform: scale(1.1) rotate(5deg); } }
+    .profile-streak-text { color: white; font-weight: 600; }
+    .profile-streak-count { font-size: 20px; }
     .profile-stats { display: flex; gap: 16px; margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; }
     .profile-stat { text-align: center; }
     .profile-stat-value { color: white; font-size: 16px; font-weight: 700; }
     .profile-stat-label { color: #b5bac1; font-size: 12px; margin-top: 4px; }
     .profile-actions { display: flex; gap: 8px; margin-top: 16px; }
     
-    .admin-section { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); }
+    .admin-section { background: linear-gradient(135deg, rgba(88,101,242,0.1) 0%, rgba(168,85,247,0.1) 100%); padding: 20px; border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(88,101,242,0.2); }
     .admin-section-title { color: #ffd700; font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .admin-card { background: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; }
-    .admin-card-title { color: white; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .admin-card-value { color: #5865f2; font-size: 24px; font-weight: 700; }
+    .admin-card { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border: 1px solid rgba(88,101,242,0.3); transition: all 0.3s; }
+    .admin-card:hover { transform: translateY(-2px); border-color: #5865f2; }
+    .admin-card-title { color: #b5bac1; font-size: 14px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-card-value { color: #5865f2; font-size: 32px; font-weight: 700; }
+    .role-select { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #4e5058; border-radius: 4px; color: white; font-size: 15px; margin-bottom: 12px; }
+    .role-item { padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); }
+    .role-color-preview { width: 60px; height: 30px; border-radius: 4px; }
     
     .friend-request-popup { position: fixed; bottom: 80px; right: 20px; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; display: none; flex-direction: column; gap: 12px; z-index: 10001; min-width: 320px; animation: slideUp 0.3s; }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -171,19 +194,21 @@
     
     .settings-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; z-index: 99999; }
     .settings-fullscreen.show { display: flex; }
-    .settings-sidebar { width: 240px; background: rgba(0,0,0,0.95); padding: 60px 8px 20px; display: flex; flex-direction: column; gap: 2px; }
-    .settings-tab { padding: 8px 12px; color: #b5bac1; font-weight: 500; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .settings-sidebar { width: 240px; background: rgba(0,0,0,0.95); padding: 60px 8px 20px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid rgba(255,255,255,0.05); }
+    .settings-tab { padding: 10px 12px; color: #b5bac1; font-weight: 500; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
     .settings-tab:hover { background: rgba(79,84,92,0.3); color: #dcddde; }
-    .settings-tab.active { background: rgba(79,84,92,0.4); color: white; }
+    .settings-tab.active { background: linear-gradient(90deg, rgba(88,101,242,0.3), rgba(168,85,247,0.2)); color: white; }
     .settings-content { flex: 1; padding: 60px 40px; overflow-y: auto; }
-    .settings-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; background: none; border: 1px solid #4e5058; border-radius: 50%; color: #b5bac1; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-    .settings-close:hover { background: rgba(79,84,92,0.4); color: white; }
-    .settings-section { margin-bottom: 32px; }
+    .settings-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; background: none; border: 1px solid #4e5058; border-radius: 50%; color: #b5bac1; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all 0.15s; }
+    .settings-close:hover { background: rgba(237,66,69,0.5); color: white; border-color: #ed4245; }
+    .settings-home-btn { position: absolute; top: 16px; left: 16px; padding: 10px 20px; background: rgba(88,101,242,0.2); border: 1px solid rgba(88,101,242,0.4); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; text-decoration: none; }
+    .settings-home-btn:hover { background: rgba(88,101,242,0.4); transform: translateY(-2px); }
+    .settings-section { margin-bottom: 32px; background: rgba(255,255,255,0.02); padding: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
     .settings-section-title { color: white; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
     .settings-field { margin-bottom: 20px; }
     .settings-label { color: #b5bac1; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block; }
-    .settings-textarea { width: 100%; min-height: 100px; padding: 12px; background: #000; border: 1px solid #4e5058; border-radius: 4px; color: white; font-size: 15px; font-family: inherit; resize: vertical; }
-    .settings-textarea:focus { outline: none; border-color: #5865f2; }
+    .settings-textarea { width: 100%; min-height: 100px; padding: 12px; background: #000; border: 1px solid #4e5058; border-radius: 8px; color: white; font-size: 15px; font-family: inherit; resize: vertical; }
+    .settings-textarea:focus { outline: none; border-color: #5865f2; box-shadow: 0 0 0 2px rgba(88,101,242,0.2); }
     .home-btn { position: fixed; top: 16px; left: 88px; padding: 8px 16px; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.15s; text-decoration: none; }
     .home-btn:hover { background: rgba(88,101,242,0.8); border-color: #5865f2; }
   </style>
@@ -318,6 +343,10 @@
   </div>
 
   <div class="settings-fullscreen" id="settingsFullscreen">
+    <a href="home.html" class="settings-home-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Home
+    </a>
     <button class="settings-close" onclick="closeSettings()">×</button>
     <div class="settings-sidebar">
       <div class="settings-tab active" onclick="switchSettingsTab('user-info')">
@@ -362,7 +391,18 @@
         </div>
       </div>
       <div class="admin-section">
-        <div class="admin-section-title">👥 ADMINS</div>
+        <div class="admin-section-title">⭐ ASSIGN ROLES</div>
+        <input type="text" class="modal-input" id="roleUsername" placeholder="Enter username">
+        <select class="role-select" id="roleSelect">
+          <option value="Member">Member</option>
+          <option value="VIP">VIP</option>
+          <option value="Moderator">Moderator</option>
+          <option value="Admin">Admin</option>
+        </select>
+        <button class="btn btn-primary" onclick="assignRole()">Assign Role</button>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">👥 STAFF MEMBERS</div>
         <div id="adminsList"></div>
       </div>
       <div class="admin-section">
@@ -562,7 +602,11 @@
         area.innerHTML = Object.entries(msgs).map(([id, m]) => {
           const time = new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
           const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
-          const badge = m.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : m.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : '';
+          const roleClass = (m.role || 'member').toLowerCase();
+          const badge = m.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : 
+                       m.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : 
+                       m.role === 'Moderator' ? '<span class="role-badge moderator">MODERATOR</span>' :
+                       m.role === 'VIP' ? '<span class="role-badge vip">VIP</span>' : '';
           const canDel = username === m.username || userRole === 'Owner';
           
           let text = m.text;
@@ -583,12 +627,39 @@
           return `<div class="message"><div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="message-author">${m.username}</span>${badge}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
         }).join('');
         area.scrollTop = area.scrollHeight;
+        
+        // Update streak if DM channel
+        if (ch.startsWith('dm_')) {
+          updateStreak(ch);
+        }
       });
       
       onValue(ref(db, `typing/${ch}`), snap => {
         const typing = snap.val() || {};
         const typers = Object.entries(typing).filter(([u, t]) => u !== username && Date.now() - t < 5000).map(([u]) => u);
         document.getElementById('typingIndicator').textContent = typers.length > 0 ? `${typers[0]} is typing...` : '';
+      });
+    }
+    
+    function updateStreak(dmChannel) {
+      const today = new Date().toDateString();
+      get(ref(db, `streaks/${dmChannel}`)).then(snap => {
+        const data = snap.val() || {count: 0, lastDate: null};
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        if (data.lastDate === today) {
+          // Already updated today
+          return;
+        } else if (data.lastDate === yesterday) {
+          // Continue streak
+          set(ref(db, `streaks/${dmChannel}`), {count: data.count + 1, lastDate: today});
+        } else if (data.lastDate === null) {
+          // Start new streak
+          set(ref(db, `streaks/${dmChannel}`), {count: 1, lastDate: today});
+        } else {
+          // Reset streak
+          set(ref(db, `streaks/${dmChannel}`), {count: 1, lastDate: today});
+        }
       });
     }
 
@@ -600,19 +671,21 @@
         
         get(ref(db, 'users')).then(uSnap => {
           const users = uSnap.val() || {};
-          const owners = [], admins = [], regular = [];
+          const owners = [], admins = [], moderators = [], vips = [], regular = [];
           
           Object.values(users).forEach(u => {
             const isOn = online[u.username] === true;
             const data = {...u, online: isOn};
             if (u.role === 'Owner') owners.push(data);
             else if (u.role === 'Admin') admins.push(data);
+            else if (u.role === 'Moderator') moderators.push(data);
+            else if (u.role === 'VIP') vips.push(data);
             else regular.push(data);
           });
           
           let html = '';
           
-          [['OWNER', owners], ['ADMINS', admins], ['MEMBERS', regular]].forEach(([title, list]) => {
+          [['OWNER', owners], ['ADMINS', admins], ['MODERATORS', moderators], ['VIPS', vips], ['MEMBERS', regular]].forEach(([title, list]) => {
             if (list.length > 0) {
               html += `<div class="members-section"><div class="members-title">${title} — ${list.length}</div>`;
               list.forEach(m => {
@@ -814,14 +887,36 @@
         const av = u.profilePic ? `<img src="${u.profilePic}">` : user.charAt(0).toUpperCase();
         document.getElementById('profileModalAvatar').innerHTML = av;
         document.getElementById('profileModalUsername').textContent = user;
+        
+        const roleClass = (u.role || 'member').toLowerCase();
         document.getElementById('profileModalRole').textContent = u.role || 'MEMBER';
-        document.getElementById('profileModalRole').className = `profile-role-badge-large ${(u.role||'member').toLowerCase()}`;
+        document.getElementById('profileModalRole').className = `profile-role-badge-large ${roleClass}`;
         document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
           const friends = fSnap.val() || {};
           document.getElementById('profileFriends').textContent = Object.keys(friends).length;
         });
+        
+        // Show bio
+        const bioHtml = u.bio ? `<div class="profile-bio">${u.bio}</div>` : '';
+        document.getElementById('profileModalUsername').insertAdjacentHTML('afterend', bioHtml);
+        
+        // Show streak if in DM
+        if (user !== username) {
+          get(ref(db, `friends/${username}/${user}`)).then(fSnap => {
+            if (fSnap.exists()) {
+              const dmId = [username, user].sort().join('_');
+              get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
+                const streak = streakSnap.val();
+                if (streak && streak.count > 0) {
+                  const streakHtml = `<div class="profile-streak"><div class="profile-streak-icon">🔥</div><div style="flex:1"><div class="profile-streak-text">Chat Streak</div><div class="profile-streak-count">${streak.count} ${streak.count === 1 ? 'day' : 'days'}</div></div></div>`;
+                  document.querySelector('.profile-stats').insertAdjacentHTML('afterend', streakHtml);
+                }
+              });
+            }
+          });
+        }
         
         document.getElementById('userProfileModal').classList.add('show');
       });
@@ -966,17 +1061,76 @@
           document.getElementById('onlineMembers').textContent = online;
         });
         
-        const admins = all.filter(u => u.role === 'Admin' || u.role === 'Owner');
-        document.getElementById('adminsList').innerHTML = admins.length > 0 ? admins.map(a => `<div style="padding:8px;background:rgba(168,85,247,0.2);border-radius:4px;margin-bottom:8px;color:#a855f7;font-weight:600">${a.username} - ${a.role}</div>`).join('') : '<p style="color:#80848e">No admins</p>';
+        const roleGroups = {
+          Owner: all.filter(u => u.role === 'Owner'),
+          Admin: all.filter(u => u.role === 'Admin'),
+          Moderator: all.filter(u => u.role === 'Moderator'),
+          VIP: all.filter(u => u.role === 'VIP')
+        };
+        
+        let rolesHtml = '';
+        Object.entries(roleGroups).forEach(([role, members]) => {
+          if (members.length > 0) {
+            const gradient = role === 'Owner' ? 'linear-gradient(90deg, #ffd700, #ffed4e)' :
+                           role === 'Admin' ? 'linear-gradient(90deg, #a855f7, #ec4899)' :
+                           role === 'Moderator' ? 'linear-gradient(90deg, #3b82f6, #06b6d4)' :
+                           'linear-gradient(90deg, #10b981, #34d399)';
+            rolesHtml += `<div style="margin-bottom:12px"><div style="color:#b5bac1;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:8px">${role}s (${members.length})</div>`;
+            members.forEach(m => {
+              rolesHtml += `<div class="role-item"><div><strong style="color:white">${m.username}</strong></div><div class="role-color-preview" style="background:${gradient}"></div></div>`;
+            });
+            rolesHtml += '</div>';
+          }
+        });
+        
+        document.getElementById('adminsList').innerHTML = rolesHtml || '<p style="color:#80848e">No staff members</p>';
         
         get(ref(db, 'bans')).then(bSnap => {
           const bans = bSnap.val() || {};
           const active = Object.entries(bans).filter(([_,d]) => d.banned);
-          document.getElementById('banLogs').innerHTML = active.length > 0 ? active.map(([u,d]) => `<div style="padding:8px;background:rgba(0,0,0,0.3);border-radius:4px;margin-bottom:8px;color:#dcddde">🚫 ${u} - ${new Date(d.timestamp).toLocaleString()}</div>`).join('') : '<p style="color:#80848e">No bans</p>';
+          document.getElementById('banLogs').innerHTML = active.length > 0 ? active.map(([u,d]) => `<div style="padding:12px;background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);border-radius:8px;margin-bottom:8px;color:#dcddde">🚫 <strong>${u}</strong> - ${new Date(d.timestamp).toLocaleString()}</div>`).join('') : '<p style="color:#80848e">No active bans</p>';
         });
       });
       
       document.getElementById('adminPanelModal').classList.add('show');
+    };
+    
+    window.assignRole = function() {
+      const targetUser = document.getElementById('roleUsername').value.trim();
+      const newRole = document.getElementById('roleSelect').value;
+      
+      if (!targetUser) return alert('Enter a username');
+      if (targetUser === username) return alert('Cannot change your own role');
+      
+      get(ref(db, `users/${targetUser}`)).then(snap => {
+        if (!snap.exists()) return alert('User not found');
+        
+        if (!confirm(`Assign ${newRole} role to ${targetUser}?`)) return;
+        
+        set(ref(db, `users/${targetUser}/role`), newRole);
+        
+        // Update in presence too
+        get(ref(db, 'presence')).then(pSnap => {
+          const pData = pSnap.val() || {};
+          Object.entries(pData).forEach(([id, u]) => {
+            if (u.username === targetUser) {
+              set(ref(db, `presence/${id}/role`), newRole);
+            }
+          });
+        });
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot', 
+          profilePic: '', 
+          text: `⭐ ${targetUser} was promoted to ${newRole} by ${username}`, 
+          timestamp: Date.now(), 
+          role: 'Bot'
+        });
+        
+        document.getElementById('roleUsername').value = '';
+        alert(`✅ ${targetUser} is now ${newRole}!`);
+        openAdminPanel();
+      });
     };
 
     window.banUser = function() {
