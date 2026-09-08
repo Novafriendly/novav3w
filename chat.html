@@ -507,7 +507,7 @@
         </div>
         <div id="profileStreakContainer"></div>
         <div class="profile-actions">
-          <button class="btn btn-primary" onclick="addFriend(currentProfileUser)">Add Friend</button>
+          <button class="btn btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">Add Friend</button>
           <button class="btn btn-secondary" onclick="closeModal('userProfileModal')">Close</button>
         </div>
       </div>
