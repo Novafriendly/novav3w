@@ -54,7 +54,39 @@
     .user-profile-role.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
-    .settings-btn svg { width: 20px; height: 20px; }
+    .owner-admin-btn { background: linear-gradient(45deg, #ffd700, #ff9d00) !important; }
+    .owner-admin-btn:hover { background: linear-gradient(45deg, #ffed4e, #ffd700) !important; transform: translateY(-2px); }
+    
+    .admin-modal-content { background: linear-gradient(135deg, #1a1d29 0%, #0f1419 100%); border-radius: 16px; padding: 0; max-width: 900px; width: 95%; max-height: 90vh; overflow: hidden; border: 1px solid rgba(88,101,242,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .admin-modal-header { background: linear-gradient(90deg, #5865f2, #a855f7); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .admin-modal-title { color: white; font-size: 24px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 12px; }
+    .admin-close-btn { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .admin-close-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+    
+    .admin-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .admin-tab { flex: 1; padding: 16px 20px; color: #b5bac1; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; border-right: 1px solid rgba(255,255,255,0.05); }
+    .admin-tab:last-child { border-right: none; }
+    .admin-tab:hover { background: rgba(88,101,242,0.1); color: white; }
+    .admin-tab.active { background: linear-gradient(90deg, rgba(88,101,242,0.3), rgba(168,85,247,0.2)); color: white; border-bottom: 3px solid #5865f2; }
+    
+    .admin-content { padding: 24px; max-height: 70vh; overflow-y: auto; }
+    .admin-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .admin-stat-card { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
+    .admin-stat-card:hover { transform: translateY(-4px); border-color: #5865f2; box-shadow: 0 8px 25px rgba(88,101,242,0.2); }
+    .admin-stat-title { color: #b5bac1; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+    .admin-stat-value { color: #5865f2; font-size: 32px; font-weight: 800; }
+    .admin-stat-icon { float: right; opacity: 0.3; font-size: 24px; }
+    
+    .user-search-container { position: relative; margin-bottom: 16px; }
+    .user-search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
+    .user-search-suggestions.show { display: block; }
+    .user-suggestion { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
+    .user-suggestion:hover { background: rgba(88,101,242,0.2); }
+    .user-suggestion-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; }
+    .user-suggestion-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-suggestion-info { flex: 1; }
+    .user-suggestion-name { color: white; font-weight: 600; }
+    .user-suggestion-role { color: #b5bac1; font-size: 12px; }
     
     .chat-main { flex: 1; display: flex; flex-direction: column; background: transparent; z-index: 10; }
     .chat-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.4); background: rgba(0,0,0,0.85); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
@@ -281,6 +313,9 @@
       <a href="home.html" class="settings-btn" title="Back to Home" onclick="event.stopPropagation()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       </a>
+      <button class="settings-btn owner-admin-btn" id="adminBtn" onclick="event.stopPropagation(); openAdminPanel()" title="Admin Panel" style="display:none">
+        <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/></svg>
+      </button>
       <button class="settings-btn" onclick="event.stopPropagation(); openSettings()" title="Settings">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </button>
@@ -422,51 +457,20 @@
   </div>
 
   <div class="modal" id="adminPanelModal">
-    <div class="modal-content">
-      <div class="modal-header">👑 OWNER ADMIN PANEL</div>
-      <div class="admin-section">
-        <div class="admin-section-title">📊 Server Statistics</div>
-        <div class="admin-grid">
-          <div class="admin-card">
-            <div class="admin-card-title">Total Members</div>
-            <div class="admin-card-value" id="totalMembers">0</div>
-          </div>
-          <div class="admin-card">
-            <div class="admin-card-title">Online Now</div>
-            <div class="admin-card-value" id="onlineMembers">0</div>
-          </div>
-        </div>
+    <div class="admin-modal-content">
+      <div class="admin-modal-header">
+        <h1 class="admin-modal-title">👑 OWNER ADMIN PANEL</h1>
+        <button class="admin-close-btn" onclick="closeModal('adminPanelModal')">×</button>
       </div>
-      <div class="admin-section">
-        <div class="admin-section-title">⭐ ASSIGN ROLES</div>
-        <input type="text" class="modal-input" id="roleUsername" placeholder="Enter username">
-        <select class="role-select" id="roleSelect">
-          <option value="Member">Member</option>
-          <option value="VIP">VIP</option>
-          <option value="Moderator">Moderator</option>
-          <option value="Admin">Admin</option>
-        </select>
-        <button class="btn btn-primary" onclick="assignRole()">Assign Role</button>
+      <div class="admin-tabs">
+        <div class="admin-tab active" onclick="switchAdminTab('overview')">📊 Overview</div>
+        <div class="admin-tab" onclick="switchAdminTab('roles')">⭐ Roles</div>
+        <div class="admin-tab" onclick="switchAdminTab('moderation')">🛡️ Moderation</div>
+        <div class="admin-tab" onclick="switchAdminTab('logs')">📜 Logs</div>
       </div>
-      <div class="admin-section">
-        <div class="admin-section-title">👥 STAFF MEMBERS</div>
-        <div id="adminsList"></div>
+      <div class="admin-content" id="adminTabContent">
+        <!-- Content will be loaded here -->
       </div>
-      <div class="admin-section">
-        <div class="admin-section-title">🚫 BAN USER</div>
-        <input type="text" class="modal-input" id="banUsername" placeholder="Enter username">
-        <button class="btn btn-danger" onclick="banUser()">Ban</button>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">✅ UNBAN USER</div>
-        <input type="text" class="modal-input" id="unbanUsername" placeholder="Enter username">
-        <button class="btn btn-primary" onclick="unbanUser()">Unban</button>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">📜 BAN LOGS</div>
-        <div id="banLogs"></div>
-      </div>
-      <button class="btn btn-secondary" onclick="closeModal('adminPanelModal')">Close</button>
     </div>
   </div>
 
@@ -562,6 +566,15 @@
       document.getElementById('profileRole').textContent = userRole;
       document.getElementById('profileRole').className = `user-profile-role ${userRole.toLowerCase()}`;
       document.getElementById('settingsRole').textContent = userRole;
+      
+      // Show/hide admin button for owners
+      const adminBtn = document.getElementById('adminBtn');
+      if (userRole === 'Owner') {
+        adminBtn.style.display = 'flex';
+      } else {
+        adminBtn.style.display = 'none';
+      }
+      
       loadChannels();
     }
 
@@ -1165,50 +1178,173 @@
       }
     };
 
-    window.openAdminPanel = function() {
-      get(ref(db, 'users')).then(uSnap => {
-        const users = uSnap.val() || {};
-        const all = Object.values(users);
-        document.getElementById('totalMembers').textContent = all.length;
-        
-        get(ref(db, 'presence')).then(pSnap => {
-          const presence = pSnap.val() || {};
-          const online = Object.values(presence).filter(p => p.online).length;
-          document.getElementById('onlineMembers').textContent = online;
+    let currentAdminTab = 'overview';
+    
+    window.switchAdminTab = function(tab) {
+      currentAdminTab = tab;
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const content = document.getElementById('adminTabContent');
+      
+      if (tab === 'overview') {
+        get(ref(db, 'users')).then(uSnap => {
+          const users = uSnap.val() || {};
+          const all = Object.values(users);
+          get(ref(db, 'presence')).then(pSnap => {
+            const presence = pSnap.val() || {};
+            const online = Object.values(presence).filter(p => p.online).length;
+            const messages = Object.keys(JSON.parse(localStorage.getItem('totalMessages') || '{}')).length;
+            
+            content.innerHTML = `
+              <div class="admin-stat-grid">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-icon">👥</div>
+                  <div class="admin-stat-title">Total Members</div>
+                  <div class="admin-stat-value">${all.length}</div>
+                </div>
+                <div class="admin-stat-card">
+                  <div class="admin-stat-icon">🟢</div>
+                  <div class="admin-stat-title">Online Now</div>
+                  <div class="admin-stat-value">${online}</div>
+                </div>
+                <div class="admin-stat-card">
+                  <div class="admin-stat-icon">💬</div>
+                  <div class="admin-stat-title">Total Messages</div>
+                  <div class="admin-stat-value">${messages}</div>
+                </div>
+                <div class="admin-stat-card">
+                  <div class="admin-stat-icon">📊</div>
+                  <div class="admin-stat-title">Server Uptime</div>
+                  <div class="admin-stat-value">99.9%</div>
+                </div>
+              </div>
+              <div class="admin-section">
+                <div class="admin-section-title">👥 STAFF MEMBERS</div>
+                <div id="staffMembersList"></div>
+              </div>
+            `;
+            loadStaffMembers();
+          });
         });
-        
-        const roleGroups = {
-          Owner: all.filter(u => u.role === 'Owner'),
-          Admin: all.filter(u => u.role === 'Admin'),
-          Moderator: all.filter(u => u.role === 'Moderator'),
-          VIP: all.filter(u => u.role === 'VIP')
-        };
-        
-        let rolesHtml = '';
-        Object.entries(roleGroups).forEach(([role, members]) => {
-          if (members.length > 0) {
-            const gradient = role === 'Owner' ? 'linear-gradient(90deg, #ffd700, #ffed4e)' :
-                           role === 'Admin' ? 'linear-gradient(90deg, #a855f7, #ec4899)' :
-                           role === 'Moderator' ? 'linear-gradient(90deg, #3b82f6, #06b6d4)' :
-                           'linear-gradient(90deg, #10b981, #34d399)';
-            rolesHtml += `<div style="margin-bottom:12px"><div style="color:#b5bac1;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:8px">${role}s (${members.length})</div>`;
-            members.forEach(m => {
-              rolesHtml += `<div class="role-item"><div><strong style="color:white">${m.username}</strong></div><div class="role-color-preview" style="background:${gradient}"></div></div>`;
-            });
-            rolesHtml += '</div>';
-          }
-        });
-        
-        document.getElementById('adminsList').innerHTML = rolesHtml || '<p style="color:#80848e">No staff members</p>';
-        
+      } else if (tab === 'roles') {
+        content.innerHTML = `
+          <div class="admin-section">
+            <div class="admin-section-title">⭐ ASSIGN ROLES</div>
+            <div class="user-search-container">
+              <input type="text" class="modal-input" id="roleUsername" placeholder="Search username..." oninput="searchUsers(this.value, 'role')">
+              <div class="user-search-suggestions" id="roleUserSuggestions"></div>
+            </div>
+            <select class="role-select" id="roleSelect">
+              <option value="Member">Member</option>
+              <option value="VIP">VIP</option>
+              <option value="Moderator">Moderator</option>
+              <option value="Admin">Admin</option>
+            </select>
+            <button class="btn btn-primary" onclick="assignRole()">Assign Role</button>
+          </div>
+        `;
+      } else if (tab === 'moderation') {
+        content.innerHTML = `
+          <div class="admin-section">
+            <div class="admin-section-title">🚫 BAN USER</div>
+            <div class="user-search-container">
+              <input type="text" class="modal-input" id="banUsername" placeholder="Search username..." oninput="searchUsers(this.value, 'ban')">
+              <div class="user-search-suggestions" id="banUserSuggestions"></div>
+            </div>
+            <button class="btn btn-danger" onclick="banUser()">Ban User</button>
+          </div>
+          <div class="admin-section">
+            <div class="admin-section-title">✅ UNBAN USER</div>
+            <div class="user-search-container">
+              <input type="text" class="modal-input" id="unbanUsername" placeholder="Search username..." oninput="searchUsers(this.value, 'unban')">
+              <div class="user-search-suggestions" id="unbanUserSuggestions"></div>
+            </div>
+            <button class="btn btn-primary" onclick="unbanUser()">Unban User</button>
+          </div>
+        `;
+      } else if (tab === 'logs') {
         get(ref(db, 'bans')).then(bSnap => {
           const bans = bSnap.val() || {};
           const active = Object.entries(bans).filter(([_,d]) => d.banned);
-          document.getElementById('banLogs').innerHTML = active.length > 0 ? active.map(([u,d]) => `<div style="padding:12px;background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);border-radius:8px;margin-bottom:8px;color:#dcddde">🚫 <strong>${u}</strong> - ${new Date(d.timestamp).toLocaleString()}</div>`).join('') : '<p style="color:#80848e">No active bans</p>';
+          content.innerHTML = `
+            <div class="admin-section">
+              <div class="admin-section-title">📜 BAN LOGS</div>
+              <div id="banLogs">${active.length > 0 ? active.map(([u,d]) => `<div style="padding:12px;background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);border-radius:8px;margin-bottom:8px;color:#dcddde">🚫 <strong>${u}</strong> - ${new Date(d.timestamp).toLocaleString()}</div>`).join('') : '<p style="color:#80848e">No active bans</p>'}</div>
+            </div>
+          `;
         });
+      }
+    };
+    
+    function loadStaffMembers() {
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const staff = Object.values(users).filter(u => ['Owner', 'Admin', 'Moderator', 'VIP'].includes(u.role));
+        const container = document.getElementById('staffMembersList');
+        if (container) {
+          container.innerHTML = staff.length > 0 ? staff.map(s => `
+            <div class="role-item">
+              <div><strong style="color:white">${s.username}</strong> - ${s.role}</div>
+              <div class="role-color-preview" style="background:${getRoleGradient(s.role)}"></div>
+            </div>
+          `).join('') : '<p style="color:#80848e">No staff members</p>';
+        }
       });
+    }
+    
+    function getRoleGradient(role) {
+      const gradients = {
+        Owner: 'linear-gradient(90deg, #ffd700, #ffed4e)',
+        Admin: 'linear-gradient(90deg, #a855f7, #ec4899)',
+        Moderator: 'linear-gradient(90deg, #3b82f6, #06b6d4)',
+        VIP: 'linear-gradient(90deg, #10b981, #34d399)'
+      };
+      return gradients[role] || '#6b7280';
+    }
+    
+    window.searchUsers = function(query, type) {
+      if (!query.trim()) {
+        document.getElementById(`${type}UserSuggestions`).classList.remove('show');
+        return;
+      }
       
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const matches = Object.values(users)
+          .filter(u => u.username.toLowerCase().includes(query.toLowerCase()) && u.username !== username)
+          .slice(0, 5);
+        
+        const container = document.getElementById(`${type}UserSuggestions`);
+        if (matches.length > 0) {
+          container.innerHTML = matches.map(u => {
+            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+            return `
+              <div class="user-suggestion" onclick="selectUser('${u.username}', '${type}')">
+                <div class="user-suggestion-avatar">${av}</div>
+                <div class="user-suggestion-info">
+                  <div class="user-suggestion-name">${u.username}</div>
+                  <div class="user-suggestion-role">${u.role || 'Member'}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          container.classList.add('show');
+        } else {
+          container.classList.remove('show');
+        }
+      });
+    };
+    
+    window.selectUser = function(username, type) {
+      document.getElementById(`${type}Username`).value = username;
+      document.getElementById(`${type}UserSuggestions`).classList.remove('show');
+    };
+    
+    window.openAdminPanel = function() {
+      currentAdminTab = 'overview';
       document.getElementById('adminPanelModal').classList.add('show');
+      switchAdminTab('overview');
     };
     
     window.assignRole = function() {
