@@ -14,6 +14,13 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'gg sans', 'Noto Sans', sans-serif; background: transparent; color: #dcddde; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+    
     .chat-container { position: fixed; inset: 0; display: flex; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
     .banned-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 99999; flex-direction: column; gap: 20px; }
     .banned-screen.show { display: flex; }
@@ -54,8 +61,8 @@
     .user-profile-role.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .settings-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; }
     .settings-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
-    .owner-admin-btn { background: linear-gradient(45deg, #dc2626, #ef4444) !important; }
-    .owner-admin-btn:hover { background: linear-gradient(45deg, #ef4444, #f87171) !important; transform: translateY(-2px); }
+    .owner-admin-btn { background: rgba(79,84,92,0.4) !important; color: white !important; }
+    .owner-admin-btn:hover { background: rgba(79,84,92,0.6) !important; transform: translateY(-2px); }
     
     .admin-dropdown-menu { position: absolute; bottom: 60px; left: 72px; width: 280px; background: linear-gradient(145deg, #161b22 0%, #21262d 100%); border: 1px solid #30363d; border-radius: 12px; box-shadow: 0 16px 48px rgba(0,0,0,0.4); z-index: 1000; }
     .admin-menu-header { padding: 16px 20px; border-bottom: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; }
@@ -120,6 +127,11 @@
     .chat-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.4); background: rgba(0,0,0,0.85); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
     .channel-name { display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 16px; }
     .channel-name svg { width: 20px; height: 20px; color: #80848e; }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .header-btn { width: 36px; height: 36px; background: rgba(79,84,92,0.3); border: none; border-radius: 4px; color: #b5bac1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .header-btn:hover { background: rgba(79,84,92,0.5); color: white; }
+    .header-btn.admin-btn-top { background: rgba(79,84,92,0.4); color: white; }
+    .header-btn.admin-btn-top:hover { background: rgba(79,84,92,0.6); transform: translateY(-2px); }
     .typing-indicator { color: #80848e; font-size: 13px; font-weight: 500; margin-left: 16px; }
     .messages-area { flex: 1; overflow-y: auto; padding: 16px; }
     .message { display: flex; gap: 16px; padding: 4px 16px 4px 72px; position: relative; margin-top: 4px; }
@@ -305,6 +317,63 @@
     .settings-textarea:focus { outline: none; border-color: #5865f2; box-shadow: 0 0 0 2px rgba(88,101,242,0.2); }
     .home-btn { position: fixed; top: 16px; left: 88px; padding: 8px 16px; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.15s; text-decoration: none; }
     .home-btn:hover { background: rgba(88,101,242,0.8); border-color: #5865f2; }
+    
+    /* COMPACT ADMIN PANEL */
+    .admin-panel-compact { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); opacity: 0; width: 900px; height: 650px; background: #000; border: 1px solid #1a1a1a; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,0.9); z-index: 10000; display: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+    .admin-panel-compact.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .admin-panel-sidebar-new { width: 220px; background: #000; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; }
+    .admin-sidebar-header-new { padding: 20px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+    .admin-logo-new { color: white; font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+    .admin-panel-close-new { width: 28px; height: 28px; background: rgba(255,255,255,0.05); border: none; border-radius: 6px; color: #999; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .admin-panel-close-new:hover { background: rgba(255,255,255,0.1); color: white; transform: rotate(90deg); }
+    .admin-sidebar-nav-new { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .admin-nav-item-new { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 8px; color: #999; cursor: pointer; transition: all 0.15s; font-size: 14px; font-weight: 600; position: relative; }
+    .admin-nav-item-new:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(4px); }
+    .admin-nav-item-new.active { background: rgba(255,255,255,0.08); color: white; }
+    .admin-nav-item-new.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 20px; width: 3px; background: white; border-radius: 0 3px 3px 0; }
+    .admin-nav-item-new svg { flex-shrink: 0; }
+    .admin-panel-content-new { flex: 1; background: #000; overflow-y: auto; padding: 32px; }
+    .admin-page-new { max-width: 100%; }
+    .admin-page-header-new { margin-bottom: 28px; }
+    .admin-page-title-new { color: white; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .admin-page-subtitle-new { color: #999; font-size: 15px; font-weight: 500; }
+    .admin-card-new { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 10px; padding: 20px; margin-bottom: 20px; transition: all 0.2s; }
+    .admin-card-new:hover { border-color: #2a2a2a; }
+    .admin-input-new { width: 100%; padding: 12px 16px; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; color: white; font-size: 14px; transition: all 0.2s; }
+    .admin-input-new:focus { outline: none; border-color: #3a3a3a; background: #000; }
+    .admin-input-new::placeholder { color: #666; }
+    .admin-select-new { width: 100%; padding: 12px 16px; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; color: white; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .admin-select-new:focus { outline: none; border-color: #3a3a3a; }
+    .admin-btn-new { padding: 12px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .admin-btn-new:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+    .admin-btn-new.danger { background: rgba(255,50,50,0.1); border-color: rgba(255,50,50,0.2); color: #ff6b6b; }
+    .admin-btn-new.danger:hover { background: rgba(255,50,50,0.2); }
+    .admin-user-card-new { display: flex; align-items: center; gap: 12px; padding: 12px; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; margin-bottom: 8px; transition: all 0.2s; }
+    .admin-user-card-new:hover { border-color: #2a2a2a; background: #050505; }
+    .admin-user-avatar-new { width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; overflow: hidden; position: relative; }
+    .admin-user-avatar-new img { width: 100%; height: 100%; object-fit: cover; }
+    .admin-status-dot-new { position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000; }
+    .admin-status-dot-new.online { background: #22c55e; }
+    .admin-status-dot-new.offline { background: #666; }
+    .admin-user-info-new { flex: 1; }
+    .admin-user-name-new { color: white; font-weight: 600; font-size: 14px; }
+    .admin-user-role-new { color: #999; font-size: 12px; }
+    .admin-stats-grid-new { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+    .admin-stat-card-new { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 10px; padding: 20px; transition: all 0.2s; }
+    .admin-stat-card-new:hover { border-color: #2a2a2a; }
+    .admin-stat-value-new { color: white; font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+    .admin-stat-label-new { color: #999; font-size: 13px; font-weight: 600; }
+    .color-picker-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .color-picker-item { display: flex; flex-direction: column; gap: 8px; }
+    .color-picker-label { color: #999; font-size: 12px; font-weight: 600; }
+    .color-picker-input { width: 100%; height: 44px; border-radius: 8px; border: 1px solid #1a1a1a; cursor: pointer; background: #0a0a0a; }
+    .gradient-preview-box { height: 60px; border-radius: 8px; border: 1px solid #1a1a1a; margin-top: 12px; }
+    .permission-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; margin-bottom: 8px; }
+    .permission-label { color: white; font-size: 14px; font-weight: 600; }
+    .toggle-switch { position: relative; width: 48px; height: 24px; background: #1a1a1a; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .toggle-switch.active { background: #22c55e; }
+    .toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: all 0.2s; }
+    .toggle-switch.active .toggle-knob { left: 26px; }
   </style>
 </head>
 <body>
@@ -355,7 +424,17 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
           general
         </div>
-        <div class="typing-indicator" id="typingIndicator"></div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div class="typing-indicator" id="typingIndicator"></div>
+          <div class="header-actions">
+            <a href="home.html" class="header-btn" title="Back to Home">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </a>
+            <button class="header-btn admin-btn-top" id="adminBtnTop" onclick="openAdminPanel()" title="Admin Panel" style="display: none;">
+              <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="messages-area" id="messagesArea"></div>
       <div class="message-input-container">
@@ -481,6 +560,41 @@
       <div id="ownerError" style="color:#ed4245;margin-bottom:12px;display:none"></div>
       <button class="btn btn-primary" onclick="verifyOwnerAccess()">Verify</button>
       <button class="btn btn-secondary" onclick="closeModal('ownerAccessModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- NEW COMPACT ADMIN PANEL -->
+  <div class="admin-panel-compact" id="adminPanelCompact">
+    <div class="admin-panel-sidebar-new">
+      <div class="admin-sidebar-header-new">
+        <div class="admin-logo-new">ADMIN</div>
+        <button class="admin-panel-close-new" onclick="closeAdminPanelCompact()">×</button>
+      </div>
+      <nav class="admin-sidebar-nav-new">
+        <div class="admin-nav-item-new active" onclick="switchAdminPageCompact('dashboard')" data-page="dashboard">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
+          <span>Dashboard</span>
+        </div>
+        <div class="admin-nav-item-new" onclick="switchAdminPageCompact('users')" data-page="users">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          <span>Users</span>
+        </div>
+        <div class="admin-nav-item-new" onclick="switchAdminPageCompact('moderation')" data-page="moderation">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>Moderation</span>
+        </div>
+        <div class="admin-nav-item-new" onclick="switchAdminPageCompact('logs')" data-page="logs">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          <span>Chat Logs</span>
+        </div>
+        <div class="admin-nav-item-new" onclick="switchAdminPageCompact('create-role')" data-page="create-role">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          <span>Create Role</span>
+        </div>
+      </nav>
+    </div>
+    <div class="admin-panel-content-new">
+      <div id="adminPageContentCompact"></div>
     </div>
   </div>
 
@@ -613,7 +727,23 @@
     const username = localStorage.getItem('nova_user') || 'Guest';
     const profilePic = localStorage.getItem('nova_profile_pic') || '';
     let userRole = localStorage.getItem('nova_chat_role') || 'Member';
-    const userId = username + '_' + Date.now();
+    
+    // Get or create a unique user ID that never changes
+    let uniqueUserId = localStorage.getItem('nova_unique_id');
+    if (!uniqueUserId) {
+      uniqueUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('nova_unique_id', uniqueUserId);
+    }
+    
+    // Check if username changed - if so, remove old user entry
+    const lastUsername = localStorage.getItem('nova_last_username');
+    if (lastUsername && lastUsername !== username) {
+      // Remove old username entry
+      remove(ref(db, `users/${lastUsername}`));
+    }
+    localStorage.setItem('nova_last_username', username);
+    
+    const userId = uniqueUserId;
 
     let currentView = 'server';
     let currentChannel = 'general';
@@ -638,6 +768,12 @@
     document.getElementById('profileAvatar').innerHTML = (profilePic ? `<img src="${profilePic}">` : username.charAt(0).toUpperCase()) + '<div class="user-profile-status"></div>';
     document.getElementById('settingsUsername').textContent = username;
     document.getElementById('settingsRole').textContent = userRole;
+    
+    // Show admin buttons for owners
+    if (userRole === 'Owner') {
+      document.getElementById('adminBtn').style.display = 'flex';
+      document.getElementById('adminBtnTop').style.display = 'flex';
+    }
 
     const presenceRef = ref(db, `presence/${userId}`);
     set(presenceRef, {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
@@ -688,12 +824,15 @@
       document.getElementById('profileRole').className = `user-profile-role ${userRole.toLowerCase()}`;
       document.getElementById('settingsRole').textContent = userRole;
       
-      // Show/hide admin button for owners
+      // Show/hide admin buttons for owners
       const adminBtn = document.getElementById('adminBtn');
+      const adminBtnTop = document.getElementById('adminBtnTop');
       if (userRole === 'Owner') {
         adminBtn.style.display = 'flex';
+        adminBtnTop.style.display = 'flex';
       } else {
         adminBtn.style.display = 'none';
+        adminBtnTop.style.display = 'none';
       }
       
       loadChannels();
@@ -758,7 +897,7 @@
       
       get(ref(db, 'users')).then(snap => {
         const users = snap.val() || {};
-        let allUsers = Object.values(users).filter(u => u.username !== username);
+        let allUsers = Object.values(users).filter(u => u && u.username && u.username !== username);
         
         if (query) {
           allUsers = allUsers.filter(u => u.username.toLowerCase().includes(query));
@@ -861,13 +1000,13 @@
       onValue(ref(db, 'presence'), pSnap => {
         const pData = pSnap.val() || {};
         const online = {};
-        Object.values(pData).forEach(u => { if (u.online) online[u.username] = true; });
+        Object.values(pData).forEach(u => { if (u && u.online && u.username) online[u.username] = true; });
         
         get(ref(db, 'users')).then(uSnap => {
           const users = uSnap.val() || {};
           const owners = [], admins = [], moderators = [], vips = [], regular = [];
           
-          Object.values(users).forEach(u => {
+          Object.values(users).filter(u => u && u.username).forEach(u => {
             const isOn = online[u.username] === true;
             const data = {...u, online: isOn};
             if (u.role === 'Owner') owners.push(data);
@@ -1479,7 +1618,427 @@
     };
     
     window.openAdminPanel = function() {
-      document.getElementById('adminPanelModal').classList.add('show');
+      document.getElementById('adminPanelCompact').classList.add('show');
+      switchAdminPageCompact('dashboard');
+    };
+    
+    window.closeAdminPanelCompact = function() {
+      document.getElementById('adminPanelCompact').classList.remove('show');
+    };
+    
+    window.switchAdminPageCompact = function(page) {
+      // Update sidebar
+      document.querySelectorAll('.admin-nav-item-new').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+      });
+      
+      const content = document.getElementById('adminPageContentCompact');
+      
+      if (page === 'dashboard') {
+        content.innerHTML = `
+          <div class="admin-page-new">
+            <div class="admin-page-header-new">
+              <div class="admin-page-title-new">Dashboard</div>
+              <div class="admin-page-subtitle-new">Server overview and statistics</div>
+            </div>
+            <div class="admin-stats-grid-new">
+              <div class="admin-stat-card-new">
+                <div class="admin-stat-value-new" id="compactDashUsers">0</div>
+                <div class="admin-stat-label-new">Total Users</div>
+              </div>
+              <div class="admin-stat-card-new">
+                <div class="admin-stat-value-new" id="compactDashOnline">0</div>
+                <div class="admin-stat-label-new">Online Now</div>
+              </div>
+            </div>
+            <div class="admin-card-new">
+              <h3 style="color:white;font-size:18px;font-weight:700;margin-bottom:16px">Online Users</h3>
+              <div id="onlineUsersList"></div>
+            </div>
+            <div class="admin-card-new">
+              <h3 style="color:white;font-size:18px;font-weight:700;margin-bottom:16px">Offline Users</h3>
+              <div id="offlineUsersList"></div>
+            </div>
+          </div>
+        `;
+        loadCompactDashboard();
+      } else if (page === 'users') {
+        content.innerHTML = `
+          <div class="admin-page-new">
+            <div class="admin-page-header-new">
+              <div class="admin-page-title-new">User Management</div>
+              <div class="admin-page-subtitle-new">Manage roles and permissions</div>
+            </div>
+            <div class="admin-card-new">
+              <input type="text" class="admin-input-new" id="userSearchCompact" placeholder="Search users..." oninput="searchUsersCompact()">
+            </div>
+            <div id="usersListCompact"></div>
+          </div>
+        `;
+        loadUsersCompact();
+      } else if (page === 'moderation') {
+        content.innerHTML = `
+          <div class="admin-page-new">
+            <div class="admin-page-header-new">
+              <div class="admin-page-title-new">Moderation</div>
+              <div class="admin-page-subtitle-new">Ban and moderate users</div>
+            </div>
+            <div class="admin-card-new">
+              <h3 style="color:white;font-size:18px;font-weight:700;margin-bottom:16px">Quick Actions</h3>
+              <input type="text" class="admin-input-new" id="modSearchInput" placeholder="Type username..." oninput="searchModUsers()" style="margin-bottom:12px">
+              <div id="modUserSuggestions" style="max-height:200px;overflow-y:auto"></div>
+              <div style="display:flex;gap:12px;margin-top:12px">
+                <button class="admin-btn-new danger" onclick="quickBanUserCompact()">Ban User</button>
+                <button class="admin-btn-new" onclick="quickUnbanUserCompact()">Unban User</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (page === 'logs') {
+        content.innerHTML = `
+          <div class="admin-page-new">
+            <div class="admin-page-header-new">
+              <div class="admin-page-title-new">Chat Logs</div>
+              <div class="admin-page-subtitle-new">View message history</div>
+            </div>
+            <div class="admin-card-new">
+              <input type="text" class="admin-input-new" id="logUserSearch" placeholder="Search user..." oninput="searchLogUsers()" style="margin-bottom:12px">
+              <div id="logUserSuggestions" style="max-height:150px;overflow-y:auto;margin-bottom:16px"></div>
+              <select class="admin-select-new" id="logChannelSelect" onchange="loadChatLogsCompact()">
+                <option value="">Select channel after choosing user</option>
+                <option value="general">General</option>
+                <option value="announcements">Announcements</option>
+              </select>
+            </div>
+            <div id="chatLogsDisplay"></div>
+          </div>
+        `;
+      } else if (page === 'create-role') {
+        content.innerHTML = `
+          <div class="admin-page-new">
+            <div class="admin-page-header-new">
+              <div class="admin-page-title-new">Create Custom Role</div>
+              <div class="admin-page-subtitle-new">Design your own role with custom colors</div>
+            </div>
+            <div class="admin-card-new">
+              <h3 style="color:white;font-size:18px;font-weight:700;margin-bottom:16px">Role Details</h3>
+              <div style="margin-bottom:16px">
+                <label style="color:#999;font-size:12px;font-weight:600;display:block;margin-bottom:8px">ROLE NAME</label>
+                <input type="text" class="admin-input-new" id="newRoleName" placeholder="Enter role name...">
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="color:#999;font-size:12px;font-weight:600;display:block;margin-bottom:8px">GRADIENT COLORS</label>
+                <div class="color-picker-wrapper">
+                  <div class="color-picker-item">
+                    <span class="color-picker-label">Color 1</span>
+                    <input type="color" class="color-picker-input" id="roleColor1" value="#3b82f6" oninput="updateGradientPreviewCompact()">
+                  </div>
+                  <div class="color-picker-item">
+                    <span class="color-picker-label">Color 2</span>
+                    <input type="color" class="color-picker-input" id="roleColor2" value="#06b6d4" oninput="updateGradientPreviewCompact()">
+                  </div>
+                </div>
+                <div class="gradient-preview-box" id="gradientPreviewCompact" style="background:linear-gradient(90deg,#3b82f6,#06b6d4);background-size:200% 100%;animation:gradientShift 3s ease infinite"></div>
+              </div>
+              <div style="margin-bottom:16px">
+                <label style="color:#999;font-size:12px;font-weight:600;display:block;margin-bottom:12px">PERMISSIONS</label>
+                <div class="permission-toggle" onclick="togglePermissionCompact('admin')">
+                  <div>
+                    <span class="permission-label">Administrator Access</span>
+                    <div style="color:#666;font-size:12px;margin-top:4px">Full control of server</div>
+                  </div>
+                  <div class="toggle-switch" id="adminPermToggle">
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+                <div class="permission-toggle" onclick="togglePermissionCompact('moderator')">
+                  <div>
+                    <span class="permission-label">Moderator Access</span>
+                    <div style="color:#666;font-size:12px;margin-top:4px">Can ban and moderate</div>
+                  </div>
+                  <div class="toggle-switch" id="modPermToggle">
+                    <div class="toggle-knob"></div>
+                  </div>
+                </div>
+              </div>
+              <button class="admin-btn-new" onclick="saveCustomRoleCompact()" style="width:100%">Create Role</button>
+            </div>
+            <div class="admin-card-new">
+              <h3 style="color:white;font-size:18px;font-weight:700;margin-bottom:16px">Existing Custom Roles</h3>
+              <div id="existingRolesList">Loading...</div>
+            </div>
+          </div>
+        `;
+        loadExistingRoles();
+      }
+    };
+    
+    function loadCompactDashboard() {
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const validUsers = Object.values(users).filter(u => u && u.username);
+        document.getElementById('compactDashUsers').textContent = validUsers.length;
+        
+        get(ref(db, 'presence')).then(pSnap => {
+          const presence = pSnap.val() || {};
+          const onlineUsers = [];
+          const offlineUsers = [];
+          
+          validUsers.forEach(user => {
+            const isOnline = Object.values(presence).some(p => p && p.username === user.username && p.online);
+            if (isOnline) {
+              onlineUsers.push(user);
+            } else {
+              offlineUsers.push(user);
+            }
+          });
+          
+          document.getElementById('compactDashOnline').textContent = onlineUsers.length;
+          
+          document.getElementById('onlineUsersList').innerHTML = onlineUsers.length === 0 ? '<p style="color:#666;padding:12px">No users online</p>' : onlineUsers.map(u => {
+            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+            return `<div class="admin-user-card-new"><div class="admin-user-avatar-new">${av}<div class="admin-status-dot-new online"></div></div><div class="admin-user-info-new"><div class="admin-user-name-new">${u.username}</div><div class="admin-user-role-new">${u.role || 'Member'}</div></div></div>`;
+          }).join('');
+          
+          document.getElementById('offlineUsersList').innerHTML = offlineUsers.length === 0 ? '<p style="color:#666;padding:12px">All users online</p>' : offlineUsers.map(u => {
+            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+            return `<div class="admin-user-card-new"><div class="admin-user-avatar-new">${av}<div class="admin-status-dot-new offline"></div></div><div class="admin-user-info-new"><div class="admin-user-name-new">${u.username}</div><div class="admin-user-role-new">${u.role || 'Member'}</div></div></div>`;
+          }).join('');
+        });
+      });
+    }
+    
+    function loadUsersCompact() {
+      console.log('Loading users in admin panel...');
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        console.log('Users loaded:', Object.keys(users).length);
+        
+        // Filter out invalid users
+        const validUsers = Object.values(users).filter(u => u && u.username);
+        
+        // Load custom roles
+        get(ref(db, 'customRoles')).then(rolesSnap => {
+          const customRoles = rolesSnap.val() || {};
+          const roleOptions = ['Member', 'VIP', 'Moderator', 'Admin', ...Object.values(customRoles).map(r => r.name)];
+          console.log('Role options:', roleOptions);
+          
+          // Load presence to check online/offline
+          get(ref(db, 'presence')).then(pSnap => {
+            const presence = pSnap.val() || {};
+            const container = document.getElementById('usersListCompact');
+            
+            if (!container) {
+              console.error('usersListCompact container not found!');
+              return;
+            }
+            
+            const userCards = validUsers.map(u => {
+              const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+              const isOnline = Object.values(presence).some(p => p && p.username === u.username && p.online);
+              const statusClass = isOnline ? 'online' : 'offline';
+              const statusText = isOnline ? 'Online' : 'Offline';
+              
+              return `
+                <div class="admin-card-new">
+                  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                    <div class="admin-user-avatar-new">
+                      ${av}
+                      <div class="admin-status-dot-new ${statusClass}"></div>
+                    </div>
+                    <div class="admin-user-info-new">
+                      <div class="admin-user-name-new">${u.username}</div>
+                      <div class="admin-user-role-new">${u.role || 'Member'} • ${statusText}</div>
+                    </div>
+                  </div>
+                  <select class="admin-select-new" onchange="assignRoleCompact('${u.username}', this.value)">
+                    <option value="">Change Role...</option>
+                    ${roleOptions.map(role => `<option value="${role}"${u.role === role ? ' selected' : ''}>${role}</option>`).join('')}
+                  </select>
+                </div>
+              `;
+            });
+            
+            container.innerHTML = userCards.join('');
+            console.log('Users rendered:', userCards.length);
+          }).catch(err => console.error('Error loading presence:', err));
+        }).catch(err => console.error('Error loading roles:', err));
+      }).catch(err => console.error('Error loading users:', err));
+    }
+    
+    window.searchUsersCompact = function() {
+      const query = document.getElementById('userSearchCompact').value.toLowerCase();
+      const cards = document.querySelectorAll('#usersListCompact .admin-card-new');
+      cards.forEach(card => {
+        const name = card.querySelector('.admin-user-name-new').textContent.toLowerCase();
+        card.style.display = name.includes(query) ? 'block' : 'none';
+      });
+    };
+    
+    window.assignRoleCompact = function(username, role) {
+      if (!role) return;
+      set(ref(db, `users/${username}/role`), role).then(() => {
+        alert(`✅ ${username} is now ${role}!`);
+        loadUsersCompact();
+      });
+    };
+    
+    window.searchModUsers = function() {
+      const query = document.getElementById('modSearchInput').value.toLowerCase();
+      if (query.length < 2) {
+        document.getElementById('modUserSuggestions').innerHTML = '';
+        return;
+      }
+      
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const matches = Object.values(users).filter(u => u && u.username && u.username.toLowerCase().includes(query)).slice(0, 5);
+        document.getElementById('modUserSuggestions').innerHTML = matches.map(u => {
+          const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+          return `<div class="admin-user-card-new" onclick="selectModUser('${u.username}')"><div class="admin-user-avatar-new">${av}</div><div class="admin-user-info-new"><div class="admin-user-name-new">${u.username}</div></div></div>`;
+        }).join('');
+      });
+    };
+    
+    window.selectModUser = function(username) {
+      document.getElementById('modSearchInput').value = username;
+      document.getElementById('modUserSuggestions').innerHTML = '';
+    };
+    
+    window.quickBanUserCompact = function() {
+      const target = document.getElementById('modSearchInput').value.trim();
+      if (!target) return alert('❌ Enter a username');
+      
+      // Remove their role and set banned status
+      set(ref(db, `bans/${target}`), {bannedBy: username, timestamp: Date.now()}).then(() => {
+        // Remove role from user
+        set(ref(db, `users/${target}/role`), 'Banned');
+        set(ref(db, `users/${target}/banned`), true);
+        
+        alert('✅ User banned and role removed!');
+        document.getElementById('modSearchInput').value = '';
+      });
+    };
+    
+    window.quickUnbanUserCompact = function() {
+      const target = document.getElementById('modSearchInput').value.trim();
+      if (!target) return alert('❌ Enter a username');
+      remove(ref(db, `bans/${target}`)).then(() => {
+        alert('✅ User unbanned!');
+        document.getElementById('modSearchInput').value = '';
+      });
+    };
+    
+    let selectedLogUser = '';
+    
+    window.searchLogUsers = function() {
+      const query = document.getElementById('logUserSearch').value.toLowerCase();
+      if (query.length < 2) {
+        document.getElementById('logUserSuggestions').innerHTML = '';
+        return;
+      }
+      
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const matches = Object.values(users).filter(u => u && u.username && u.username.toLowerCase().includes(query)).slice(0, 5);
+        document.getElementById('logUserSuggestions').innerHTML = matches.map(u => {
+          const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+          return `<div class="admin-user-card-new" onclick="selectLogUser('${u.username}')"><div class="admin-user-avatar-new">${av}</div><div class="admin-user-info-new"><div class="admin-user-name-new">${u.username}</div></div></div>`;
+        }).join('');
+      });
+    };
+    
+    window.selectLogUser = function(username) {
+      selectedLogUser = username;
+      document.getElementById('logUserSearch').value = username;
+      document.getElementById('logUserSuggestions').innerHTML = '';
+    };
+    
+    window.loadChatLogsCompact = function() {
+      const channel = document.getElementById('logChannelSelect').value;
+      if (!channel || !selectedLogUser) {
+        document.getElementById('chatLogsDisplay').innerHTML = '<div class="admin-card-new"><p style="color:#666">Select a user and channel to view logs</p></div>';
+        return;
+      }
+      
+      get(ref(db, `channels/${channel}/messages`)).then(snap => {
+        const messages = snap.val() || {};
+        const userMsgs = Object.entries(messages).filter(([id, m]) => m.username === selectedLogUser).sort(([,a], [,b]) => b.timestamp - a.timestamp).slice(0, 50);
+        
+        document.getElementById('chatLogsDisplay').innerHTML = userMsgs.length === 0 ? 
+          '<div class="admin-card-new"><p style="color:#666">No messages found</p></div>' :
+          userMsgs.map(([id, m]) => {
+            const time = new Date(m.timestamp).toLocaleString();
+            return `<div class="admin-card-new"><div style="color:#999;font-size:12px;margin-bottom:4px">${time}</div><div style="color:white">${m.text}</div></div>`;
+          }).join('');
+      });
+    };
+    
+    window.updateGradientPreviewCompact = function() {
+      const c1 = document.getElementById('roleColor1').value;
+      const c2 = document.getElementById('roleColor2').value;
+      document.getElementById('gradientPreviewCompact').style.background = `linear-gradient(90deg, ${c1}, ${c2})`;
+      document.getElementById('gradientPreviewCompact').style.backgroundSize = '200% 100%';
+    };
+    
+    window.togglePermissionCompact = function(perm) {
+      document.getElementById(perm + 'PermToggle').classList.toggle('active');
+    };
+    
+    window.saveCustomRoleCompact = function() {
+      const name = document.getElementById('newRoleName').value.trim();
+      const c1 = document.getElementById('roleColor1').value;
+      const c2 = document.getElementById('roleColor2').value;
+      const isAdmin = document.getElementById('adminPermToggle').classList.contains('active');
+      const isMod = document.getElementById('modPermToggle').classList.contains('active');
+      
+      if (!name) return alert('❌ Enter role name');
+      
+      push(ref(db, 'customRoles'), {name, color1: c1, color2: c2, isAdmin, isMod, createdAt: Date.now()}).then(() => {
+        alert('✅ Role created!');
+        document.getElementById('newRoleName').value = '';
+        document.getElementById('roleColor1').value = '#3b82f6';
+        document.getElementById('roleColor2').value = '#06b6d4';
+        document.getElementById('adminPermToggle').classList.remove('active');
+        document.getElementById('modPermToggle').classList.remove('active');
+        updateGradientPreviewCompact();
+        loadExistingRoles();
+      });
+    };
+    
+    function loadExistingRoles() {
+      get(ref(db, 'customRoles')).then(snap => {
+        const roles = snap.val() || {};
+        const container = document.getElementById('existingRolesList');
+        
+        if (Object.keys(roles).length === 0) {
+          container.innerHTML = '<p style="color:#666;padding:12px">No custom roles created yet</p>';
+          return;
+        }
+        
+        container.innerHTML = Object.entries(roles).map(([id, role]) => {
+          return `
+            <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:12px;margin-bottom:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="color:white;font-weight:700;margin-bottom:4px">${role.name}</div>
+                  <div style="height:20px;width:100px;border-radius:4px;background:linear-gradient(90deg,${role.color1},${role.color2});background-size:200% 100%;animation:gradientShift 3s ease infinite"></div>
+                </div>
+                <button class="admin-btn-new danger" onclick="deleteRole('${id}')" style="padding:8px 16px">Delete</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      });
+    }
+    
+    window.deleteRole = function(roleId) {
+      if (confirm('Delete this role?')) {
+        remove(ref(db, `customRoles/${roleId}`)).then(() => {
+          alert('✅ Role deleted!');
+          loadExistingRoles();
+        });
+      }
     };
     
     window.openAdminSection = function(section) {
