@@ -33,12 +33,6 @@
       padding-bottom: 70px;
       background: transparent;
       position: relative;
-      z-index: 0;
-      pointer-events: none;
-    }
-    
-    .chat-container > * {
-      pointer-events: auto;
     }
     
     /* ========== SERVER LIST (FAR LEFT) ========== */
@@ -682,7 +676,24 @@
   </style>
 </head>
 <body>
-  <div class="chat-container">
+  <!-- Ban Screen (Full Page Overlay) -->
+  <div id="banScreen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1a1a1a 0%, #2d0a0a 100%); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;">
+    <div style="max-width: 500px;">
+      <div style="font-size: 80px; margin-bottom: 24px;">🔨</div>
+      <h1 style="color: #ed4245; font-size: 48px; font-weight: 700; margin-bottom: 16px;">You've Been Banned</h1>
+      <p style="color: #b9bbbe; font-size: 18px; margin-bottom: 12px;" id="banReason">You have been banned from Nova Chat.</p>
+      <p style="color: #8e9297; font-size: 14px; margin-bottom: 32px;" id="banDate"></p>
+      <div style="background: rgba(237, 66, 69, 0.1); border: 2px solid rgba(237, 66, 69, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <p style="color: #ed4245; font-size: 16px; font-weight: 600; margin-bottom: 8px;">⚠️ Ban Appeal</p>
+        <p style="color: #b9bbbe; font-size: 14px;">If you believe this ban was a mistake, please contact the server owner.</p>
+      </div>
+      <button onclick="window.location.href='home.html'" style="background: #5865f2; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+        Return to Home
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-container" id="chatContainer">
     <!-- Server List (Far Left) -->
     <div class="server-list">
       <div class="server-icon active" onclick="switchToServer()" title="Nova Server">
@@ -1275,7 +1286,9 @@
         role: userRole
       };
       
-      push(ref(database, `channels/${currentChannel}/messages`), message);
+      // Send to DM or channel
+      const path = currentDM ? `dms/${currentDM}/messages` : `channels/${currentChannel}/messages`;
+      push(ref(database, path), message);
       input.value = '';
     };
 
@@ -1301,7 +1314,9 @@
           role: userRole,
           [file.type.startsWith('video') ? 'videoUrl' : 'imageUrl']: e.target.result
         };
-        push(ref(database, `channels/${currentChannel}/messages`), message);
+        
+        const path = currentDM ? `dms/${currentDM}/messages` : `channels/${currentChannel}/messages`;
+        push(ref(database, path), message);
       };
       reader.readAsDataURL(file);
       event.target.value = '';
@@ -1447,30 +1462,153 @@
       document.getElementById('serverChannels').style.display = 'none';
       document.getElementById('dmChannels').style.display = 'block';
       document.getElementById('serverHeader').textContent = 'Direct Messages';
+      loadDMList();
     };
+    
+    function loadDMList() {
+      const container = document.getElementById('dmChannels');
+      
+      // Get friends list
+      get(ref(database, `friends/${username}`)).then((snapshot) => {
+        const friends = snapshot.val() || {};
+        const friendsList = Object.keys(friends);
+        
+        if (friendsList.length === 0) {
+          container.innerHTML = `
+            <div class="channel-category">DIRECT MESSAGES</div>
+            <div style="padding: 16px; text-align: center; color: #8e9297; font-size: 13px;">
+              <p style="margin-bottom: 8px;">No friends yet!</p>
+              <p>Add friends from the members list to start chatting.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = `
+          <div class="channel-category">DIRECT MESSAGES</div>
+          ${friendsList.map(friendUsername => `
+            <div class="channel" onclick="openDM('${esc(friendUsername)}')">
+              <div class="dm-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white;">
+                ${getInitial(friendUsername)}
+              </div>
+              <span>${esc(friendUsername)}</span>
+            </div>
+          `).join('')}
+        `;
+      });
+    }
+    
+    window.openDM = function(friendUsername) {
+      // Create DM ID (sorted usernames for consistency)
+      const users = [username, friendUsername].sort();
+      const dmId = users.join('_');
+      
+      currentDM = dmId;
+      currentChannel = null;
+      
+      // Update UI
+      document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
+      event.target.closest('.channel').classList.add('active');
+      
+      document.querySelector('.channel-name svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>';
+      document.getElementById('channelNameText').textContent = friendUsername;
+      document.getElementById('channelTopic').textContent = `Direct message with ${friendUsername}`;
+      document.getElementById('messageInput').placeholder = `Message @${friendUsername}`;
+      
+      // Enable input
+      const inputWrapper = document.getElementById('inputWrapper');
+      inputWrapper.classList.remove('disabled');
+      document.getElementById('messageInput').disabled = false;
+      
+      // Load DM messages
+      loadDM(dmId);
+    };
+    
+    function loadDM(dmId) {
+      onValue(ref(database, `dms/${dmId}/messages`), (snapshot) => {
+        const messages = snapshot.val();
+        displayMessages(messages);
+      });
+    }
 
     function updateMembersList() {
       const container = document.getElementById('membersList');
-      const count = Object.keys(onlineUsers).length;
-      document.getElementById('onlineCount').textContent = count;
+      const users = Object.values(onlineUsers);
       
-      const members = Object.values(onlineUsers).sort((a, b) => a.username.localeCompare(b.username));
+      // Separate by roles
+      const owners = users.filter(u => u.role === 'Owner');
+      const admins = users.filter(u => u.role === 'Admin');
+      const members = users.filter(u => !u.role || u.role === 'Nova');
       
-      container.innerHTML = members.map(user => {
-        const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
-        const isCurrentUser = user.username === username;
-        
-        return `
-          <div class="member">
-            <div class="member-avatar">
-              ${avatarContent}
-              <div class="status-indicator"></div>
+      const ownerCount = owners.length;
+      const adminCount = admins.length;
+      const memberCount = members.length;
+      
+      document.getElementById('onlineCount').textContent = users.length;
+      
+      let html = '';
+      
+      // Owners Section
+      if (ownerCount > 0) {
+        html += `<div class="members-title" style="margin-top: 0;"><span>OWNERS</span><span>${ownerCount}</span></div>`;
+        html += owners.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
+          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
+          const isCurrentUser = user.username === username;
+          
+          return `
+            <div class="member">
+              <div class="member-avatar" style="border: 2px solid #ed4245;">
+                ${avatarContent}
+                <div class="status-indicator"></div>
+              </div>
+              <div class="member-name" style="color: #ed4245; font-weight: 700;">${esc(user.username)}</div>
+              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
             </div>
-            <div class="member-name">${esc(user.username)}</div>
-            ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
+      
+      // Admins Section
+      if (adminCount > 0) {
+        html += `<div class="members-title" style="margin-top: 16px;"><span>ADMINS</span><span>${adminCount}</span></div>`;
+        html += admins.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
+          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
+          const isCurrentUser = user.username === username;
+          
+          return `
+            <div class="member">
+              <div class="member-avatar" style="border: 2px solid #f47fff;">
+                ${avatarContent}
+                <div class="status-indicator"></div>
+              </div>
+              <div class="member-name" style="color: #f47fff; font-weight: 600;">${esc(user.username)}</div>
+              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Members Section
+      if (memberCount > 0) {
+        html += `<div class="members-title" style="margin-top: 16px;"><span>MEMBERS</span><span>${memberCount}</span></div>`;
+        html += members.sort((a, b) => a.username.localeCompare(b.username)).map(user => {
+          const avatarContent = user.profilePic ? `<img src="${esc(user.profilePic)}">` : `<span>${getInitial(user.username)}</span>`;
+          const isCurrentUser = user.username === username;
+          
+          return `
+            <div class="member">
+              <div class="member-avatar">
+                ${avatarContent}
+                <div class="status-indicator"></div>
+              </div>
+              <div class="member-name">${esc(user.username)}</div>
+              ${!isCurrentUser ? `<button class="add-friend-btn" onclick="sendFriendRequest('${esc(user.username)}')" title="Add Friend"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+      
+      container.innerHTML = html;
     }
 
     window.sendFriendRequest = function(targetUsername) {
@@ -1758,8 +1896,25 @@
     function checkIfBanned() {
       get(ref(database, `bans/${username}`)).then((snapshot) => {
         if (snapshot.exists()) {
-          alert('⛔ You have been banned from Nova Chat.');
-          window.location.href = 'home.html';
+          const banData = snapshot.val();
+          const banDate = new Date(banData.timestamp).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          // Show ban screen
+          document.getElementById('banScreen').style.display = 'flex';
+          document.getElementById('chatContainer').style.display = 'none';
+          document.getElementById('banReason').textContent = banData.reason || 'You have been banned from Nova Chat.';
+          document.getElementById('banDate').textContent = `Banned on ${banDate}`;
+          
+          // Remove user from presence
+          if (userPresenceRef) {
+            remove(userPresenceRef);
+          }
         }
       });
     }
