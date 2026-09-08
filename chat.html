@@ -146,7 +146,7 @@
     .message-author.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .message-author.member { background: linear-gradient(90deg, #b5bac1, #e0e0e0, #f0f0f0, #b5bac1); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
-    .role-badge { padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .role-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
     .role-badge.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
@@ -253,7 +253,7 @@
     .profile-status-indicator.online { background: #23a559; }
     .profile-status-indicator.offline { background: #80848e; }
     .profile-username { color: white; font-size: 20px; font-weight: 700; margin-top: 12px; }
-    .profile-role-badge-large { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .profile-role-badge-large { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
     .profile-role-badge-large.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
@@ -928,10 +928,10 @@
           const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
           const roleClass = (m.role || 'member').toLowerCase();
           const authorClass = `message-author ${roleClass}`;
-          const badge = m.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : 
-                       m.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : 
-                       m.role === 'Moderator' ? '<span class="role-badge moderator">MODERATOR</span>' :
-                       m.role === 'VIP' ? '<span class="role-badge vip">VIP</span>' : '';
+          const badge = m.role === 'Owner' ? '<span class="role-badge owner">👑 OWNER</span>' : 
+                       m.role === 'Admin' ? '<span class="role-badge admin">⚡ ADMIN</span>' : 
+                       m.role === 'Moderator' ? '<span class="role-badge moderator">🛡️ MOD</span>' :
+                       m.role === 'VIP' ? '<span class="role-badge vip">⭐ VIP</span>' : '';
           const canDel = username === m.username || userRole === 'Owner';
           
           let text = m.text;
@@ -1266,7 +1266,11 @@
         document.getElementById('profileModalUsername').textContent = user;
         
         const roleClass = (u.role || 'member').toLowerCase();
-        document.getElementById('profileModalRole').textContent = u.role || 'MEMBER';
+        const roleIcon = u.role === 'Owner' ? '👑 ' : 
+                        u.role === 'Admin' ? '⚡ ' : 
+                        u.role === 'Moderator' ? '🛡️ ' :
+                        u.role === 'VIP' ? '⭐ ' : '';
+        document.getElementById('profileModalRole').innerHTML = roleIcon + (u.role || 'MEMBER');
         document.getElementById('profileModalRole').className = `profile-role-badge-large ${roleClass}`;
         document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
         
@@ -2233,6 +2237,40 @@
 
     window.closeModal = function(id) {
       document.getElementById(id).classList.remove('show');
+    };
+    
+    window.addFriend = async function(friendUsername) {
+      if (!friendUsername || friendUsername === username) {
+        alert('Cannot add yourself as a friend!');
+        return;
+      }
+      
+      try {
+        // Check if already friends
+        const friendCheck = await get(ref(db, `friends/${username}/${friendUsername}`));
+        if (friendCheck.exists()) {
+          alert(`You are already friends with ${friendUsername}!`);
+          return;
+        }
+        
+        // Add friend both ways
+        await set(ref(db, `friends/${username}/${friendUsername}`), {
+          addedAt: Date.now(),
+          username: friendUsername
+        });
+        
+        await set(ref(db, `friends/${friendUsername}/${username}`), {
+          addedAt: Date.now(),
+          username: username
+        });
+        
+        alert(`✅ Successfully added ${friendUsername} as a friend!`);
+        closeModal('userProfileModal');
+        
+      } catch (error) {
+        console.error('Error adding friend:', error);
+        alert('Failed to add friend. Please try again.');
+      }
     };
 
     document.addEventListener('click', e => {
