@@ -177,6 +177,9 @@
     .profile-info { padding: 16px 24px 24px; }
     .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; background: #5865f2; margin-top: -40px; border: 6px solid #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; }
     .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-status-indicator { position: absolute; bottom: 2px; right: 2px; width: 20px; height: 20px; border: 4px solid #000; border-radius: 50%; }
+    .profile-status-indicator.online { background: #23a559; }
+    .profile-status-indicator.offline { background: #80848e; }
     .profile-username { color: white; font-size: 20px; font-weight: 700; margin-top: 12px; }
     .profile-role-badge-large { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 8px; }
     .profile-role-badge-large.owner { background: linear-gradient(90deg, #ffd700, #ffed4e, #ff9d00, #ffd700); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: #000; }
@@ -344,7 +347,9 @@
         <button class="profile-close" onclick="closeModal('userProfileModal')">×</button>
       </div>
       <div class="profile-info">
-        <div class="profile-avatar-large" id="profileModalAvatar"></div>
+        <div class="profile-avatar-large" id="profileModalAvatar">
+          <div class="profile-status-indicator online" id="profileStatusIndicator"></div>
+        </div>
         <div class="profile-username" id="profileModalUsername"></div>
         <span class="profile-role-badge-large owner" id="profileModalRole">MEMBER</span>
         <div id="profileBioContainer"></div>
@@ -984,13 +989,23 @@
         if (!u) return;
         
         const av = u.profilePic ? `<img src="${u.profilePic}">` : user.charAt(0).toUpperCase();
-        document.getElementById('profileModalAvatar').innerHTML = av;
+        document.getElementById('profileModalAvatar').innerHTML = av + '<div class="profile-status-indicator online" id="profileStatusIndicator"></div>';
         document.getElementById('profileModalUsername').textContent = user;
         
         const roleClass = (u.role || 'member').toLowerCase();
         document.getElementById('profileModalRole').textContent = u.role || 'MEMBER';
         document.getElementById('profileModalRole').className = `profile-role-badge-large ${roleClass}`;
         document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+        
+        // Check online status
+        get(ref(db, 'presence')).then(pSnap => {
+          const presence = pSnap.val() || {};
+          const isOnline = Object.values(presence).some(p => p.username === user && p.online);
+          const statusEl = document.getElementById('profileStatusIndicator');
+          if (statusEl) {
+            statusEl.className = `profile-status-indicator ${isOnline ? 'online' : 'offline'}`;
+          }
+        });
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
           const friends = fSnap.val() || {};
