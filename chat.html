@@ -22,10 +22,164 @@
     ::-webkit-scrollbar-thumb:hover { background: #555; }
     
     .chat-container { position: fixed; inset: 0; display: flex; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-    .banned-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 99999; flex-direction: column; gap: 20px; }
-    .banned-screen.show { display: flex; }
-    .banned-title { font-size: 48px; color: #ed4245; font-weight: 700; }
-    .banned-message { font-size: 20px; color: white; text-align: center; max-width: 500px; }
+    
+    /* ═══════════════════════════════
+       BANNED SCREEN - Discord-Style Dark Theme
+    ═══════════════════════════════ */
+    .banned-screen { position: fixed; inset: 0; background: #0a0a0a; display: none; justify-content: center; align-items: center; z-index: 99999; flex-direction: column; gap: 32px; overflow: hidden; }
+    .banned-screen.show { display: flex; animation: screenFadeIn 0.6s ease; }
+    @keyframes screenFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* 3D Hammer Animation */
+    .ban-hammer-container { position: relative; width: 200px; height: 200px; margin-bottom: 20px; }
+    .ban-hammer { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: hammerSmash 2s ease-in-out infinite; }
+    @keyframes hammerSmash {
+      0%, 100% { transform: rotate(-25deg) translateY(-40px); }
+      40% { transform: rotate(-25deg) translateY(-40px); }
+      50% { transform: rotate(0deg) translateY(0px); }
+      55% { transform: rotate(2deg) translateY(5px); }
+      60% { transform: rotate(0deg) translateY(0px); }
+    }
+    .hammer-icon { font-size: 120px; filter: drop-shadow(0 10px 30px rgba(237, 66, 69, 0.6)); }
+    .ban-impact { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; background: radial-gradient(circle, rgba(237, 66, 69, 0.4) 0%, transparent 70%); border-radius: 50%; opacity: 0; animation: impactWave 2s ease-in-out infinite; }
+    @keyframes impactWave {
+      0%, 45%, 100% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1); }
+      60% { opacity: 0.5; transform: translateX(-50%) scale(1.4); }
+    }
+    .ban-sparks { position: absolute; inset: 0; }
+    .spark { position: absolute; width: 4px; height: 4px; background: #ff6b6b; border-radius: 50%; opacity: 0; box-shadow: 0 0 10px #ff6b6b; }
+    .spark:nth-child(1) { top: 50%; left: 50%; animation: sparkFly1 2s ease-in-out infinite; }
+    .spark:nth-child(2) { top: 50%; left: 50%; animation: sparkFly2 2s ease-in-out infinite; animation-delay: 0.1s; }
+    .spark:nth-child(3) { top: 50%; left: 50%; animation: sparkFly3 2s ease-in-out infinite; animation-delay: 0.05s; }
+    .spark:nth-child(4) { top: 50%; left: 50%; animation: sparkFly4 2s ease-in-out infinite; animation-delay: 0.15s; }
+    @keyframes sparkFly1 { 0%, 45%, 100% { opacity: 0; transform: translate(0, 0); } 50% { opacity: 1; } 65% { opacity: 0; transform: translate(60px, -80px); } }
+    @keyframes sparkFly2 { 0%, 45%, 100% { opacity: 0; transform: translate(0, 0); } 50% { opacity: 1; } 65% { opacity: 0; transform: translate(-70px, -60px); } }
+    @keyframes sparkFly3 { 0%, 45%, 100% { opacity: 0; transform: translate(0, 0); } 50% { opacity: 1; } 65% { opacity: 0; transform: translate(80px, -40px); } }
+    @keyframes sparkFly4 { 0%, 45%, 100% { opacity: 0; transform: translate(0, 0); } 50% { opacity: 1; } 65% { opacity: 0; transform: translate(-60px, -90px); } }
+    
+    .banned-badge { background: rgba(237, 66, 69, 0.15); border: 1px solid rgba(237, 66, 69, 0.3); padding: 8px 24px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #ed4245; text-transform: uppercase; letter-spacing: 1.5px; }
+    
+    .banned-title { font-size: 48px; color: #fff; font-weight: 900; text-align: center; letter-spacing: -1px; }
+    
+    .banned-message { font-size: 16px; color: #b5bac1; text-align: center; max-width: 500px; line-height: 1.6; }
+    
+    .banned-info-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; width: 480px; backdrop-filter: blur(10px); }
+    .banned-info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .banned-info-row:last-child { border-bottom: none; }
+    .banned-info-label { color: #80848e; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .banned-info-value { color: #dcddde; font-size: 13px; font-weight: 700; }
+    
+    .banned-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .banned-btn { padding: 12px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-transform: none; letter-spacing: 0; }
+    .banned-btn-primary { background: #5865f2; color: white; }
+    .banned-btn-primary:hover { background: #4752c4; transform: translateY(-1px); }
+    .banned-btn-secondary { background: rgba(255,255,255,0.06); color: #dcddde; border: 1px solid rgba(255,255,255,0.08); }
+    .banned-btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    
+    /* Unban Request Form - Match Chat Style */
+    .unban-request-form { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px; width: 520px; backdrop-filter: blur(10px); display: none; animation: formSlideIn 0.4s ease; }
+    .unban-request-form.show { display: block; }
+    @keyframes formSlideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .unban-form-title { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 6px; }
+    .unban-form-subtitle { font-size: 13px; color: #80848e; margin-bottom: 20px; }
+    .unban-form-field { margin-bottom: 16px; }
+    .unban-form-label { display: block; color: #b5bac1; font-size: 12px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .unban-form-input { width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: #dcddde; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+    .unban-form-input:focus { outline: none; border-color: #5865f2; background: rgba(0,0,0,0.6); }
+    .unban-form-input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .unban-form-textarea { width: 100%; min-height: 100px; padding: 10px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: #dcddde; font-size: 14px; font-family: inherit; resize: vertical; transition: all 0.2s; }
+    .unban-form-textarea:focus { outline: none; border-color: #5865f2; background: rgba(0,0,0,0.6); }
+    .unban-form-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .unban-form-btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .unban-form-btn-submit { background: #3ba55d; color: white; }
+    .unban-form-btn-submit:hover { background: #2d7d46; }
+    .unban-form-btn-cancel { background: rgba(255,255,255,0.06); color: #dcddde; border: 1px solid rgba(255,255,255,0.08); }
+    .unban-form-btn-cancel:hover { background: rgba(255,255,255,0.1); }
+    
+    .request-pending-msg { background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.2); border-radius: 12px; padding: 20px; width: 480px; text-align: center; animation: formSlideIn 0.4s ease; }
+    .request-pending-msg.show { display: block; }
+    .request-pending-icon { font-size: 48px; margin-bottom: 12px; animation: rotate 2s linear infinite; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .request-pending-title { font-size: 18px; color: #fff; font-weight: 700; margin-bottom: 8px; }
+    .request-pending-text { font-size: 14px; color: #b5bac1; }
+    
+    /* ═══════════════════════════════
+       BAN LOGS & UNBAN REQUESTS PANELS
+    ═══════════════════════════════ */
+    .ban-logs-container, .unban-requests-container { padding: 24px; max-height: calc(100vh - 110px); overflow-y: auto; }
+    .ban-log-card { background: linear-gradient(135deg, #1a0505, #2a0a0a); border: 1px solid rgba(237, 66, 69, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: all 0.3s; }
+    .ban-log-card:hover { border-color: rgba(237, 66, 69, 0.5); transform: translateX(4px); box-shadow: 0 4px 20px rgba(237, 66, 69, 0.2); }
+    .ban-log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .ban-log-user { display: flex; align-items: center; gap: 12px; }
+    .ban-log-avatar { width: 48px; height: 48px; border-radius: 50%; background: #ed4245; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; color: white; }
+    .ban-log-user-info { flex: 1; }
+    .ban-log-username { color: #fff; font-size: 16px; font-weight: 800; }
+    .ban-log-timestamp { color: #80848e; font-size: 12px; margin-top: 2px; }
+    .ban-log-badge { background: rgba(237, 66, 69, 0.2); color: #ff6b6b; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .ban-log-details { padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 12px; }
+    .ban-log-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ban-log-row:last-child { border-bottom: none; }
+    .ban-log-label { color: #80848e; font-size: 13px; font-weight: 600; }
+    .ban-log-value { color: #dcddde; font-size: 13px; font-weight: 700; }
+    .ban-log-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .ban-log-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .ban-log-btn-unban { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .ban-log-btn-unban:hover { background: rgba(16, 185, 129, 0.3); transform: translateY(-1px); }
+    .ban-log-btn-temp { background: rgba(251, 133, 0, 0.2); color: #fb8500; border: 1px solid rgba(251, 133, 0, 0.3); }
+    .ban-log-btn-temp:hover { background: rgba(251, 133, 0, 0.3); transform: translateY(-1px); }
+    
+    .unban-request-card { background: linear-gradient(135deg, #0a0a1a, #1a1a2a); border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: all 0.3s; position: relative; }
+    .unban-request-card:hover { border-color: rgba(88, 101, 242, 0.5); box-shadow: 0 4px 20px rgba(88, 101, 242, 0.2); }
+    .unban-request-card.ai-active { border-color: rgba(139, 92, 246, 0.5); background: linear-gradient(135deg, #1a0a2a, #2a1a3a); }
+    .unban-request-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .unban-request-user { display: flex; align-items: center; gap: 12px; }
+    .unban-request-avatar { width: 48px; height: 48px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; color: white; }
+    .unban-request-user-info { flex: 1; }
+    .unban-request-username { color: #fff; font-size: 16px; font-weight: 800; }
+    .unban-request-timestamp { color: #80848e; font-size: 12px; margin-top: 2px; }
+    .unban-request-status { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .unban-request-status.pending { background: rgba(251, 133, 0, 0.2); color: #fb8500; }
+    .unban-request-status.ai { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .unban-request-reason { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .unban-request-reason-label { color: #80848e; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .unban-request-reason-text { color: #dcddde; font-size: 14px; line-height: 1.5; }
+    .unban-request-actions { display: flex; gap: 8px; }
+    .unban-request-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .unban-request-btn-join { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+    .unban-request-btn-join:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4); }
+    .unban-request-btn-dismiss { background: rgba(237, 66, 69, 0.2); color: #ff6b6b; border: 1px solid rgba(237, 66, 69, 0.3); }
+    .unban-request-btn-dismiss:hover { background: rgba(237, 66, 69, 0.3); }
+    .unban-request-btn-ai { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .unban-request-btn-ai:hover { background: rgba(139, 92, 246, 0.3); }
+    .unban-request-ai-badge { position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; color: white; animation: badgePulse 2s ease-in-out infinite; }
+    
+    /* Chat Lobby for Unban Discussions */
+    .unban-chat-lobby { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999; display: none; flex-direction: column; }
+    .unban-chat-lobby.show { display: flex; }
+    .unban-lobby-header { padding: 16px 24px; background: linear-gradient(135deg, #5865f2, #7289da); display: flex; align-items: center; justify-content: space-between; }
+    .unban-lobby-title { color: white; font-size: 18px; font-weight: 800; }
+    .unban-lobby-subtitle { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 2px; }
+    .unban-lobby-close { background: rgba(255,255,255,0.2); border: none; padding: 8px 16px; border-radius: 6px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .unban-lobby-close:hover { background: rgba(255,255,255,0.3); }
+    .unban-lobby-messages { flex: 1; overflow-y: auto; padding: 24px; }
+    .unban-lobby-message { display: flex; gap: 12px; margin-bottom: 16px; }
+    .unban-lobby-avatar { width: 40px; height: 40px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+    .unban-lobby-msg-content { flex: 1; }
+    .unban-lobby-msg-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .unban-lobby-msg-author { color: #5865f2; font-weight: 700; font-size: 14px; }
+    .unban-lobby-msg-time { color: #80848e; font-size: 11px; }
+    .unban-lobby-msg-text { color: #dcddde; font-size: 14px; line-height: 1.5; }
+    .unban-lobby-input-area { padding: 16px 24px; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1); }
+    .unban-lobby-input-wrapper { display: flex; gap: 12px; }
+    .unban-lobby-input { flex: 1; padding: 12px 16px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #dcddde; font-size: 14px; }
+    .unban-lobby-input:focus { outline: none; border-color: #5865f2; }
+    .unban-lobby-send { padding: 12px 24px; background: linear-gradient(135deg, #5865f2, #7289da); border: none; border-radius: 8px; color: white; font-weight: 700; cursor: pointer; }
+    .unban-lobby-send:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4); }
+    .unban-lobby-actions { display: flex; gap: 12px; margin-top: 12px; }
+    .unban-lobby-action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .unban-lobby-action-btn.approve { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+    .unban-lobby-action-btn.reject { background: rgba(237, 66, 69, 0.2); color: #ff6b6b; border: 1px solid rgba(237, 66, 69, 0.3); }
     
     .server-list { width: 72px; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; z-index: 10; }
     .server-icon { width: 48px; height: 48px; border-radius: 50%; background: #1e1f22; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; }
@@ -190,8 +344,29 @@
     .message-reply-text { color: #b5bac1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     
     .message-input-container { padding: 16px; z-index: 10; }
-    .message-input-wrapper { background: #000; border-radius: 8px; padding: 11px; display: flex; align-items: center; gap: 8px; }
-    .message-input { flex: 1; background: none; border: none; color: #dcddde; font-size: 15px; outline: none; }
+    .message-input-wrapper { background: #000; border-radius: 8px; padding: 11px; display: flex; align-items: flex-end; gap: 8px; }
+    .message-input { flex: 1; background: none; border: none; color: #dcddde; font-size: 15px; outline: none; resize: none; max-height: 200px; overflow-y: auto; font-family: inherit; line-height: 1.5; }
+    
+    /* Formatting Toolbar */
+    .formatting-toolbar { display: flex; gap: 4px; padding: 8px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .format-btn { background: none; border: none; color: #b9bbbe; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+    .format-btn:hover { background: rgba(255,255,255,0.1); color: #dcddde; }
+    .format-btn.active { background: #5865f2; color: white; }
+    
+    /* Image Preview */
+    .image-preview-container { padding: 8px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); display: none; }
+    .image-preview-wrapper { position: relative; display: inline-block; }
+    .image-preview { max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover; }
+    .image-preview-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.8); border: none; color: #ed4245; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .image-preview-remove:hover { background: #ed4245; color: white; }
+    
+    /* Emoji Menu */
+    .emoji-menu { position: absolute; bottom: 70px; right: 20px; background: rgba(0,0,0,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; width: 320px; max-height: 400px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
+    .emoji-menu.show { display: block; }
+    .emoji-menu-header { color: #dcddde; font-size: 14px; font-weight: 700; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .emoji-menu-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+    .emoji-menu-item { background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 4px; transition: all 0.2s; }
+    .emoji-menu-item:hover { background: rgba(255,255,255,0.1); transform: scale(1.2); }
     .message-input:disabled { cursor: not-allowed; opacity: 0.5; }
     .upload-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; }
     .upload-btn:hover { color: #dcddde; }
@@ -206,8 +381,8 @@
     .member-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 600; overflow: hidden; position: relative; }
     .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .status-indicator { position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border: 3px solid rgba(0,0,0,0.95); border-radius: 50%; }
-    .status-indicator.online { background: #23a559; }
-    .status-indicator.offline { background: #80848e; }
+    .status-indicator.online { background: #23a559; box-shadow: 0 0 8px rgba(35,165,89,0.5); }
+    .status-indicator.offline { display: none; }
     .member-info { flex: 1; min-width: 0; }
     .member-name { color: #949ba4; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .member-name.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
@@ -490,9 +665,95 @@
   </style>
 </head>
 <body>
+  <!-- ══════════════════════════════════════════════════
+       BANNED SCREEN - Discord-Style Dark Theme
+  ══════════════════════════════════════════════════ -->
   <div class="banned-screen" id="bannedScreen">
-    <div class="banned-title">🚫 BANNED</div>
-    <div class="banned-message">You have been banned from Nova Chat.</div>
+    <!-- 3D Hammer Animation -->
+    <div class="ban-hammer-container">
+      <div class="ban-hammer">
+        <div class="hammer-icon">🔨</div>
+      </div>
+      <div class="ban-impact"></div>
+      <div class="ban-sparks">
+        <div class="spark"></div>
+        <div class="spark"></div>
+        <div class="spark"></div>
+        <div class="spark"></div>
+      </div>
+    </div>
+    
+    <!-- Main Ban Content -->
+    <div id="banMainContent">
+      <div class="banned-badge">⚠️ ACCOUNT BANNED</div>
+      <div class="banned-title">Access Denied</div>
+      <div class="banned-message">Your account has been banned from Nova Chat. You cannot access chat channels until this restriction is resolved.</div>
+      
+      <div class="banned-info-card" id="banInfoCard">
+        <div class="banned-info-row">
+          <span class="banned-info-label">Username</span>
+          <span class="banned-info-value" id="bannedUsername">Loading...</span>
+        </div>
+        <div class="banned-info-row">
+          <span class="banned-info-label">Reason</span>
+          <span class="banned-info-value" id="bannedReason">Violation of Terms</span>
+        </div>
+        <div class="banned-info-row">
+          <span class="banned-info-label">Banned On</span>
+          <span class="banned-info-value" id="bannedDate">Loading...</span>
+        </div>
+        <div class="banned-info-row">
+          <span class="banned-info-label">Banned By</span>
+          <span class="banned-info-value" id="bannedBy">Admin</span>
+        </div>
+      </div>
+      
+      <div class="banned-actions">
+        <button class="banned-btn banned-btn-primary" onclick="showUnbanRequestForm()">
+          Request Unban
+        </button>
+        <button class="banned-btn banned-btn-secondary" onclick="window.location.href='home.html'">
+          Return to Home
+        </button>
+      </div>
+    </div>
+    
+    <!-- Unban Request Form -->
+    <div class="unban-request-form" id="unbanRequestForm">
+      <div class="unban-form-title">Request Unban</div>
+      <div class="unban-form-subtitle">Submit your appeal and an admin will review it</div>
+      
+      <div class="unban-form-field">
+        <label class="unban-form-label">Username</label>
+        <input type="text" class="unban-form-input" id="unbanFormUsername" disabled>
+      </div>
+      
+      <div class="unban-form-field">
+        <label class="unban-form-label">Ban Reason</label>
+        <input type="text" class="unban-form-input" id="unbanFormBanReason" value="Banned" disabled>
+      </div>
+      
+      <div class="unban-form-field">
+        <label class="unban-form-label">Why should you be unbanned?</label>
+        <textarea class="unban-form-textarea" id="unbanFormReason" placeholder="Explain why you believe you should be unbanned..."></textarea>
+      </div>
+      
+      <div class="unban-form-actions">
+        <button class="unban-form-btn unban-form-btn-submit" onclick="submitUnbanRequest()">
+          Submit Appeal
+        </button>
+        <button class="unban-form-btn unban-form-btn-cancel" onclick="hideUnbanRequestForm()">
+          Cancel
+        </button>
+      </div>
+    </div>
+    
+    <!-- Request Pending Message -->
+    <div class="request-pending-msg" id="requestPendingMsg" style="display:none;">
+      <div class="request-pending-icon">⏳</div>
+      <div class="request-pending-title">Request Submitted</div>
+      <div class="request-pending-text">Your unban request is being reviewed by the admin team. You'll be contacted soon.</div>
+    </div>
   </div>
 
   <div class="chat-container">
@@ -561,12 +822,52 @@
           </div>
           <button class="reply-preview-close" onclick="cancelReply()">×</button>
         </div>
+        
+        <!-- Image Preview -->
+        <div class="image-preview-container" id="imagePreviewContainer">
+          <div class="image-preview-wrapper">
+            <img class="image-preview" id="imagePreview">
+            <button class="image-preview-remove" onclick="removeImagePreview()">×</button>
+          </div>
+        </div>
+        
+        <!-- Formatting Toolbar -->
+        <div class="formatting-toolbar">
+          <button class="format-btn" onclick="insertFormat('**', '**')" title="Bold">
+            <strong>B</strong>
+          </button>
+          <button class="format-btn" onclick="insertFormat('*', '*')" title="Italic">
+            <em>I</em>
+          </button>
+          <button class="format-btn" onclick="insertFormat('~~', '~~')" title="Strikethrough">
+            <s>S</s>
+          </button>
+          <button class="format-btn" onclick="insertFormat('__', '__')" title="Underline">
+            <u>U</u>
+          </button>
+          <button class="format-btn" onclick="insertFormat('`', '`')" title="Inline Code">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="format-btn" onclick="insertFormat('```\n', '\n```')" title="Code Block">
+            <span style="font-size:11px">```</span>
+          </button>
+          <button class="format-btn" onclick="insertFormat('# ', '')" title="Heading 1">
+            <strong>H1</strong>
+          </button>
+          <button class="format-btn" onclick="insertFormat('## ', '')" title="Heading 2">
+            <strong>H2</strong>
+          </button>
+        </div>
+        
         <div class="message-input-wrapper">
           <button class="upload-btn" onclick="document.getElementById('fileUpload').click()">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
           </button>
           <input type="file" id="fileUpload" accept="image/*,video/*" style="display:none" onchange="handleFileUpload(event)">
-          <input type="text" class="message-input" id="messageInput" placeholder="Message #general" onkeypress="handleKeyPress(event)" onkeydown="handleMentionKeydown(event)" oninput="handleTyping(); handleMentionInput(event)">
+          <textarea class="message-input" id="messageInput" placeholder="Message #general" onkeypress="handleKeyPress(event)" onkeydown="handleMentionKeydown(event)" oninput="handleTyping(); handleMentionInput(event); autoResizeTextarea()" rows="1"></textarea>
+          <button class="upload-btn" onclick="toggleEmojiMenu()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -588,6 +889,12 @@
   </div>
 
   <div class="emoji-picker" id="emojiPicker"></div>
+  
+  <!-- Emoji Menu for Input -->
+  <div class="emoji-menu" id="emojiMenu">
+    <div class="emoji-menu-header">Choose an Emoji</div>
+    <div class="emoji-menu-grid" id="emojiMenuGrid"></div>
+  </div>
   
   <div class="friend-request-popup" id="friendRequestPopup">
     <div class="friend-request-header">
@@ -869,7 +1176,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
     const app = initializeApp({
       apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
@@ -939,7 +1246,7 @@
     let replyingTo = null;
 
     const OWNER_PASSCODE = '0090';
-    const emojis = ['😀','😂','🤣','😊','😍','🥰','😘','😎','🤔','😮','😢','😭','😡','🔥','✨','💯','❤️','💙','💚','💛','👍','👎','👏','🙌','🎉','🎊','💪','✅','❌','⭐'];
+    const emojis = ['😀','😂','🤣','😊','😍','🥰','😘','😎','🤔','😮','😢','😭','😡','🔥','✨','💯','❤️','💙','💚','💛','👍','👎','👏','🙌','🎉','🎊','💪','✅','❌','⭐','😃','😄','😁','😆','😅','🤩','😇','🙂','🙃','😉','😌','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😤','😠','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔','🍇','🍈','🍉','🍊','🍋','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🥥','🥑','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🍄','🥜','🌰','🍞','🥐','🥖','🫓','🥨','🥯','🥞','🧇','🧀','🍖','🍗','🥩','🥓','🍔','🍟','🍕','🌭','🥪','🌮','🌯','🫔','🥙','🧆','🥚','🍳','🥘','🍲','🫕','🥣','🥗','🍿','🧈','🧂','🥫'];
 
     // Init
     checkBanStatus();
@@ -971,6 +1278,7 @@
     loadMembers();
     checkFriendRequests();
     checkMentions();
+    checkBanStatus(); // Check if user is banned on page load
     
     // Listen for friend request responses (accepted/declined)
     onValue(ref(db, `notifications/${username}`), snap => {
@@ -1032,6 +1340,39 @@
       });
     }
     checkDMNotifications();
+    
+    // Listen for new reports and suggestions (owner only)
+    if (userRole === 'Owner') {
+      onValue(ref(db, 'reports'), snap => {
+        const reports = snap.val() || {};
+        const pendingCount = Object.values(reports).filter(r => r.status === 'pending').length;
+        
+        // Update badge in real-time
+        loadChannels();
+        
+        // Show notification for new reports
+        const lastReportCount = parseInt(localStorage.getItem('lastReportCount') || '0');
+        if (pendingCount > lastReportCount) {
+          showToast('📋 New Report', `You have ${pendingCount} pending report${pendingCount > 1 ? 's' : ''} to review.`, 'info');
+        }
+        localStorage.setItem('lastReportCount', pendingCount.toString());
+      });
+      
+      onValue(ref(db, 'suggestions'), snap => {
+        const suggestions = snap.val() || {};
+        const pendingCount = Object.values(suggestions).filter(s => s.status === 'pending').length;
+        
+        // Update badge in real-time
+        loadChannels();
+        
+        // Show notification for new suggestions
+        const lastSuggestionCount = parseInt(localStorage.getItem('lastSuggestionCount') || '0');
+        if (pendingCount > lastSuggestionCount) {
+          showToast('💡 New Suggestion', `You have ${pendingCount} pending suggestion${pendingCount > 1 ? 's' : ''} to review.`, 'info');
+        }
+        localStorage.setItem('lastSuggestionCount', pendingCount.toString());
+      });
+    }
 
     const emojiPicker = document.getElementById('emojiPicker');
     emojis.forEach(e => {
@@ -1040,6 +1381,44 @@
       btn.textContent = e;
       btn.onclick = () => addReaction(e);
       emojiPicker.appendChild(btn);
+    });
+    
+    // Initialize Emoji Menu for input
+    const emojiMenuGrid = document.getElementById('emojiMenuGrid');
+    emojis.forEach(e => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-menu-item';
+      btn.textContent = e;
+      btn.onclick = () => insertEmoji(e);
+      emojiMenuGrid.appendChild(btn);
+    });
+    
+    window.toggleEmojiMenu = function() {
+      const menu = document.getElementById('emojiMenu');
+      menu.classList.toggle('show');
+    };
+    
+    window.insertEmoji = function(emoji) {
+      const input = document.getElementById('messageInput');
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const text = input.value;
+      
+      input.value = text.substring(0, start) + emoji + text.substring(end);
+      input.focus();
+      input.setSelectionRange(start + emoji.length, start + emoji.length);
+      
+      // Close emoji menu
+      document.getElementById('emojiMenu').classList.remove('show');
+    };
+    
+    // Close emoji menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('emojiMenu');
+      const emojiBtn = e.target.closest('.upload-btn');
+      if (!menu.contains(e.target) && !emojiBtn) {
+        menu.classList.remove('show');
+      }
     });
 
     get(ref(db, `channels/announcements/welcomed/${username}`)).then(snap => {
@@ -1050,15 +1429,6 @@
         set(ref(db, `channels/announcements/welcomed/${username}`), true);
       }
     });
-
-    function checkBanStatus() {
-      onValue(ref(db, `bans/${username}`), snap => {
-        if (snap.exists() && snap.val().banned === true) {
-          document.getElementById('bannedScreen').classList.add('show');
-          document.querySelector('.chat-container').style.display = 'none';
-        }
-      });
-    }
 
     function updateUserRole() {
       userRole = localStorage.getItem('nova_chat_role') || 'Member';
@@ -1086,36 +1456,164 @@
 
     function loadChannels() {
       const isOwner = userRole === 'Owner';
-      const isReadOnly = currentChannel === 'announcements' && userRole !== 'Owner';
-      document.getElementById('channelsList').innerHTML = `
-        <div class="channel-category">TEXT CHANNELS</div>
-        <div class="channel ${currentChannel === 'general' ? 'active' : ''}" onclick="switchChannel('general')">
-          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
-          general
-        </div>
+      const isStaff = ['Owner', 'Admin', 'Moderator'].includes(userRole);
+      
+      // Count pending reports and suggestions for owner badge
+      if (isOwner) {
+        Promise.all([
+          get(ref(db, 'reports')),
+          get(ref(db, 'suggestions'))
+        ]).then(([reportsSnap, suggestionsSnap]) => {
+          const reports = reportsSnap.val() || {};
+          const suggestions = suggestionsSnap.val() || {};
+          const pendingReports = Object.values(reports).filter(r => r.status === 'pending').length;
+          const pendingSuggestions = Object.values(suggestions).filter(s => s.status === 'pending').length;
+          
+          document.getElementById('channelsList').innerHTML = generateChannelHTML(isOwner, isStaff, pendingReports, pendingSuggestions);
+        });
+      } else {
+        document.getElementById('channelsList').innerHTML = generateChannelHTML(isOwner, isStaff, 0, 0);
+      }
+    }
+    
+    function generateChannelHTML(isOwner, isStaff, pendingReports, pendingSuggestions) {
+      const reportBadge = pendingReports > 0 ? `<span class="unread-badge" style="margin-left:auto;background:#ed4245;color:white;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">${pendingReports}</span>` : '';
+      const suggestionBadge = pendingSuggestions > 0 ? `<span class="unread-badge" style="margin-left:auto;background:#faa61a;color:white;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">${pendingSuggestions}</span>` : '';
+      
+      return `
+        <!-- NOVA Category (Read-only for non-staff) -->
+        <div class="channel-category">NOVA</div>
         <div class="channel ${currentChannel === 'announcements' ? 'active' : ''}" onclick="switchChannel('announcements')">
           <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
           announcements
-          ${userRole !== 'Owner' ? '<svg class="channel-lock" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+          ${!isStaff ? '<svg class="channel-lock" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+        </div>
+        <div class="channel ${currentChannel === 'updates' ? 'active' : ''}" onclick="switchChannel('updates')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          updates
+          ${!isStaff ? '<svg class="channel-lock" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+        </div>
+        <div class="channel ${currentChannel === 'leaks' ? 'active' : ''}" onclick="switchChannel('leaks')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          leaks
+          ${!isStaff ? '<svg class="channel-lock" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+        </div>
+        <div class="channel ${currentChannel === 'links' ? 'active' : ''}" onclick="switchChannel('links')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          links
+          ${!isStaff ? '<svg class="channel-lock" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>' : ''}
+        </div>
+        
+        <!-- GENERAL Category -->
+        <div class="channel-category">GENERAL</div>
+        <div class="channel ${currentChannel === 'general' ? 'active' : ''}" onclick="switchChannel('general')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+          general
         </div>
         <div class="channel ${currentChannel === 'community-links' ? 'active' : ''}" onclick="switchChannel('community-links')">
           <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
           community-links
         </div>
-        ${isOwner ? '<div class="channel" onclick="requestOwnerAccess()"><svg class="channel-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>owner-access</div>' : ''}
+        <div class="channel ${currentChannel === 'ai-assistance' ? 'active' : ''}" onclick="switchChannel('ai-assistance')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          ai-assistance
+        </div>
+        
+        <!-- SYSTEM Category -->
+        <div class="channel-category">SYSTEM</div>
+        <div class="channel ${currentChannel === 'report' ? 'active' : ''}" onclick="switchChannel('report')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          report
+        </div>
+        <div class="channel ${currentChannel === 'suggestions' ? 'active' : ''}" onclick="switchChannel('suggestions')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          suggestions
+        </div>
+        
+        <!-- OWNER Category (bottom) -->
+        ${isOwner ? `
+        <div class="channel-category" style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)">OWNER</div>
+        <div class="channel ${currentChannel === 'owner-general' ? 'active' : ''}" onclick="switchChannel('owner-general')">
+          <svg class="channel-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          owner-general
+        </div>
+        <div class="channel ${currentChannel === 'banned-logs' ? 'active' : ''}" onclick="switchChannel('banned-logs')">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          banned-logs
+        </div>
+        <div class="channel ${currentChannel === 'unban-requests' ? 'active' : ''}" onclick="switchChannel('unban-requests')" style="display:flex;align-items:center">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          unban-requests
+          <span id="unbanRequestBadge" style="margin-left:auto;background:#f59e0b;color:#000;padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;display:none"></span>
+        </div>
+        <div class="channel ${currentChannel === 'answer-reports' ? 'active' : ''}" onclick="switchChannel('answer-reports')" style="display:flex;align-items:center">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          answer-reports
+          ${reportBadge}
+        </div>
+        <div class="channel ${currentChannel === 'answer-suggestions' ? 'active' : ''}" onclick="switchChannel('answer-suggestions')" style="display:flex;align-items:center">
+          <svg class="channel-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          answer-suggestions
+          ${suggestionBadge}
+        </div>
+        ` : ''}
       `;
     }
 
     window.switchChannel = function(ch) {
       currentChannel = ch;
       loadChannels();
+      
+      // Special handling for report and answer-reports channels
+      if (ch === 'report') {
+        showReportForm();
+        return;
+      }
+      
+      if (ch === 'answer-reports') {
+        showAnswerReports();
+        return;
+      }
+      
+      // Special handling for suggestions
+      if (ch === 'suggestions') {
+        showSuggestionForm();
+        return;
+      }
+      
+      if (ch === 'answer-suggestions') {
+        showAnswerSuggestions();
+        return;
+      }
+      
+      // Special handling for ban system
+      if (ch === 'banned-logs') {
+        showBannedLogs();
+        return;
+      }
+      
+      if (ch === 'unban-requests') {
+        showUnbanRequests();
+        return;
+      }
+      
+      // Restore message input for normal channels
+      document.getElementById('messageInput').style.display = 'block';
+      document.getElementById('typingIndicator').style.display = 'block';
+      
       document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>${ch}`;
       document.getElementById('messageInput').placeholder = `Message #${ch}`;
       loadMessages(ch);
       
-      const isReadOnly = ch === 'announcements' && userRole !== 'Owner';
+      // Nova channels are read-only for non-staff
+      const novaChannels = ['announcements', 'updates', 'leaks', 'links'];
+      const isStaff = ['Owner', 'Admin', 'Moderator'].includes(userRole);
+      const isReadOnly = novaChannels.includes(ch) && !isStaff;
+      
       document.getElementById('messageInput').disabled = isReadOnly;
-      if (isReadOnly) document.getElementById('messageInput').placeholder = '🔒 Read-only channel';
+      if (isReadOnly) {
+        document.getElementById('messageInput').placeholder = '🔒 Read-only channel';
+      }
     };
 
     window.switchView = function(view) {
@@ -1126,6 +1624,13 @@
         document.getElementById('dmIcon').classList.add('active');
         document.getElementById('membersSidebar').style.display = 'none';
         document.getElementById('dmSearchPanel').classList.add('show');
+        
+        // Always enable message input for DMs
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('messageInput').placeholder = 'Message your friend';
+        document.getElementById('messageInput').style.display = 'block';
+        document.getElementById('typingIndicator').style.display = 'block';
+        
         loadDMChannels();
         loadDMPanel(); // Load friends, requests, online users
       } else {
@@ -1320,9 +1825,41 @@
             const canDel = username === m.username || userRole === 'Owner';
             
             let text = m.text;
+            
+            // Process markdown formatting
+            // Headers
+            text = text.replace(/^# (.+)$/gm, '<h1 style="font-size:24px;font-weight:700;margin:8px 0;color:#dcddde">$1</h1>');
+            text = text.replace(/^## (.+)$/gm, '<h2 style="font-size:20px;font-weight:700;margin:6px 0;color:#dcddde">$1</h2>');
+            text = text.replace(/^### (.+)$/gm, '<h3 style="font-size:16px;font-weight:700;margin:4px 0;color:#dcddde">$1</h3>');
+            
+            // Code blocks
+            text = text.replace(/```([^`]+)```/g, '<pre style="background:rgba(0,0,0,0.4);padding:8px;border-radius:4px;overflow-x:auto;margin:4px 0"><code>$1</code></pre>');
+            
+            // Inline code
+            text = text.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.4);padding:2px 4px;border-radius:3px;font-family:Consolas,monospace;font-size:13px">$1</code>');
+            
+            // Bold
+            text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            
+            // Italic
+            text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            
+            // Strikethrough
+            text = text.replace(/~~(.+?)~~/g, '<s>$1</s>');
+            
+            // Underline
+            text = text.replace(/__(.+?)__/g, '<u>$1</u>');
+            
+            // Mentions
             if (text.includes('@')) {
+              // @everyone mention - highlight in orange
+              text = text.replace(/@everyone/g, '<span class="mention" style="background:rgba(250,166,26,0.1);color:#faa61a;border-color:#faa61a">@everyone</span>');
+              // Regular user mentions
               text = text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
             }
+            
+            // Line breaks
+            text = text.replace(/\n/g, '<br>');
             
             let media = '';
             if (m.imageUrl) media = `<img src="${m.imageUrl}" class="message-image">`;
@@ -1342,7 +1879,10 @@
               replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')"><div class="message-reply-avatar">${replyAv}</div><span class="message-reply-user">${reply.username}</span><span class="message-reply-text">${reply.text}</span></div>`;
             }
             
-            return `<div class="message" id="msg-${id}">${replyHtml}<div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${roleBadges}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
+            // Show edited label if message was edited
+            const editedLabel = m.edited ? '<span style="color:#72767d;font-size:10px;margin-left:4px">(edited)</span>' : '';
+            
+            return `<div class="message" id="msg-${id}">${replyHtml}<div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${roleBadges}<span class="message-time">${time}${editedLabel}</span></div><div class="message-text" id="text-${id}">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button>${canDel?`<button class="action-btn" onclick="startEdit('${id}', '${ch}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>`:''}<button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
           }).join('');
           area.scrollTop = area.scrollHeight;
           
@@ -1381,6 +1921,630 @@
         }
       });
     }
+
+    // ═══════════════════════════════════════════════════════
+    // REPORT SYSTEM
+    // ═══════════════════════════════════════════════════════
+    
+    function showReportForm() {
+      const messagesArea = document.getElementById('messagesArea');
+      document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>report`;
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      
+      messagesArea.innerHTML = `
+        <div style="max-width:600px;margin:40px auto;padding:24px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">
+          <h2 style="color:white;font-size:24px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Submit a Report
+          </h2>
+          <p style="color:#b9bbbe;font-size:14px;margin-bottom:24px">Having an issue? Let us know and we'll get back to you.</p>
+          
+          <div style="margin-bottom:20px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Username</label>
+            <input type="text" id="reportUsername" value="${username}" readonly style="width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#80848e;font-size:14px;cursor:not-allowed">
+          </div>
+          
+          <div style="margin-bottom:20px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Issue Type</label>
+            <select id="reportType" style="width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;cursor:pointer">
+              <option value="">Select an issue type...</option>
+              <option value="Game Issue">🎮 Game Issue</option>
+              <option value="App Issue">📱 App Issue</option>
+              <option value="Search Issue">🔍 Search Issue</option>
+              <option value="Chat Issue">💬 Chat Issue</option>
+              <option value="Account Issue">👤 Account Issue</option>
+              <option value="Other">❓ Other</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom:24px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Description</label>
+            <textarea id="reportDescription" placeholder="Please describe your issue in detail..." style="width:100%;height:150px;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;resize:vertical;font-family:inherit"></textarea>
+          </div>
+          
+          <div style="display:flex;gap:12px">
+            <button onclick="submitReport()" style="flex:1;padding:12px;background:#5865f2;color:white;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+              📤 Send Report
+            </button>
+            <button onclick="switchChannel('general')" style="padding:12px 20px;background:rgba(255,255,255,0.05);color:#b9bbbe;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+              Cancel
+            </button>
+          </div>
+          
+          <div id="reportStatus" style="margin-top:16px;padding:12px;border-radius:4px;display:none"></div>
+        </div>
+      `;
+    }
+    
+    window.submitReport = function() {
+      const type = document.getElementById('reportType').value;
+      const description = document.getElementById('reportDescription').value.trim();
+      const statusDiv = document.getElementById('reportStatus');
+      
+      if (!type) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '⚠️ Please select an issue type';
+        return;
+      }
+      
+      if (!description) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '⚠️ Please provide a description';
+        return;
+      }
+      
+      const report = {
+        username: username,
+        type: type,
+        description: description,
+        timestamp: Date.now(),
+        status: 'pending',
+        answer: null
+      };
+      
+      push(ref(db, 'reports'), report).then(() => {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(59,165,93,0.1)';
+        statusDiv.style.border = '1px solid rgba(59,165,93,0.3)';
+        statusDiv.style.color = '#3ba55d';
+        statusDiv.innerHTML = '✅ Report submitted successfully! You will receive a DM when it\'s answered.';
+        
+        document.getElementById('reportType').value = '';
+        document.getElementById('reportDescription').value = '';
+        
+        setTimeout(() => {
+          switchChannel('general');
+        }, 2000);
+      }).catch(err => {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '❌ Failed to submit report. Please try again.';
+        console.error('Report error:', err);
+      });
+    };
+    
+    function showAnswerReports() {
+      const messagesArea = document.getElementById('messagesArea');
+      document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>answer-reports`;
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      
+      get(ref(db, 'reports')).then(snap => {
+        const reports = snap.val() || {};
+        const reportsList = Object.entries(reports).sort((a, b) => b[1].timestamp - a[1].timestamp);
+        
+        if (reportsList.length === 0) {
+          messagesArea.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;color:#80848e">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0 auto 16px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <h3 style="color:#dcddde;font-size:20px;font-weight:600;margin-bottom:8px">No Reports</h3>
+              <p style="font-size:14px">All caught up! No user reports to review.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        messagesArea.innerHTML = `
+          <div style="padding:20px">
+            <h2 style="color:white;font-size:24px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+              User Reports (${reportsList.length})
+            </h2>
+            <div id="reportsList">
+              ${reportsList.map(([id, report]) => {
+                const statusColor = report.status === 'answered' ? '#3ba55d' : '#faa61a';
+                const statusIcon = report.status === 'answered' ? '✅' : '⏳';
+                const date = new Date(report.timestamp).toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                });
+                
+                return `
+                  <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:20px;margin-bottom:16px">
+                    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                      <div>
+                        <div style="color:white;font-weight:700;font-size:16px;margin-bottom:4px">@${report.username}</div>
+                        <div style="color:#80848e;font-size:12px">${date}</div>
+                      </div>
+                      <div style="padding:4px 12px;background:rgba(${statusColor === '#3ba55d' ? '59,165,93' : '250,166,26'},0.1);border:1px solid ${statusColor};border-radius:12px;color:${statusColor};font-size:12px;font-weight:600">
+                        ${statusIcon} ${report.status.toUpperCase()}
+                      </div>
+                    </div>
+                    
+                    <div style="margin-bottom:12px">
+                      <div style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">Issue Type</div>
+                      <div style="color:#dcddde;font-size:14px">${report.type}</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px">
+                      <div style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">Description</div>
+                      <div style="color:#dcddde;font-size:14px;line-height:1.5;padding:12px;background:rgba(0,0,0,0.3);border-radius:4px">${report.description}</div>
+                    </div>
+                    
+                    ${report.status === 'answered' ? `
+                      <div style="padding:12px;background:rgba(59,165,93,0.1);border:1px solid rgba(59,165,93,0.3);border-radius:4px;margin-bottom:12px">
+                        <div style="color:#3ba55d;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">✅ Your Answer</div>
+                        <div style="color:#dcddde;font-size:14px;line-height:1.5">${report.answer}</div>
+                      </div>
+                      <div style="display:flex;gap:8px;margin-top:12px">
+                        <button onclick="deleteReport('${id}')" style="padding:8px 16px;background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);color:#ed4245;border-radius:4px;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s">
+                          🗑️ Delete Report
+                        </button>
+                      </div>
+                    ` : `
+                      <div style="margin-top:12px">
+                        <textarea id="answer_${id}" placeholder="Type your answer here..." style="width:100%;height:100px;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;resize:vertical;font-family:inherit;margin-bottom:8px"></textarea>
+                        <button onclick="answerReport('${id}', '${report.username}')" style="padding:10px 20px;background:#5865f2;color:white;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+                          📨 Send Answer
+                        </button>
+                      </div>
+                    `}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    window.answerReport = function(reportId, reportUsername) {
+      const answerText = document.getElementById(`answer_${reportId}`).value.trim();
+      
+      if (!answerText) {
+        alert('Please provide an answer before sending');
+        return;
+      }
+      
+      // Get the report details first
+      get(ref(db, `reports/${reportId}`)).then(snap => {
+        const report = snap.val();
+        
+        // Update report status
+        update(ref(db, `reports/${reportId}`), {
+          status: 'answered',
+          answer: answerText,
+          answeredBy: username,
+          answeredAt: Date.now()
+        }).then(() => {
+          // Create DM channel ID (sorted alphabetically)
+          const users = ['Nova', reportUsername].sort();
+          const dmId = users.join('_');
+          const dmChannel = `dm_${dmId}`;
+          
+          // Get Nova bot profile pic
+          get(ref(db, 'users/Nova')).then(novaSnap => {
+            const novaData = novaSnap.val() || {};
+            const novaProfilePic = novaData.profilePic || 'Nova12.png';
+            
+            // Format the DM message with better structure
+            const dmMessage = {
+              username: 'Nova',
+              profilePic: novaProfilePic,
+              text: `# 📋 Report Response\n\n### Your Report\n**Issue Type:** ${report.type}\n**Description:** ${report.description}\n\n---\n\n### Our Response\n${answerText}\n\n---\n\n*Need more help? Feel free to submit another report or reach out to our team.*`,
+              timestamp: Date.now(),
+              roles: ['Bot']
+            };
+            
+            push(ref(db, `channels/${dmChannel}/messages`), dmMessage).then(() => {
+              // Add to both users' DM lists
+              const dmData = {
+                otherUser: reportUsername,
+                lastMessage: '📋 Report Response',
+                timestamp: Date.now()
+              };
+              
+              const userDmData = {
+                otherUser: 'Nova',
+                lastMessage: '📋 Report Response',
+                timestamp: Date.now()
+              };
+              
+              // Update DM lists
+              set(ref(db, `dms/${reportUsername}/${dmId}`), userDmData);
+              set(ref(db, `dms/Nova/${dmId}`), dmData);
+              
+              // Add unread notification for the user
+              get(ref(db, `unreadMessages/${reportUsername}/${dmChannel}`)).then(unreadSnap => {
+                const currentUnread = unreadSnap.val() || 0;
+                set(ref(db, `unreadMessages/${reportUsername}/${dmChannel}`), currentUnread + 1);
+              });
+              
+              // Add to friends list if not already there (so Nova bot appears in their DMs)
+              get(ref(db, `friends/${reportUsername}/Nova`)).then(friendSnap => {
+                if (!friendSnap.exists()) {
+                  set(ref(db, `friends/${reportUsername}/Nova`), {
+                    username: 'Nova',
+                    profilePic: novaProfilePic,
+                    addedAt: Date.now()
+                  });
+                }
+              });
+              
+              get(ref(db, `friends/Nova/${reportUsername}`)).then(friendSnap => {
+                if (!friendSnap.exists()) {
+                  get(ref(db, `users/${reportUsername}`)).then(userSnap => {
+                    const userData = userSnap.val() || {};
+                    set(ref(db, `friends/Nova/${reportUsername}`), {
+                      username: reportUsername,
+                      profilePic: userData.profilePic || '',
+                      addedAt: Date.now()
+                    });
+                  });
+                }
+              });
+              
+              // Refresh the answer reports view
+              showAnswerReports();
+              
+              // Show success toast
+              showToast('✅ Answer Sent', 'The user will receive a DM notification with your answer.', 'success');
+            });
+          });
+        }).catch(err => {
+          console.error('Error answering report:', err);
+          showToast('❌ Error', 'Failed to send answer. Please try again.', 'error');
+        });
+      });
+    };
+    
+    window.deleteReport = function(reportId) {
+      if (!confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+        return;
+      }
+      
+      remove(ref(db, `reports/${reportId}`)).then(() => {
+        showAnswerReports();
+        showToast('🗑️ Report Deleted', 'The report has been removed from the system.', 'success');
+      }).catch(err => {
+        console.error('Error deleting report:', err);
+        showToast('❌ Error', 'Failed to delete report. Please try again.', 'error');
+      });
+    };
+
+    // ═══════════════════════════════════════════════════════
+    // SUGGESTION SYSTEM
+    // ═══════════════════════════════════════════════════════
+    
+    function showSuggestionForm() {
+      const messagesArea = document.getElementById('messagesArea');
+      document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>suggestions`;
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      
+      messagesArea.innerHTML = `
+        <div style="max-width:600px;margin:40px auto;padding:24px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(255,255,255,0.1)">
+          <h2 style="color:white;font-size:24px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            Submit a Suggestion
+          </h2>
+          <p style="color:#b9bbbe;font-size:14px;margin-bottom:24px">Have an idea? Share your suggestions to help improve Nova!</p>
+          
+          <div style="margin-bottom:20px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Username</label>
+            <input type="text" id="suggestionUsername" value="${username}" readonly style="width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#80848e;font-size:14px;cursor:not-allowed">
+          </div>
+          
+          <div style="margin-bottom:20px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Suggestion Type</label>
+            <select id="suggestionType" style="width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;cursor:pointer">
+              <option value="">Select a suggestion type...</option>
+              <option value="Game Suggestion">🎮 Game Suggestion</option>
+              <option value="App Suggestion">📱 App Suggestion</option>
+              <option value="Feature Suggestion">✨ Feature Suggestion</option>
+              <option value="Other">💡 Other</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom:24px">
+            <label style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:8px">Description</label>
+            <textarea id="suggestionDescription" placeholder="Tell us about your suggestion..." style="width:100%;height:150px;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;resize:vertical;font-family:inherit"></textarea>
+          </div>
+          
+          <div style="display:flex;gap:12px">
+            <button onclick="submitSuggestion()" style="flex:1;padding:12px;background:#5865f2;color:white;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+              💡 Submit Suggestion
+            </button>
+            <button onclick="switchChannel('general')" style="padding:12px 20px;background:rgba(255,255,255,0.05);color:#b9bbbe;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+              Cancel
+            </button>
+          </div>
+          
+          <div id="suggestionStatus" style="margin-top:16px;padding:12px;border-radius:4px;display:none"></div>
+        </div>
+      `;
+    }
+    
+    window.submitSuggestion = function() {
+      const type = document.getElementById('suggestionType').value;
+      const description = document.getElementById('suggestionDescription').value.trim();
+      const statusDiv = document.getElementById('suggestionStatus');
+      
+      if (!type) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '⚠️ Please select a suggestion type';
+        return;
+      }
+      
+      if (!description) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '⚠️ Please provide a description';
+        return;
+      }
+      
+      const suggestion = {
+        username: username,
+        type: type,
+        description: description,
+        timestamp: Date.now(),
+        status: 'pending',
+        answer: null
+      };
+      
+      push(ref(db, 'suggestions'), suggestion).then(() => {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(59,165,93,0.1)';
+        statusDiv.style.border = '1px solid rgba(59,165,93,0.3)';
+        statusDiv.style.color = '#3ba55d';
+        statusDiv.innerHTML = '✅ Suggestion submitted successfully! You will receive a DM when it\'s reviewed.';
+        
+        document.getElementById('suggestionType').value = '';
+        document.getElementById('suggestionDescription').value = '';
+        
+        setTimeout(() => {
+          switchChannel('general');
+        }, 2000);
+      }).catch(err => {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(237,66,69,0.1)';
+        statusDiv.style.border = '1px solid rgba(237,66,69,0.3)';
+        statusDiv.style.color = '#ed4245';
+        statusDiv.innerHTML = '❌ Failed to submit suggestion. Please try again.';
+        console.error('Suggestion error:', err);
+      });
+    };
+    
+    function showAnswerSuggestions() {
+      const messagesArea = document.getElementById('messagesArea');
+      document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>answer-suggestions`;
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      
+      get(ref(db, 'suggestions')).then(snap => {
+        const suggestions = snap.val() || {};
+        const suggestionsList = Object.entries(suggestions).sort((a, b) => b[1].timestamp - a[1].timestamp);
+        
+        if (suggestionsList.length === 0) {
+          messagesArea.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;color:#80848e">
+              <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0 auto 16px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              <h3 style="color:#dcddde;font-size:20px;font-weight:600;margin-bottom:8px">No Suggestions</h3>
+              <p style="font-size:14px">All caught up! No user suggestions to review.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        messagesArea.innerHTML = `
+          <div style="padding:20px">
+            <h2 style="color:white;font-size:24px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              User Suggestions (${suggestionsList.length})
+            </h2>
+            <div id="suggestionsList">
+              ${suggestionsList.map(([id, suggestion]) => {
+                const statusColor = suggestion.status === 'answered' ? '#3ba55d' : '#faa61a';
+                const statusIcon = suggestion.status === 'answered' ? '✅' : '⏳';
+                const date = new Date(suggestion.timestamp).toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                });
+                
+                return `
+                  <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:20px;margin-bottom:16px">
+                    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+                      <div>
+                        <div style="color:white;font-weight:700;font-size:16px;margin-bottom:4px">@${suggestion.username}</div>
+                        <div style="color:#80848e;font-size:12px">${date}</div>
+                      </div>
+                      <div style="padding:4px 12px;background:rgba(${statusColor === '#3ba55d' ? '59,165,93' : '250,166,26'},0.1);border:1px solid ${statusColor};border-radius:12px;color:${statusColor};font-size:12px;font-weight:600">
+                        ${statusIcon} ${suggestion.status.toUpperCase()}
+                      </div>
+                    </div>
+                    
+                    <div style="margin-bottom:12px">
+                      <div style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">Suggestion Type</div>
+                      <div style="color:#dcddde;font-size:14px">${suggestion.type}</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px">
+                      <div style="color:#b9bbbe;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">Description</div>
+                      <div style="color:#dcddde;font-size:14px;line-height:1.5;padding:12px;background:rgba(0,0,0,0.3);border-radius:4px">${suggestion.description}</div>
+                    </div>
+                    
+                    ${suggestion.status === 'answered' ? `
+                      <div style="padding:12px;background:rgba(59,165,93,0.1);border:1px solid rgba(59,165,93,0.3);border-radius:4px;margin-bottom:12px">
+                        <div style="color:#3ba55d;font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:4px">✅ Your Response</div>
+                        <div style="color:#dcddde;font-size:14px;line-height:1.5">${suggestion.answer}</div>
+                      </div>
+                      <div style="display:flex;gap:8px;margin-top:12px">
+                        <button onclick="deleteSuggestion('${id}')" style="padding:8px 16px;background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);color:#ed4245;border-radius:4px;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s">
+                          🗑️ Delete Suggestion
+                        </button>
+                      </div>
+                    ` : `
+                      <div style="margin-top:12px">
+                        <textarea id="answer_suggestion_${id}" placeholder="Type your response here..." style="width:100%;height:100px;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;font-size:14px;resize:vertical;font-family:inherit;margin-bottom:8px"></textarea>
+                        <button onclick="answerSuggestion('${id}', '${suggestion.username}')" style="padding:10px 20px;background:#5865f2;color:white;border:none;border-radius:4px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s">
+                          💬 Send Response
+                        </button>
+                      </div>
+                    `}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    window.answerSuggestion = function(suggestionId, suggestionUsername) {
+      const answerText = document.getElementById(`answer_suggestion_${suggestionId}`).value.trim();
+      
+      if (!answerText) {
+        alert('Please provide a response before sending');
+        return;
+      }
+      
+      // Get the suggestion details first
+      get(ref(db, `suggestions/${suggestionId}`)).then(snap => {
+        const suggestion = snap.val();
+        
+        // Update suggestion status
+        update(ref(db, `suggestions/${suggestionId}`), {
+          status: 'answered',
+          answer: answerText,
+          answeredBy: username,
+          answeredAt: Date.now()
+        }).then(() => {
+          // Create DM channel ID (sorted alphabetically)
+          const users = ['Nova', suggestionUsername].sort();
+          const dmId = users.join('_');
+          const dmChannel = `dm_${dmId}`;
+          
+          // Get Nova bot profile pic
+          get(ref(db, 'users/Nova')).then(novaSnap => {
+            const novaData = novaSnap.val() || {};
+            const novaProfilePic = novaData.profilePic || 'Nova12.png';
+            
+            // Format the DM message with better structure
+            const dmMessage = {
+              username: 'Nova',
+              profilePic: novaProfilePic,
+              text: `# 💡 Suggestion Response\n\n### Your Suggestion\n**Type:** ${suggestion.type}\n**Description:** ${suggestion.description}\n\n---\n\n### Our Response\n${answerText}\n\n---\n\n*Thank you for helping us improve Nova! Keep the suggestions coming.*`,
+              timestamp: Date.now(),
+              roles: ['Bot']
+            };
+            
+            push(ref(db, `channels/${dmChannel}/messages`), dmMessage).then(() => {
+              // Add to both users' DM lists
+              const dmData = {
+                otherUser: suggestionUsername,
+                lastMessage: '💡 Suggestion Response',
+                timestamp: Date.now()
+              };
+              
+              const userDmData = {
+                otherUser: 'Nova',
+                lastMessage: '💡 Suggestion Response',
+                timestamp: Date.now()
+              };
+              
+              // Update DM lists
+              set(ref(db, `dms/${suggestionUsername}/${dmId}`), userDmData);
+              set(ref(db, `dms/Nova/${dmId}`), dmData);
+              
+              // Add unread notification for the user
+              get(ref(db, `unreadMessages/${suggestionUsername}/${dmChannel}`)).then(unreadSnap => {
+                const currentUnread = unreadSnap.val() || 0;
+                set(ref(db, `unreadMessages/${suggestionUsername}/${dmChannel}`), currentUnread + 1);
+              });
+              
+              // Add to friends list if not already there
+              get(ref(db, `friends/${suggestionUsername}/Nova`)).then(friendSnap => {
+                if (!friendSnap.exists()) {
+                  set(ref(db, `friends/${suggestionUsername}/Nova`), {
+                    username: 'Nova',
+                    profilePic: novaProfilePic,
+                    addedAt: Date.now()
+                  });
+                }
+              });
+              
+              get(ref(db, `friends/Nova/${suggestionUsername}`)).then(friendSnap => {
+                if (!friendSnap.exists()) {
+                  get(ref(db, `users/${suggestionUsername}`)).then(userSnap => {
+                    const userData = userSnap.val() || {};
+                    set(ref(db, `friends/Nova/${suggestionUsername}`), {
+                      username: suggestionUsername,
+                      profilePic: userData.profilePic || '',
+                      addedAt: Date.now()
+                    });
+                  });
+                }
+              });
+              
+              // Refresh the answer suggestions view
+              showAnswerSuggestions();
+              
+              // Show success toast
+              showToast('✅ Response Sent', 'The user will receive a DM notification with your response.', 'success');
+            });
+          });
+        }).catch(err => {
+          console.error('Error answering suggestion:', err);
+          showToast('❌ Error', 'Failed to send response. Please try again.', 'error');
+        });
+      });
+    };
+    
+    window.deleteSuggestion = function(suggestionId) {
+      if (!confirm('Are you sure you want to delete this suggestion? This action cannot be undone.')) {
+        return;
+      }
+      
+      remove(ref(db, `suggestions/${suggestionId}`)).then(() => {
+        showAnswerSuggestions();
+        showToast('🗑️ Suggestion Deleted', 'The suggestion has been removed from the system.', 'success');
+      }).catch(err => {
+        console.error('Error deleting suggestion:', err);
+        showToast('❌ Error', 'Failed to delete suggestion. Please try again.', 'error');
+      });
+    };
 
     function loadMembers() {
       onValue(ref(db, 'presence'), pSnap => {
@@ -1495,9 +2659,22 @@
         const channels = snap.val() || {};
         Object.keys(channels).forEach(ch => {
           const msgs = channels[ch].messages || {};
-          Object.values(msgs).forEach(m => {
-            if (m.text.includes(`@${username}`) && m.username !== username && !m.notified) {
-              showToast('Mentioned', `${m.username} mentioned you in #${ch}!`, 'info');
+          Object.entries(msgs).forEach(([msgId, m]) => {
+            // Check if message mentions the user or @everyone, and hasn't been notified yet
+            const mentionsUser = m.text.includes(`@${username}`);
+            const mentionsEveryone = m.text.includes('@everyone');
+            
+            if ((mentionsUser || mentionsEveryone) && m.username !== username) {
+              const notificationKey = `mention_notified_${msgId}`;
+              const hasBeenNotified = localStorage.getItem(notificationKey);
+              
+              // Only show notification if we haven't notified for this specific message
+              if (!hasBeenNotified) {
+                const mentionType = mentionsEveryone ? '@everyone' : `@${username}`;
+                showToast('Mentioned', `${m.username} mentioned ${mentionType} in #${ch}!`, 'info');
+                // Mark this mention as notified
+                localStorage.setItem(notificationKey, 'true');
+              }
             }
           });
         });
@@ -1673,6 +2850,12 @@
       
       document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>${otherUser}`;
       document.getElementById('messageInput').placeholder = `Message @${otherUser}`;
+      
+      // Ensure message input is enabled
+      document.getElementById('messageInput').disabled = false;
+      document.getElementById('messageInput').style.display = 'block';
+      document.getElementById('typingIndicator').style.display = 'block';
+      
       loadMessages(`dm_${dmId}`);
     }
     
@@ -1725,11 +2908,28 @@
       loadDMChannels();
       document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>${otherUser}`;
       document.getElementById('messageInput').placeholder = `Message @${otherUser}`;
+      
+      // Ensure message input is enabled for DMs
+      document.getElementById('messageInput').disabled = false;
+      document.getElementById('messageInput').style.display = 'block';
+      document.getElementById('typingIndicator').style.display = 'block';
+      
       loadMessages(`dm_${dmId}`);
     };
 
     window.handleKeyPress = function(e) {
-      if (e.key === 'Enter') sendMessage();
+      // Allow Shift+Enter for new line, Enter alone sends message
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+    
+    // Auto-resize textarea as user types
+    window.autoResizeTextarea = function() {
+      const textarea = document.getElementById('messageInput');
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
     };
 
     window.handleTyping = function() {
@@ -1738,19 +2938,63 @@
       typingTimeout = setTimeout(() => remove(ref(db, `typing/${currentChannel}/${username}`)), 3000);
     };
 
+    let pendingImageFile = null;
+    
     window.handleFileUpload = function(e) {
       const file = e.target.files[0];
       if (!file) return;
+      
       const reader = new FileReader();
       reader.onload = function(ev) {
-        const isVid = file.type.startsWith('video/');
-        const data = {username, profilePic, text: isVid?'📹 Video':'🖼️ Image', timestamp: Date.now(), role: userRole};
-        if (isVid) data.videoUrl = ev.target.result;
-        else data.imageUrl = ev.target.result;
-        push(ref(db, `channels/${currentChannel}/messages`), data);
+        // Store the file data
+        pendingImageFile = {
+          data: ev.target.result,
+          type: file.type,
+          isVideo: file.type.startsWith('video/')
+        };
+        
+        // Show preview for images
+        if (!pendingImageFile.isVideo) {
+          document.getElementById('imagePreview').src = ev.target.result;
+          document.getElementById('imagePreviewContainer').style.display = 'block';
+        } else {
+          // For videos, send immediately (can't preview easily)
+          const data = {
+            username, 
+            profilePic, 
+            text: '📹 Video', 
+            timestamp: Date.now(), 
+            role: userRole,
+            videoUrl: ev.target.result
+          };
+          push(ref(db, `channels/${currentChannel}/messages`), data);
+          pendingImageFile = null;
+        }
       };
       reader.readAsDataURL(file);
       e.target.value = '';
+    };
+    
+    window.removeImagePreview = function() {
+      pendingImageFile = null;
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('imagePreview').src = '';
+    };
+    
+    window.insertFormat = function(before, after) {
+      const input = document.getElementById('messageInput');
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const text = input.value;
+      const selectedText = text.substring(start, end);
+      
+      const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+      input.value = newText;
+      
+      // Set cursor position after the inserted format
+      const newCursorPos = start + before.length + selectedText.length;
+      input.focus();
+      input.setSelectionRange(newCursorPos, newCursorPos);
     };
     
     // Mention Autocomplete System
@@ -1932,22 +3176,43 @@
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
-      if (!text || (currentChannel === 'announcements' && userRole !== 'Owner')) return;
+      
+      // Allow sending if there's text or a pending image
+      if ((!text && !pendingImageFile) || (currentChannel === 'announcements' && userRole !== 'Owner')) return;
       
       // Get current user's roles
       get(ref(db, `users/${username}`)).then(snap => {
         const userData = snap.val() || {};
         const userRoles = Array.isArray(userData.roles) ? userData.roles : (userData.role ? [userData.role] : ['Member']);
         
-        const msgData = {username, profilePic, text, timestamp: Date.now(), role: userRole, roles: userRoles};
+        const msgData = {
+          username, 
+          profilePic, 
+          text: text || '', 
+          timestamp: Date.now(), 
+          role: userRole, 
+          roles: userRoles
+        };
+        
         if (replyingTo) {
           msgData.replyTo = replyingTo;
         }
         
+        // Add image if one is pending
+        if (pendingImageFile) {
+          msgData.imageUrl = pendingImageFile.data;
+          // Don't add text prefix for images
+          removeImagePreview();
+        }
+        
         push(ref(db, `channels/${currentChannel}/messages`), msgData);
         
-        // Check if message mentions Nova AI bot
-        if (text.includes('@Nova AI') || text.includes('@NovaAI')) {
+        // Auto-respond in ai-assistance channel without needing @mention
+        if (currentChannel === 'ai-assistance') {
+          setTimeout(() => handleAIResponse(text, currentChannel), 1000);
+        }
+        // Check if message mentions Nova AI bot in other channels
+        else if (text.includes('@Nova AI') || text.includes('@NovaAI')) {
           setTimeout(() => handleAIResponse(text, currentChannel), 1000);
         }
         
@@ -1973,6 +3238,9 @@
       input.value = '';
       remove(ref(db, `typing/${currentChannel}/${username}`));
       cancelReply();
+      
+      // Reset textarea height
+      input.style.height = 'auto';
     }
     
     // ═══════════════════════════════════════════════════════
@@ -1987,19 +3255,19 @@
         // Clean the message (remove @mentions)
         const cleanMessage = userMessage.replace(/@Nova AI|@NovaAI/gi, '').trim();
         
-        // Call Hugging Face API (Free tier)
-        const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+        // Use free Hugging Face Inference API with a better model (Mistral)
+        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' // We'll use a free model that doesn't require auth
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            inputs: cleanMessage,
+            inputs: `You are Nova AI, a helpful and friendly AI assistant in a gaming/app platform chat. Be conversational, helpful, and concise. User: ${cleanMessage}\nNova AI:`,
             parameters: {
-              max_length: 200,
-              temperature: 0.9,
-              top_p: 0.9
+              max_new_tokens: 250,
+              temperature: 0.7,
+              top_p: 0.9,
+              return_full_text: false
             }
           })
         });
@@ -2009,6 +3277,15 @@
         if (response.ok) {
           const data = await response.json();
           aiReply = data[0]?.generated_text || data.generated_text || "I'm here to help! Ask me anything.";
+          
+          // Clean up the response
+          aiReply = aiReply.replace(/^Nova AI:\s*/i, '').trim();
+          aiReply = aiReply.split('\n')[0]; // Get first line for cleaner responses
+          
+          // Limit response length
+          if (aiReply.length > 500) {
+            aiReply = aiReply.substring(0, 500) + '...';
+          }
         } else {
           // Fallback to simple responses if API fails
           aiReply = getSimpleAIResponse(cleanMessage);
@@ -2076,7 +3353,28 @@
       
       // Help/What can you do
       if (msg.match(/help|what can you do|what do you do|commands/)) {
-        return "I'm Nova AI! I can:\n• Answer questions\n• Have conversations\n• Help with code\n• Tell jokes\n• And more!\n\nJust @mention me or DM me! Type 'joke' for a joke or 'tip' for a coding tip.";
+        return "I'm Nova AI! I can:\n• Answer questions & have conversations\n• Help with coding & tech questions\n• Recommend games & apps\n• Tell jokes & share tips\n• Explain things simply\n\nIn #ai-assistance, I auto-respond to everything! In other channels, just @mention me! 🤖";
+      }
+      
+      // Coding/Programming questions
+      if (msg.match(/how to|how do i|can you|explain|what is|tell me about/)) {
+        const helpfulResponses = [
+          "That's a great question! While I'm running in a simpler mode right now, I can try to help. Could you be more specific about what you need?",
+          "I'd love to help with that! Can you give me a bit more detail so I can provide a better answer?",
+          "Interesting topic! I can explain the basics - ask me something specific and I'll do my best!",
+          "Good question! I'm here to help. Try being more specific and I can give you better guidance!"
+        ];
+        return helpfulResponses[Math.floor(Math.random() * helpfulResponses.length)];
+      }
+      
+      // Game recommendations
+      if (msg.match(/game|play|recommend.*game|best game/)) {
+        return "Looking for games? Check out the Games section! We have tons of awesome games like:\n• Retro Bowl 🏈\n• 1v1.LOL 🎮\n• Slope 🎿\n• And many more!\n\nJust click the Games tab to explore! 🎮";
+      }
+      
+      // App recommendations  
+      if (msg.match(/app|tool|recommend.*app|best app/)) {
+        return "Need apps? Browse the Apps section! We've got:\n• YouTube 📺\n• Discord 💬\n• Spotify 🎵\n• And more!\n\nCheck the Apps tab for the full collection! 📱";
       }
       
       // Jokes
@@ -2133,6 +3431,21 @@
       }
     });
     
+    // Create Nova (Report Bot) user in Firebase if it doesn't exist
+    get(ref(db, 'users/Nova')).then(snap => {
+      if (!snap.exists()) {
+        set(ref(db, 'users/Nova'), {
+          username: 'Nova',
+          profilePic: 'Nova12.png',
+          role: 'Bot',
+          roles: ['Bot'],
+          bio: '📋 Official Nova Support Bot - I handle all report responses and system notifications.',
+          lastSeen: Date.now(),
+          isBot: true
+        });
+      }
+    });
+    
     window.startReply = function(msgId, msgUser, msgText) {
       replyingTo = msgId;
       document.getElementById('replyPreviewUser').textContent = msgUser;
@@ -2179,6 +3492,80 @@
           showToast('Message Deleted', 'Message has been removed', 'success');
         });
       }
+    };
+    
+    let editingMessageId = null;
+    let editingChannel = null;
+    
+    window.startEdit = function(msgId, channel) {
+      editingMessageId = msgId;
+      editingChannel = channel;
+      
+      // Get the current message text
+      get(ref(db, `channels/${channel}/messages/${msgId}`)).then(snap => {
+        const msg = snap.val();
+        if (!msg) return;
+        
+        // Replace message text with editable input
+        const textElement = document.getElementById(`text-${msgId}`);
+        const currentText = msg.text;
+        
+        textElement.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <textarea id="edit-input-${msgId}" style="width:100%;min-height:60px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#dcddde;font-size:14px;resize:vertical;font-family:inherit">${currentText}</textarea>
+            <div style="display:flex;gap:8px;font-size:12px">
+              <button onclick="saveEdit('${msgId}', '${channel}')" style="padding:4px 12px;background:#3ba55d;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600">Save</button>
+              <button onclick="cancelEdit('${msgId}', '${channel}')" style="padding:4px 12px;background:#ed4245;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600">Cancel</button>
+              <span style="color:#72767d;align-self:center">escape to <span style="color:#00aff4;cursor:pointer" onclick="cancelEdit('${msgId}', '${channel}')">cancel</span> • enter to <span style="color:#00aff4;cursor:pointer" onclick="saveEdit('${msgId}', '${channel}')">save</span></span>
+            </div>
+          </div>
+        `;
+        
+        // Focus the textarea
+        const textarea = document.getElementById(`edit-input-${msgId}`);
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        
+        // Add keyboard shortcuts
+        textarea.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            cancelEdit(msgId, channel);
+          } else if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            saveEdit(msgId, channel);
+          }
+        });
+      });
+    };
+    
+    window.saveEdit = function(msgId, channel) {
+      const textarea = document.getElementById(`edit-input-${msgId}`);
+      if (!textarea) return;
+      
+      const newText = textarea.value.trim();
+      if (!newText) {
+        alert('Message cannot be empty');
+        return;
+      }
+      
+      // Update the message in Firebase
+      update(ref(db, `channels/${channel}/messages/${msgId}`), {
+        text: newText,
+        edited: true,
+        editedAt: Date.now()
+      }).then(() => {
+        showToast('Message Edited', 'Your message has been updated', 'success');
+        editingMessageId = null;
+        editingChannel = null;
+      });
+    };
+    
+    window.cancelEdit = function(msgId, channel) {
+      editingMessageId = null;
+      editingChannel = null;
+      
+      // Reload messages to restore original view
+      loadMessages(channel);
     };
 
     window.openUserProfile = function(user = username) {
@@ -3228,21 +4615,40 @@
       const target = document.getElementById('modSearchInput').value.trim();
       if (!target) return showToast('Input Required', 'Enter a username', 'error');
       
-      // Remove their role and set banned status
-      set(ref(db, `bans/${target}`), {bannedBy: username, timestamp: Date.now()}).then(() => {
-        // Remove role from user
+      // Set banned status with all required fields
+      set(ref(db, `bans/${target}`), {
+        banned: true,
+        bannedBy: username,
+        timestamp: Date.now(),
+        reason: 'Violation of Terms'
+      }).then(() => {
+        // Also mark in users node
         set(ref(db, `users/${target}/role`), 'Banned');
         set(ref(db, `users/${target}/banned`), true);
         
-        showToast('User Banned', `${target} has been banned and role removed!`, 'success');
+        showToast('User Banned', `${target} has been banned!`, 'success');
         document.getElementById('modSearchInput').value = '';
+        
+        // Send notification
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `🚫 ${target} was banned by ${username}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
       });
     };
     
     window.quickUnbanUserCompact = function() {
       const target = document.getElementById('modSearchInput').value.trim();
       if (!target) return showToast('Input Required', 'Enter a username', 'error');
+      
       remove(ref(db, `bans/${target}`)).then(() => {
+        // Remove banned role and restore to Member
+        set(ref(db, `users/${target}/role`), 'Member');
+        set(ref(db, `users/${target}/banned`), false);
+        
         showToast('User Unbanned', `${target} has been unbanned!`, 'success');
         document.getElementById('modSearchInput').value = '';
       });
@@ -3457,7 +4863,21 @@
     
     window.banUserAdmin = function(targetUser) {
       if (confirm(`Ban ${targetUser}?`)) {
-        set(ref(db, `bans/${targetUser}`), {banned: true, bannedBy: username, timestamp: Date.now()});
+        set(ref(db, `bans/${targetUser}`), {
+          banned: true,
+          bannedBy: username,
+          timestamp: Date.now(),
+          reason: 'Violation of Terms'
+        });
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `🚫 ${targetUser} was banned by ${username}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+        
         alert(`🚫 ${targetUser} has been banned!`);
       }
     };
@@ -3465,7 +4885,21 @@
     window.quickBanUser = function() {
       const user = document.getElementById('modActionUser').value.trim();
       if (user && confirm(`Ban ${user}?`)) {
-        set(ref(db, `bans/${user}`), {banned: true, bannedBy: username, timestamp: Date.now()});
+        set(ref(db, `bans/${user}`), {
+          banned: true,
+          bannedBy: username,
+          timestamp: Date.now(),
+          reason: 'Violation of Terms'
+        });
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `🚫 ${user} was banned by ${username}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+        
         document.getElementById('modActionUser').value = '';
         alert(`🚫 ${user} has been banned!`);
       }
@@ -3484,7 +4918,20 @@
     window.quickUnbanUser = function() {
       const user = document.getElementById('modActionUser').value.trim();
       if (user && confirm(`Unban ${user}?`)) {
-        remove(ref(db, `bans/${user}`));
+        remove(ref(db, `bans/${user}`)).then(() => {
+          // Remove banned role and restore to Member
+          set(ref(db, `users/${user}/role`), 'Member');
+          set(ref(db, `users/${user}/banned`), false);
+          
+          push(ref(db, 'channels/general/messages'), {
+            username: 'Nova Bot',
+            profilePic: '',
+            text: `✅ ${user} was unbanned by ${username}`,
+            timestamp: Date.now(),
+            role: 'Bot'
+          });
+        });
+        
         document.getElementById('modActionUser').value = '';
         alert(`✅ ${user} has been unbanned!`);
       }
@@ -3533,8 +4980,21 @@
       if (!target || target === username) return alert('Invalid username');
       if (!confirm(`Ban ${target}?`)) return;
       
-      set(ref(db, `bans/${target}`), {banned: true, bannedBy: username, timestamp: Date.now()});
-      push(ref(db, 'channels/general/messages'), {username: 'Nova Bot', profilePic: '', text: `⚠️ ${target} was banned by ${username}`, timestamp: Date.now(), role: 'Bot'});
+      set(ref(db, `bans/${target}`), {
+        banned: true,
+        bannedBy: username,
+        timestamp: Date.now(),
+        reason: 'Violation of Terms'
+      });
+      
+      push(ref(db, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `🚫 ${target} was banned by ${username}`,
+        timestamp: Date.now(),
+        role: 'Bot'
+      });
+      
       document.getElementById('banUsername').value = '';
       openAdminPanel();
     };
@@ -3544,8 +5004,20 @@
       if (!target) return alert('Invalid username');
       if (!confirm(`Unban ${target}?`)) return;
       
-      remove(ref(db, `bans/${target}`));
-      push(ref(db, 'channels/general/messages'), {username: 'Nova Bot', profilePic: '', text: `✅ ${target} was unbanned by ${username}`, timestamp: Date.now(), role: 'Bot'});
+      remove(ref(db, `bans/${target}`)).then(() => {
+        // Remove banned role and restore to Member
+        set(ref(db, `users/${target}/role`), 'Member');
+        set(ref(db, `users/${target}/banned`), false);
+      });
+      
+      push(ref(db, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `✅ ${target} was unbanned by ${username}`,
+        timestamp: Date.now(),
+        role: 'Bot'
+      });
+      
       document.getElementById('unbanUsername').value = '';
       openAdminPanel();
     };
@@ -3601,6 +5073,521 @@
     });
 
     window.addEventListener('beforeunload', () => set(ref(db, `presence/${userId}/online`), false));
+
+    /* ═══════════════════════════════════════════════════
+       BAN SYSTEM FUNCTIONS
+    ═══════════════════════════════════════════════════ */
+    
+    // Show/hide unban request form
+    window.showUnbanRequestForm = function() {
+      document.getElementById('banMainContent').style.display = 'none';
+      document.getElementById('unbanRequestForm').classList.add('show');
+      document.getElementById('unbanFormUsername').value = username;
+    };
+    
+    window.hideUnbanRequestForm = function() {
+      document.getElementById('unbanRequestForm').classList.remove('show');
+      document.getElementById('banMainContent').style.display = 'block';
+      document.getElementById('unbanFormReason').value = '';
+    };
+    
+    // Submit unban request
+    window.submitUnbanRequest = function() {
+      const reason = document.getElementById('unbanFormReason').value.trim();
+      if (!reason) return alert('Please provide a reason for your unban request');
+      
+      const requestData = {
+        username: username,
+        reason: reason,
+        banReason: 'Banned',
+        timestamp: Date.now(),
+        status: 'pending',
+        messages: []
+      };
+      
+      // Save request to Firebase
+      set(ref(db, `unbanRequests/${username}`), requestData).then(() => {
+        document.getElementById('unbanRequestForm').classList.remove('show');
+        document.getElementById('requestPendingMsg').style.display = 'block';
+        
+        // Notify admins via Nova Bot
+        push(ref(db, 'channels/owner-general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `🔔 **New Unban Request**\\n**User:** ${username}\\n**Reason:** ${reason}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+        
+        // Update unban request badge
+        updateUnbanRequestBadge();
+        
+        // Start 5-minute AI timer
+        setTimeout(() => {
+          checkIfAdminResponded(username);
+        }, 300000); // 5 minutes
+      });
+    };
+    
+    // Check if admin responded after 5 minutes
+    function checkIfAdminResponded(bannedUser) {
+      get(ref(db, `unbanRequests/${bannedUser}`)).then(snap => {
+        if (!snap.exists()) return;
+        const data = snap.val();
+        
+        // If still pending and no admin messages, activate AI
+        if (data.status === 'pending' && (!data.messages || Object.keys(data.messages).length === 0)) {
+          initiateAIAssistant(bannedUser);
+        }
+      });
+    }
+    
+    // Initiate AI Assistant for unban request
+    function initiateAIAssistant(bannedUser) {
+      get(ref(db, `unbanRequests/${bannedUser}`)).then(snap => {
+        if (!snap.exists()) return;
+        const data = snap.val();
+        
+        // AI sends initial message
+        const aiMessage = {
+          from: 'AI Assistant',
+          text: `Hello ${bannedUser}, I'm the AI Assistant. I've reviewed your unban request. Can you tell me more about what happened and why you believe the ban was unfair?`,
+          timestamp: Date.now(),
+          isAI: true
+        };
+        
+        push(ref(db, `unbanRequests/${bannedUser}/messages`), aiMessage);
+        
+        // Update status
+        set(ref(db, `unbanRequests/${bannedUser}/status`), 'ai-handling');
+        
+        // Notify in owner channel
+        push(ref(db, 'channels/owner-general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `🤖 AI Assistant is now handling unban request for ${bannedUser}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+      });
+    }
+    
+    // Enhanced ban status check with info
+    function checkBanStatus() {
+      onValue(ref(db, `bans/${username}`), snap => {
+        if (snap.exists() && snap.val().banned === true) {
+          const banData = snap.val();
+          document.getElementById('bannedScreen').classList.add('show');
+          document.querySelector('.chat-container').style.display = 'none';
+          
+          // Populate ban info
+          document.getElementById('bannedUsername').textContent = username;
+          document.getElementById('bannedReason').textContent = banData.reason || 'Violation of Terms';
+          document.getElementById('bannedBy').textContent = banData.bannedBy || 'Admin';
+          
+          if (banData.timestamp) {
+            const date = new Date(banData.timestamp);
+            document.getElementById('bannedDate').textContent = date.toLocaleString();
+          }
+          
+          // Check if request already exists
+          get(ref(db, `unbanRequests/${username}`)).then(reqSnap => {
+            if (reqSnap.exists()) {
+              const reqData = reqSnap.val();
+              if (reqData.status === 'pending' || reqData.status === 'ai-handling') {
+                document.getElementById('banMainContent').style.display = 'none';
+                document.getElementById('requestPendingMsg').style.display = 'block';
+              }
+            }
+          });
+        } else {
+          document.getElementById('bannedScreen').classList.remove('show');
+          document.querySelector('.chat-container').style.display = 'flex';
+        }
+      });
+    }
+    
+    /* ═══════════════════════════════════════════════════
+       BANNED LOGS PANEL
+    ═══════════════════════════════════════════════════ */
+    window.showBannedLogs = function() {
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      document.getElementById('channelName').innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        Banned Logs
+      `;
+      
+      const messagesArea = document.getElementById('messagesArea');
+      messagesArea.innerHTML = '<div class="ban-logs-container" id="banLogsContainer"><div style="text-align:center;padding:40px;color:#80848e">Loading banned users...</div></div>';
+      
+      // Load all bans from Firebase
+      get(ref(db, 'bans')).then(snap => {
+        const bans = snap.val() || {};
+        const container = document.getElementById('banLogsContainer');
+        
+        if (Object.keys(bans).length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:40px;color:#80848e">No banned users</div>';
+          return;
+        }
+        
+        let html = '';
+        Object.entries(bans).forEach(([user, data]) => {
+          if (!data.banned) return;
+          
+          const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown';
+          const initial = user.charAt(0).toUpperCase();
+          
+          html += `
+            <div class="ban-log-card">
+              <div class="ban-log-header">
+                <div class="ban-log-user">
+                  <div class="ban-log-avatar">${initial}</div>
+                  <div class="ban-log-user-info">
+                    <div class="ban-log-username">${user}</div>
+                    <div class="ban-log-timestamp">${date}</div>
+                  </div>
+                </div>
+                <div class="ban-log-badge">🚫 BANNED</div>
+              </div>
+              <div class="ban-log-details">
+                <div class="ban-log-row">
+                  <span class="ban-log-label">Reason</span>
+                  <span class="ban-log-value">${data.reason || 'Violation of Terms'}</span>
+                </div>
+                <div class="ban-log-row">
+                  <span class="ban-log-label">Banned By</span>
+                  <span class="ban-log-value">${data.bannedBy || 'Admin'}</span>
+                </div>
+              </div>
+              <div class="ban-log-actions">
+                <button class="ban-log-btn ban-log-btn-unban" onclick="permanentUnban('${user}')">
+                  ✅ Unban
+                </button>
+                <button class="ban-log-btn ban-log-btn-temp" onclick="tempUnban('${user}', 1)">
+                  ⏰ Unban for 1 Day
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Send Nova Bot notification to owner-general
+        push(ref(db, 'channels/owner-general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `📊 **Banned Logs Accessed**\\n**By:** ${username}\\n**Total Bans:** ${Object.keys(bans).filter(k => bans[k].banned).length}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+      });
+    };
+    
+    window.permanentUnban = function(user) {
+      if (!confirm(`Permanently unban ${user}?`)) return;
+      
+      remove(ref(db, `bans/${user}`)).then(() => {
+        // Remove banned role and restore to Member
+        set(ref(db, `users/${user}/role`), 'Member');
+        set(ref(db, `users/${user}/banned`), false);
+        
+        // Remove any pending unban requests
+        remove(ref(db, `unbanRequests/${user}`));
+        
+        // Notify
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `✅ ${user} was unbanned by ${username}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+        
+        showToast('User Unbanned', `${user} has been permanently unbanned!`, 'success');
+        showBannedLogs(); // Refresh
+      });
+    };
+    
+    window.tempUnban = function(user, days) {
+      if (!confirm(`Temporarily unban ${user} for ${days} day(s)?`)) return;
+      
+      const unbanTime = Date.now() + (days * 24 * 60 * 60 * 1000);
+      
+      set(ref(db, `bans/${user}`), {
+        banned: false,
+        tempUnban: true,
+        unbanUntil: unbanTime,
+        unbannedBy: username,
+        originalBan: true
+      }).then(() => {
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `⏰ ${user} was temporarily unbanned for ${days} day(s) by ${username}`,
+          timestamp: Date.now(),
+          role: 'Bot'
+        });
+        
+        showToast('Temporary Unban', `${user} unbanned for ${days} day(s)!`, 'success');
+        showBannedLogs(); // Refresh
+        
+        // Schedule re-ban
+        setTimeout(() => {
+          get(ref(db, `bans/${user}`)).then(snap => {
+            if (snap.exists() && snap.val().tempUnban) {
+              set(ref(db, `bans/${user}/banned`), true);
+              set(ref(db, `bans/${user}/tempUnban`), false);
+              push(ref(db, 'channels/general/messages'), {
+                username: 'Nova Bot',
+                profilePic: '',
+                text: `🔒 ${user}'s temporary unban has expired`,
+                timestamp: Date.now(),
+                role: 'Bot'
+              });
+            }
+          });
+        }, days * 24 * 60 * 60 * 1000);
+      });
+    };
+    
+    /* ═══════════════════════════════════════════════════
+       UNBAN REQUESTS PANEL
+    ═══════════════════════════════════════════════════ */
+    window.showUnbanRequests = function() {
+      document.getElementById('messageInput').style.display = 'none';
+      document.getElementById('typingIndicator').style.display = 'none';
+      document.getElementById('channelName').innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        Unban Requests
+      `;
+      
+      const messagesArea = document.getElementById('messagesArea');
+      messagesArea.innerHTML = '<div class="unban-requests-container" id="unbanRequestsContainer"><div style="text-align:center;padding:40px;color:#80848e">Loading unban requests...</div></div>';
+      
+      // Load all unban requests
+      onValue(ref(db, 'unbanRequests'), snap => {
+        const requests = snap.val() || {};
+        const container = document.getElementById('unbanRequestsContainer');
+        
+        if (Object.keys(requests).length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:40px;color:#80848e">No unban requests</div>';
+          return;
+        }
+        
+        let html = '';
+        Object.entries(requests).forEach(([user, data]) => {
+          const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown';
+          const initial = user.charAt(0).toUpperCase();
+          const isAI = data.status === 'ai-handling';
+          
+          html += `
+            <div class="unban-request-card ${isAI ? 'ai-active' : ''}">
+              ${isAI ? '<div class="unban-request-ai-badge">🤖 AI ACTIVE</div>' : ''}
+              <div class="unban-request-header">
+                <div class="unban-request-user">
+                  <div class="unban-request-avatar">${initial}</div>
+                  <div class="unban-request-user-info">
+                    <div class="unban-request-username">${user}</div>
+                    <div class="unban-request-timestamp">${date}</div>
+                  </div>
+                </div>
+                <div class="unban-request-status ${data.status}">${data.status.toUpperCase()}</div>
+              </div>
+              <div class="unban-request-reason">
+                <div class="unban-request-reason-label">Reason for Unban</div>
+                <div class="unban-request-reason-text">${data.reason}</div>
+              </div>
+              <div class="unban-request-actions">
+                <button class="unban-request-btn unban-request-btn-join" onclick="joinUnbanChat('${user}')">
+                  💬 Join Chat Room
+                </button>
+                <button class="unban-request-btn unban-request-btn-dismiss" onclick="dismissUnbanRequest('${user}')">
+                  ✖ Dismiss
+                </button>
+                ${!isAI ? `<button class="unban-request-btn unban-request-btn-ai" onclick="requestAIAssist('${user}')">
+                  🤖 Request AI
+                </button>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+        updateUnbanRequestBadge(); // Update badge count
+      });
+    };
+    
+    // Update unban request badge
+    function updateUnbanRequestBadge() {
+      get(ref(db, 'unbanRequests')).then(snap => {
+        const requests = snap.val() || {};
+        const count = Object.keys(requests).length;
+        const badge = document.getElementById('unbanRequestBadge');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      });
+    }
+    
+    // Listen for new unban requests
+    if (userRole === 'Owner') {
+      onValue(ref(db, 'unbanRequests'), () => {
+        updateUnbanRequestBadge();
+      });
+    }
+    
+    window.dismissUnbanRequest = function(user) {
+      if (!confirm(`Dismiss unban request from ${user}?`)) return;
+      
+      remove(ref(db, `unbanRequests/${user}`)).then(() => {
+        showToast('Request Dismissed', `Unban request from ${user} dismissed`, 'success');
+        showUnbanRequests(); // Refresh
+      });
+    };
+    
+    window.requestAIAssist = function(user) {
+      if (!confirm(`Activate AI Assistant for ${user}'s request?`)) return;
+      initiateAIAssistant(user);
+      showToast('AI Activated', 'AI Assistant will respond in a moment', 'success');
+    };
+    
+    /* ═══════════════════════════════════════════════════
+       UNBAN CHAT LOBBY
+    ═══════════════════════════════════════════════════ */
+    let currentChatUser = null;
+    
+    window.joinUnbanChat = function(user) {
+      currentChatUser = user;
+      document.getElementById('unbanChatLobby').classList.add('show');
+      document.getElementById('lobbyUsername').textContent = user;
+      
+      // Load chat messages
+      loadLobbyMessages(user);
+      
+      // Notify user that admin joined
+      push(ref(db, `unbanRequests/${user}/messages`), {
+        from: 'System',
+        text: `${username} (Admin) has joined the chat`,
+        timestamp: Date.now(),
+        isSystem: true
+      });
+    };
+    
+    function loadLobbyMessages(user) {
+      const container = document.getElementById('lobbyMessagesContainer');
+      
+      onValue(ref(db, `unbanRequests/${user}/messages`), snap => {
+        const messages = snap.val() || {};
+        let html = '';
+        
+        Object.values(messages).forEach(msg => {
+          const time = new Date(msg.timestamp).toLocaleTimeString();
+          const initial = msg.from.charAt(0).toUpperCase();
+          
+          html += `
+            <div class="unban-lobby-message">
+              <div class="unban-lobby-avatar">${initial}</div>
+              <div class="unban-lobby-msg-content">
+                <div class="unban-lobby-msg-header">
+                  <span class="unban-lobby-msg-author">${msg.from}</span>
+                  <span class="unban-lobby-msg-time">${time}</span>
+                </div>
+                <div class="unban-lobby-msg-text">${msg.text}</div>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html || '<div style="text-align:center;padding:40px;color:#80848e">No messages yet</div>';
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+    
+    window.sendLobbyMessage = function() {
+      const input = document.getElementById('lobbyMessageInput');
+      const text = input.value.trim();
+      if (!text || !currentChatUser) return;
+      
+      push(ref(db, `unbanRequests/${currentChatUser}/messages`), {
+        from: username,
+        text: text,
+        timestamp: Date.now(),
+        isAdmin: true
+      });
+      
+      input.value = '';
+    };
+    
+    window.closeLobby = function() {
+      document.getElementById('unbanChatLobby').classList.remove('show');
+      currentChatUser = null;
+    };
+    
+    window.approveLobbyUnban = function() {
+      if (!currentChatUser) return;
+      if (!confirm(`Approve unban for ${currentChatUser}?`)) return;
+      
+      // Unban user
+      remove(ref(db, `bans/${currentChatUser}`)).then(() => {
+        // Remove banned role and restore to Member
+        set(ref(db, `users/${currentChatUser}/role`), 'Member');
+        set(ref(db, `users/${currentChatUser}/banned`), false);
+      });
+      
+      remove(ref(db, `unbanRequests/${currentChatUser}`));
+      
+      push(ref(db, 'channels/general/messages'), {
+        username: 'Nova Bot',
+        profilePic: '',
+        text: `✅ ${currentChatUser} was unbanned by ${username} after appeal discussion`,
+        timestamp: Date.now(),
+        role: 'Bot'
+      });
+      
+      showToast('User Unbanned', `${currentChatUser} has been unbanned!`, 'success');
+      closeLobby();
+    };
+    
+    window.rejectLobbyUnban = function() {
+      if (!currentChatUser) return;
+      if (!confirm(`Reject unban request from ${currentChatUser}?`)) return;
+      
+      remove(ref(db, `unbanRequests/${currentChatUser}`));
+      
+      showToast('Request Rejected', `Unban request from ${currentChatUser} rejected`, 'success');
+      closeLobby();
+    };
   </script>
+  
+  <!-- ══════════════════════════════════════════════════
+       UNBAN CHAT LOBBY - For owner-user discussions
+  ══════════════════════════════════════════════════ -->
+  <div class="unban-chat-lobby" id="unbanChatLobby">
+    <div class="unban-lobby-header">
+      <div>
+        <div class="unban-lobby-title">💬 Unban Discussion</div>
+        <div class="unban-lobby-subtitle">Chatting with <span id="lobbyUsername"></span></div>
+      </div>
+      <button class="unban-lobby-close" onclick="closeLobby()">✖ Close</button>
+    </div>
+    <div class="unban-lobby-messages" id="lobbyMessagesContainer"></div>
+    <div class="unban-lobby-input-area">
+      <div class="unban-lobby-input-wrapper">
+        <input type="text" class="unban-lobby-input" id="lobbyMessageInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendLobbyMessage()">
+        <button class="unban-lobby-send" onclick="sendLobbyMessage()">Send</button>
+      </div>
+      <div class="unban-lobby-actions">
+        <button class="unban-lobby-action-btn approve" onclick="approveLobbyUnban()">✅ Approve Unban</button>
+        <button class="unban-lobby-action-btn reject" onclick="rejectLobbyUnban()">❌ Reject & Dismiss</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
