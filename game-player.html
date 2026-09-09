@@ -438,6 +438,58 @@
     </div>
   </div>
 
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, set, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0ѝ�_JODQVXMի8AqGSuJմއXW88WJ7Iت",
+      authDomain: "nova-24bd2.firebaseapp.com",
+      databaseURL: "https://nova-24bd2-default-rtdb.firebaseio.com",
+      projectId: "nova-24bd2",
+      storageBucket: "nova-24bd2.firebasestorage.app",
+      messagingSenderId: "592531893134",
+      appId: "1:592531893134:web:35ec4a2f8f2e957abb5a4f",
+      measurementId: "G-6Y9TNE2HFK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    
+    // Get user info from localStorage
+    const username = localStorage.getItem('nova_user');
+    const userId = localStorage.getItem('nova_unique_id');
+    
+    // Track activity
+    function updateActivity(gameName, gameIcon) {
+      if (!username || !userId) return;
+      
+      const activityRef = ref(db, `presence/${userId}/activity`);
+      set(activityRef, {
+        type: 'playing',
+        game: gameName,
+        icon: gameIcon,
+        timestamp: Date.now()
+      });
+      
+      // Clear activity on disconnect
+      onDisconnect(activityRef).remove();
+    }
+    
+    // Expose to global scope
+    window.updateGameActivity = updateActivity;
+    
+    // Clear activity when leaving
+    window.addEventListener('beforeunload', () => {
+      if (username && userId) {
+        const activityRef = ref(db, `presence/${userId}/activity`);
+        set(activityRef, null);
+      }
+    });
+  </script>
+
   <script>
     // ═══════════════════════════════════════════════════════
     // CDN PROXY SERVICE WORKER REGISTRATION
@@ -510,6 +562,11 @@
       gameTitle.textContent = currentGameName;
       if (currentGameIcon) {
         gameIcon.src = currentGameIcon;
+      }
+      
+      // Track game activity in Firebase
+      if (window.updateGameActivity && currentGameName) {
+        window.updateGameActivity(currentGameName, currentGameIcon);
       }
     }
     

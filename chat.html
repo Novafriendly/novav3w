@@ -209,12 +209,12 @@
     .status-indicator.offline { background: #80848e; }
     .member-info { flex: 1; min-width: 0; }
     .member-name { color: #949ba4; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .member-name.online { color: #dcddde; }
     .member-name.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
     .member-name.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 800; }
-    .member-name.online { background: linear-gradient(90deg, #dcddde, #ffffff, #f0f0f0, #dcddde); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
+    .member-name.online:not(.owner):not(.admin):not(.moderator):not(.vip) { color: #dcddde; }
+    .member-name.online:not(.owner):not(.admin):not(.moderator):not(.vip) { background: linear-gradient(90deg, #dcddde, #ffffff, #f0f0f0, #dcddde); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 3s ease infinite; font-weight: 700; }
     .add-friend-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #5865f2; border-radius: 50%; cursor: pointer; opacity: 0; transition: all 0.15s; }
     .add-friend-icon:hover { background: #4752c4; }
     .add-friend-icon svg { width: 16px; height: 16px; color: white; }
@@ -223,9 +223,50 @@
     .dm-search-panel.show { display: block; }
     .dm-search-title { color: white; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
     .dm-search-input { width: 100%; padding: 8px; background: #000; border: none; border-radius: 4px; color: #dcddde; font-size: 14px; margin-bottom: 12px; }
-    .dm-user-result { display: flex; align-items: center; gap: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 8px; cursor: pointer; }
+    .dm-user-result { display: flex; align-items: center; gap: 12px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; position: relative; }
     .dm-user-result:hover { background: rgba(255,255,255,0.05); }
+    .dm-user-result .user-actions { display: none; gap: 4px; margin-left: auto; }
+    .dm-user-result:hover .user-actions { display: flex; }
+    .user-action-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 4px; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .user-action-btn:hover { background: rgba(255,255,255,0.2); }
+    .user-action-btn svg { width: 16px; height: 16px; color: #dcddde; }
+    .user-action-btn.remove:hover { background: #ed4245; }
+    .user-action-btn.block:hover { background: #f04747; }
+    .user-action-btn.mute:hover { background: #faa61a; }
+    .user-action-btn.edit:hover { background: #5865f2; }
     .dm-section-title { color: #949ba4; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 12px 8px 8px; margin-top: 8px; }
+    .friend-request-card { background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .friend-request-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .friend-request-actions { display: flex; gap: 8px; }
+    .friend-request-actions button { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .friend-request-actions .accept-btn { background: #3ba55d; color: white; }
+    .friend-request-actions .accept-btn:hover { background: #2d7d46; }
+    .friend-request-actions .decline-btn { background: rgba(255,255,255,0.1); color: #dcddde; }
+    .friend-request-actions .decline-btn:hover { background: rgba(255,255,255,0.15); }
+    .blocked-message { background: rgba(237,66,69,0.1); border: 1px solid rgba(237,66,69,0.3); border-radius: 4px; padding: 12px; margin: 8px 0; }
+    .blocked-message-header { display: flex; align-items: center; gap: 8px; color: #ed4245; font-size: 13px; font-weight: 600; }
+    .blocked-message-header svg { width: 16px; height: 16px; }
+    .show-blocked-btn { background: transparent; border: none; color: #00aff4; font-size: 12px; cursor: pointer; padding: 4px 8px; margin-top: 8px; text-decoration: underline; }
+    .show-blocked-btn:hover { color: #00d9ff; }
+    
+    .mention-autocomplete { position: absolute; bottom: 60px; left: 12px; width: 320px; max-height: 400px; background: #18191c; border: 1px solid #3f4147; border-radius: 8px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
+    .mention-autocomplete.show { display: block; }
+    .mention-section { padding: 8px 12px; }
+    .mention-section-title { color: #949ba4; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 4px 0; }
+    .mention-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+    .mention-item:hover, .mention-item.selected { background: #5865f2; }
+    .mention-item-avatar { width: 32px; height: 32px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 14px; }
+    .mention-item-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .mention-item-name { color: #dcddde; font-weight: 600; font-size: 15px; }
+    .mention-item-role { color: #b9bbbe; font-size: 12px; margin-top: 2px; }
+    .mention-role-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+    .mention-role-item:hover, .mention-role-item.selected { background: #5865f2; }
+    .mention-role-badge { padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .mention-role-badge.everyone { background: rgba(88,101,242,0.2); color: #5865f2; }
+    .mention-role-badge.owner { background: rgba(220,38,38,0.2); color: #dc2626; }
+    .mention-role-badge.admin { background: rgba(168,85,247,0.2); color: #a855f7; }
+    .mention-role-badge.moderator { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .mention-role-badge.vip { background: rgba(16,185,129,0.2); color: #10b981; }
     
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; }
     .modal.show { display: flex; }
@@ -508,6 +549,9 @@
         </div>
       </div>
       <div class="messages-area" id="messagesArea"></div>
+      
+      <div class="mention-autocomplete" id="mentionAutocomplete"></div>
+      
       <div class="message-input-container">
         <div class="reply-preview" id="replyPreview">
           <div class="reply-preview-content">
@@ -521,15 +565,23 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
           </button>
           <input type="file" id="fileUpload" accept="image/*,video/*" style="display:none" onchange="handleFileUpload(event)">
-          <input type="text" class="message-input" id="messageInput" placeholder="Message #general" onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+          <input type="text" class="message-input" id="messageInput" placeholder="Message #general" onkeypress="handleKeyPress(event)" onkeydown="handleMentionKeydown(event)" oninput="handleTyping(); handleMentionInput(event)">
         </div>
       </div>
     </div>
     
     <div class="members-sidebar" id="membersSidebar"></div>
     <div class="dm-search-panel" id="dmSearchPanel">
-      <div class="dm-search-title">Search Users</div>
-      <input type="text" class="dm-search-input" id="dmSearchInput" placeholder="Search..." oninput="searchDMUsers()">
+      <!-- Pending Friend Requests -->
+      <div id="pendingRequestsSection"></div>
+      
+      <!-- Friends List -->
+      <div class="dm-section-title" style="color:#dcddde;font-size:12px;font-weight:700;margin:16px 0 8px">FRIENDS</div>
+      <div id="friendsList"></div>
+      
+      <!-- Online Users -->
+      <div class="dm-section-title" style="color:#dcddde;font-size:12px;font-weight:700;margin:16px 0 8px">ONLINE USERS</div>
+      <input type="text" class="dm-search-input" id="dmSearchInput" placeholder="Search users..." oninput="searchDMUsers()">
       <div id="dmSearchResults"></div>
     </div>
   </div>
@@ -833,6 +885,29 @@
     const profilePic = localStorage.getItem('nova_profile_pic') || '';
     let userRole = localStorage.getItem('nova_chat_role') || 'Member';
     
+    // Sync role from Firebase on load and listen for changes
+    get(ref(db, `users/${username}`)).then(snap => {
+      const userData = snap.val();
+      if (userData && userData.role) {
+        userRole = userData.role;
+        localStorage.setItem('nova_chat_role', userRole);
+        updateUserRole();
+      }
+    });
+    
+    // Listen for role changes in real-time
+    onValue(ref(db, `users/${username}/role`), snap => {
+      if (snap.exists()) {
+        const newRole = snap.val();
+        if (newRole !== userRole) {
+          userRole = newRole;
+          localStorage.setItem('nova_chat_role', userRole);
+          updateUserRole();
+          showToast('Role Updated', `Your role has been changed to ${userRole}`, 'info');
+        }
+      }
+    });
+    
     // Get or create a unique user ID that never changes
     let uniqueUserId = localStorage.getItem('nova_unique_id');
     if (!uniqueUserId) {
@@ -895,6 +970,67 @@
     loadMembers();
     checkFriendRequests();
     checkMentions();
+    
+    // Listen for friend request responses (accepted/declined)
+    onValue(ref(db, `notifications/${username}`), snap => {
+      const notifications = snap.val() || {};
+      Object.entries(notifications).forEach(([notifId, notif]) => {
+        if (notif.type === 'friendAccepted') {
+          showToast('Request Accepted', notif.message, 'success');
+          remove(ref(db, `notifications/${username}/${notifId}`));
+        } else if (notif.type === 'friendDeclined') {
+          showToast('Request Declined', notif.message, 'error');
+          remove(ref(db, `notifications/${username}/${notifId}`));
+        }
+      });
+    });
+    
+    // Listen for new DM notifications
+    function checkDMNotifications() {
+      get(ref(db, `friends/${username}`)).then(friendsSnap => {
+        const friends = friendsSnap.val() || {};
+        Object.values(friends).forEach(f => {
+          const dmId = [username, f.username].sort().join('_');
+          const dmChannel = `dm_${dmId}`;
+          
+          onValue(ref(db, `channels/${dmChannel}/messages`), snap => {
+            const messages = snap.val() || {};
+            const msgList = Object.values(messages);
+            const lastMsg = msgList[msgList.length - 1];
+            
+            // If last message is from other user and not currently viewing that DM, show notification
+            if (lastMsg && lastMsg.username !== username && currentChannel !== dmChannel) {
+              // Check if we've already notified for this message
+              const lastNotified = localStorage.getItem(`lastNotified_${dmChannel}`) || '0';
+              if (lastMsg.timestamp > parseInt(lastNotified)) {
+                showToast('New Message', `${lastMsg.username}: ${lastMsg.text.substring(0, 50)}${lastMsg.text.length > 50 ? '...' : ''}`, 'info');
+                localStorage.setItem(`lastNotified_${dmChannel}`, lastMsg.timestamp.toString());
+              }
+            }
+          });
+        });
+      });
+      
+      // Update total unread badge
+      onValue(ref(db, `unreadMessages/${username}`), snap => {
+        const unreadData = snap.val() || {};
+        const totalUnread = Object.values(unreadData).reduce((sum, count) => sum + (count || 0), 0);
+        
+        if (totalUnread > 0) {
+          document.getElementById('dmBadge').textContent = totalUnread;
+          document.getElementById('dmBadge').style.display = 'block';
+        } else {
+          // Don't hide if there are friend requests
+          get(ref(db, `friendRequests/${username}`)).then(reqSnap => {
+            const reqs = reqSnap.val() || {};
+            if (Object.keys(reqs).length === 0) {
+              document.getElementById('dmBadge').style.display = 'none';
+            }
+          });
+        }
+      });
+    }
+    checkDMNotifications();
 
     const emojiPicker = document.getElementById('emojiPicker');
     emojis.forEach(e => {
@@ -928,6 +1064,10 @@
       document.getElementById('profileRole').textContent = userRole;
       document.getElementById('profileRole').className = `user-profile-role ${userRole.toLowerCase()}`;
       document.getElementById('settingsRole').textContent = userRole;
+      
+      // Update Firebase with new role
+      set(ref(db, `users/${username}/role`), userRole);
+      set(ref(db, `presence/${userId}/role`), userRole);
       
       // Show/hide admin buttons for owners
       const adminBtn = document.getElementById('adminBtn');
@@ -986,7 +1126,7 @@
         document.getElementById('membersSidebar').style.display = 'none';
         document.getElementById('dmSearchPanel').classList.add('show');
         loadDMChannels();
-        searchDMUsers(); // Show all users by default
+        loadDMPanel(); // Load friends, requests, online users
       } else {
         document.getElementById('serverIcon').classList.add('active');
         document.getElementById('membersSidebar').style.display = 'block';
@@ -1000,88 +1140,215 @@
       const query = document.getElementById('dmSearchInput').value.toLowerCase().trim();
       const results = document.getElementById('dmSearchResults');
       
-      get(ref(db, 'users')).then(snap => {
-        const users = snap.val() || {};
-        let allUsers = Object.values(users).filter(u => u && u.username && u.username !== username);
+      // Get online status
+      get(ref(db, 'presence')).then(presenceSnap => {
+        const presence = presenceSnap.val() || {};
+        const onlineUsers = Object.values(presence).filter(p => p.online && p.username && p.username !== username);
         
-        if (query) {
-          allUsers = allUsers.filter(u => u.username.toLowerCase().includes(query));
-        }
-        
-        if (allUsers.length === 0) {
-          results.innerHTML = '<p style="padding:8px;color:#80848e;">No users found</p>';
-        } else {
-          let html = query ? '' : '<div class="dm-section-title">All Users</div>';
-          html += allUsers.map(u => {
-            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
-            return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')">
-              <div class="member-avatar">${av}</div>
-              <div><div style="color:white;font-weight:700">${u.username}</div><div style="color:#80848e;font-size:12px">${u.role || 'Member'}</div></div>
-            </div>`;
-          }).join('');
-          results.innerHTML = html;
-        }
+        get(ref(db, 'users')).then(snap => {
+          const users = snap.val() || {};
+          let displayUsers = onlineUsers.map(p => ({...users[p.username], username: p.username, online: true})).filter(u => u.username);
+          
+          if (query) {
+            displayUsers = displayUsers.filter(u => u.username.toLowerCase().includes(query));
+          }
+          
+          if (displayUsers.length === 0) {
+            results.innerHTML = '<p style="padding:8px;color:#80848e;font-size:12px">No online users found</p>';
+          } else {
+            results.innerHTML = displayUsers.map(u => {
+              const av = u.profilePic ? `<img src="${u.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${u.username.charAt(0).toUpperCase()}</div>`;
+              return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')">
+                ${av}
+                <div style="flex:1"><div style="color:white;font-weight:600;font-size:14px">${u.username}</div><div style="color:#3ba55d;font-size:11px;font-weight:600">● ONLINE</div></div>
+              </div>`;
+            }).join('');
+          }
+        });
       });
     };
+    
+    // Load DM Panel with friends, requests, and online users
+    function loadDMPanel() {
+      // Load pending friend requests
+      get(ref(db, `friendRequests/${username}`)).then(reqSnap => {
+        const requests = reqSnap.val() || {};
+        const requestList = Object.entries(requests);
+        const container = document.getElementById('pendingRequestsSection');
+        
+        if (requestList.length > 0) {
+          let html = '<div class="dm-section-title" style="color:#dcddde;font-size:12px;font-weight:700;margin:8px 0">PENDING REQUESTS</div>';
+          requestList.forEach(([id, req]) => {
+            const av = req.fromPic ? `<img src="${req.fromPic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${req.from.charAt(0).toUpperCase()}</div>`;
+            html += `
+              <div class="friend-request-card">
+                <div class="friend-request-header">
+                  ${av}
+                  <div style="flex:1">
+                    <div style="color:white;font-weight:600;font-size:14px">${req.from}</div>
+                    <div style="color:#b9bbbe;font-size:11px">wants to be friends</div>
+                  </div>
+                </div>
+                <div class="friend-request-actions">
+                  <button class="accept-btn" onclick="acceptDirectRequest('${id}', '${req.from}', '${req.fromPic || ''}')">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:4px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    Accept
+                  </button>
+                  <button class="decline-btn" onclick="declineDirectRequest('${id}', '${req.from}')">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:4px"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                    Ignore
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '';
+        }
+      });
+      
+      // Load friends list
+      get(ref(db, `friends/${username}`)).then(friendsSnap => {
+        const friends = friendsSnap.val() || {};
+        const friendsList = Object.values(friends);
+        const container = document.getElementById('friendsList');
+        
+        if (friendsList.length === 0) {
+          container.innerHTML = '<p style="padding:8px;color:#80848e;font-size:12px">No friends yet</p>';
+          return;
+        }
+        
+        // Check blocks and nicknames
+        get(ref(db, `blocked/${username}`)).then(blockSnap => {
+          const blocked = blockSnap.val() || {};
+          
+          get(ref(db, `nicknames/${username}`)).then(nickSnap => {
+            const nicknames = nickSnap.val() || {};
+            
+            container.innerHTML = friendsList.map(f => {
+              const isBlocked = blocked[f.username];
+              const nickname = nicknames[f.username];
+              const displayName = nickname || f.username;
+              
+              const av = f.profilePic ? `<img src="${f.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${f.username.charAt(0).toUpperCase()}</div>`;
+              
+              return `
+                <div class="dm-user-result">
+                  ${av}
+                  <div style="flex:1;min-width:0">
+                    <div style="color:white;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis">${displayName}</div>
+                    ${nickname ? `<div style="color:#80848e;font-size:11px">${f.username}</div>` : ''}
+                    ${isBlocked ? '<div style="color:#ed4245;font-size:11px;font-weight:600">BLOCKED</div>' : ''}
+                  </div>
+                  <div class="user-actions">
+                    <button class="user-action-btn edit" onclick="setNickname('${f.username}')" title="Set Nickname">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button class="user-action-btn mute" onclick="toggleMute('${f.username}')" title="Mute">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                    </button>
+                    <button class="user-action-btn block" onclick="toggleBlock('${f.username}')" title="${isBlocked ? 'Unblock' : 'Block'}">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                    </button>
+                    <button class="user-action-btn remove" onclick="removeFriend('${f.username}')" title="Remove Friend">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          });
+        });
+      });
+      
+      // Load online users
+      searchDMUsers();
+    }
 
     function loadMessages(ch) {
-      onValue(ref(db, `channels/${ch}/messages`), snap => {
-        const msgs = snap.val() || {};
-        const area = document.getElementById('messagesArea');
-        area.innerHTML = Object.entries(msgs).map(([id, m]) => {
-          const time = new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
-          const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
-          
-          // Support multiple roles
-          const userRoles = Array.isArray(m.roles) ? m.roles : (m.role ? [m.role] : []);
-          const highestRole = userRoles.includes('Owner') ? 'owner' :
-                             userRoles.includes('Admin') ? 'admin' :
-                             userRoles.includes('Moderator') ? 'moderator' :
-                             userRoles.includes('VIP') ? 'vip' : 'member';
-          const authorClass = `message-author ${highestRole}`;
-          
-          // Generate badge for each role
-          const roleBadges = userRoles.map(role => {
-            if (role === 'Owner') return '<span class="role-badge owner"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>OWNER</span>';
-            if (role === 'Admin') return '<span class="role-badge admin"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>ADMIN</span>';
-            if (role === 'Moderator') return '<span class="role-badge moderator"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>MOD</span>';
-            if (role === 'VIP') return '<span class="role-badge vip"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>VIP</span>';
-            return '';
-          }).join('');
-          
-          const canDel = username === m.username || userRole === 'Owner';
-          
-          let text = m.text;
-          if (text.includes('@')) {
-            text = text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-          }
-          
-          let media = '';
-          if (m.imageUrl) media = `<img src="${m.imageUrl}" class="message-image">`;
-          if (m.videoUrl) media = `<video src="${m.videoUrl}" class="message-video" controls></video>`;
-          
-          const reactions = m.reactions ? Object.entries(m.reactions).map(([e, u]) => {
-            const ul = Object.keys(u);
-            const r = ul.includes(username);
-            return `<div class="reaction ${r?'reacted':''}" onclick="toggleReaction('${id}','${e}')">${e} ${ul.length}</div>`;
-          }).join('') : '';
-          
-          // Reply preview
-          let replyHtml = '';
-          if (m.replyTo && msgs[m.replyTo]) {
-            const reply = msgs[m.replyTo];
-            const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : reply.username.charAt(0).toUpperCase();
-            replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')"><div class="message-reply-avatar">${replyAv}</div><span class="message-reply-user">${reply.username}</span><span class="message-reply-text">${reply.text}</span></div>`;
-          }
-          
-          return `<div class="message" id="msg-${id}">${replyHtml}<div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${roleBadges}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
-        }).join('');
-        area.scrollTop = area.scrollHeight;
+      // Get blocked users list first
+      get(ref(db, `blocked/${username}`)).then(blockSnap => {
+        const blocked = blockSnap.val() || {};
         
-        // Update streak if DM channel
-        if (ch.startsWith('dm_')) {
-          updateStreak(ch);
-        }
+        onValue(ref(db, `channels/${ch}/messages`), snap => {
+          const msgs = snap.val() || {};
+          const area = document.getElementById('messagesArea');
+          area.innerHTML = Object.entries(msgs).map(([id, m]) => {
+            // Check if message author is blocked
+            const isBlocked = blocked[m.username];
+            
+            if (isBlocked) {
+              // Show collapsed blocked message
+              return `
+                <div class="blocked-message" id="msg-${id}">
+                  <div class="blocked-message-header">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/></svg>
+                    Blocked Message
+                  </div>
+                  <button class="show-blocked-btn" onclick="this.nextElementSibling.style.display='block';this.style.display='none'">Show Message</button>
+                  <div style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(237,66,69,0.3)">
+                    <div style="color:#b9bbbe;font-size:13px;margin-bottom:4px"><strong>${m.username}</strong> - ${new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true})}</div>
+                    <div style="color:#dcddde">${m.text}</div>
+                  </div>
+                </div>
+              `;
+            }
+            
+            const time = new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
+            const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+            
+            // Support multiple roles
+            const userRoles = Array.isArray(m.roles) ? m.roles : (m.role ? [m.role] : []);
+            const highestRole = userRoles.includes('Owner') ? 'owner' :
+                               userRoles.includes('Admin') ? 'admin' :
+                               userRoles.includes('Moderator') ? 'moderator' :
+                               userRoles.includes('VIP') ? 'vip' : 'member';
+            const authorClass = `message-author ${highestRole}`;
+            
+            // Generate badge for each role
+            const roleBadges = userRoles.map(role => {
+              if (role === 'Owner') return '<span class="role-badge owner"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>OWNER</span>';
+              if (role === 'Admin') return '<span class="role-badge admin"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>ADMIN</span>';
+              if (role === 'Moderator') return '<span class="role-badge moderator"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>MOD</span>';
+              if (role === 'VIP') return '<span class="role-badge vip"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>VIP</span>';
+              return '';
+            }).join('');
+            
+            const canDel = username === m.username || userRole === 'Owner';
+            
+            let text = m.text;
+            if (text.includes('@')) {
+              text = text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+            }
+            
+            let media = '';
+            if (m.imageUrl) media = `<img src="${m.imageUrl}" class="message-image">`;
+            if (m.videoUrl) media = `<video src="${m.videoUrl}" class="message-video" controls></video>`;
+            
+            const reactions = m.reactions ? Object.entries(m.reactions).map(([e, u]) => {
+              const ul = Object.keys(u);
+              const r = ul.includes(username);
+              return `<div class="reaction ${r?'reacted':''}" onclick="toggleReaction('${id}','${e}')">${e} ${ul.length}</div>`;
+            }).join('') : '';
+            
+            // Reply preview
+            let replyHtml = '';
+            if (m.replyTo && msgs[m.replyTo]) {
+              const reply = msgs[m.replyTo];
+              const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : reply.username.charAt(0).toUpperCase();
+              replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')"><div class="message-reply-avatar">${replyAv}</div><span class="message-reply-user">${reply.username}</span><span class="message-reply-text">${reply.text}</span></div>`;
+            }
+            
+            return `<div class="message" id="msg-${id}">${replyHtml}<div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${roleBadges}<span class="message-time">${time}</span></div><div class="message-text">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button><button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
+          }).join('');
+          area.scrollTop = area.scrollHeight;
+          
+          // Update streak if DM channel
+          if (ch.startsWith('dm_')) {
+            updateStreak(ch);
+          }
+        });
       });
       
       onValue(ref(db, `typing/${ch}`), snap => {
@@ -1117,7 +1384,14 @@
       onValue(ref(db, 'presence'), pSnap => {
         const pData = pSnap.val() || {};
         const online = {};
-        Object.values(pData).forEach(u => { if (u && u.online && u.username) online[u.username] = true; });
+        const activities = {};
+        
+        Object.values(pData).forEach(u => { 
+          if (u && u.username) {
+            if (u.online) online[u.username] = true;
+            if (u.activity && u.activity.game) activities[u.username] = u.activity;
+          }
+        });
         
         get(ref(db, 'users')).then(uSnap => {
           const users = uSnap.val() || {};
@@ -1125,7 +1399,8 @@
           
           Object.values(users).filter(u => u && u.username).forEach(u => {
             const isOn = online[u.username] === true;
-            const data = {...u, online: isOn};
+            const activity = activities[u.username];
+            const data = {...u, online: isOn, activity};
             if (u.role === 'Owner') owners.push(data);
             else if (u.role === 'Admin') admins.push(data);
             else if (u.role === 'Moderator') moderators.push(data);
@@ -1142,7 +1417,24 @@
                 const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
                 const st = m.online ? 'online' : 'offline';
                 const nc = `member-name ${m.online?'online':''} ${m.role?.toLowerCase()||''}`;
-                html += `<div class="member" onclick="openUserProfile('${m.username}')"><div class="member-avatar">${av}<div class="status-indicator ${st}"></div></div><div class="member-info"><div class="${nc}">${m.username}</div></div>${m.username !== username?`<div class="add-friend-icon" onclick="event.stopPropagation(); addFriend('${m.username}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg></div>`:''}</div>`;
+                
+                // Activity status below username
+                let activityHTML = '';
+                if (m.activity && m.activity.game) {
+                  activityHTML = `<div style="color:#949ba4;font-size:11px;margin-top:2px;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
+                    <span style="overflow:hidden;text-overflow:ellipsis">${m.activity.game}</span>
+                  </div>`;
+                }
+                
+                html += `<div class="member" onclick="openUserProfile('${m.username}')">
+                  <div class="member-avatar">${av}<div class="status-indicator ${st}"></div></div>
+                  <div class="member-info">
+                    <div class="${nc}">${m.username}</div>
+                    ${activityHTML}
+                  </div>
+                  ${m.username !== username?`<div class="add-friend-icon" onclick="event.stopPropagation(); addFriend('${m.username}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg></div>`:''}
+                </div>`;
               });
               html += '</div>';
             }
@@ -1159,8 +1451,15 @@
         const list = Object.entries(reqs);
         
         if (list.length > 0) {
-          document.getElementById('dmBadge').textContent = list.length;
-          document.getElementById('dmBadge').style.display = 'block';
+          // Update badge - check if there are also unread messages
+          get(ref(db, `unreadMessages/${username}`)).then(unreadSnap => {
+            const unreadData = unreadSnap.val() || {};
+            const totalUnread = Object.values(unreadData).reduce((sum, count) => sum + (count || 0), 0);
+            const totalNotifications = totalUnread + list.length;
+            
+            document.getElementById('dmBadge').textContent = totalNotifications;
+            document.getElementById('dmBadge').style.display = 'block';
+          });
           
           if (!currentFriendRequest) {
             const [id, data] = list[0];
@@ -1169,10 +1468,22 @@
             document.getElementById('requestAvatar').innerHTML = av;
             document.getElementById('requestText').textContent = `${data.from} sent you a friend request`;
             document.getElementById('friendRequestPopup').classList.add('show');
+            
+            // Show toast notification
+            showToast('Friend Request', `${data.from} wants to be your friend!`, 'info');
+            
             setTimeout(() => document.getElementById('friendRequestPopup').classList.remove('show'), 10000);
           }
         } else {
-          document.getElementById('dmBadge').style.display = 'none';
+          // Check if there are unread messages before hiding badge
+          get(ref(db, `unreadMessages/${username}`)).then(unreadSnap => {
+            const unreadData = unreadSnap.val() || {};
+            const totalUnread = Object.values(unreadData).reduce((sum, count) => sum + (count || 0), 0);
+            
+            if (totalUnread === 0) {
+              document.getElementById('dmBadge').style.display = 'none';
+            }
+          });
         }
       });
     }
@@ -1184,7 +1495,7 @@
           const msgs = channels[ch].messages || {};
           Object.values(msgs).forEach(m => {
             if (m.text.includes(`@${username}`) && m.username !== username && !m.notified) {
-              alert(`💬 ${m.username} mentioned you in #${ch}!`);
+              showToast('Mentioned', `${m.username} mentioned you in #${ch}!`, 'info');
             }
           });
         });
@@ -1199,20 +1510,138 @@
       set(ref(db, `friends/${data.from}/${username}`), {username, profilePic, timestamp: Date.now()});
       remove(ref(db, `friendRequests/${username}/${id}`));
       
+      // Notify sender that request was accepted
+      push(ref(db, `notifications/${data.from}`), {
+        type: 'friendAccepted',
+        from: username,
+        fromPic: profilePic,
+        timestamp: Date.now(),
+        message: `${username} accepted your friend request!`
+      });
+      
       // Create DM channel
       const dmId = [username, data.from].sort().join('_');
       createDMChannel(dmId, data.from);
       
       document.getElementById('friendRequestPopup').classList.remove('show');
       currentFriendRequest = null;
-      alert(`✅ Now friends with ${data.from}! Opening DM...`);
+      showToast('Friend Added', `You are now friends with ${data.from}!`, 'success');
     };
 
     window.declineFriendRequest = function() {
       if (!currentFriendRequest) return;
-      remove(ref(db, `friendRequests/${username}/${currentFriendRequest.id}`));
+      const {id, data} = currentFriendRequest;
+      
+      remove(ref(db, `friendRequests/${username}/${id}`));
+      
+      // Notify sender that request was declined
+      push(ref(db, `notifications/${data.from}`), {
+        type: 'friendDeclined',
+        from: username,
+        timestamp: Date.now(),
+        message: `${username} declined your friend request.`
+      });
+      
       document.getElementById('friendRequestPopup').classList.remove('show');
       currentFriendRequest = null;
+      showToast('Request Declined', 'Friend request declined', 'info');
+    };
+    
+    // Direct accept/decline from DM panel
+    window.acceptDirectRequest = async function(reqId, fromUser, fromPic) {
+      await set(ref(db, `friends/${username}/${fromUser}`), {username: fromUser, profilePic: fromPic, timestamp: Date.now()});
+      await set(ref(db, `friends/${fromUser}/${username}`), {username, profilePic, timestamp: Date.now()});
+      await remove(ref(db, `friendRequests/${username}/${reqId}`));
+      
+      // Notify sender
+      await push(ref(db, `notifications/${fromUser}`), {
+        type: 'friendAccepted',
+        from: username,
+        fromPic: profilePic,
+        timestamp: Date.now(),
+        message: `${username} accepted your friend request!`
+      });
+      
+      showToast('Friend Added', `You are now friends with ${fromUser}!`, 'success');
+      loadDMPanel();
+      loadDMChannels();
+    };
+    
+    window.declineDirectRequest = async function(reqId, fromUser) {
+      await remove(ref(db, `friendRequests/${username}/${reqId}`));
+      
+      // Notify sender
+      await push(ref(db, `notifications/${fromUser}`), {
+        type: 'friendDeclined',
+        from: username,
+        timestamp: Date.now(),
+        message: `${username} declined your friend request.`
+      });
+      
+      showToast('Request Declined', 'Friend request declined', 'info');
+      loadDMPanel();
+    };
+    
+    // Friend Management Functions
+    window.removeFriend = async function(friendUsername) {
+      if (!confirm(`Remove ${friendUsername} as a friend?`)) return;
+      
+      await remove(ref(db, `friends/${username}/${friendUsername}`));
+      await remove(ref(db, `friends/${friendUsername}/${username}`));
+      await remove(ref(db, `nicknames/${username}/${friendUsername}`));
+      
+      showToast('Friend Removed', `${friendUsername} has been removed from your friends`, 'success');
+      loadDMPanel();
+      loadDMChannels();
+    };
+    
+    window.toggleBlock = async function(targetUsername) {
+      const blockSnap = await get(ref(db, `blocked/${username}/${targetUsername}`));
+      const isBlocked = blockSnap.exists();
+      
+      if (isBlocked) {
+        await remove(ref(db, `blocked/${username}/${targetUsername}`));
+        showToast('Unblocked', `${targetUsername} has been unblocked`, 'success');
+      } else {
+        await set(ref(db, `blocked/${username}/${targetUsername}`), true);
+        showToast('Blocked', `${targetUsername} has been blocked`, 'error');
+      }
+      
+      loadDMPanel();
+    };
+    
+    window.toggleMute = async function(targetUsername) {
+      const muteSnap = await get(ref(db, `mutes/${username}/${targetUsername}`));
+      const isMuted = muteSnap.exists();
+      
+      if (isMuted) {
+        await remove(ref(db, `mutes/${username}/${targetUsername}`));
+        showToast('Unmuted', `${targetUsername} has been unmuted`, 'success');
+      } else {
+        await set(ref(db, `mutes/${username}/${targetUsername}`), true);
+        showToast('Muted', `${targetUsername} has been muted`, 'info');
+      }
+      
+      loadDMPanel();
+    };
+    
+    window.setNickname = async function(targetUsername) {
+      const nickSnap = await get(ref(db, `nicknames/${username}/${targetUsername}`));
+      const currentNick = nickSnap.val() || '';
+      
+      const newNick = prompt(`Set nickname for ${targetUsername}:`, currentNick);
+      if (newNick === null) return; // Cancelled
+      
+      if (newNick.trim() === '') {
+        await remove(ref(db, `nicknames/${username}/${targetUsername}`));
+        showToast('Nickname Removed', 'Nickname has been cleared', 'info');
+      } else {
+        await set(ref(db, `nicknames/${username}/${targetUsername}`), newNick.trim());
+        showToast('Nickname Set', `Nickname set to "${newNick.trim()}"`, 'success');
+      }
+      
+      loadDMPanel();
+      loadDMChannels();
     };
 
     window.addFriend = function(target) {
@@ -1224,12 +1653,13 @@
           // Already friends, just open DM
           const dmId = [username, target].sort().join('_');
           createDMChannel(dmId, target);
+          showToast('Already Friends', `Opening DM with ${target}`, 'info');
           return;
         }
         
         // Send friend request
         push(ref(db, `friendRequests/${target}`), {from: username, fromPic: profilePic, timestamp: Date.now()});
-        alert(`✅ Friend request sent to ${target}!`);
+        showToast('Request Sent', `Friend request sent to ${target}!`, 'success');
       });
     };
     
@@ -1263,17 +1693,22 @@
           const active = currentChannel === `dm_${dmId}` ? 'active' : '';
           const avatar = f.profilePic ? `<img src="${f.profilePic}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">` : `<div style="width:20px;height:20px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${f.username.charAt(0).toUpperCase()}</div>`;
           
-          // Check for streak
-          get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
-            const streak = streakSnap.val();
-            const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak"><span class="channel-streak-fire">🔥</span>${streak.count}</span>` : '';
+          // Check for unread messages and streak
+          get(ref(db, `unreadMessages/${username}/dm_${dmId}`)).then(unreadSnap => {
+            const unreadCount = unreadSnap.val() || 0;
+            const unreadBadge = unreadCount > 0 ? `<span class="notification-badge" style="position:static;margin-left:auto">${unreadCount}</span>` : '';
             
-            html += `<div class="channel ${active}" onclick="switchToDM('${dmId}', '${f.username}')"><div class="channel-icon">${avatar}</div>${f.username}${streakBadge}</div>`;
-            
-            processed++;
-            if (processed === friendsList.length) {
-              document.getElementById('channelsList').innerHTML = html;
-            }
+            get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
+              const streak = streakSnap.val();
+              const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak"><span class="channel-streak-fire">🔥</span>${streak.count}</span>` : '';
+              
+              html += `<div class="channel ${active}" onclick="switchToDM('${dmId}', '${f.username}')"><div class="channel-icon">${avatar}</div>${f.username}${streakBadge}${unreadBadge}</div>`;
+              
+              processed++;
+              if (processed === friendsList.length) {
+                document.getElementById('channelsList').innerHTML = html;
+              }
+            });
           });
         });
       });
@@ -1281,6 +1716,10 @@
     
     window.switchToDM = function(dmId, otherUser) {
       currentChannel = `dm_${dmId}`;
+      
+      // Clear unread messages for this DM
+      set(ref(db, `unreadMessages/${username}/dm_${dmId}`), 0);
+      
       loadDMChannels();
       document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>${otherUser}`;
       document.getElementById('messageInput').placeholder = `Message @${otherUser}`;
@@ -1311,6 +1750,182 @@
       reader.readAsDataURL(file);
       e.target.value = '';
     };
+    
+    // Mention Autocomplete System
+    let mentionSearch = '';
+    let mentionStartPos = -1;
+    let selectedMentionIndex = 0;
+    let mentionItems = [];
+    
+    window.handleMentionInput = function(event) {
+      const input = document.getElementById('messageInput');
+      const text = input.value;
+      const cursorPos = input.selectionStart;
+      
+      // Find if there's an @ before cursor
+      let atPos = -1;
+      for (let i = cursorPos - 1; i >= 0; i--) {
+        if (text[i] === '@') {
+          atPos = i;
+          break;
+        }
+        if (text[i] === ' ' || text[i] === '\n') {
+          break;
+        }
+      }
+      
+      if (atPos !== -1 && atPos < cursorPos) {
+        // We're in a mention
+        mentionStartPos = atPos;
+        mentionSearch = text.substring(atPos + 1, cursorPos).toLowerCase();
+        showMentionAutocomplete();
+      } else {
+        hideMentionAutocomplete();
+      }
+    };
+    
+    function showMentionAutocomplete() {
+      const autocomplete = document.getElementById('mentionAutocomplete');
+      
+      // Get all users
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const allUsers = Object.values(users).filter(u => u && u.username && u.username !== username);
+        
+        // Filter by search
+        const filteredUsers = mentionSearch === '' ? allUsers : 
+          allUsers.filter(u => u.username.toLowerCase().includes(mentionSearch));
+        
+        // Define roles
+        const roles = [
+          {name: 'everyone', display: '@everyone', description: 'Notifies everyone in this channel'},
+          {name: 'Owner', display: '@Owner', description: 'Notifies all Owners'},
+          {name: 'Admin', display: '@Admin', description: 'Notifies all Admins'},
+          {name: 'Moderator', display: '@Moderator', description: 'Notifies all Moderators'},
+          {name: 'VIP', display: '@VIP', description: 'Notifies all VIPs'}
+        ];
+        
+        // Filter roles by search
+        const filteredRoles = mentionSearch === '' ? roles :
+          roles.filter(r => r.display.toLowerCase().includes('@' + mentionSearch) || r.name.toLowerCase().includes(mentionSearch));
+        
+        let html = '';
+        mentionItems = [];
+        
+        // Roles section
+        if (filteredRoles.length > 0) {
+          html += '<div class="mention-section"><div class="mention-section-title">Roles</div>';
+          filteredRoles.forEach((role, index) => {
+            mentionItems.push({type: 'role', value: role.name, display: role.display});
+            html += `
+              <div class="mention-role-item ${index === selectedMentionIndex ? 'selected' : ''}" data-index="${mentionItems.length - 1}">
+                <div class="mention-role-badge ${role.name.toLowerCase()}">
+                  ${role.display}
+                </div>
+                <div style="color:#b9bbbe;font-size:12px">${role.description}</div>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        // Users section
+        if (filteredUsers.length > 0) {
+          html += '<div class="mention-section"><div class="mention-section-title">Members</div>';
+          filteredUsers.slice(0, 8).forEach((u, index) => {
+            const itemIndex = mentionItems.length;
+            mentionItems.push({type: 'user', value: u.username, display: '@' + u.username});
+            const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
+            const isSelected = itemIndex === selectedMentionIndex;
+            html += `
+              <div class="mention-item ${isSelected ? 'selected' : ''}" data-index="${itemIndex}">
+                <div class="mention-item-avatar">${av}</div>
+                <div>
+                  <div class="mention-item-name">${u.username}</div>
+                  <div class="mention-item-role">${u.role || 'Member'}</div>
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        if (mentionItems.length > 0) {
+          autocomplete.innerHTML = html;
+          autocomplete.classList.add('show');
+          
+          // Add click handlers
+          autocomplete.querySelectorAll('[data-index]').forEach(el => {
+            el.onclick = () => selectMention(parseInt(el.dataset.index));
+          });
+        } else {
+          hideMentionAutocomplete();
+        }
+      });
+    }
+    
+    function hideMentionAutocomplete() {
+      document.getElementById('mentionAutocomplete').classList.remove('show');
+      mentionStartPos = -1;
+      selectedMentionIndex = 0;
+      mentionItems = [];
+    }
+    
+    function selectMention(index) {
+      if (index < 0 || index >= mentionItems.length) return;
+      
+      const item = mentionItems[index];
+      const input = document.getElementById('messageInput');
+      const text = input.value;
+      
+      // Replace @search with @mention
+      const before = text.substring(0, mentionStartPos);
+      const after = text.substring(input.selectionStart);
+      input.value = before + item.display + ' ' + after;
+      
+      // Set cursor after mention
+      const newPos = (before + item.display + ' ').length;
+      input.setSelectionRange(newPos, newPos);
+      
+      hideMentionAutocomplete();
+      input.focus();
+    }
+    
+    window.handleMentionKeydown = function(event) {
+      const autocomplete = document.getElementById('mentionAutocomplete');
+      if (!autocomplete.classList.contains('show')) return;
+      
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex + 1) % mentionItems.length;
+        updateMentionSelection();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex - 1 + mentionItems.length) % mentionItems.length;
+        updateMentionSelection();
+      } else if (event.key === 'Enter' || event.key === 'Tab') {
+        if (mentionItems.length > 0) {
+          event.preventDefault();
+          selectMention(selectedMentionIndex);
+        }
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        hideMentionAutocomplete();
+      }
+    };
+    
+    function updateMentionSelection() {
+      const autocomplete = document.getElementById('mentionAutocomplete');
+      autocomplete.querySelectorAll('[data-index]').forEach(el => {
+        el.classList.toggle('selected', parseInt(el.dataset.index) === selectedMentionIndex);
+      });
+      
+      // Scroll selected item into view
+      const selected = autocomplete.querySelector('.selected');
+      if (selected) {
+        selected.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+      }
+    }
 
     function sendMessage() {
       const input = document.getElementById('messageInput');
@@ -1328,6 +1943,19 @@
         }
         
         push(ref(db, `channels/${currentChannel}/messages`), msgData);
+        
+        // If it's a DM, increment unread count for the other user
+        if (currentChannel.startsWith('dm_')) {
+          const dmId = currentChannel.replace('dm_', '');
+          const [user1, user2] = dmId.split('_');
+          const otherUser = user1 === username ? user2 : user1;
+          
+          // Increment unread count for other user
+          get(ref(db, `unreadMessages/${otherUser}/${currentChannel}`)).then(snap => {
+            const count = snap.val() || 0;
+            set(ref(db, `unreadMessages/${otherUser}/${currentChannel}`), count + 1);
+          });
+        }
       });
       
       input.value = '';
@@ -1376,7 +2004,11 @@
     };
 
     window.deleteMessage = function(ch, id) {
-      if (confirm('Delete this message?')) remove(ref(db, `channels/${ch}/messages/${id}`));
+      if (confirm('Delete this message?')) {
+        remove(ref(db, `channels/${ch}/messages/${id}`)).then(() => {
+          showToast('Message Deleted', 'Message has been removed', 'success');
+        });
+      }
     };
 
     window.openUserProfile = function(user = username) {
@@ -1398,14 +2030,52 @@
         document.getElementById('profileModalRole').className = `profile-role-badge-large ${roleClass}`;
         document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
         
-        // Check online status
+        // Check online status and activity
         get(ref(db, 'presence')).then(pSnap => {
           const presence = pSnap.val() || {};
-          const isOnline = Object.values(presence).some(p => p.username === user && p.online);
+          const userPresence = Object.values(presence).find(p => p.username === user);
+          const isOnline = userPresence && userPresence.online;
           const statusEl = document.getElementById('profileStatusIndicator');
           if (statusEl) {
             statusEl.className = `profile-status-indicator ${isOnline ? 'online' : 'offline'}`;
           }
+          
+          // Show "Now Playing" if user has activity
+          const bioContainer = document.getElementById('profileBioContainer');
+          let bioHTML = '';
+          
+          if (userPresence && userPresence.activity && userPresence.activity.game) {
+            const activity = userPresence.activity;
+            const gameIcon = activity.icon ? `<img src="${activity.icon}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;margin-right:12px;">` : 
+              '<div style="width:40px;height:40px;border-radius:8px;background:#5865f2;display:flex;align-items:center;justify-content:center;margin-right:12px;"><svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg></div>';
+            bioHTML += `
+              <div style="background:rgba(88,101,242,0.1);border:1px solid rgba(88,101,242,0.3);border-radius:12px;padding:16px;margin:16px 0;">
+                <div style="color:#949ba4;font-size:12px;font-weight:700;margin-bottom:8px;">NOW PLAYING</div>
+                <div style="display:flex;align-items:center;">
+                  ${gameIcon}
+                  <div>
+                    <div style="color:#dcddde;font-weight:700;font-size:15px;">${activity.game}</div>
+                    <div style="color:#b9bbbe;font-size:13px;margin-top:2px;">Playing a game</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+          
+          // Show bio
+          if (u.bio) {
+            bioHTML += `
+              <div class="profile-bio-section">
+                <div class="profile-bio-title">
+                  <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                  About Me
+                </div>
+                <div class="profile-bio-text">${u.bio}</div>
+              </div>
+            `;
+          }
+          
+          bioContainer.innerHTML = bioHTML;
         });
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
@@ -2282,7 +2952,7 @@
     window.assignRoleCompact = function(username, role) {
       if (!role) return;
       set(ref(db, `users/${username}/role`), role).then(() => {
-        alert(`✅ ${username} is now ${role}!`);
+        showToast('Role Assigned', `${username} is now ${role}!`, 'success');
         loadUsersCompact();
       });
     };
@@ -2299,7 +2969,7 @@
         
         // Don't add if already has role
         if (currentRoles.includes(role)) {
-          alert(`❌ ${username} already has ${role} role!`);
+          showToast('Role Already Exists', `${username} already has ${role} role!`, 'error');
           return;
         }
         
@@ -2316,11 +2986,11 @@
                             currentRoles.includes('VIP') ? 'VIP' : 'Member';
         await set(ref(db, `users/${username}/role`), priorityRole);
         
-        alert(`✅ Added ${role} to ${username}!`);
+        showToast('Role Added', `Added ${role} to ${username}!`, 'success');
         loadUsersCompact();
       } catch (error) {
         console.error('Error adding role:', error);
-        alert('❌ Failed to add role');
+        showToast('Error', 'Failed to add role', 'error');
       }
     };
     
@@ -2354,11 +3024,11 @@
                             currentRoles.includes('VIP') ? 'VIP' : 'Member';
         await set(ref(db, `users/${username}/role`), priorityRole);
         
-        alert(`✅ Removed ${role} from ${username}!`);
+        showToast('Role Removed', `Removed ${role} from ${username}!`, 'success');
         loadUsersCompact();
       } catch (error) {
         console.error('Error removing role:', error);
-        alert('❌ Failed to remove role');
+        showToast('Error', 'Failed to remove role', 'error');
       }
     };
     
@@ -2386,7 +3056,7 @@
     
     window.quickBanUserCompact = function() {
       const target = document.getElementById('modSearchInput').value.trim();
-      if (!target) return alert('❌ Enter a username');
+      if (!target) return showToast('Input Required', 'Enter a username', 'error');
       
       // Remove their role and set banned status
       set(ref(db, `bans/${target}`), {bannedBy: username, timestamp: Date.now()}).then(() => {
@@ -2394,16 +3064,16 @@
         set(ref(db, `users/${target}/role`), 'Banned');
         set(ref(db, `users/${target}/banned`), true);
         
-        alert('✅ User banned and role removed!');
+        showToast('User Banned', `${target} has been banned and role removed!`, 'success');
         document.getElementById('modSearchInput').value = '';
       });
     };
     
     window.quickUnbanUserCompact = function() {
       const target = document.getElementById('modSearchInput').value.trim();
-      if (!target) return alert('❌ Enter a username');
+      if (!target) return showToast('Input Required', 'Enter a username', 'error');
       remove(ref(db, `bans/${target}`)).then(() => {
-        alert('✅ User unbanned!');
+        showToast('User Unbanned', `${target} has been unbanned!`, 'success');
         document.getElementById('modSearchInput').value = '';
       });
     };
@@ -2471,10 +3141,10 @@
       const isAdmin = document.getElementById('adminPermToggle').classList.contains('active');
       const isMod = document.getElementById('modPermToggle').classList.contains('active');
       
-      if (!name) return alert('❌ Enter role name');
+      if (!name) return showToast('Input Required', 'Enter role name', 'error');
       
       push(ref(db, 'customRoles'), {name, color1: c1, color2: c2, isAdmin, isMod, createdAt: Date.now()}).then(() => {
-        alert('✅ Role created!');
+        showToast('Role Created', `Custom role "${name}" has been created!`, 'success');
         document.getElementById('newRoleName').value = '';
         document.getElementById('roleColor1').value = '#3b82f6';
         document.getElementById('roleColor2').value = '#06b6d4';
@@ -2514,7 +3184,7 @@
     window.deleteRole = function(roleId) {
       if (confirm('Delete this role?')) {
         remove(ref(db, `customRoles/${roleId}`)).then(() => {
-          alert('✅ Role deleted!');
+          showToast('Role Deleted', 'Custom role has been deleted!', 'success');
           loadExistingRoles();
         });
       }
@@ -2728,23 +3398,30 @@
           return;
         }
         
-        // Add friend both ways
-        await set(ref(db, `friends/${username}/${friendUsername}`), {
-          addedAt: Date.now(),
-          username: friendUsername
+        // Check if request already sent
+        const sentCheck = await get(ref(db, `friendRequests/${friendUsername}`));
+        if (sentCheck.exists()) {
+          const requests = sentCheck.val();
+          const alreadySent = Object.values(requests).some(req => req.from === username);
+          if (alreadySent) {
+            showToast('Request Pending', `Friend request already sent to ${friendUsername}`, 'info');
+            return;
+          }
+        }
+        
+        // Send friend request (not auto-add)
+        await push(ref(db, `friendRequests/${friendUsername}`), {
+          from: username,
+          fromPic: profilePic,
+          timestamp: Date.now()
         });
         
-        await set(ref(db, `friends/${friendUsername}/${username}`), {
-          addedAt: Date.now(),
-          username: username
-        });
-        
-        showToast('Friend Added', `You are now friends with ${friendUsername}`, 'success');
+        showToast('Request Sent', `Friend request sent to ${friendUsername}!`, 'success');
         closeModal('userProfileModal');
         
       } catch (error) {
         console.error('Error adding friend:', error);
-        showToast('Failed', 'Could not add friend. Please try again.', 'error');
+        showToast('Failed', 'Could not send friend request. Please try again.', 'error');
       }
     };
 
@@ -2752,10 +3429,6 @@
       const p = document.getElementById('emojiPicker');
       if (!p.contains(e.target) && !e.target.closest('.action-btn')) p.classList.remove('show');
     });
-
-    if (userRole === 'Owner') {
-      document.getElementById('channelName').innerHTML += '<button style="margin-left:auto;padding:8px 16px;background:#ffd700;color:#000;border:none;border-radius:3px;font-weight:600;cursor:pointer" onclick="openAdminPanel()">👑 ADMIN PANEL</button>';
-    }
 
     window.addEventListener('beforeunload', () => set(ref(db, `presence/${userId}/online`), false));
   </script>
