@@ -152,6 +152,7 @@
     .role-badge.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
+    .role-badge.bot { background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c4b5fd, #8b5cf6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     .role-badge.member { background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
     @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
     
@@ -1312,6 +1313,7 @@
               if (role === 'Admin') return '<span class="role-badge admin"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>ADMIN</span>';
               if (role === 'Moderator') return '<span class="role-badge moderator"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>MOD</span>';
               if (role === 'VIP') return '<span class="role-badge vip"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>VIP</span>';
+              if (role === 'Bot') return '<span class="role-badge bot"><svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/></svg>BOT</span>';
               return '';
             }).join('');
             
@@ -1944,17 +1946,27 @@
         
         push(ref(db, `channels/${currentChannel}/messages`), msgData);
         
+        // Check if message mentions Nova AI bot
+        if (text.includes('@Nova AI') || text.includes('@NovaAI')) {
+          setTimeout(() => handleAIResponse(text, currentChannel), 1000);
+        }
+        
         // If it's a DM, increment unread count for the other user
         if (currentChannel.startsWith('dm_')) {
           const dmId = currentChannel.replace('dm_', '');
           const [user1, user2] = dmId.split('_');
           const otherUser = user1 === username ? user2 : user1;
           
-          // Increment unread count for other user
-          get(ref(db, `unreadMessages/${otherUser}/${currentChannel}`)).then(snap => {
-            const count = snap.val() || 0;
-            set(ref(db, `unreadMessages/${otherUser}/${currentChannel}`), count + 1);
-          });
+          // Check if it's a DM with Nova AI
+          if (otherUser === 'NovaAI' || user1 === 'NovaAI' || user2 === 'NovaAI') {
+            setTimeout(() => handleAIResponse(text, currentChannel), 1000);
+          } else {
+            // Increment unread count for other user
+            get(ref(db, `unreadMessages/${otherUser}/${currentChannel}`)).then(snap => {
+              const count = snap.val() || 0;
+              set(ref(db, `unreadMessages/${otherUser}/${currentChannel}`), count + 1);
+            });
+          }
         }
       });
       
@@ -1962,6 +1974,164 @@
       remove(ref(db, `typing/${currentChannel}/${username}`));
       cancelReply();
     }
+    
+    // ═══════════════════════════════════════════════════════
+    // NOVA AI BOT SYSTEM
+    // ═══════════════════════════════════════════════════════
+    
+    async function handleAIResponse(userMessage, channel) {
+      // Show typing indicator
+      set(ref(db, `typing/${channel}/Nova AI`), Date.now());
+      
+      try {
+        // Clean the message (remove @mentions)
+        const cleanMessage = userMessage.replace(/@Nova AI|@NovaAI/gi, '').trim();
+        
+        // Call Hugging Face API (Free tier)
+        const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' // We'll use a free model that doesn't require auth
+          },
+          body: JSON.stringify({
+            inputs: cleanMessage,
+            parameters: {
+              max_length: 200,
+              temperature: 0.9,
+              top_p: 0.9
+            }
+          })
+        });
+        
+        let aiReply = '';
+        
+        if (response.ok) {
+          const data = await response.json();
+          aiReply = data[0]?.generated_text || data.generated_text || "I'm here to help! Ask me anything.";
+        } else {
+          // Fallback to simple responses if API fails
+          aiReply = getSimpleAIResponse(cleanMessage);
+        }
+        
+        // Remove typing indicator
+        remove(ref(db, `typing/${channel}/Nova AI`));
+        
+        // Send AI response
+        const aiMessage = {
+          username: 'Nova AI',
+          profilePic: '', // We'll add a special AI avatar
+          text: aiReply,
+          timestamp: Date.now(),
+          role: 'Bot',
+          roles: ['Bot'],
+          isAI: true
+        };
+        
+        push(ref(db, `channels/${channel}/messages`), aiMessage);
+        
+      } catch (error) {
+        console.error('AI Error:', error);
+        remove(ref(db, `typing/${channel}/Nova AI`));
+        
+        // Send fallback response
+        const fallbackMessage = {
+          username: 'Nova AI',
+          profilePic: '',
+          text: getSimpleAIResponse(userMessage),
+          timestamp: Date.now(),
+          role: 'Bot',
+          roles: ['Bot'],
+          isAI: true
+        };
+        
+        push(ref(db, `channels/${channel}/messages`), fallbackMessage);
+      }
+    }
+    
+    // Simple fallback responses when API is unavailable
+    function getSimpleAIResponse(message) {
+      const msg = message.toLowerCase();
+      
+      // Greetings
+      if (msg.match(/\b(hi|hello|hey|sup|yo)\b/)) {
+        const greetings = [
+          "Hey there! How can I help you today? 👋",
+          "Hello! I'm Nova AI, your friendly assistant. What can I do for you?",
+          "Hi! Ready to chat or help with anything you need!",
+          "Hey! What's on your mind?"
+        ];
+        return greetings[Math.floor(Math.random() * greetings.length)];
+      }
+      
+      // How are you
+      if (msg.match(/how are you|how r u|hows it going/)) {
+        const responses = [
+          "I'm doing great! Thanks for asking. How can I assist you?",
+          "I'm fantastic! Just here to help. What do you need?",
+          "All good! Ready to help with whatever you need! 🚀"
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+      
+      // Help/What can you do
+      if (msg.match(/help|what can you do|what do you do|commands/)) {
+        return "I'm Nova AI! I can:\n• Answer questions\n• Have conversations\n• Help with code\n• Tell jokes\n• And more!\n\nJust @mention me or DM me! Type 'joke' for a joke or 'tip' for a coding tip.";
+      }
+      
+      // Jokes
+      if (msg.match(/joke|funny|laugh/)) {
+        const jokes = [
+          "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+          "Why don't scientists trust atoms? Because they make up everything!",
+          "What's a computer's favorite snack? Microchips! 🍟",
+          "Why did the developer go broke? Because he used up all his cache! 💰"
+        ];
+        return jokes[Math.floor(Math.random() * jokes.length)];
+      }
+      
+      // Coding tips
+      if (msg.match(/tip|code|programming|dev/)) {
+        const tips = [
+          "💡 Tip: Always comment your code. Your future self will thank you!",
+          "💡 Tip: Use meaningful variable names. 'x' is not descriptive!",
+          "💡 Tip: Test your code frequently. Catch bugs early!",
+          "💡 Tip: Take breaks! Your brain needs rest to code better."
+        ];
+        return tips[Math.floor(Math.random() * tips.length)];
+      }
+      
+      // Thanks
+      if (msg.match(/thank|thanks|thx/)) {
+        return "You're welcome! Happy to help anytime! 😊";
+      }
+      
+      // Default response
+      const defaults = [
+        "That's interesting! Tell me more about it.",
+        "I'm here to help! What else would you like to know?",
+        "Got it! Anything else I can assist with?",
+        "Interesting question! I'm still learning, but I'm here to help however I can!",
+        "I appreciate you chatting with me! What else is on your mind?"
+      ];
+      
+      return defaults[Math.floor(Math.random() * defaults.length)];
+    }
+    
+    // Create Nova AI user in Firebase if it doesn't exist
+    get(ref(db, 'users/NovaAI')).then(snap => {
+      if (!snap.exists()) {
+        set(ref(db, 'users/NovaAI'), {
+          username: 'Nova AI',
+          profilePic: '',
+          role: 'Bot',
+          roles: ['Bot'],
+          bio: '🤖 I\'m Nova AI, your friendly assistant! @mention me or DM me anytime.',
+          lastSeen: Date.now(),
+          isBot: true
+        });
+      }
+    });
     
     window.startReply = function(msgId, msgUser, msgText) {
       replyingTo = msgId;

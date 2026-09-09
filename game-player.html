@@ -564,10 +564,12 @@
         gameIcon.src = currentGameIcon;
       }
       
-      // Track game activity in Firebase
-      if (window.updateGameActivity && currentGameName) {
-        window.updateGameActivity(currentGameName, currentGameIcon);
-      }
+      // Track game activity in Firebase (with delay to ensure Firebase is ready)
+      setTimeout(() => {
+        if (currentGameName && username && userId) {
+          updateActivity(currentGameName, currentGameIcon);
+        }
+      }, 500);
     }
     
     // Try to load game directly with sandbox
