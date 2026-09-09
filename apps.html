@@ -1341,23 +1341,29 @@
 
   <!-- BOTTOM DOCK -->
   <div class="dock">
-    <button class="dock-btn" onclick="markInternalNav(); if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
+    <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/>
         <path d="M9 21v-9h6v9"/>
       </svg>
     </button>
 
-    <button class="dock-btn active" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
+    <button class="dock-btn" onclick="window.location.href='games.html'">
       <i class="bi bi-controller"></i>
     </button>
 
-    <button class="dock-btn" onclick="window.location.href='apps.html'">
+    <button class="dock-btn active" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'closePanel'}, '*'); } else { window.location.href='home.html'; }">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="3" y="3" width="7" height="7" rx="1.5"/>
         <rect x="14" y="3" width="7" height="7" rx="1.5"/>
         <rect x="3" y="14" width="7" height="7" rx="1.5"/>
         <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+    </button>
+
+    <button class="dock-btn" onclick="if(window.parent !== window) { window.parent.postMessage({novaAction: 'openChat'}, '*'); } else { window.location.href='home.html'; }">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
       </svg>
     </button>
 

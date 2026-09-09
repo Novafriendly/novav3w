@@ -1008,6 +1008,21 @@
             <input type="file" id="profilePicInput" accept="image/*,.gif" style="display: none;" onchange="uploadProfilePic(this)" />
           </div>
           
+          <!-- Image URL Input -->
+          <div style="flex: 1; margin-left: 16px;">
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; display: flex; gap: 10px; align-items: center;">
+              <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,0.5)" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+              <input type="text" id="profilePicUrl" placeholder="Or paste image URL (unlimited size, GIFs supported)" style="flex: 1; background: transparent; border: none; color: white; font-size: 13px; outline: none;" />
+              <button onclick="setProfilePicFromUrl()" style="background: linear-gradient(135deg, #5865f2, #4752c4); border: none; border-radius: 8px; padding: 8px 18px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; flex-shrink: 0;">
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div style="padding: 0 20px 20px;">
           <!-- Profile Info -->
           <div style="flex: 1;">
             <div style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 6px;" id="profileDisplayName">Guest</div>
@@ -1916,29 +1931,84 @@ function uploadProfilePic(input) {
     return;
   }
   
-  // Check file size (5MB limit for profile pics)
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('File too large! Max 5MB for profile pictures', 'red');
+  // Check file size (10MB limit to be safe with localStorage)
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('File too large! Max 10MB for profile pictures', 'red');
     return;
   }
+  
+  // Show uploading message
+  showToast('Uploading...', 'blue');
   
   const reader = new FileReader();
   reader.onload = e => {
     const dataUrl = e.target.result;
-    localStorage.setItem('nova_profile_pic', dataUrl);
-    localStorage.setItem('nova_profile_pic_type', isGif ? 'gif' : 'image');
+    
+    try {
+      localStorage.setItem('nova_profile_pic', dataUrl);
+      localStorage.setItem('nova_profile_pic_type', isGif ? 'gif' : 'image');
+      
+      // Update preview
+      const preview = document.getElementById('profilePicImg');
+      const initial = document.getElementById('profileInitial');
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+      initial.style.display = 'none';
+      
+      showToast(isGif ? 'GIF profile picture updated!' : 'Profile picture updated!', 'green');
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        showToast('Image too large for browser storage! Try a smaller file (under 5MB)', 'red');
+      } else {
+        showToast('Failed to save profile picture', 'red');
+      }
+      console.error('Storage error:', error);
+    }
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function setProfilePicFromUrl() {
+  const urlInput = document.getElementById('profilePicUrl');
+  const url = urlInput.value.trim();
+  
+  if (!url) {
+    showToast('Please enter an image URL', 'red');
+    return;
+  }
+  
+  // Validate URL
+  try {
+    new URL(url);
+  } catch {
+    showToast('Invalid URL format', 'red');
+    return;
+  }
+  
+  // Test if the image loads
+  const testImg = new Image();
+  testImg.onload = () => {
+    // Save URL (much smaller than base64!)
+    localStorage.setItem('nova_profile_pic', url);
+    localStorage.setItem('nova_profile_pic_type', 'url');
     
     // Update preview
     const preview = document.getElementById('profilePicImg');
     const initial = document.getElementById('profileInitial');
-    preview.src = dataUrl;
+    preview.src = url;
     preview.style.display = 'block';
     initial.style.display = 'none';
     
-    showToast('Profile picture updated!', 'green');
+    showToast('Profile picture set from URL!', 'green');
+    urlInput.value = '';
   };
   
-  reader.readAsDataURL(file);
+  testImg.onerror = () => {
+    showToast('Failed to load image from URL. Check the link and try again.', 'red');
+  };
+  
+  testImg.src = url;
 }
 
 function updateProfileInitial(username) {
@@ -3655,8 +3725,18 @@ function closePage() {
   
   // Try to emit to parent (if opened from home.html)
   try {
+    console.log('📤 Sending closeApp message to parent...');
     window.parent.postMessage({ novaAction: 'closeApp', app: 'settings' }, '*');
     console.log('✅ Sent close message to parent');
+    
+    // Give parent time to respond
+    setTimeout(() => {
+      // If still here after 100ms and we're in an iframe, something went wrong
+      if (window.self !== window.top) {
+        console.warn('⚠️ Still in iframe after 100ms, parent may not be responding');
+      }
+    }, 100);
+    
   } catch(e) {
     console.error('❌ Failed to send close message:', e);
   }

@@ -998,9 +998,59 @@ function onLoad(tabId) {
   const tab = tabs.find(t => t.id === tabId);
   if (!tab) return;
   const fr = document.getElementById('fr-' + tabId);
-  try { tab.title = fr.contentDocument.title || 'Page'; } catch(e) { tab.title = 'Page'; }
+  try { 
+    tab.title = fr.contentDocument.title || 'Page'; 
+    
+    // Auto-reload detection for Scramjet error screens
+    checkForScramjetError(fr, tabId);
+  } catch(e) { 
+    tab.title = 'Page'; 
+  }
   if (tabId === activeTabId) syncNav();
   renderTabs();
+}
+
+// Detect Scramjet error screen and auto-reload
+function checkForScramjetError(iframe, tabId) {
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const body = doc.body;
+    
+    if (!body) return;
+    
+    // Check for Scramjet error indicators
+    const bodyText = body.innerText || body.textContent || '';
+    const hasErrorText = bodyText.includes('unable to parse') || 
+                        bodyText.includes('Error') ||
+                        bodyText.includes('attempted to fetch from same origin') ||
+                        bodyText.includes('reload') ||
+                        bodyText.includes('Reload');
+    
+    // Check for reload button
+    const hasReloadButton = doc.querySelector('button') && 
+                           (bodyText.toLowerCase().includes('reload') || 
+                            bodyText.toLowerCase().includes('try again'));
+    
+    // If error detected, auto-reload after 2 seconds
+    if (hasErrorText && hasReloadButton) {
+      console.log('[Nova] Scramjet error detected, auto-reloading in 2s...');
+      
+      // Show visual feedback (optional)
+      const tab = tabs.find(t => t.id === tabId);
+      if (tab) {
+        tab.title = '🔄 Reloading...';
+        renderTabs();
+      }
+      
+      setTimeout(() => {
+        console.log('[Nova] Auto-reloading page...');
+        iframe.contentWindow.location.reload();
+      }, 2000);
+    }
+  } catch (e) {
+    // Cross-origin restriction, can't access iframe content
+    // This is normal for some sites
+  }
 }
 
 function navBack() {

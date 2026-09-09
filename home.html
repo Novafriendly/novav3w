@@ -3412,9 +3412,10 @@ brRenderBmBar();
     const overlay = document.getElementById('overlay-' + name);
     if (!overlay) return;
     
-    // If already open, close it
+    // Simple check: if overlay is open, close it. Otherwise, open it.
     if (overlay.classList.contains('open')) {
-      closePanel(name);
+      overlay.classList.remove('open');
+      if (btn) btn.classList.remove('active', 'app-open');
     } else {
       openPanel(name, btn);
     }
@@ -3437,13 +3438,20 @@ brRenderBmBar();
     if (window._dockShow) { window._dockShow(); window._dockScheduleHide && window._dockScheduleHide(); }
   }
 
-  function closePanel(name) {
+  function closePanel(name, btn) {
     const overlay = document.getElementById('overlay-' + name);
     if (!overlay) return;
     overlay.classList.remove('open');
-    document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
-    const homeBtn = document.querySelector('.dock-btn');
-    if (homeBtn) homeBtn.classList.add('active');
+    
+    // If a specific button was passed, just remove its active state
+    if (btn) {
+      btn.classList.remove('active', 'app-open');
+    } else {
+      // Otherwise remove all active states and make home active
+      document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
+      const homeBtn = document.querySelector('.dock-btn');
+      if (homeBtn) homeBtn.classList.add('active');
+    }
     
     // Show dock when closing panel
     const dock = document.querySelector('.dock');
@@ -3459,7 +3467,10 @@ brRenderBmBar();
     const d = e.data;
     if (!d || !d.novaAction) return;
 
+    console.log('📨 Received message:', d);
+
     if (d.novaAction === 'closeApp') {
+      console.log('🔴 Closing app:', d.app);
       closePanel(d.app);
       brClose && brClose();
     }
