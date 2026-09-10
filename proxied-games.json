@@ -7,6 +7,14 @@
     "author": "Big Shot Games",
     "genre": "sports",
     "isProxied": true
+  },
+  {
+    "id": "proxy_FNFAgoti",
+    "name": "friday night funkin vs agoti",
+    "url": "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Ffnf.run3.io%2Fagoti%2F100%2F&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Ffriday-night-funkin-vs-agoti&w=960&h=540&pid=115215&thumb=https%3A%2F%2Fkbhgames.com%2Fwp-content%2Fuploads%2F2021%2F05%2FFriday-Night-Funkin-vs-AGOTI.webp&title=Friday+Night+Funkin+vs+AGOTI&agelimit=&s=no",
+    "cover": "Img/game/maxresdefault.jpg",
+    "author": "FNF vs agoti",
+    "genre": "sports",
+    "isProxied": true
   }
-  
 ]
