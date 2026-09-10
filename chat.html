@@ -4027,9 +4027,11 @@
           });
         });
         
-        // Show bio - don't stack
-        const bioContainer = document.getElementById('profileBioContainer');
-        bioContainer.innerHTML = u.bio ? `<div class="profile-bio">${u.bio}</div>` : '';
+        // Show bio - don't stack (legacy code - can be removed)
+        const oldBioContainer = document.getElementById('profileBioContainer');
+        if (oldBioContainer) {
+          oldBioContainer.innerHTML = u.bio || '';
+        }
         
         // Show streak if in DM - don't stack
         const streakContainer = document.getElementById('profileStreakContainer');
