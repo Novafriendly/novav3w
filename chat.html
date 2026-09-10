@@ -3986,44 +3986,6 @@
         });
         
         // Show the modal
-              const friendsHTML = `
-                <div class="profile-friends-section">
-                  <div class="profile-friends-header">
-                    <div class="profile-friends-title">
-                      <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-                      Friends
-                    </div>
-                    <div class="profile-friends-count">${theirFriendsList.length} total</div>
-                  </div>
-                  <div class="profile-friends-list" id="friendsList"></div>
-                </div>
-              `;
-              friendsContainer.innerHTML = friendsHTML;
-              
-              // Load friend details
-              const friendsListEl = document.getElementById('friendsList');
-              Promise.all(theirFriendsList.slice(0, 12).map(friendName => 
-                get(ref(db, `users/${friendName}`)).then(snap => ({name: friendName, data: snap.val()}))
-              )).then(friends => {
-                friendsListEl.innerHTML = friends.map(({name, data}) => {
-                  const av = data?.profilePic ? `<img src="${data.profilePic}">` : name.charAt(0).toUpperCase();
-                  const isMutual = mutualFriends.includes(name);
-                  return `
-                    <div class="profile-friend-card" onclick="openUserProfile('${name}')">
-                      <div class="profile-friend-avatar">${av}</div>
-                      <div class="profile-friend-name">${name}</div>
-                      ${isMutual ? '<div class="profile-mutual-badge">Mutual</div>' : ''}
-                    </div>
-                  `;
-                }).join('');
-              });
-            } else {
-              friendsContainer.innerHTML = '';
-            }
-          });
-        });
-        
-        // Show the modal
         document.getElementById('userProfileModal').classList.add('show');
       });
     };
