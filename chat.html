@@ -3981,15 +3981,11 @@
           const theirFriends = fSnap.val() || {};
           const theirFriendsList = Object.keys(theirFriends);
           
-          // Calculate mutual friends
-          get(ref(db, `friends/${username}`)).then(myFSnap => {
-            const myFriends = myFSnap.val() || {};
-            const myFriendsList = Object.keys(myFriends);
-            const mutualFriends = theirFriendsList.filter(f => myFriendsList.includes(f));
-            
-            // Display friends list
-            const friendsContainer = document.getElementById('profileFriendsContainer');
-            if (theirFriendsList.length > 0) {
+          // Friends data loaded (can be used later if needed)
+          console.log(`${user} has ${theirFriendsList.length} friends`);
+        });
+        
+        // Show the modal
               const friendsHTML = `
                 <div class="profile-friends-section">
                   <div class="profile-friends-header">
@@ -4027,30 +4023,7 @@
           });
         });
         
-        // Show bio - don't stack (legacy code - can be removed)
-        const oldBioContainer = document.getElementById('profileBioContainer');
-        if (oldBioContainer) {
-          oldBioContainer.innerHTML = u.bio || '';
-        }
-        
-        // Show streak if in DM - don't stack
-        const streakContainer = document.getElementById('profileStreakContainer');
-        streakContainer.innerHTML = '';
-        
-        if (user !== username) {
-          get(ref(db, `friends/${username}/${user}`)).then(fSnap => {
-            if (fSnap.exists()) {
-              const dmId = [username, user].sort().join('_');
-              get(ref(db, `streaks/dm_${dmId}`)).then(streakSnap => {
-                const streak = streakSnap.val();
-                if (streak && streak.count > 0) {
-                  streakContainer.innerHTML = `<div class="profile-streak"><div class="profile-streak-icon">🔥</div><div style="flex:1"><div class="profile-streak-text">Chat Streak</div><div class="profile-streak-count">${streak.count} ${streak.count === 1 ? 'day' : 'days'}</div></div></div>`;
-                }
-              });
-            }
-          });
-        }
-        
+        // Show the modal
         document.getElementById('userProfileModal').classList.add('show');
       });
     };
