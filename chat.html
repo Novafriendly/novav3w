@@ -216,8 +216,7 @@
     .profile-icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #b5bac1; cursor: pointer; border-radius: 4px; transition: all 0.15s; text-decoration: none; flex-shrink: 0; }
     .profile-icon-btn svg { width: 18px; height: 18px; }
     .profile-icon-btn:hover { background: rgba(79,84,92,0.4); color: #dcddde; }
-    .profile-icon-btn.back-home-btn { background: linear-gradient(135deg, rgba(88,101,242,0.4), rgba(114,137,218,0.4)); border: 1px solid rgba(88,101,242,0.3); }
-    .profile-icon-btn.back-home-btn:hover { background: linear-gradient(135deg, rgba(88,101,242,0.7), rgba(114,137,218,0.7)); border-color: #5865f2; transform: translateX(-3px); box-shadow: 0 0 12px rgba(88,101,242,0.5); color: white; }
+    .profile-icon-btn.back-home-btn:hover { transform: translateX(-2px); }
     .owner-admin-btn { background: rgba(79,84,92,0.4) !important; color: white !important; }
     .owner-admin-btn:hover { background: rgba(79,84,92,0.6) !important; transform: translateY(-2px); }
     
@@ -1193,9 +1192,14 @@
     const profilePic = localStorage.getItem('nova_profile_pic') || '';
     let userRole = localStorage.getItem('nova_chat_role') || 'Member';
     
-    // Simple back to home function
+    // Aggressive navigation function that WILL work
     window.goBackHome = function() {
-      window.location.href = 'home.html';
+      // Remove all event listeners that might block
+      window.onbeforeunload = null;
+      // Force navigation
+      setTimeout(() => {
+        window.location = 'home.html';
+      }, 0);
     };
     
     // Sync role from Firebase on load and listen for changes
@@ -5077,7 +5081,12 @@
       if (!p.contains(e.target) && !e.target.closest('.action-btn')) p.classList.remove('show');
     });
 
-    window.addEventListener('beforeunload', () => set(ref(db, `presence/${userId}/online`), false));
+    // Set offline on page close/navigation - using visibilitychange instead of beforeunload
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        set(ref(db, `presence/${userId}/online`), false);
+      }
+    });
 
     /* ═══════════════════════════════════════════════════
        BAN SYSTEM FUNCTIONS
