@@ -2203,8 +2203,13 @@
             let replyHtml = '';
             if (m.replyTo && msgs[m.replyTo]) {
               const reply = msgs[m.replyTo];
-              const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : reply.username.charAt(0).toUpperCase();
-              replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')"><div class="message-reply-avatar">${replyAv}</div><span class="message-reply-user">${reply.username}</span><span class="message-reply-text">${reply.text}</span></div>`;
+              const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : (reply.username ? reply.username.charAt(0).toUpperCase() : 'U');
+              const replyText = (reply.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')">
+                <div class="message-reply-avatar">${replyAv}</div>
+                <span class="message-reply-user">${reply.username || 'Unknown'}</span>
+                <span class="message-reply-text">${replyText}</span>
+              </div>`;
             }
             
             // Show edited label if message was edited
