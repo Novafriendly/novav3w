@@ -2202,7 +2202,12 @@
             // Reply preview
             let replyHtml = '';
             if (m.replyTo) {
-              console.log('Message has replyTo:', m.replyTo, 'msgs keys:', Object.keys(msgs));
+              const replyMsgExists = m.replyTo in msgs;
+              console.log('Reply debug - replyTo:', m.replyTo, 'exists in msgs:', replyMsgExists);
+              if (!replyMsgExists) {
+                console.log('Available message IDs:', Object.keys(msgs).join(', '));
+              }
+              
               if (msgs[m.replyTo]) {
                 const reply = msgs[m.replyTo];
                 const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : (reply.username ? reply.username.charAt(0).toUpperCase() : 'U');
@@ -2212,8 +2217,9 @@
                   <span class="message-reply-user">${reply.username || 'Unknown'}</span>
                   <span class="message-reply-text">${replyText}</span>
                 </div>`;
+                console.log('Reply HTML generated successfully');
               } else {
-                console.log('Reply message not found in msgs object');
+                console.warn('Reply message not found! replyTo:', m.replyTo);
               }
             }
             
