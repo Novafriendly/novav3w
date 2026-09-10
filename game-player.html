@@ -463,19 +463,44 @@
     const userId = localStorage.getItem('nova_unique_id');
     
     // Track activity
+    let activityStartTime = null;
+    
     function updateActivity(gameName, gameIcon) {
       if (!username || !userId) return;
       
+      if (!activityStartTime) {
+        activityStartTime = Date.now(); // Store start time only once
+      }
+      
       const activityRef = ref(db, `presence/${userId}/activity`);
       set(activityRef, {
-        type: 'playing',
+        type: 'game',
         game: gameName,
         icon: gameIcon,
+        startTime: activityStartTime,
         timestamp: Date.now()
       });
       
+      // Update timestamp every 30 seconds to keep activity fresh
+      const activityInterval = setInterval(() => {
+        set(activityRef, {
+          type: 'game',
+          game: gameName,
+          icon: gameIcon,
+          startTime: activityStartTime, // Preserve original start time
+          timestamp: Date.now()
+        });
+      }, 30000);
+      
       // Clear activity on disconnect
       onDisconnect(activityRef).remove();
+      
+      // Clear interval on disconnect
+      window.addEventListener('beforeunload', () => {
+        clearInterval(activityInterval);
+        set(activityRef, null);
+        activityStartTime = null;
+      }, { once: true });
     }
     
     // Expose to global scope

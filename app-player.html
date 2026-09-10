@@ -587,6 +587,87 @@
       console.log('🔐 Panic key active:', savedKey);
     });
   </script>
+
+  <!-- Firebase Activity Tracking -->
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, set, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0_JODQVXMմ8AqGSuJմXW88WJ7Iত",
+      authDomain: "nova-24bd2.firebaseapp.com",
+      databaseURL: "https://nova-24bd2-default-rtdb.firebaseio.com",
+      projectId: "nova-24bd2",
+      storageBucket: "nova-24bd2.firebasestorage.app",
+      messagingSenderId: "592531893134",
+      appId: "1:592531893134:web:35ec4a2f8f2e957abb5a4f",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    
+    // Get user info from URL or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = localStorage.getItem('nova_username') || sessionStorage.getItem('username') || 'Guest';
+    const userId = localStorage.getItem('nova_userId') || sessionStorage.getItem('userId') || 'guest_' + Date.now();
+    
+    // Get app info from URL
+    const appName = urlParams.get('name') || 'Unknown App';
+    const appUrl = urlParams.get('url') || '';
+    
+    // Get app icon (favicon)
+    let appIcon = '';
+    try {
+      const appDomain = new URL(appUrl).hostname;
+      appIcon = `https://www.google.com/s2/favicons?domain=${appDomain}&sz=128`;
+    } catch {
+      appIcon = 'https://www.google.com/s2/favicons?domain=app&sz=128';
+    }
+    
+    // Track activity
+    let activityStartTime = null;
+    
+    function updateActivity() {
+      if (!username || !userId) return;
+      
+      if (!activityStartTime) {
+        activityStartTime = Date.now();
+      }
+      
+      const activityRef = ref(db, `presence/${userId}/activity`);
+      set(activityRef, {
+        type: 'app',
+        game: appName,
+        icon: appIcon,
+        startTime: activityStartTime,
+        timestamp: Date.now()
+      });
+      
+      // Clear activity on disconnect
+      onDisconnect(activityRef).remove();
+    }
+    
+    // Start tracking after a short delay
+    setTimeout(() => {
+      if (appName && username && userId) {
+        updateActivity();
+        
+        // Update every 30 seconds
+        setInterval(updateActivity, 30000);
+      }
+    }, 500);
+    
+    // Clear activity when leaving
+    window.addEventListener('beforeunload', () => {
+      if (username && userId) {
+        const activityRef = ref(db, `presence/${userId}/activity`);
+        set(activityRef, null);
+        activityStartTime = null;
+      }
+    });
+  </script>
 </body>
 </html>
 

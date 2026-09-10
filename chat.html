@@ -187,10 +187,24 @@
     .server-icon img, .server-icon svg { width: 28px; height: 28px; color: white; }
     .notification-badge { position: absolute; top: -4px; right: -4px; background: #ed4245; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px; min-width: 18px; z-index: 11; }
     
-    .sidebar { width: 240px; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; z-index: 10; }
-    .sidebar-header { padding: 16px; border-bottom: 1px solid #000; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
-    .channels-list { flex: 1; overflow-y: auto; padding: 8px; }
-    .channel-category { padding: 8px; color: #80848e; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 16px; letter-spacing: 0.02em; }
+    .sidebar { width: 240px; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; z-index: 10; height: 100vh; }
+    .sidebar-header { padding: 16px; border-bottom: 1px solid #000; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.2); flex-shrink: 0; }
+    .channels-list { flex: 1; overflow-y: auto; padding: 8px; min-height: 0; display: flex; flex-direction: column; }
+    .channel-category { padding: 8px; color: #80848e; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 16px; letter-spacing: 0.02em; display: flex; align-items: center; justify-content: space-between; }
+    .create-group-channel { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; color: #dcddde; cursor: pointer; margin: 8px 0; font-weight: 600; position: relative; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
+    .create-group-channel:hover { background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15); transform: translateX(2px); }
+    .create-group-channel .channel-icon { display: flex; align-items: center; justify-content: center; }
+    .group-settings-btn { opacity: 0; margin-left: auto; padding: 4px; border-radius: 4px; background: rgba(255,255,255,0.1); border: none; color: #dcddde; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .channel:hover .group-settings-btn { opacity: 1; }
+    .group-settings-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+    .create-group-btn { width: 20px; height: 20px; background: none; border: none; color: #80848e; font-size: 20px; font-weight: 400; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; line-height: 1; padding: 0; }
+    .create-group-btn:hover { color: #dcddde; background: rgba(79,84,92,0.3); }
+    .group-member-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
+    .group-member-item:hover { background: rgba(0,0,0,0.4); border-color: rgba(88,101,242,0.3); transform: translateX(2px); }
+    .group-member-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #5865f2; }
+    .group-welcome-message { background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3); border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 600px; }
+    .group-welcome-avatars { display: flex; gap: -8px; margin: 16px 0; justify-content: center; flex-wrap: wrap; }
+    .group-welcome-avatar { width: 48px; height: 48px; border-radius: 50%; border: 3px solid #232428; overflow: hidden; background: linear-gradient(135deg, #5865f2, #7289da); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 20px; margin: 4px; }
     .channel { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; color: #80848e; cursor: pointer; margin: 1px 0; font-weight: 500; position: relative; }
     .channel:hover { background: rgba(79,84,92,0.3); color: #dcddde; }
     .channel.active { background: rgba(79,84,92,0.4); color: white; }
@@ -468,10 +482,25 @@
       background: #232428;
       border-radius: 16px;
       max-width: 600px;
+      max-height: 85vh;
       width: 90%;
       position: relative;
       box-shadow: 0 8px 16px rgba(0,0,0,0.24);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
     
     .discord-profile-close {
@@ -499,9 +528,46 @@
     }
     
     .discord-profile-banner {
+      width: 100%;
       height: 120px;
       position: relative;
       background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+      border-radius: 16px 16px 0 0;
+      margin: 0;
+      flex-shrink: 0;
+      overflow: hidden;
+      animation: bannerFadeIn 0.4s ease-out;
+    }
+    
+    @keyframes bannerFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .discord-profile-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(114, 137, 218, 0.3) 0%, transparent 40%);
+      opacity: 0.6;
+      animation: bannerShimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes bannerShimmer {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.8; }
     }
     
     .discord-banner-gradient {
@@ -511,21 +577,42 @@
     }
     
     .discord-profile-content {
-      padding: 0 16px 16px;
+      padding: 0 20px 20px;
       background: #232428;
+      overflow-y: auto;
+      flex: 1;
+      position: relative;
+    }
+    
+    .discord-profile-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .discord-profile-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .discord-profile-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .discord-profile-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
     
     .discord-avatar-section {
-      margin-top: -48px;
-      margin-bottom: 12px;
+      margin-top: -50px;
+      margin-bottom: 16px;
       position: relative;
+      padding-left: 16px;
     }
     
     .discord-avatar-large {
       width: 92px;
       height: 92px;
       border-radius: 50%;
-      border: 6px solid #232428;
+      border: 7px solid #232428;
       background: linear-gradient(135deg, #5865f2, #7289da);
       display: flex;
       align-items: center;
@@ -535,6 +622,26 @@
       color: white;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+      animation: avatarPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s backwards;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    
+    .discord-avatar-large:hover {
+      transform: scale(1.05) rotate(2deg);
+      box-shadow: 0 12px 24px rgba(88, 101, 242, 0.4);
+    }
+    
+    @keyframes avatarPop {
+      from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
     
     .discord-avatar-large img {
@@ -545,20 +652,38 @@
     
     .discord-status-indicator {
       position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 24px;
-      height: 24px;
+      bottom: 2px;
+      right: 2px;
+      width: 26px;
+      height: 26px;
       border: 5px solid #232428;
       border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
     
     .discord-status-indicator.online {
       background: #23a55a;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes statusPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(35, 165, 90, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 6px rgba(35, 165, 90, 0);
+      }
     }
     
     .discord-status-indicator.offline {
       background: #80848e;
+    }
+    
+    .discord-user-card {
+      background: transparent;
+      border-radius: 8px;
+      padding: 0;
+      margin-bottom: 16px;
     }
     
     .discord-profile-badges {
@@ -568,14 +693,51 @@
     }
     
     .discord-username-section {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
+      animation: usernameFade 0.5s ease-out 0.3s backwards;
+    }
+    
+    @keyframes usernameFade {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     
     .discord-display-name {
       color: #f2f3f5;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       line-height: 1.2;
+      margin-bottom: 2px;
+      transition: all 0.2s;
+      cursor: default;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .discord-display-name:hover {
+      color: #fff;
+      transform: translateX(4px);
+    }
+    
+    .discord-display-name::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: linear-gradient(90deg, #5865f2, #7289da);
+      transition: width 0.3s ease;
+    }
+    
+    .discord-display-name:hover::after {
+      width: 100%;
     }
     
     .discord-user-tag {
@@ -586,13 +748,13 @@
     
     .discord-action-buttons {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
     
     .discord-btn {
       flex: 1;
-      padding: 10px 16px;
+      padding: 12px 16px;
       border-radius: 4px;
       font-size: 14px;
       font-weight: 600;
@@ -602,16 +764,52 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.17s;
+      transition: all 0.17s cubic-bezier(0.47, 1.64, 0.41, 0.8);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .discord-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .discord-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .discord-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+    
+    .discord-btn:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+    
+    .discord-btn svg {
+      position: relative;
+      z-index: 1;
     }
     
     .discord-btn-primary {
-      background: #5865f2;
+      background: linear-gradient(135deg, #5865f2, #4752c4);
       color: white;
     }
     
     .discord-btn-primary:hover {
-      background: #4752c4;
+      background: linear-gradient(135deg, #4752c4, #3c45a5);
+      box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
     }
     
     .discord-btn-secondary {
@@ -626,11 +824,34 @@
     .discord-divider {
       height: 1px;
       background: rgba(255,255,255,0.06);
-      margin: 12px 0;
+      margin: 16px 0 20px 0;
     }
     
     .discord-section {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      animation: sectionSlideUp 0.4s ease-out backwards;
+      transition: all 0.2s;
+    }
+    
+    .discord-section:nth-child(1) { animation-delay: 0.05s; }
+    .discord-section:nth-child(2) { animation-delay: 0.1s; }
+    .discord-section:nth-child(3) { animation-delay: 0.15s; }
+    .discord-section:nth-child(4) { animation-delay: 0.2s; }
+    .discord-section:nth-child(5) { animation-delay: 0.25s; }
+    
+    @keyframes sectionSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .discord-section:hover {
+      transform: translateX(4px);
     }
     
     .discord-section-title {
@@ -638,7 +859,7 @@
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       letter-spacing: 0.5px;
     }
     
@@ -649,6 +870,32 @@
       background: #2b2d31;
       padding: 12px;
       border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    
+    .discord-bio:hover {
+      border-color: rgba(88, 101, 242, 0.3);
+      background: #2e3035;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .discord-bio::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(88, 101, 242, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .discord-bio:hover::before {
+      left: 100%;
     }
     
     .discord-bio-empty {
@@ -681,13 +928,101 @@
     }
     
     .discord-role-badge {
-      padding: 6px 12px;
-      border-radius: 12px;
+      padding: 7px 14px;
+      border-radius: 14px;
       font-size: 12px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.17s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .discord-activity-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      transition: all 0.2s;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .discord-activity-card:hover {
+      border-color: rgba(88, 101, 242, 0.4);
+      background: rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .discord-activity-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid rgba(88, 101, 242, 0.3);
+    }
+    
+    .discord-activity-details {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .discord-activity-name {
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .discord-activity-state {
+      color: #b5bac1;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    
+    .discord-activity-time {
+      color: #80848e;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .discord-activity-time::before {
+      content: '⏱️';
+      font-size: 10px;
+    }
+    
+    .discord-role-badge::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+    
+    .discord-role-badge:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .discord-role-badge:hover::before {
+      width: 120%;
+      height: 120%;
     }
     
     .discord-role-badge.owner {
@@ -728,6 +1063,31 @@
       display: flex;
       gap: 12px;
       align-items: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .discord-activity-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(88, 101, 242, 0.1), transparent);
+      animation: activityPulse 2s infinite;
+    }
+    
+    @keyframes activityPulse {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .discord-activity-card:hover {
+      background: #35373c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
     .discord-activity-icon {
@@ -771,15 +1131,139 @@
       font-family: inherit;
       resize: vertical;
       min-height: 60px;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
     
     .discord-note-input:focus {
       outline: none;
       border-color: #5865f2;
+      background: #2e3035;
+      box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1), 0 0 20px rgba(88, 101, 242, 0.15);
+      transform: translateY(-2px);
+    }
+    
+    .discord-note-input:hover:not(:focus) {
+      border-color: rgba(88, 101, 242, 0.2);
+      background: #2e3035;
     }
     
     .discord-note-input::placeholder {
+      color: #80848e;
+    }
+    
+    /* Tabs */
+    .discord-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }
+    
+    .discord-tab {
+      background: none;
+      border: none;
+      color: #b5bac1;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.17s;
+      position: relative;
+      bottom: -1px;
+      border-radius: 4px 4px 0 0;
+    }
+    
+    .discord-tab:hover {
+      color: #dbdee1;
+      background: rgba(79, 84, 92, 0.16);
+    }
+    
+    .discord-tab.active {
+      color: #fff;
+      border-bottom-color: #5865f2;
+      background: rgba(88, 101, 242, 0.08);
+    }
+    
+    .discord-tab-content {
+      position: relative;
+    }
+    
+    .discord-tab-panel {
+      display: none;
+      animation: fadeIn 0.2s;
+    }
+    
+    .discord-tab-panel.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Mutual Friends Grid */
+    .discord-mutual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    
+    .discord-mutual-card {
+      background: #2b2d31;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.17s;
+      border: 1px solid transparent;
+    }
+    
+    .discord-mutual-card:hover {
+      background: #35373c;
+      border-color: rgba(255,255,255,0.08);
+      transform: translateY(-2px);
+    }
+    
+    .discord-mutual-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #5865f2, #7289da);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 24px;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .discord-mutual-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .discord-mutual-name {
+      color: #f2f3f5;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      word-break: break-word;
+    }
+    
+    .discord-empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
       color: #80848e;
     }
     
@@ -936,6 +1420,205 @@
     .toggle-switch.active { background: #22c55e; }
     .toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: all 0.2s; }
     .toggle-switch.active .toggle-knob { left: 26px; }
+    
+    /* Profile Preview Card */
+    .profile-preview-card {
+      background: #232428;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 16px;
+    }
+    
+    .profile-preview-banner {
+      height: 100px;
+      position: relative;
+      background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+    }
+    
+    .profile-preview-banner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+      opacity: 0.6;
+    }
+    
+    .profile-preview-avatar-section {
+      position: relative;
+      padding: 0 20px;
+      margin-top: -40px;
+      margin-bottom: 12px;
+    }
+    
+    .profile-preview-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 6px solid #232428;
+      background: linear-gradient(135deg, #5865f2, #7289da);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    .profile-preview-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-preview-status {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      border: 4px solid #232428;
+      border-radius: 50%;
+    }
+    
+    .profile-preview-status.online {
+      background: #23a55a;
+    }
+    
+    .profile-preview-info {
+      padding: 0 20px 20px;
+    }
+    
+    .profile-preview-username {
+      color: #f2f3f5;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .profile-preview-tag {
+      color: #b5bac1;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .profile-preview-bio {
+      color: #dbdee1;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #2b2d31;
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+    
+    /* Banner Editor */
+    .banner-type-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .banner-type-btn {
+      flex: 1;
+      padding: 14px 20px;
+      background: #2b2d31;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      color: #b5bac1;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    
+    .banner-type-btn:hover {
+      background: #35373c;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .banner-type-btn.active {
+      background: rgba(88, 101, 242, 0.15);
+      border-color: #5865f2;
+      color: #fff;
+    }
+    
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .color-picker-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .color-picker-label {
+      color: #b5bac1;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .color-picker-input {
+      width: 100%;
+      height: 50px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      background: #2b2d31;
+    }
+    
+    .color-picker-input:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .gradient-preview-mini {
+      height: 60px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+    }
+    
+    .settings-input-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .settings-input-group .settings-input {
+      flex: 1;
+    }
+    
+    .settings-btn-inline {
+      padding: 12px 16px;
+      background: rgba(88, 101, 242, 0.15);
+      border: 1px solid rgba(88, 101, 242, 0.3);
+      border-radius: 8px;
+      color: #7289da;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .settings-btn-inline:hover {
+      background: rgba(88, 101, 242, 0.25);
+      border-color: #5865f2;
+    }
   </style>
 </head>
 <body>
@@ -1186,86 +1869,111 @@
       <!-- Close Button -->
       <button class="discord-profile-close" onclick="closeModal('userProfileModal')">×</button>
       
-      <!-- Banner Section -->
-      <div class="discord-profile-banner">
-        <div class="discord-banner-gradient"></div>
-      </div>
+      <!-- Banner Section - Full Width -->
+      <div class="discord-profile-banner"></div>
       
       <!-- Main Content -->
       <div class="discord-profile-content">
-        <!-- Avatar Section -->
+        <!-- Avatar Section - Overlapping banner -->
         <div class="discord-avatar-section">
           <div class="discord-avatar-large" id="profileModalAvatar">
             <div class="discord-status-indicator online" id="profileStatusIndicator"></div>
           </div>
-          <div class="discord-profile-badges" id="profileBadges"></div>
         </div>
         
-        <!-- Username & Tag -->
-        <div class="discord-username-section">
-          <div class="discord-display-name" id="profileModalUsername">Loading...</div>
-          <div class="discord-user-tag" id="profileModalTag">@user</div>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="discord-action-buttons">
-          <button class="discord-btn discord-btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2zm5-9H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6 6H2v-1c0-1.66 2.69-3 6-3s6 1.34 6 3v1z"/></svg>
-            Add Friend
-          </button>
-          <button class="discord-btn discord-btn-secondary" onclick="switchToDM(document.getElementById('profileModalUsername').textContent)">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            Message
-          </button>
+        <!-- User Info Card -->
+        <div class="discord-user-card">
+          <!-- Username & Tag -->
+          <div class="discord-username-section">
+            <div class="discord-display-name" id="profileModalUsername">Loading...</div>
+            <div class="discord-user-tag" id="profileModalTag">@user</div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="discord-action-buttons">
+            <button class="discord-btn discord-btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2zm5-9H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6 6H2v-1c0-1.66 2.69-3 6-3s6 1.34 6 3v1z"/></svg>
+              Add Friend
+            </button>
+            <button class="discord-btn discord-btn-secondary" onclick="switchToDM(document.getElementById('profileModalUsername').textContent)">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              Message
+            </button>
+          </div>
         </div>
         
         <!-- Divider -->
         <div class="discord-divider"></div>
         
-        <!-- About Section -->
-        <div class="discord-section">
-          <div class="discord-section-title">ABOUT ME</div>
-          <div class="discord-bio" id="profileBioContainer">
-            <div class="discord-bio-empty">This user hasn't added a bio yet.</div>
-          </div>
+        <!-- Tabs Navigation -->
+        <div class="discord-tabs">
+          <button class="discord-tab active" onclick="switchProfileTab('info')" data-tab="info">User Info</button>
+          <button class="discord-tab" onclick="switchProfileTab('mutual')" data-tab="mutual">Mutual Friends</button>
         </div>
         
-        <!-- Member Since -->
-        <div class="discord-section">
-          <div class="discord-section-title">MEMBER SINCE</div>
-          <div class="discord-member-info">
-            <div class="discord-member-item">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/></svg>
-              <span id="profileJoined">August 2026</span>
+        <!-- Tab Content -->
+        <div class="discord-tab-content">
+          <!-- User Info Tab -->
+          <div class="discord-tab-panel active" id="tab-info">
+            <!-- About Section -->
+            <div class="discord-section">
+              <div class="discord-section-title">ABOUT ME</div>
+              <div class="discord-bio" id="profileBioContainer">
+                <div class="discord-bio-empty">This user hasn't added a bio yet.</div>
+              </div>
+            </div>
+            
+            <!-- Member Since -->
+            <div class="discord-section">
+              <div class="discord-section-title">MEMBER SINCE</div>
+              <div class="discord-member-info">
+                <div class="discord-member-item">
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/></svg>
+                  <span id="profileJoined">August 2026</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Roles Section -->
+            <div class="discord-section" id="rolesSection">
+              <div class="discord-section-title">ROLES</div>
+              <div class="discord-roles">
+                <span class="discord-role-badge owner" id="profileModalRole">MEMBER</span>
+              </div>
+            </div>
+            
+            <!-- Now Playing Section -->
+            <div class="discord-section" id="nowPlayingSection" style="display:none;">
+              <div class="discord-section-title">NOW PLAYING</div>
+              <div class="discord-activity-card">
+                <img class="discord-activity-icon" id="activityGameIcon" src="" alt="">
+                <div class="discord-activity-details">
+                  <div class="discord-activity-name" id="activityGameName">Loading...</div>
+                  <div class="discord-activity-state" id="activityGameState">Playing a game</div>
+                  <div class="discord-activity-time" id="activityGameTime">Started 5 minutes ago</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Note Section -->
+            <div class="discord-section">
+              <div class="discord-section-title">NOTE</div>
+              <textarea class="discord-note-input" placeholder="Click to add a note" maxlength="256"></textarea>
             </div>
           </div>
-        </div>
-        
-        <!-- Roles Section -->
-        <div class="discord-section" id="rolesSection">
-          <div class="discord-section-title">ROLES</div>
-          <div class="discord-roles">
-            <span class="discord-role-badge owner" id="profileModalRole">MEMBER</span>
-          </div>
-        </div>
-        
-        <!-- Now Playing Section -->
-        <div class="discord-section" id="nowPlayingSection" style="display:none;">
-          <div class="discord-section-title">NOW PLAYING</div>
-          <div class="discord-activity-card">
-            <img class="discord-activity-icon" id="activityGameIcon" src="" alt="">
-            <div class="discord-activity-details">
-              <div class="discord-activity-name" id="activityGameName">Loading...</div>
-              <div class="discord-activity-state" id="activityGameState">Playing a game</div>
-              <div class="discord-activity-time" id="activityGameTime">Started 5 minutes ago</div>
+          
+          <!-- Mutual Friends Tab -->
+          <div class="discord-tab-panel" id="tab-mutual">
+            <div class="discord-section">
+              <div class="discord-section-title" id="mutualFriendsTitle">NO MUTUAL FRIENDS</div>
+              <div class="discord-mutual-grid" id="mutualFriendsGrid">
+                <div class="discord-empty-state">
+                  <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" opacity="0.3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                  <div style="color:#80848e;margin-top:8px;">No mutual friends</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Note Section -->
-        <div class="discord-section">
-          <div class="discord-section-title">NOTE</div>
-          <textarea class="discord-note-input" placeholder="Click to add a note" maxlength="256"></textarea>
         </div>
       </div>
     </div>
@@ -1285,6 +1993,130 @@
         <button class="btn btn-primary" onclick="requestOwnerAccess()">Verify Passcode</button>
       </div>
       <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- Create Group DM Modal -->
+  <div class="modal" id="createGroupModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header" style="display:flex;align-items:center;gap:12px">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/></svg>
+        Create Group DM
+      </div>
+      <div style="padding: 20px;">
+        <div class="settings-field" style="margin-bottom: 20px;">
+          <label class="settings-label">GROUP NAME</label>
+          <input type="text" class="settings-input" id="groupNameInput" placeholder="Enter a cool group name..." maxlength="50">
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:6px">🎯 Give your group a unique name</div>
+        </div>
+        
+        <div class="settings-field">
+          <label class="settings-label">ADD MEMBERS (MAX 10)</label>
+          <div id="groupMembersList" style="max-height: 300px; overflow-y: auto; margin-top: 12px; padding-right: 8px;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:8px;background:rgba(88,101,242,0.1);border-radius:4px;border:1px solid rgba(88,101,242,0.2)">
+            <span style="color:#b9bbbe;font-size:13px">👥 Selected Members</span>
+            <span style="color:#5865f2;font-weight:700" id="selectedCount">0</span>/<span style="color:#80848e">10</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 20px 20px;">
+        <button class="btn btn-primary" onclick="createGroupDM()" id="createGroupBtn" style="flex:1">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right:6px"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+          Create Group
+        </button>
+        <button class="btn btn-secondary" onclick="closeModal('createGroupModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Group Settings Modal -->
+  <div class="modal" id="groupSettingsModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header" style="display:flex;align-items:center;gap:12px">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        Group Settings
+      </div>
+      <div style="padding: 20px;">
+        <div class="settings-field" style="margin-bottom: 20px;">
+          <label class="settings-label">GROUP ICON</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="banner-type-btn" onclick="selectIconType('emoji')" data-type="emoji" style="flex:1;padding:8px">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd"/></svg>
+              Emoji
+            </button>
+            <button class="banner-type-btn active" onclick="selectIconType('url')" data-type="url" style="flex:1;padding:8px">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+              Image/GIF URL
+            </button>
+          </div>
+          <div id="iconEmojiInput" style="display:none">
+            <input type="text" class="settings-input" id="groupIconEmoji" placeholder="Enter emoji (e.g., 🎮 🎨 🚀)" maxlength="2">
+            <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:6px">✨ Use any emoji</div>
+          </div>
+          <div id="iconUrlInput">
+            <input type="text" class="settings-input" id="groupIconUrl" placeholder="https://example.com/icon.png or .gif">
+            <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:6px">🖼️ Supports PNG, JPG, GIF - or leave blank for first letter</div>
+          </div>
+        </div>
+        
+        <div class="settings-field" style="margin-bottom: 20px;">
+          <label class="settings-label">GROUP NAME</label>
+          <input type="text" class="settings-input" id="groupNameEditInput" placeholder="Enter group name" maxlength="50">
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:6px">📝 Rename your group</div>
+        </div>
+        
+        <div class="settings-field" style="margin-bottom: 20px;">
+          <label class="settings-label">MEMBERS</label>
+          <div id="groupMembersManage" style="max-height: 250px; overflow-y: auto; margin-top: 12px; padding-right: 8px;"></div>
+        </div>
+        
+        <div class="settings-field" style="border-top:1px solid rgba(237,66,69,0.3);padding-top:20px;margin-top:20px">
+          <label class="settings-label" style="color:#f38ba8">⚠️ DANGER ZONE</label>
+          <button class="btn btn-secondary" onclick="confirmDeleteGroup()" style="width:100%;background:rgba(237,66,69,0.15);border-color:rgba(237,66,69,0.3);color:#f38ba8;font-weight:700;padding:12px">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right:6px"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            Delete Group Permanently
+          </button>
+          <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;text-align:center">⚠️ This action cannot be undone and will remove all members</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 20px 20px;">
+        <button class="btn btn-primary" onclick="saveGroupSettings()" style="flex:1">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right:6px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Save Changes
+        </button>
+        <button class="btn btn-secondary" onclick="closeModal('groupSettingsModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Group Confirmation Modal -->
+  <div class="modal" id="deleteGroupModal">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header" style="display:flex;align-items:center;gap:12px;background:rgba(237,66,69,0.1);border-bottom:2px solid rgba(237,66,69,0.3)">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        Delete Group?
+      </div>
+      <div style="padding: 20px;">
+        <div style="color:#dcddde;font-size:15px;margin-bottom:16px;line-height:1.6">
+          You are about to <strong style="color:#f38ba8">permanently delete</strong> this group. This will:
+        </div>
+        <ul style="color:#b9bbbe;font-size:14px;margin:16px 0;padding-left:24px;line-height:1.8">
+          <li>Remove all members from the group</li>
+          <li>Delete all messages and history</li>
+          <li>This action <strong style="color:#f38ba8">cannot be undone</strong></li>
+        </ul>
+        <div style="background:rgba(237,66,69,0.1);border:1px solid rgba(237,66,69,0.3);border-radius:8px;padding:16px;margin:16px 0">
+          <label class="settings-label" style="color:#f38ba8;margin-bottom:8px">TYPE "I want to delete this" TO CONFIRM</label>
+          <input type="text" class="settings-input" id="deleteConfirmInput" placeholder="I want to delete this" style="border-color:rgba(237,66,69,0.3)">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 20px 20px;">
+        <button class="btn btn-secondary" onclick="executeDeleteGroup()" id="confirmDeleteBtn" disabled style="flex:1;background:rgba(237,66,69,0.2);border-color:rgba(237,66,69,0.3);color:#f38ba8;font-weight:700">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right:6px"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          Delete Forever
+        </button>
+        <button class="btn btn-primary" onclick="closeModal('deleteGroupModal')">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -1860,7 +2692,7 @@
         
         <!-- OWNER Category (bottom) -->
         ${isOwner ? `
-        <div class="channel-category" style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)">OWNER</div>
+        <div class="channel-category" style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);margin-top:16px">OWNER</div>
         <div class="channel ${currentChannel === 'owner-general' ? 'active' : ''}" onclick="switchChannel('owner-general')">
           <svg class="channel-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
           owner-general
@@ -2109,6 +2941,22 @@
           const msgs = snap.val() || {};
           const area = document.getElementById('messagesArea');
           area.innerHTML = Object.entries(msgs).map(([id, m]) => {
+            // Handle group welcome messages
+            if (m.isSystem && m.groupWelcome && m.members) {
+              return `
+                <div class="group-welcome-message">
+                  <div style="text-align:center;color:#dcddde;font-size:16px;font-weight:600;margin-bottom:16px">${m.text}</div>
+                  <div style="text-align:center;color:#b9bbbe;font-size:14px;margin-bottom:16px">This is the beginning of your group message history</div>
+                  <div class="group-welcome-avatars">
+                    ${m.members.map(memberName => {
+                      const memberAv = `<div class="group-welcome-avatar">${memberName.charAt(0).toUpperCase()}</div>`;
+                      return `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">${memberAv}<div style="color:#dcddde;font-size:12px;font-weight:600">${memberName}</div></div>`;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
+            
             // Check if message author is blocked
             const isBlocked = blocked[m.username];
             
@@ -2230,8 +3078,10 @@
           }).join('');
           area.scrollTop = area.scrollHeight;
           
-          // Update streak if DM channel
+          // Update streak if DM channel or Group
           if (ch.startsWith('dm_')) {
+            updateStreak(ch);
+          } else if (ch.startsWith('group_')) {
             updateStreak(ch);
           }
         });
@@ -2244,9 +3094,9 @@
       });
     }
     
-    function updateStreak(dmChannel) {
+    function updateStreak(channel) {
       const today = new Date().toDateString();
-      get(ref(db, `streaks/${dmChannel}`)).then(snap => {
+      get(ref(db, `streaks/${channel}`)).then(snap => {
         const data = snap.val() || {count: 0, lastDate: null};
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         
@@ -2255,13 +3105,13 @@
           return;
         } else if (data.lastDate === yesterday) {
           // Continue streak
-          set(ref(db, `streaks/${dmChannel}`), {count: data.count + 1, lastDate: today});
+          set(ref(db, `streaks/${channel}`), {count: data.count + 1, lastDate: today});
         } else if (data.lastDate === null) {
           // Start new streak
-          set(ref(db, `streaks/${dmChannel}`), {count: 1, lastDate: today});
+          set(ref(db, `streaks/${channel}`), {count: 1, lastDate: today});
         } else {
           // Reset streak
-          set(ref(db, `streaks/${dmChannel}`), {count: 1, lastDate: today});
+          set(ref(db, `streaks/${channel}`), {count: 1, lastDate: today});
         }
       });
     }
@@ -3206,18 +4056,65 @@
     function loadDMChannels() {
       get(ref(db, `friends/${username}`)).then(snap => {
         const friends = snap.val() || {};
-        let html = '<div class="channel-category">DIRECT MESSAGES</div>';
+        let html = '<div class="create-group-channel" onclick="openCreateGroupModal()"><div class="channel-icon"><svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/></svg></div>Create Group</div>';
+        html += '<div class="channel-category">DIRECT MESSAGES</div>';
         
-        const friendsList = Object.values(friends);
-        let processed = 0;
-        
-        if (friendsList.length === 0) {
-          html += '<p style="padding:16px;color:#80848e;font-size:13px">No friends yet. Add users from the right panel!</p>';
-          document.getElementById('channelsList').innerHTML = html;
-          return;
-        }
-        
-        friendsList.forEach(f => {
+        // Load groups first
+        get(ref(db, 'groups')).then(groupsSnap => {
+          const groups = groupsSnap.val() || {};
+          let hasGroups = false;
+          
+          Object.entries(groups).forEach(([groupId, groupData]) => {
+            if (groupData.members && groupData.members[username]) {
+              hasGroups = true;
+              const active = currentChannel === groupId ? 'active' : '';
+              
+              // Generate group icon - prioritize URL, then emoji, then first letter
+              let groupIcon;
+              if (groupData.iconUrl && groupData.iconUrl.trim()) {
+                groupIcon = `<img src="${groupData.iconUrl}" style="width:20px;height:20px;border-radius:50%;object-fit:cover" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'width:20px;height:20px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white\\'>${groupData.name.charAt(0).toUpperCase()}</div>'">`;
+              } else if (groupData.iconEmoji && groupData.iconEmoji.trim()) {
+                groupIcon = `<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:14px">${groupData.iconEmoji}</div>`;
+              } else {
+                groupIcon = `<div style="width:20px;height:20px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${groupData.name.charAt(0).toUpperCase()}</div>`;
+              }
+              
+              const isOwner = groupData.creator === username;
+              const settingsBtn = isOwner ? `<button class="group-settings-btn" onclick="event.stopPropagation(); openGroupSettings('${groupId}')" title="Group Settings"><svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></button>` : `<button class="group-settings-btn" onclick="event.stopPropagation(); leaveGroup('${groupId}')" title="Leave Group" style="background:rgba(237,66,69,0.2)"><svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg></button>`;
+              
+              // Check unread and streak
+              get(ref(db, `unreadMessages/${username}/${groupId}`)).then(unreadSnap => {
+                const unreadCount = unreadSnap.val() || 0;
+                const unreadBadge = unreadCount > 0 ? `<span class="notification-badge" style="position:static">${unreadCount}</span>` : '';
+                
+                // Check for streak
+                get(ref(db, `streaks/${groupId}`)).then(streakSnap => {
+                  const streak = streakSnap.val();
+                  const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak"><span class="channel-streak-fire">🔥</span>${streak.count}</span>` : '';
+                  
+                  html += `<div class="channel ${active}" onclick="switchToGroup('${groupId}', '${groupData.name}')"><div class="channel-icon">${groupIcon}</div><span style="flex:1">${groupData.name}</span>${streakBadge}${unreadBadge}${settingsBtn}</div>`;
+                  document.getElementById('channelsList').innerHTML = html;
+                });
+              });
+            }
+          });
+          
+          // Now load DMs
+          const friendsList = Object.values(friends);
+          let processed = 0;
+          
+          if (friendsList.length === 0 && !hasGroups) {
+            html += '<p style="padding:16px;color:#80848e;font-size:13px">No friends yet. Add users from the right panel!</p>';
+            document.getElementById('channelsList').innerHTML = html;
+            return;
+          }
+          
+          if (friendsList.length === 0) {
+            document.getElementById('channelsList').innerHTML = html;
+            return;
+          }
+          
+          friendsList.forEach(f => {
           const dmId = [username, f.username].sort().join('_');
           const active = currentChannel === `dm_${dmId}` ? 'active' : '';
           const avatar = f.profilePic ? `<img src="${f.profilePic}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;">` : `<div style="width:20px;height:20px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${f.username.charAt(0).toUpperCase()}</div>`;
@@ -3240,7 +4137,8 @@
             });
           });
         });
-      });
+        }); // Close groups promise
+      }); // Close friends promise
     }
     
     window.switchToDM = function(dmId, otherUser) {
@@ -3260,7 +4158,376 @@
       
       loadMessages(`dm_${dmId}`);
     };
+    
+    // Group DM Functions
+    let selectedGroupMembers = [];
+    
+    window.openCreateGroupModal = function() {
+      selectedGroupMembers = [];
+      document.getElementById('groupNameInput').value = '';
+      document.getElementById('createGroupModal').classList.add('show');
+      
+      // Load friends list
+      get(ref(db, `friends/${username}`)).then(snap => {
+        const friends = snap.val() || {};
+        const friendsList = Object.values(friends);
+        
+        let html = '';
+        friendsList.forEach(f => {
+          const avatar = f.profilePic ? 
+            `<img src="${f.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : 
+            `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white">${f.username.charAt(0).toUpperCase()}</div>`;
+          
+          html += `
+            <div class="group-member-item" data-username="${f.username}">
+              <div style="display:flex;align-items:center;gap:12px;flex:1">
+                ${avatar}
+                <div>
+                  <div style="color:#dcddde;font-weight:600;font-size:14px">${f.username}</div>
+                  <div style="color:#80848e;font-size:12px">${f.role || 'Member'}</div>
+                </div>
+              </div>
+              <input type="checkbox" class="group-member-checkbox" onchange="toggleGroupMember('${f.username}', this.checked)">
+            </div>
+          `;
+        });
+        
+        document.getElementById('groupMembersList').innerHTML = html || '<p style="color:#80848e;text-align:center;padding:20px">No friends available</p>';
+        updateSelectedCount();
+      });
+    };
+    
+    window.toggleGroupMember = function(memberUsername, checked) {
+      if (checked) {
+        if (selectedGroupMembers.length >= 10) {
+          event.target.checked = false;
+          showToast('Limit Reached', 'Maximum 10 members allowed in a group', 'error');
+          return;
+        }
+        selectedGroupMembers.push(memberUsername);
+      } else {
+        selectedGroupMembers = selectedGroupMembers.filter(m => m !== memberUsername);
+      }
+      updateSelectedCount();
+    };
+    
+    window.updateSelectedCount = function() {
+      document.getElementById('selectedCount').textContent = selectedGroupMembers.length;
+      document.getElementById('createGroupBtn').disabled = selectedGroupMembers.length === 0;
+    };
+    
+    window.createGroupDM = function() {
+      const groupName = document.getElementById('groupNameInput').value.trim();
+      
+      if (!groupName) {
+        showToast('Name Required', 'Please enter a group name', 'error');
+        return;
+      }
+      
+      if (selectedGroupMembers.length === 0) {
+        showToast('No Members', 'Please select at least one member', 'error');
+        return;
+      }
+      
+      // Create group ID
+      const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const allMembers = [username, ...selectedGroupMembers];
+      
+      // Create group data
+      const groupData = {
+        id: groupId,
+        name: groupName,
+        creator: username,
+        members: allMembers.reduce((obj, m) => ({ ...obj, [m]: true }), {}),
+        createdAt: Date.now(),
+        type: 'group'
+      };
+      
+      // Save group
+      set(ref(db, `groups/${groupId}`), groupData)
+        .then(() => {
+          // Send welcome message
+          const welcomeMessage = {
+            username: 'System',
+            text: `**${username}** created the group **${groupName}**`,
+            timestamp: Date.now(),
+            isSystem: true,
+            groupWelcome: true,
+            members: allMembers
+          };
+          
+          push(ref(db, `channels/${groupId}/messages`), welcomeMessage);
+          
+          showToast('Group Created', `${groupName} was created successfully!`, 'success');
+          closeModal('createGroupModal');
+          
+          // Switch to the new group
+          switchToGroup(groupId, groupName);
+          loadDMChannels(); // Refresh to show new group
+        })
+        .catch(err => {
+          console.error('Error creating group:', err);
+          showToast('Error', 'Failed to create group', 'error');
+        });
+    };
+    
+    window.switchToGroup = function(groupId, groupName) {
+      currentChannel = groupId;
+      
+      // Clear unread for this group
+      set(ref(db, `unreadMessages/${username}/${groupId}`), 0);
+      
+      document.getElementById('channelName').innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>${groupName}`;
+      document.getElementById('messageInput').placeholder = `Message ${groupName}`;
+      
+      document.getElementById('messageInput').disabled = false;
+      document.getElementById('messageInput').style.display = 'block';
+      document.getElementById('typingIndicator').style.display = 'block';
+      
+      loadMessages(groupId);
+    };
+    
+    let currentEditingGroup = null;
+    
+    window.openGroupSettings = function(groupId) {
+      currentEditingGroup = groupId;
+      
+      get(ref(db, `groups/${groupId}`)).then(snap => {
+        const groupData = snap.val();
+        if (!groupData) return;
+        
+        // Check if user is owner
+        if (groupData.creator !== username) {
+          showToast('Access Denied', 'Only the group owner can edit settings', 'error');
+          return;
+        }
+        
+        // Fill in current data - detect icon type
+        const hasUrl = groupData.iconUrl && groupData.iconUrl.trim();
+        const hasEmoji = groupData.iconEmoji && groupData.iconEmoji.trim();
+        
+        if (hasUrl) {
+          selectIconType('url');
+          document.getElementById('groupIconUrl').value = groupData.iconUrl;
+          document.getElementById('groupIconEmoji').value = '';
+        } else if (hasEmoji) {
+          selectIconType('emoji');
+          document.getElementById('groupIconEmoji').value = groupData.iconEmoji;
+          document.getElementById('groupIconUrl').value = '';
+        } else {
+          selectIconType('url');
+          document.getElementById('groupIconUrl').value = '';
+          document.getElementById('groupIconEmoji').value = '';
+        }
+        
+        document.getElementById('groupNameEditInput').value = groupData.name;
+        
+        // Load members list
+        const members = Object.keys(groupData.members || {});
+        let membersHtml = '';
+        
+        members.forEach(memberName => {
+          const isCreator = memberName === groupData.creator;
+          const badge = isCreator ? '<span style="background:rgba(237,66,69,0.2);color:#ed4245;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:8px">👑 OWNER</span>' : '';
+          const kickBtn = isCreator ? '' : `<button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;background:rgba(237,66,69,0.15);border-color:rgba(237,66,69,0.3);color:#f38ba8;font-weight:600" onclick="kickMember('${groupId}', '${memberName}')">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20" style="margin-right:4px"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+            Kick
+          </button>`;
+          
+          membersHtml += `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(0,0,0,0.3);border-radius:6px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,255,255,0.1)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#5865f2,#7289da);display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${memberName.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div style="color:#dcddde;font-weight:600;display:flex;align-items:center">${memberName}${badge}</div>
+                  <div style="color:#80848e;font-size:11px">${isCreator ? 'Has full control' : 'Can send messages'}</div>
+                </div>
+              </div>
+              ${kickBtn}
+            </div>
+          `;
+        });
+        
+        document.getElementById('groupMembersManage').innerHTML = membersHtml;
+        document.getElementById('groupSettingsModal').classList.add('show');
+      });
+    };
+    
+    window.selectIconType = function(type) {
+      // Toggle visibility of inputs
+      document.getElementById('iconEmojiInput').style.display = type === 'emoji' ? 'block' : 'none';
+      document.getElementById('iconUrlInput').style.display = type === 'url' ? 'block' : 'none';
+      
+      // Update button states
+      document.querySelectorAll('.banner-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-type') === type);
+      });
+    };
 
+    window.saveGroupSettings = function() {
+      if (!currentEditingGroup) return;
+      
+      const newName = document.getElementById('groupNameEditInput').value.trim();
+      const iconEmoji = document.getElementById('groupIconEmoji').value.trim();
+      const iconUrl = document.getElementById('groupIconUrl').value.trim();
+      
+      if (!newName) {
+        showToast('Name Required', 'Group name cannot be empty', 'error');
+        return;
+      }
+      
+      const updates = {
+        name: newName,
+        iconEmoji: iconEmoji || null,
+        iconUrl: iconUrl || null
+      };
+      
+      // Generate icon HTML based on what's provided
+      if (iconUrl) {
+        updates.icon = `<img src="${iconUrl}" style="width:20px;height:20px;border-radius:50%;object-fit:cover" onerror="this.style.display='none'">`;
+      } else if (iconEmoji) {
+        updates.icon = `<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:14px">${iconEmoji}</div>`;
+      } else {
+        updates.icon = '';
+      }
+      
+      update(ref(db, `groups/${currentEditingGroup}`), updates)
+        .then(() => {
+          showToast('Settings Saved', 'Group settings updated successfully', 'success');
+          closeModal('groupSettingsModal');
+          loadDMChannels(); // Refresh to show new name/icon
+        })
+        .catch(err => {
+          console.error('Error updating group:', err);
+          showToast('Error', 'Failed to update group settings', 'error');
+        });
+    };
+    
+    window.kickMember = function(groupId, memberName) {
+      if (!confirm(`Kick ${memberName} from the group?`)) return;
+      
+      // Remove user from members
+      remove(ref(db, `groups/${groupId}/members/${memberName}`))
+        .then(() => {
+          showToast('Member Kicked', `${memberName} was removed from the group`, 'success');
+          
+          // Check if only owner is left
+          get(ref(db, `groups/${groupId}/members`)).then(membersSnap => {
+            const members = membersSnap.val();
+            const memberCount = members ? Object.keys(members).length : 0;
+            
+            if (memberCount === 1) {
+              // Only owner left, auto-delete group
+              autoDeleteGroup(groupId);
+            } else {
+              openGroupSettings(groupId); // Refresh the modal
+            }
+          });
+        })
+        .catch(err => {
+          console.error('Error kicking member:', err);
+          showToast('Error', 'Failed to kick member', 'error');
+        });
+    };
+    
+    window.autoDeleteGroup = function(groupId) {
+      showToast('Group Deleted', 'Group was automatically deleted (only owner remained)', 'info');
+      
+      // Delete group data
+      remove(ref(db, `groups/${groupId}`));
+      remove(ref(db, `channels/${groupId}`));
+      
+      // Close modals and switch to general
+      closeModal('groupSettingsModal');
+      switchChannel('general');
+      loadDMChannels();
+    };
+    
+    window.confirmDeleteGroup = function() {
+      if (!currentEditingGroup) return;
+      
+      // Show delete confirmation modal
+      document.getElementById('deleteGroupModal').classList.add('show');
+      document.getElementById('deleteConfirmInput').value = '';
+      document.getElementById('confirmDeleteBtn').disabled = true;
+      
+      // Set up input validation
+      const input = document.getElementById('deleteConfirmInput');
+      input.oninput = function() {
+        const isValid = input.value === 'I want to delete this';
+        document.getElementById('confirmDeleteBtn').disabled = !isValid;
+      };
+    };
+    
+    window.executeDeleteGroup = function() {
+      if (!currentEditingGroup) return;
+      
+      const groupId = currentEditingGroup;
+      
+      // Get all members to clear their unread counts
+      get(ref(db, `groups/${groupId}/members`)).then(membersSnap => {
+        const members = membersSnap.val();
+        
+        // Delete group and its messages
+        remove(ref(db, `groups/${groupId}`));
+        remove(ref(db, `channels/${groupId}`));
+        
+        // Clear unread for all members (optional, but good cleanup)
+        if (members) {
+          Object.keys(members).forEach(memberName => {
+            remove(ref(db, `users/${memberName}/unread/${groupId}`));
+          });
+        }
+        
+        showToast('Group Deleted', 'The group has been permanently deleted', 'success');
+        closeModal('deleteGroupModal');
+        closeModal('groupSettingsModal');
+        switchChannel('general');
+        loadDMChannels();
+      }).catch(err => {
+        console.error('Error deleting group:', err);
+        showToast('Error', 'Failed to delete group', 'error');
+      });
+    };
+    
+    window.leaveGroup = function(groupId) {
+      if (!confirm('Are you sure you want to leave this group?')) return;
+      
+      get(ref(db, `groups/${groupId}`)).then(snap => {
+        const groupData = snap.val();
+        
+        if (groupData.creator === username) {
+          showToast('Cannot Leave', 'Group owners cannot leave. Delete the group instead', 'error');
+          return;
+        }
+        
+        // Remove user from members
+        remove(ref(db, `groups/${groupId}/members/${username}`))
+          .then(() => {
+            showToast('Left Group', 'You have left the group', 'success');
+            
+            // Check if only owner is left after this user leaves
+            get(ref(db, `groups/${groupId}/members`)).then(membersSnap => {
+              const members = membersSnap.val();
+              const memberCount = members ? Object.keys(members).length : 0;
+              
+              if (memberCount === 1) {
+                // Only owner left, notify owner and consider auto-delete
+                // Owner will see it auto-delete when they next interact
+              }
+            });
+            
+            // Switch to general channel
+            switchChannel('general');
+            loadDMChannels(); // Refresh
+          })
+          .catch(err => {
+            console.error('Error leaving group:', err);
+            showToast('Error', 'Failed to leave group', 'error');
+          });
+      });
+    };
+    
     window.handleKeyPress = function(e) {
       // Allow Shift+Enter for new line, Enter alone sends message
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -3918,6 +5185,26 @@
         const u = snap.val();
         if (!u) return;
         
+        // Update Banner
+        const bannerEl = document.querySelector('.discord-profile-banner');
+        if (bannerEl) {
+          // Clear existing styles first
+          bannerEl.style.background = '';
+          bannerEl.style.backgroundImage = '';
+          bannerEl.style.backgroundSize = '';
+          bannerEl.style.backgroundPosition = '';
+          
+          if (u.banner === 'image' && u.bannerImage) {
+            bannerEl.style.backgroundImage = `url('${u.bannerImage}')`;
+            bannerEl.style.backgroundSize = 'cover';
+            bannerEl.style.backgroundPosition = 'center';
+          } else {
+            const color1 = u.bannerColor1 || '#5865f2';
+            const color2 = u.bannerColor2 || '#7289da';
+            bannerEl.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+          }
+        }
+        
         // Avatar
         const av = u.profilePic ? `<img src="${u.profilePic}">` : user.charAt(0).toUpperCase();
         document.getElementById('profileModalAvatar').innerHTML = av + '<div class="discord-status-indicator online" id="profileStatusIndicator"></div>';
@@ -3961,7 +5248,7 @@
           if (userPresence && userPresence.activity && userPresence.activity.game) {
             const activity = userPresence.activity;
             
-            // Update game icon
+            // Update game/app/browser icon
             const gameIconEl = document.getElementById('activityGameIcon');
             if (activity.icon) {
               gameIconEl.src = activity.icon;
@@ -3970,9 +5257,16 @@
               gameIconEl.style.display = 'none';
             }
             
-            // Update game name and details
+            // Update name and state based on activity type
             document.getElementById('activityGameName').textContent = activity.game;
-            document.getElementById('activityGameState').textContent = 'Playing a game';
+            
+            const activityTypes = {
+              'game': 'Playing a game',
+              'app': 'Using an app',
+              'browser': 'Browsing the web'
+            };
+            
+            document.getElementById('activityGameState').textContent = activityTypes[activity.type] || 'Active';
             
             // Calculate time (if timestamp available)
             if (activity.startTime) {
@@ -3982,7 +5276,7 @@
                              `${Math.floor(elapsed/60)} hour${Math.floor(elapsed/60) !== 1 ? 's' : ''} ago`;
               document.getElementById('activityGameTime').textContent = `Started ${timeText}`;
             } else {
-              document.getElementById('activityGameTime').textContent = 'Playing now';
+              document.getElementById('activityGameTime').textContent = 'Active now';
             }
             
             // Show the section
@@ -4003,6 +5297,117 @@
         
         // Show the modal
         document.getElementById('userProfileModal').classList.add('show');
+      });
+    };
+    
+    window.switchProfileTab = function(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.discord-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Update tab panels
+      document.querySelectorAll('.discord-tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      
+      // If switching to mutual friends tab, load mutual friends
+      if (tab === 'mutual') {
+        loadMutualFriends();
+      }
+    };
+    
+    window.loadMutualFriends = function() {
+      const targetUser = currentProfileUser;
+      const mutualGrid = document.getElementById('mutualFriendsGrid');
+      const mutualTitle = document.getElementById('mutualFriendsTitle');
+      
+      if (!targetUser || targetUser === username) {
+        mutualGrid.innerHTML = `
+          <div class="discord-empty-state">
+            <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" opacity="0.3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <div style="color:#80848e;margin-top:8px;">You're viewing your own profile</div>
+          </div>
+        `;
+        mutualTitle.textContent = 'NO MUTUAL FRIENDS';
+        return;
+      }
+      
+      // Show loading state
+      mutualGrid.innerHTML = `
+        <div class="discord-empty-state">
+          <div style="color:#80848e;">Loading mutual friends...</div>
+        </div>
+      `;
+      
+      // Get current user's friends
+      get(ref(db, `friends/${username}`)).then(myFriendsSnap => {
+        const myFriends = myFriendsSnap.val() || {};
+        const myFriendsList = Object.keys(myFriends);
+        
+        // Get target user's friends
+        get(ref(db, `friends/${targetUser}`)).then(theirFriendsSnap => {
+          const theirFriends = theirFriendsSnap.val() || {};
+          const theirFriendsList = Object.keys(theirFriends);
+          
+          // Find mutual friends
+          const mutualFriends = myFriendsList.filter(friend => theirFriendsList.includes(friend));
+          
+          if (mutualFriends.length === 0) {
+            mutualGrid.innerHTML = `
+              <div class="discord-empty-state">
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24" opacity="0.3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <div style="color:#80848e;margin-top:8px;">No mutual friends</div>
+              </div>
+            `;
+            mutualTitle.textContent = 'NO MUTUAL FRIENDS';
+            return;
+          }
+          
+          // Update title
+          mutualTitle.textContent = `${mutualFriends.length} MUTUAL FRIEND${mutualFriends.length !== 1 ? 'S' : ''}`;
+          
+          // Load user data for each mutual friend
+          const friendPromises = mutualFriends.map(friendName => {
+            return get(ref(db, `users/${friendName}`)).then(snap => {
+              const friendData = snap.val();
+              return { username: friendName, ...friendData };
+            });
+          });
+          
+          Promise.all(friendPromises).then(friends => {
+            // Build mutual friends grid
+            mutualGrid.innerHTML = friends.map(friend => {
+              const avatarContent = friend.profilePic ? 
+                `<img src="${friend.profilePic}" alt="${friend.username}">` : 
+                friend.username.charAt(0).toUpperCase();
+              
+              return `
+                <div class="discord-mutual-card" onclick="openUserProfile('${friend.username}')">
+                  <div class="discord-mutual-avatar">${avatarContent}</div>
+                  <div class="discord-mutual-name">${friend.username}</div>
+                </div>
+              `;
+            }).join('');
+          }).catch(err => {
+            console.error('Error loading mutual friends data:', err);
+            mutualGrid.innerHTML = `
+              <div class="discord-empty-state">
+                <div style="color:#80848e;">Failed to load mutual friends</div>
+              </div>
+            `;
+          });
+        });
+      }).catch(err => {
+        console.error('Error loading mutual friends:', err);
+        mutualGrid.innerHTML = `
+          <div class="discord-empty-state">
+            <div style="color:#80848e;">Failed to load mutual friends</div>
+          </div>
+        `;
+        mutualTitle.textContent = 'ERROR';
       });
     };
 
@@ -4030,46 +5435,152 @@
     
     window.switchSettingsTab = function(tab) {
       currentSettingsTab = tab;
+      
+      // Update tab buttons - use safer method
       document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-      event.target.closest('.settings-tab').classList.add('active');
+      if (event && event.target) {
+        const tabBtn = event.target.closest('.settings-tab');
+        if (tabBtn) tabBtn.classList.add('active');
+      } else {
+        // Fallback: activate first tab if no event
+        const firstTab = document.querySelector('.settings-tab');
+        if (firstTab) firstTab.classList.add('active');
+      }
       
       const content = document.getElementById('settingsTabContent');
+      if (!content) return;
       
       if (tab === 'profile') {
-        content.innerHTML = `
-          <div class="settings-header">
-            <div class="settings-page-title">Your Profile</div>
-            <div class="settings-page-subtitle">Manage your personal information and bio</div>
-          </div>
+        // Get current user data
+        get(ref(db, `users/${username}`)).then(snap => {
+          const userData = snap.val() || {};
+          const currentBanner = userData.banner || 'gradient';
+          const currentBannerColor1 = userData.bannerColor1 || '#5865f2';
+          const currentBannerColor2 = userData.bannerColor2 || '#7289da';
+          const currentBannerImage = userData.bannerImage || '';
           
-          <div class="settings-section">
-            <div class="settings-section-title">Account Information</div>
-            <div class="settings-field">
-              <label class="settings-label">Username</label>
-              <input type="text" class="settings-input" id="usernameInput" value="${username}" placeholder="Enter username">
-              <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px">Changing your username will update it everywhere</div>
+          content.innerHTML = `
+            <div class="settings-header">
+              <div class="settings-page-title">Your Profile</div>
+              <div class="settings-page-subtitle">Customize how others see you</div>
             </div>
-            <div class="settings-field">
-              <label class="settings-label">Current Role</label>
-              <input type="text" class="settings-input" value="${userRole}" disabled style="opacity:0.6;cursor:not-allowed">
+            
+            <!-- Profile Preview -->
+            <div class="settings-section">
+              <div class="settings-section-title">PROFILE PREVIEW</div>
+              <div class="profile-preview-card">
+                <!-- Banner Preview -->
+                <div class="profile-preview-banner" id="previewBanner" style="${currentBanner === 'image' ? `background-image: url('${currentBannerImage}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${currentBannerColor1} 0%, ${currentBannerColor2} 100%);`}">
+                  <div class="profile-preview-banner-overlay"></div>
+                </div>
+                
+                <!-- Avatar Preview -->
+                <div class="profile-preview-avatar-section">
+                  <div class="profile-preview-avatar">
+                    ${profilePic ? `<img src="${profilePic}">` : username.charAt(0).toUpperCase()}
+                    <div class="profile-preview-status online"></div>
+                  </div>
+                </div>
+                
+                <!-- User Info -->
+                <div class="profile-preview-info">
+                  <div class="profile-preview-username" id="previewUsername">${username}</div>
+                  <div class="profile-preview-tag">@${username.toLowerCase()}</div>
+                  <div class="profile-preview-bio" id="previewBio">${userBio || "This user hasn't added a bio yet."}</div>
+                </div>
+              </div>
             </div>
-            <button class="settings-btn" onclick="saveUsername()">Save Username</button>
-          </div>
+            
+            <!-- Username Editor -->
+            <div class="settings-section">
+              <div class="settings-section-title">USERNAME</div>
+              <div class="settings-field">
+                <label class="settings-label">Display Name</label>
+                <div class="settings-input-group">
+                  <input type="text" class="settings-input" id="usernameInput" value="${username}" placeholder="Enter username" maxlength="32">
+                  <button class="settings-btn-inline" onclick="updateProfilePreview()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                  </button>
+                </div>
+                <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px">This is how your name appears to others</div>
+              </div>
+            </div>
+            
+            <!-- Bio Editor -->
+            <div class="settings-section">
+              <div class="settings-section-title">ABOUT ME</div>
+              <div class="settings-field">
+                <label class="settings-label">Bio</label>
+                <textarea class="settings-textarea" id="userBioInput" placeholder="Tell others about yourself..." maxlength="190" rows="4">${userBio}</textarea>
+                <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px;display:flex;justify-content:space-between">
+                  <span>Add a short description about yourself</span>
+                  <span id="bioCharCount">${userBio.length}/190</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Banner Editor -->
+            <div class="settings-section">
+              <div class="settings-section-title">PROFILE BANNER</div>
+              
+              <div class="banner-type-selector">
+                <button class="banner-type-btn ${currentBanner === 'gradient' ? 'active' : ''}" onclick="selectBannerType('gradient')" data-type="gradient">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/></svg>
+                  Color Gradient
+                </button>
+                <button class="banner-type-btn ${currentBanner === 'image' ? 'active' : ''}" onclick="selectBannerType('image')" data-type="image">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                  Image / GIF
+                </button>
+              </div>
+              
+              <!-- Gradient Options -->
+              <div id="gradientOptions" style="display:${currentBanner === 'gradient' ? 'block' : 'none'}">
+                <div class="settings-field">
+                  <label class="settings-label">Color Gradient</label>
+                  <div class="color-picker-grid">
+                    <div class="color-picker-item">
+                      <label class="color-picker-label">Color 1</label>
+                      <input type="color" class="color-picker-input" id="bannerColor1" value="${currentBannerColor1}" onchange="updateBannerPreview()">
+                    </div>
+                    <div class="color-picker-item">
+                      <label class="color-picker-label">Color 2</label>
+                      <input type="color" class="color-picker-input" id="bannerColor2" value="${currentBannerColor2}" onchange="updateBannerPreview()">
+                    </div>
+                  </div>
+                  <div class="gradient-preview-mini" id="gradientPreviewMini" style="background: linear-gradient(135deg, ${currentBannerColor1} 0%, ${currentBannerColor2} 100%)"></div>
+                </div>
+              </div>
+              
+              <!-- Image Options -->
+              <div id="imageOptions" style="display:${currentBanner === 'image' ? 'block' : 'none'}">
+                <div class="settings-field">
+                  <label class="settings-label">Banner Image URL</label>
+                  <input type="text" class="settings-input" id="bannerImageUrl" placeholder="https://example.com/image.jpg or .gif" value="${currentBannerImage}" onchange="updateBannerPreview()">
+                  <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px">Supports JPG, PNG, GIF, and WEBP</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Save Button -->
+            <div class="settings-section">
+              <button class="settings-btn" onclick="saveProfileSettings()">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20" style="margin-right:8px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                Save Profile Changes
+              </button>
+            </div>
+          `;
           
-          <div class="settings-section">
-            <div class="settings-section-title">Bio / About Me</div>
-            <div class="settings-field">
-              <label class="settings-label">Tell others about yourself (Max 120 characters)</label>
-              <textarea class="settings-textarea" id="userBioInput" placeholder="Enter your bio..." maxlength="120">${userBio}</textarea>
-              <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:6px;text-align:right" id="bioCharCount">${userBio.length}/120</div>
-            </div>
-            <button class="settings-btn" onclick="saveBio()">Save Bio</button>
-          </div>
-        `;
-        
-        // Add character counter
-        document.getElementById('userBioInput').addEventListener('input', (e) => {
-          document.getElementById('bioCharCount').textContent = e.target.value.length + '/120';
+          // Add character counter
+          document.getElementById('userBioInput').addEventListener('input', (e) => {
+            document.getElementById('bioCharCount').textContent = e.target.value.length + '/190';
+            document.getElementById('previewBio').textContent = e.target.value || "This user hasn't added a bio yet.";
+          });
+          
+          // Add username preview updater
+          document.getElementById('usernameInput').addEventListener('input', (e) => {
+            document.getElementById('previewUsername').textContent = e.target.value || username;
+          });
         });
         
       } else if (tab === 'privacy') {
@@ -4294,6 +5805,124 @@
       localStorage.setItem('nova_user_bio', bio);
       set(ref(db, `users/${username}/bio`), bio);
       showToast('Bio Saved', 'Your bio has been updated', 'success');
+    };
+    
+    window.selectBannerType = function(type) {
+      // Update button states
+      document.querySelectorAll('.banner-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.closest('.banner-type-btn').classList.add('active');
+      
+      // Show/hide options
+      document.getElementById('gradientOptions').style.display = type === 'gradient' ? 'block' : 'none';
+      document.getElementById('imageOptions').style.display = type === 'image' ? 'block' : 'none';
+      
+      // Update preview immediately
+      updateBannerPreview();
+    };
+    
+    window.updateBannerPreview = function() {
+      const previewBanner = document.getElementById('previewBanner');
+      const gradientPreview = document.getElementById('gradientPreviewMini');
+      const activeType = document.querySelector('.banner-type-btn.active');
+      
+      if (!previewBanner || !activeType) return;
+      
+      const type = activeType.dataset.type;
+      
+      // Clear all existing styles first
+      previewBanner.style.background = '';
+      previewBanner.style.backgroundImage = '';
+      previewBanner.style.backgroundSize = '';
+      previewBanner.style.backgroundPosition = '';
+      
+      if (type === 'gradient') {
+        const color1 = document.getElementById('bannerColor1').value;
+        const color2 = document.getElementById('bannerColor2').value;
+        const gradient = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+        
+        previewBanner.style.background = gradient;
+        if (gradientPreview) {
+          gradientPreview.style.background = gradient;
+        }
+      } else if (type === 'image') {
+        const imageUrl = document.getElementById('bannerImageUrl').value.trim();
+        if (imageUrl) {
+          previewBanner.style.backgroundImage = `url('${imageUrl}')`;
+          previewBanner.style.backgroundSize = 'cover';
+          previewBanner.style.backgroundPosition = 'center';
+        }
+      }
+    };
+    
+    window.updateProfilePreview = function() {
+      const newUsername = document.getElementById('usernameInput').value.trim();
+      document.getElementById('previewUsername').textContent = newUsername || username;
+    };
+    
+    window.saveProfileSettings = function() {
+      const newUsername = document.getElementById('usernameInput').value.trim();
+      const newBio = document.getElementById('userBioInput').value.trim();
+      const activeBtn = document.querySelector('.banner-type-btn.active');
+      
+      if (!activeBtn) {
+        showToast('Error', 'Please select a banner type', 'error');
+        return;
+      }
+      
+      const activeType = activeBtn.dataset.type;
+      
+      const updates = {
+        bio: newBio,
+        banner: activeType
+      };
+      
+      if (activeType === 'gradient') {
+        const color1Input = document.getElementById('bannerColor1');
+        const color2Input = document.getElementById('bannerColor2');
+        
+        if (color1Input && color2Input) {
+          updates.bannerColor1 = color1Input.value;
+          updates.bannerColor2 = color2Input.value;
+          updates.bannerImage = '';
+        }
+      } else if (activeType === 'image') {
+        const imageInput = document.getElementById('bannerImageUrl');
+        if (imageInput) {
+          updates.bannerImage = imageInput.value.trim();
+          updates.bannerColor1 = '';
+          updates.bannerColor2 = '';
+        }
+      }
+      
+      console.log('Saving profile with updates:', updates);
+      
+      // Save to Firebase
+      update(ref(db, `users/${username}`), updates)
+        .then(() => {
+          userBio = newBio;
+          localStorage.setItem('nova_user_bio', newBio);
+          
+          console.log('Profile saved successfully to Firebase');
+          showToast('Profile Saved', 'Your profile has been updated successfully!', 'success');
+          
+          // Update username if changed
+          if (newUsername && newUsername !== username) {
+            const oldInput = document.getElementById('usernameInput');
+            if (oldInput) oldInput.value = newUsername;
+            saveUsernameUpdate(newUsername);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to save profile:', err);
+          showToast('Error', 'Failed to save profile. Please try again.', 'error');
+        });
+    };
+    
+    window.saveUsernameUpdate = function(newUsername) {
+      // Note: Username changes are complex - would need to migrate all user data
+      showToast('Coming Soon', 'Username changes will be available in a future update', 'info');
     };
     
     window.verifyOwnerFromSettings = function() {

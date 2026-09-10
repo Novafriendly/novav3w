@@ -1248,6 +1248,126 @@ function saveApps() {
 newTab();
 renderBmBar();
 </script>
+
+<!-- Firebase Activity Tracking -->
+<script type="module">
+  // Firebase imports
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+  import { getDatabase, ref, set, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0_JODQVXMմ8AqGSuJմXW88WJ7Iত",
+    authDomain: "nova-24bd2.firebaseapp.com",
+    databaseURL: "https://nova-24bd2-default-rtdb.firebaseio.com",
+    projectId: "nova-24bd2",
+    storageBucket: "nova-24bd2.firebasestorage.app",
+    messagingSenderId: "592531893134",
+    appId: "1:592531893134:web:35ec4a2f8f2e957abb5a4f",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  // Get user info from localStorage
+  const username = localStorage.getItem('nova_username') || sessionStorage.getItem('username') || 'Guest';
+  const userId = localStorage.getItem('nova_userId') || sessionStorage.getItem('userId') || 'guest_' + Date.now();
+  
+  let activityStartTime = null;
+  let currentUrl = '';
+  let currentTitle = '';
+  let currentFavicon = '';
+  
+  // Function to extract domain for favicon
+  function getDomain(url) {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return '';
+    }
+  }
+  
+  // Function to get page title from iframe (if accessible)
+  function getPageInfo(iframe) {
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const title = iframeDoc.title || 'Browsing';
+      const url = iframe.src;
+      const domain = getDomain(url);
+      const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      
+      return { title, url, favicon, domain };
+    } catch {
+      // Cross-origin, extract from src
+      const url = iframe.src;
+      const domain = getDomain(url);
+      const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      return { title: domain || 'Browsing', url, favicon, domain };
+    }
+  }
+  
+  // Track browser activity
+  function updateBrowserActivity() {
+    if (!username || !userId) return;
+    
+    // Find active tab iframe
+    const activeTab = document.querySelector('.tab.active');
+    if (!activeTab) return;
+    
+    const tabId = activeTab.dataset.tid;
+    const iframe = document.getElementById(`if${tabId}`);
+    
+    if (!iframe || !iframe.src || iframe.src === 'about:blank') return;
+    
+    const pageInfo = getPageInfo(iframe);
+    
+    // Only update if URL changed or first time
+    if (currentUrl !== pageInfo.url) {
+      currentUrl = pageInfo.url;
+      currentTitle = pageInfo.title;
+      currentFavicon = pageInfo.favicon;
+      activityStartTime = Date.now();
+    }
+    
+    const activityRef = ref(db, `presence/${userId}/activity`);
+    set(activityRef, {
+      type: 'browser',
+      game: currentTitle,
+      icon: currentFavicon,
+      startTime: activityStartTime,
+      timestamp: Date.now(),
+      url: currentUrl
+    });
+    
+    // Clear activity on disconnect
+    onDisconnect(activityRef).remove();
+  }
+  
+  // Start tracking after delay
+  setTimeout(() => {
+    if (username && userId) {
+      updateBrowserActivity();
+      
+      // Update every 15 seconds (more frequent for browser to catch tab switches)
+      setInterval(updateBrowserActivity, 15000);
+      
+      // Also update on tab clicks
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.tab')) {
+          setTimeout(updateBrowserActivity, 500);
+        }
+      });
+    }
+  }, 1000);
+  
+  // Clear activity when leaving
+  window.addEventListener('beforeunload', () => {
+    if (username && userId) {
+      const activityRef = ref(db, `presence/${userId}/activity`);
+      set(activityRef, null);
+    }
+  });
+</script>
 </body>
 </html>
 
