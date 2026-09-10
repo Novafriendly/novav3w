@@ -755,7 +755,7 @@
         <button class="banned-btn banned-btn-primary" onclick="showUnbanRequestForm()">
           Request Unban
         </button>
-        <button class="banned-btn banned-btn-secondary" onclick="window.location.replace('home.html')">
+        <button class="banned-btn banned-btn-secondary" onclick="window.location.href='home.html'">
           Return to Home
         </button>
       </div>
@@ -824,7 +824,7 @@
         <div class="user-profile-name" id="profileName">Loading...</div>
         <div class="user-profile-role member" id="profileRole">Member</div>
       </div>
-      <button class="profile-icon-btn" onclick="event.stopPropagation(); window.location.replace('home.html')" title="Back to Home">
+      <button class="profile-icon-btn" onclick="event.stopPropagation(); window.location.href='home.html'" title="Back to Home">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       </button>
       <button class="profile-icon-btn owner-admin-btn" id="adminBtn" onclick="event.stopPropagation(); openAdminPanel()" title="Admin Panel" style="display:none">
@@ -956,7 +956,7 @@
   <div class="modal" id="userProfileModal">
     <div class="modal-content profile-modal">
       <div class="profile-banner">
-        <button class="profile-home-btn" onclick="window.location.replace('home.html')">
+        <button class="profile-home-btn" onclick="window.location.href='home.html'">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
           Home
         </button>
@@ -1236,12 +1236,12 @@
     const profilePic = localStorage.getItem('nova_profile_pic') || '';
     let userRole = localStorage.getItem('nova_chat_role') || 'Member';
     
-    // New Home Navigation - Simple and Clean
+    // New Home Navigation - Simple and Clean (file:// protocol safe)
     setTimeout(() => {
       const homeNavBtn = document.querySelector('.home-nav-btn');
       if (homeNavBtn) {
         homeNavBtn.onclick = () => {
-          window.location.replace('home.html');
+          window.location.href = 'home.html';
         };
       }
     }, 50);
