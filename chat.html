@@ -461,55 +461,327 @@
     .btn-accept { background: #23a559; color: white; }
     .btn-accept:hover { background: #1e8e4e; }
     
-    .profile-modal { background: rgba(20,20,25,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 0; max-width: 560px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-    .profile-banner { height: 140px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0; position: relative; }
-    .profile-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; font-size: 20px; font-weight: 300; }
-    .profile-close:hover { background: rgba(237,66,69,0.8); border-color: #ed4245; transform: rotate(90deg) scale(1.1); }
-    .profile-home-btn { position: absolute; top: 16px; left: 16px; padding: 10px 18px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 10; transition: all 0.2s; text-decoration: none; font-size: 14px; }
-    .profile-home-btn:hover { background: rgba(88,101,242,0.8); border-color: #5865f2; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(88,101,242,0.4); }
-    .profile-info { padding: 20px 32px 28px; }
-    .profile-avatar-large { width: 92px; height: 92px; border-radius: 50%; background: linear-gradient(135deg, #5865f2, #7289da); margin-top: -46px; border: 6px solid rgba(20,20,25,0.95); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-    .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-status-indicator { position: absolute; bottom: 4px; right: 4px; width: 24px; height: 24px; border: 5px solid rgba(20,20,25,0.95); border-radius: 50%; }
-    .profile-status-indicator.online { background: #23a559; box-shadow: 0 0 12px rgba(35,165,89,0.6); }
-    .profile-status-indicator.offline { background: #80848e; }
-    .profile-username { color: white; font-size: 24px; font-weight: 800; margin-top: 16px; letter-spacing: 0.3px; }
-    .profile-role-badge-large { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-    .profile-role-badge-large.owner { background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #dc2626); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-role-badge-large.admin { background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6, #a855f7); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-role-badge-large.moderator { background: linear-gradient(90deg, #3b82f6, #06b6d4, #0ea5e9, #3b82f6); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-role-badge-large.vip { background: linear-gradient(90deg, #10b981, #34d399, #22c55e, #10b981); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-role-badge-large.member { background: linear-gradient(90deg, #6b7280, #9ca3af, #6b7280); background-size: 200% 100%; animation: gradientShift 3s ease infinite; color: white; }
-    .profile-bio { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: #dcddde; font-size: 14px; line-height: 1.6; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
-    .profile-streak { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); border-radius: 12px; box-shadow: 0 4px 16px rgba(255,107,53,0.4); }
-    .profile-streak-icon { font-size: 28px; animation: flameFlicker 1s ease-in-out infinite; }
-    @keyframes flameFlicker { 0%, 100% { transform: scale(1) rotate(-5deg); } 50% { transform: scale(1.15) rotate(5deg); } }
-    .profile-streak-text { color: white; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .profile-streak-count { font-size: 22px; font-weight: 800; color: white; }
-    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
-    .profile-stat { text-align: center; padding: 16px; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.2s; cursor: pointer; }
-    .profile-stat:hover { background: rgba(88,101,242,0.2); border-color: rgba(88,101,242,0.4); transform: translateY(-2px); }
-    .profile-stat-value { color: white; font-size: 20px; font-weight: 800; }
-    .profile-stat-label { color: #b5bac1; font-size: 11px; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-    .profile-actions { display: flex; gap: 10px; margin-top: 24px; }
-    .profile-actions .btn { flex: 1; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; transition: all 0.2s; }
-    .profile-actions .btn-primary { background: linear-gradient(135deg, #5865f2, #7289da); border: none; box-shadow: 0 4px 12px rgba(88,101,242,0.4); }
-    .profile-actions .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(88,101,242,0.6); }
-    .profile-actions .btn-secondary { background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-    .profile-actions .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    /* ═══════════════════════════════════════════════════
+       DISCORD-STYLE PROFILE MODAL
+    ═══════════════════════════════════════════════════ */
+    .discord-profile-modal {
+      background: #232428;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+      overflow: hidden;
+    }
     
-    .profile-friends-section { margin-top: 20px; }
-    .profile-friends-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
-    .profile-friends-title { color: white; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
-    .profile-friends-title svg { width: 18px; height: 18px; }
-    .profile-friends-count { color: #b5bac1; font-size: 13px; }
-    .profile-friends-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 200px; overflow-y: auto; padding: 4px; }
-    .profile-friend-card { background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 12px 8px; text-align: center; transition: all 0.2s; cursor: pointer; }
-    .profile-friend-card:hover { background: rgba(88,101,242,0.2); border-color: rgba(88,101,242,0.4); transform: translateY(-2px); }
-    .profile-friend-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #5865f2, #7289da); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; overflow: hidden; }
-    .profile-friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-friend-name { color: #dcddde; font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .profile-mutual-badge { background: rgba(88,101,242,0.3); color: #7289da; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+    .discord-profile-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      color: #dbdee1;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: all 0.2s;
+    }
+    
+    .discord-profile-close:hover {
+      background: rgba(0,0,0,0.8);
+      transform: rotate(90deg);
+    }
+    
+    .discord-profile-banner {
+      height: 120px;
+      position: relative;
+      background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+    }
+    
+    .discord-banner-gradient {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(88,101,242,0.8), rgba(114,137,218,0.8));
+    }
+    
+    .discord-profile-content {
+      padding: 0 16px 16px;
+      background: #232428;
+    }
+    
+    .discord-avatar-section {
+      margin-top: -48px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    
+    .discord-avatar-large {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 6px solid #232428;
+      background: linear-gradient(135deg, #5865f2, #7289da);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .discord-avatar-large img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .discord-status-indicator {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 24px;
+      height: 24px;
+      border: 5px solid #232428;
+      border-radius: 50%;
+    }
+    
+    .discord-status-indicator.online {
+      background: #23a55a;
+    }
+    
+    .discord-status-indicator.offline {
+      background: #80848e;
+    }
+    
+    .discord-profile-badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .discord-username-section {
+      margin-bottom: 16px;
+    }
+    
+    .discord-display-name {
+      color: #f2f3f5;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    
+    .discord-user-tag {
+      color: #b5bac1;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    
+    .discord-action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .discord-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.17s;
+    }
+    
+    .discord-btn-primary {
+      background: #5865f2;
+      color: white;
+    }
+    
+    .discord-btn-primary:hover {
+      background: #4752c4;
+    }
+    
+    .discord-btn-secondary {
+      background: #4e5058;
+      color: #fff;
+    }
+    
+    .discord-btn-secondary:hover {
+      background: #5c5e66;
+    }
+    
+    .discord-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 12px 0;
+    }
+    
+    .discord-section {
+      margin-bottom: 16px;
+    }
+    
+    .discord-section-title {
+      color: #b5bac1;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .discord-bio {
+      color: #dbdee1;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #2b2d31;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .discord-bio-empty {
+      color: #80848e;
+      font-style: italic;
+    }
+    
+    .discord-member-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .discord-member-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #dbdee1;
+      font-size: 14px;
+    }
+    
+    .discord-member-item svg {
+      color: #b5bac1;
+    }
+    
+    .discord-roles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .discord-role-badge {
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .discord-role-badge.owner {
+      background: rgba(237,66,69,0.15);
+      color: #ed4245;
+      border: 1px solid rgba(237,66,69,0.3);
+    }
+    
+    .discord-role-badge.admin {
+      background: rgba(168,85,247,0.15);
+      color: #a855f7;
+      border: 1px solid rgba(168,85,247,0.3);
+    }
+    
+    .discord-role-badge.moderator {
+      background: rgba(59,130,246,0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59,130,246,0.3);
+    }
+    
+    .discord-role-badge.vip {
+      background: rgba(16,185,129,0.15);
+      color: #10b981;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    
+    .discord-role-badge.member {
+      background: rgba(181,186,193,0.15);
+      color: #b5bac1;
+      border: 1px solid rgba(181,186,193,0.3);
+    }
+    
+    /* Now Playing Section */
+    .discord-activity-card {
+      background: #2b2d31;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .discord-activity-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #1e1f22;
+    }
+    
+    .discord-activity-details {
+      flex: 1;
+    }
+    
+    .discord-activity-name {
+      color: #f2f3f5;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .discord-activity-state {
+      color: #b5bac1;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    
+    .discord-activity-time {
+      color: #80848e;
+      font-size: 12px;
+    }
+    
+    .discord-note-input {
+      width: 100%;
+      background: #2b2d31;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 10px;
+      color: #dbdee1;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+      transition: border-color 0.2s;
+    }
+    
+    .discord-note-input:focus {
+      outline: none;
+      border-color: #5865f2;
+    }
+    
+    .discord-note-input::placeholder {
+      color: #80848e;
+    }
     
     .admin-section { background: linear-gradient(135deg, rgba(88,101,242,0.1) 0%, rgba(168,85,247,0.1) 100%); padding: 20px; border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(88,101,242,0.2); }
     .admin-section-title { color: #ffd700; font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
@@ -910,43 +1182,90 @@
   </div>
 
   <div class="modal" id="userProfileModal">
-    <div class="modal-content profile-modal">
-      <div class="profile-banner">
-        <button class="profile-home-btn" onclick="window.location.href='home.html'">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          Home
-        </button>
-        <button class="profile-close" onclick="closeModal('userProfileModal')">×</button>
+    <div class="modal-content discord-profile-modal">
+      <!-- Close Button -->
+      <button class="discord-profile-close" onclick="closeModal('userProfileModal')">×</button>
+      
+      <!-- Banner Section -->
+      <div class="discord-profile-banner">
+        <div class="discord-banner-gradient"></div>
       </div>
-      <div class="profile-info">
-        <div class="profile-avatar-large" id="profileModalAvatar">
-          <div class="profile-status-indicator online" id="profileStatusIndicator"></div>
+      
+      <!-- Main Content -->
+      <div class="discord-profile-content">
+        <!-- Avatar Section -->
+        <div class="discord-avatar-section">
+          <div class="discord-avatar-large" id="profileModalAvatar">
+            <div class="discord-status-indicator online" id="profileStatusIndicator"></div>
+          </div>
+          <div class="discord-profile-badges" id="profileBadges"></div>
         </div>
-        <div class="profile-username" id="profileModalUsername"></div>
-        <span class="profile-role-badge-large owner" id="profileModalRole">MEMBER</span>
-        <div id="profileBioContainer"></div>
-        <div class="profile-stats">
-          <div class="profile-stat">
-            <div class="profile-stat-value" id="profileFriends">0</div>
-            <div class="profile-stat-label">Friends</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-value" id="profileMutual">0</div>
-            <div class="profile-stat-label">Mutual</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-value" id="profileJoined">Aug 2026</div>
-            <div class="profile-stat-label">Joined</div>
-          </div>
+        
+        <!-- Username & Tag -->
+        <div class="discord-username-section">
+          <div class="discord-display-name" id="profileModalUsername">Loading...</div>
+          <div class="discord-user-tag" id="profileModalTag">@user</div>
         </div>
-        <div id="profileStreakContainer"></div>
-        <div id="profileFriendsContainer"></div>
-        <div class="profile-actions">
-          <button class="btn btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/></svg>
+        
+        <!-- Action Buttons -->
+        <div class="discord-action-buttons">
+          <button class="discord-btn discord-btn-primary" id="addFriendBtn" onclick="addFriend(document.getElementById('profileModalUsername').textContent)">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 11h3v3h2v-3h3V9h-3V6h-2v3h-3v2zm5-9H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6 6H2v-1c0-1.66 2.69-3 6-3s6 1.34 6 3v1z"/></svg>
             Add Friend
           </button>
-          <button class="btn btn-secondary" onclick="closeModal('userProfileModal')">Close</button>
+          <button class="discord-btn discord-btn-secondary" onclick="switchToDM(document.getElementById('profileModalUsername').textContent)">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            Message
+          </button>
+        </div>
+        
+        <!-- Divider -->
+        <div class="discord-divider"></div>
+        
+        <!-- About Section -->
+        <div class="discord-section">
+          <div class="discord-section-title">ABOUT ME</div>
+          <div class="discord-bio" id="profileBioContainer">
+            <div class="discord-bio-empty">This user hasn't added a bio yet.</div>
+          </div>
+        </div>
+        
+        <!-- Member Since -->
+        <div class="discord-section">
+          <div class="discord-section-title">MEMBER SINCE</div>
+          <div class="discord-member-info">
+            <div class="discord-member-item">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/></svg>
+              <span id="profileJoined">August 2026</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Roles Section -->
+        <div class="discord-section" id="rolesSection">
+          <div class="discord-section-title">ROLES</div>
+          <div class="discord-roles">
+            <span class="discord-role-badge owner" id="profileModalRole">MEMBER</span>
+          </div>
+        </div>
+        
+        <!-- Now Playing Section -->
+        <div class="discord-section" id="nowPlayingSection" style="display:none;">
+          <div class="discord-section-title">NOW PLAYING</div>
+          <div class="discord-activity-card">
+            <img class="discord-activity-icon" id="activityGameIcon" src="" alt="">
+            <div class="discord-activity-details">
+              <div class="discord-activity-name" id="activityGameName">Loading...</div>
+              <div class="discord-activity-state" id="activityGameState">Playing a game</div>
+              <div class="discord-activity-time" id="activityGameTime">Started 5 minutes ago</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Note Section -->
+        <div class="discord-section">
+          <div class="discord-section-title">NOTE</div>
+          <textarea class="discord-note-input" placeholder="Click to add a note" maxlength="256"></textarea>
         </div>
       </div>
     </div>
@@ -3583,78 +3902,90 @@
         const u = snap.val();
         if (!u) return;
         
+        // Avatar
         const av = u.profilePic ? `<img src="${u.profilePic}">` : user.charAt(0).toUpperCase();
-        document.getElementById('profileModalAvatar').innerHTML = av + '<div class="profile-status-indicator online" id="profileStatusIndicator"></div>';
-        document.getElementById('profileModalUsername').textContent = user;
+        document.getElementById('profileModalAvatar').innerHTML = av + '<div class="discord-status-indicator online" id="profileStatusIndicator"></div>';
         
+        // Username & Tag
+        document.getElementById('profileModalUsername').textContent = user;
+        document.getElementById('profileModalTag').textContent = `@${user.toLowerCase()}`;
+        
+        // Role Badge
         const roleClass = (u.role || 'member').toLowerCase();
-        const roleIcon = u.role === 'Owner' ? '<svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>' : 
-                        u.role === 'Admin' ? '<svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>' : 
-                        u.role === 'Moderator' ? '<svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:6px"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>' :
-                        u.role === 'VIP' ? '<svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="display:inline-block;vertical-align:middle;margin-right:6px"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>' : '';
-        document.getElementById('profileModalRole').innerHTML = roleIcon + (u.role || 'MEMBER');
-        document.getElementById('profileModalRole').className = `profile-role-badge-large ${roleClass}`;
-        document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+        document.getElementById('profileModalRole').textContent = (u.role || 'MEMBER').toUpperCase();
+        document.getElementById('profileModalRole').className = `discord-role-badge ${roleClass}`;
+        
+        // Member Since
+        document.getElementById('profileJoined').textContent = new Date(u.lastSeen || Date.now()).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
+        
+        // Bio
+        const bioContainer = document.getElementById('profileBioContainer').querySelector('.discord-bio');
+        if (u.bio) {
+          bioContainer.innerHTML = u.bio;
+          bioContainer.classList.remove('discord-bio-empty');
+        } else {
+          bioContainer.innerHTML = "This user hasn't added a bio yet.";
+          bioContainer.classList.add('discord-bio-empty');
+        }
         
         // Check online status and activity
         get(ref(db, 'presence')).then(pSnap => {
           const presence = pSnap.val() || {};
           const userPresence = Object.values(presence).find(p => p.username === user);
           const isOnline = userPresence && userPresence.online;
+          
+          // Update status indicator
           const statusEl = document.getElementById('profileStatusIndicator');
           if (statusEl) {
-            statusEl.className = `profile-status-indicator ${isOnline ? 'online' : 'offline'}`;
+            statusEl.className = `discord-status-indicator ${isOnline ? 'online' : 'offline'}`;
           }
           
-          // Show "Now Playing" if user has activity
-          const bioContainer = document.getElementById('profileBioContainer');
-          let bioHTML = '';
-          
+          // Show "Now Playing" section if user has activity
+          const nowPlayingSection = document.getElementById('nowPlayingSection');
           if (userPresence && userPresence.activity && userPresence.activity.game) {
             const activity = userPresence.activity;
-            const gameIcon = activity.icon ? `<img src="${activity.icon}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;margin-right:12px;">` : 
-              '<div style="width:40px;height:40px;border-radius:8px;background:#5865f2;display:flex;align-items:center;justify-content:center;margin-right:12px;"><svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg></div>';
-            bioHTML += `
-              <div style="background:rgba(88,101,242,0.1);border:1px solid rgba(88,101,242,0.3);border-radius:12px;padding:16px;margin:16px 0;">
-                <div style="color:#949ba4;font-size:12px;font-weight:700;margin-bottom:8px;">NOW PLAYING</div>
-                <div style="display:flex;align-items:center;">
-                  ${gameIcon}
-                  <div>
-                    <div style="color:#dcddde;font-weight:700;font-size:15px;">${activity.game}</div>
-                    <div style="color:#b9bbbe;font-size:13px;margin-top:2px;">Playing a game</div>
-                  </div>
-                </div>
-              </div>
-            `;
+            
+            // Update game icon
+            const gameIconEl = document.getElementById('activityGameIcon');
+            if (activity.icon) {
+              gameIconEl.src = activity.icon;
+              gameIconEl.style.display = 'block';
+            } else {
+              gameIconEl.style.display = 'none';
+            }
+            
+            // Update game name and details
+            document.getElementById('activityGameName').textContent = activity.game;
+            document.getElementById('activityGameState').textContent = 'Playing a game';
+            
+            // Calculate time (if timestamp available)
+            if (activity.startTime) {
+              const elapsed = Math.floor((Date.now() - activity.startTime) / 60000);
+              const timeText = elapsed < 1 ? 'Just started' : 
+                             elapsed < 60 ? `${elapsed} minute${elapsed !== 1 ? 's' : ''} ago` :
+                             `${Math.floor(elapsed/60)} hour${Math.floor(elapsed/60) !== 1 ? 's' : ''} ago`;
+              document.getElementById('activityGameTime').textContent = `Started ${timeText}`;
+            } else {
+              document.getElementById('activityGameTime').textContent = 'Playing now';
+            }
+            
+            // Show the section
+            nowPlayingSection.style.display = 'block';
+          } else {
+            // Hide the section if not playing
+            nowPlayingSection.style.display = 'none';
           }
-          
-          // Show bio
-          if (u.bio) {
-            bioHTML += `
-              <div class="profile-bio-section">
-                <div class="profile-bio-title">
-                  <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                  About Me
-                </div>
-                <div class="profile-bio-text">${u.bio}</div>
-              </div>
-            `;
-          }
-          
-          bioContainer.innerHTML = bioHTML;
         });
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
           const theirFriends = fSnap.val() || {};
           const theirFriendsList = Object.keys(theirFriends);
-          document.getElementById('profileFriends').textContent = theirFriendsList.length;
           
           // Calculate mutual friends
           get(ref(db, `friends/${username}`)).then(myFSnap => {
             const myFriends = myFSnap.val() || {};
             const myFriendsList = Object.keys(myFriends);
             const mutualFriends = theirFriendsList.filter(f => myFriendsList.includes(f));
-            document.getElementById('profileMutual').textContent = mutualFriends.length;
             
             // Display friends list
             const friendsContainer = document.getElementById('profileFriendsContainer');
