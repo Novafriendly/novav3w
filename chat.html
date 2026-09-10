@@ -2458,10 +2458,18 @@
     onDisconnect(presenceRef).set({username, profilePic, role: userRole, timestamp: Date.now(), online: false});
     set(ref(db, `users/${username}`), {username, profilePic, role: userRole, lastSeen: Date.now()});
     
+    // Update presence more frequently (every 15 seconds instead of 30)
     setInterval(() => {
       set(ref(db, `users/${username}/lastSeen`), Date.now());
-      set(ref(db, `presence/${userId}/timestamp`), Date.now());
-    }, 30000);
+      set(ref(db, `presence/${userId}`), {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
+    }, 15000);
+    
+    // Also update immediately when tab becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        set(ref(db, `presence/${userId}`), {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
+      }
+    });
 
     loadChannels();
     loadMessages('general');
@@ -2836,8 +2844,8 @@
       const query = document.getElementById('dmSearchInput').value.toLowerCase().trim();
       const results = document.getElementById('dmSearchResults');
       
-      // Get online status
-      get(ref(db, 'presence')).then(presenceSnap => {
+      // Get online status with real-time updates
+      onValue(ref(db, 'presence'), presenceSnap => {
         const presence = presenceSnap.val() || {};
         const onlineUsers = Object.values(presence).filter(p => p.online && p.username && p.username !== username);
         
@@ -2861,7 +2869,7 @@
             }).join('');
           }
         });
-      });
+      }, { onlyOnce: false }); // Listen for changes
     };
     
     // Load DM Panel with friends, requests, and online users
@@ -4565,6 +4573,11 @@
       get(ref(db, `groups/${groupId}`)).then(snap => {
         const groupData = snap.val();
         
+        if (!groupData) {
+          showToast('Error', 'Group not found', 'error');
+          return;
+        }
+        
         if (groupData.creator === username) {
           showToast('Cannot Leave', 'Group owners cannot leave. Delete the group instead', 'error');
           return;
@@ -4581,14 +4594,20 @@
               const memberCount = members ? Object.keys(members).length : 0;
               
               if (memberCount === 1) {
-                // Only owner left, notify owner and consider auto-delete
-                // Owner will see it auto-delete when they next interact
+                // Only owner left, notify them
+                console.log('Only owner left in group');
               }
             });
             
+            // Force refresh the view immediately
+            if (currentView === 'dms') {
+              // Reload DM view to remove the group from list
+              loadDMChannels();
+              loadDMPanel();
+            }
+            
             // Switch to general channel
             switchChannel('general');
-            loadDMChannels(); // Refresh
           })
           .catch(err => {
             console.error('Error leaving group:', err);
@@ -5955,6 +5974,12 @@
           updates.bannerColor1 = color1Input.value;
           updates.bannerColor2 = color2Input.value;
           updates.bannerImage = null; // Clear image URL
+          
+          // Save to localStorage
+          localStorage.setItem('nova_banner_type', 'gradient');
+          localStorage.setItem('nova_banner_color1', color1Input.value);
+          localStorage.setItem('nova_banner_color2', color2Input.value);
+          localStorage.removeItem('nova_banner_image');
         }
       } else if (activeType === 'image') {
         const imageInput = document.getElementById('bannerImageUrl');
@@ -5962,6 +5987,12 @@
           updates.bannerImage = imageInput.value.trim();
           updates.bannerColor1 = null; // Clear gradient colors
           updates.bannerColor2 = null;
+          
+          // Save to localStorage
+          localStorage.setItem('nova_banner_type', 'image');
+          localStorage.setItem('nova_banner_image', imageInput.value.trim());
+          localStorage.removeItem('nova_banner_color1');
+          localStorage.removeItem('nova_banner_color2');
         } else {
           showToast('Error', 'Please enter an image URL', 'error');
           return;
@@ -5976,7 +6007,7 @@
           userBio = newBio;
           localStorage.setItem('nova_user_bio', newBio);
           
-          console.log('Profile saved successfully to Firebase');
+          console.log('Profile saved successfully to Firebase and localStorage');
           showToast('Profile Saved', 'Your profile has been updated successfully!', 'success');
           
           // Reload the profile editor to show saved values
