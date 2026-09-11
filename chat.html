@@ -2350,7 +2350,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update, query, orderByChild, limitToLast, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
     const app = initializeApp({
       apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
@@ -2434,6 +2434,39 @@
     let userBio = localStorage.getItem('nova_user_bio') || '';
     let dmChannels = {};
     let replyingTo = null;
+    let stopMessages = null, stopTyping = null;
+    let chatGeneration = 0, renderFrame = null;
+    let sendingMessage = false, nextSendAt = 0, lastSent = null;
+    let lastTypingAt = 0;
+    const avatarCache = new Map();
+    let currentUserRoles = [userRole];
+    onValue(ref(db, `users/${username}`), snap => {
+      const user = snap.val() || {};
+      currentUserRoles = Array.isArray(user.roles) ? user.roles : [user.role || userRole];
+    });
+
+    function resetChat() {
+      chatGeneration++;
+      if (stopMessages) stopMessages();
+      if (stopTyping) stopTyping();
+      stopMessages = stopTyping = null;
+      if (renderFrame !== null) cancelAnimationFrame(renderFrame);
+      renderFrame = null;
+      clearTimeout(typingTimeout);
+      remove(ref(db, `typing/${currentChannel}/${username}`)).catch(console.error);
+      lastTypingAt = 0;
+      cancelReply();
+      removeImagePreview();
+      document.getElementById('messageInput').value = '';
+      document.getElementById('typingIndicator').textContent = '';
+    }
+
+    function getAvatarUser(name) {
+      if (!avatarCache.has(name)) {
+        avatarCache.set(name, get(ref(db, `users/${name}`)).catch(() => ({val: () => null})));
+      }
+      return avatarCache.get(name);
+    }
 
     const OWNER_PASSCODE = '0090';
     const emojis = ['😀','😂','🤣','😊','😍','🥰','😘','😎','🤔','😮','😢','😭','😡','🔥','✨','💯','❤️','💙','💚','💛','👍','👎','👏','🙌','🎉','🎊','💪','✅','❌','⭐','😃','😄','😁','😆','😅','🤩','😇','🙂','🙃','😉','😌','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😤','😠','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔','🍇','🍈','🍉','🍊','🍋','🍌','🍍','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐','🥝','🍅','🥥','🥑','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🍄','🥜','🌰','🍞','🥐','🥖','🫓','🥨','🥯','🥞','🧇','🧀','🍖','🍗','🥩','🥓','🍔','🍟','🍕','🌭','🥪','🌮','🌯','🫔','🥙','🧆','🥚','🍳','🥘','🍲','🫕','🥣','🥗','🍿','🧈','🧂','🥫'];
@@ -2786,6 +2819,7 @@
     }
 
     window.switchChannel = function(ch) {
+      resetChat();
       currentChannel = ch;
       loadChannels();
       
@@ -2862,7 +2896,7 @@
         document.getElementById('serverIcon').classList.add('active');
         document.getElementById('membersSidebar').style.display = 'block';
         document.getElementById('dmSearchPanel').classList.remove('show');
-        loadChannels();
+        switchChannel('general');
         loadMembers();
       }
     };
@@ -3011,13 +3045,24 @@
     }
 
     function loadMessages(ch) {
+      if (stopMessages) stopMessages();
+      if (stopTyping) stopTyping();
+      const generation = ++chatGeneration;
+      document.getElementById('messagesArea').innerHTML = '';
       // Get blocked users list first
       get(ref(db, `blocked/${username}`)).then(blockSnap => {
+        if (generation !== chatGeneration || ch !== currentChannel) return;
         const blocked = blockSnap.val() || {};
         
-        onValue(ref(db, `channels/${ch}/messages`), snap => {
+        stopMessages = onValue(query(ref(db, `channels/${ch}/messages`), limitToLast(150)), snap => {
+          if (generation !== chatGeneration || ch !== currentChannel) return;
+          if (renderFrame !== null) cancelAnimationFrame(renderFrame);
+          renderFrame = requestAnimationFrame(() => {
+          renderFrame = null;
+          if (generation !== chatGeneration || ch !== currentChannel) return;
           const msgs = snap.val() || {};
           const area = document.getElementById('messagesArea');
+          const followLatest = !area.children.length || area.scrollHeight - area.scrollTop - area.clientHeight < 100;
           area.innerHTML = Object.entries(msgs).map(([id, m]) => {
             // Handle group welcome messages
             if (m.isSystem && m.groupWelcome && m.members) {
@@ -3063,7 +3108,8 @@
               av = `<img src="${m.profilePic}">`;
             } else {
               // Fetch from users database
-              get(ref(db, `users/${m.username}`)).then(userSnap => {
+              getAvatarUser(m.username).then(userSnap => {
+                if (generation !== chatGeneration || ch !== currentChannel) return;
                 const userData = userSnap.val();
                 if (userData && userData.profilePic) {
                   // Update avatar dynamically
@@ -3172,18 +3218,17 @@
             
             return `${replyHtml}<div class="message" id="msg-${id}"><div class="message-avatar">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}">${m.username}</span>${roleBadges}<span class="message-time">${time}${editedLabel}</span></div><div class="message-text" id="text-${id}">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button>${canDel?`<button class="action-btn" onclick="startEdit('${id}', '${ch}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>`:''}<button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
           }).join('');
-          area.scrollTop = area.scrollHeight;
+          if (followLatest) area.scrollTop = area.scrollHeight;
           
-          // Update streak if DM channel or Group
-          if (ch.startsWith('dm_')) {
-            updateStreak(ch);
-          } else if (ch.startsWith('group_')) {
-            updateStreak(ch);
-          }
+          });
         });
+      }).catch(error => {
+        if (generation === chatGeneration) showToast('Chat unavailable', 'Could not load messages. Try opening this chat again.', 'error');
+        console.error(error);
       });
       
-      onValue(ref(db, `typing/${ch}`), snap => {
+      stopTyping = onValue(ref(db, `typing/${ch}`), snap => {
+        if (generation !== chatGeneration || ch !== currentChannel) return;
         const typing = snap.val() || {};
         const typers = Object.entries(typing).filter(([u, t]) => u !== username && Date.now() - t < 5000).map(([u]) => u);
         document.getElementById('typingIndicator').textContent = typers.length > 0 ? `${typers[0]} is typing...` : '';
@@ -4133,6 +4178,7 @@
     };
     
     function createDMChannel(dmId, otherUser) {
+      resetChat();
       dmChannels[dmId] = otherUser;
       currentChannel = `dm_${dmId}`;
       switchView('dms');
@@ -4238,6 +4284,7 @@
     }
     
     window.switchToDM = function(dmId, otherUser) {
+      resetChat();
       currentChannel = `dm_${dmId}`;
       
       // Clear unread messages for this DM
@@ -4368,6 +4415,7 @@
     };
     
     window.switchToGroup = function(groupId, groupName) {
+      resetChat();
       currentChannel = groupId;
       
       // Clear unread for this group
@@ -4375,6 +4423,7 @@
       
       // Check if user is owner to show appropriate button
       get(ref(db, `groups/${groupId}`)).then(snap => {
+        if (currentChannel !== groupId) return;
         const groupData = snap.val();
         const isOwner = groupData && groupData.creator === username;
         
@@ -4672,9 +4721,13 @@
     };
 
     window.handleTyping = function() {
-      set(ref(db, `typing/${currentChannel}/${username}`), Date.now());
-      if (typingTimeout) clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => remove(ref(db, `typing/${currentChannel}/${username}`)), 3000);
+      const channel = currentChannel;
+      if (Date.now() - lastTypingAt >= 2000) {
+        lastTypingAt = Date.now();
+        set(ref(db, `typing/${channel}/${username}`), lastTypingAt).catch(console.error);
+      }
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => remove(ref(db, `typing/${channel}/${username}`)).catch(console.error), 3000);
     };
 
     let pendingImageFile = null;
@@ -4683,8 +4736,10 @@
       const file = e.target.files[0];
       if (!file) return;
       
+      const uploadGeneration = chatGeneration;
       const reader = new FileReader();
       reader.onload = function(ev) {
+        if (uploadGeneration !== chatGeneration) return;
         // Store the file data
         pendingImageFile = {
           data: ev.target.result,
@@ -4697,17 +4752,7 @@
           document.getElementById('imagePreview').src = ev.target.result;
           document.getElementById('imagePreviewContainer').style.display = 'block';
         } else {
-          // For videos, send immediately (can't preview easily)
-          const data = {
-            username, 
-            profilePic, 
-            text: '📹 Video', 
-            timestamp: Date.now(), 
-            role: userRole,
-            videoUrl: ev.target.result
-          };
-          push(ref(db, `channels/${currentChannel}/messages`), data);
-          pendingImageFile = null;
+          sendMessage();
         }
       };
       reader.readAsDataURL(file);
@@ -4912,76 +4957,70 @@
       }
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
-      
-      // Allow sending if there's text or a pending image
-      if ((!text && !pendingImageFile) || (currentChannel === 'announcements' && userRole !== 'Owner')) return;
-      
-      // Get current user's roles
-      get(ref(db, `users/${username}`)).then(snap => {
-        const userData = snap.val() || {};
-        const userRoles = Array.isArray(userData.roles) ? userData.roles : (userData.role ? [userData.role] : ['Member']);
-        
-        const msgData = {
-          username, 
-          profilePic, 
-          text: text || '', 
-          timestamp: Date.now(), 
-          role: userRole, 
-          roles: userRoles
-        };
-        
-        if (replyingTo) {
-          msgData.replyTo = replyingTo;
-        }
-        
-        // Add image if one is pending
-        if (pendingImageFile) {
-          msgData.imageUrl = pendingImageFile.data;
-          // Don't add text prefix for images
-          removeImagePreview();
-        }
-        
-        push(ref(db, `channels/${currentChannel}/messages`), msgData);
-        
-        // Auto-respond in ai-assistance channel without needing @mention
-        if (currentChannel === 'ai-assistance') {
-          setTimeout(() => handleAIResponse(text, currentChannel), 1000);
-        }
-        // Check if message mentions Nova AI bot in other channels
-        else if (text.includes('@Nova AI') || text.includes('@NovaAI')) {
-          setTimeout(() => handleAIResponse(text, currentChannel), 1000);
-        }
-        
-        // If it's a DM, increment unread count for the other user
-        if (currentChannel.startsWith('dm_')) {
-          const dmId = currentChannel.replace('dm_', '');
-          const [user1, user2] = dmId.split('_');
-          const otherUser = user1 === username ? user2 : user1;
-          
-          // Check if it's a DM with Nova AI
-          if (otherUser === 'NovaAI' || user1 === 'NovaAI' || user2 === 'NovaAI') {
-            setTimeout(() => handleAIResponse(text, currentChannel), 1000);
-          } else {
-            // Increment unread count for other user
-            get(ref(db, `unreadMessages/${otherUser}/${currentChannel}`)).then(snap => {
-              const count = snap.val() || 0;
-              set(ref(db, `unreadMessages/${otherUser}/${currentChannel}`), count + 1);
-            });
+      const channel = currentChannel;
+      if ((!text && !pendingImageFile) || input.disabled || input.style.display === 'none') return;
+      if (['announcements', 'updates', 'leaks', 'links'].includes(channel) && !['Owner', 'Admin', 'Moderator'].includes(userRole)) return;
+      const now = Date.now();
+      if (sendingMessage || now < nextSendAt) {
+        showToast('Slow down', sendingMessage ? 'Your previous message is still sending.' : 'Wait a moment before sending again.', 'info');
+        return;
+      }
+      const attachment = pendingImageFile;
+      if (lastSent && lastSent.channel === channel && lastSent.text === text && lastSent.media === (attachment?.data || '') && now - lastSent.at < 10000) {
+        showToast('Duplicate message', 'Please wait before repeating the same message.', 'info');
+        return;
+      }
+      if (text.length > 4000) {
+        showToast('Message too long', 'Keep messages under 4,000 characters.', 'info');
+        return;
+      }
+      const generation = chatGeneration;
+      const draft = input.value;
+      const reply = replyingTo;
+      const msgData = {username, profilePic, text, timestamp: now, role: userRole, roles: [...currentUserRoles]};
+      if (reply) msgData.replyTo = reply;
+      if (attachment) msgData[attachment.isVideo ? 'videoUrl' : 'imageUrl'] = attachment.data;
+      sendingMessage = true;
+      nextSendAt = now + 1500;
+      input.value = '';
+      input.style.height = 'auto';
+      cancelReply();
+      removeImagePreview();
+      clearTimeout(typingTimeout);
+      remove(ref(db, `typing/${channel}/${username}`)).catch(console.error);
+      try {
+        await push(ref(db, `channels/${channel}/messages`), msgData);
+      } catch (error) {
+        if (generation === chatGeneration && !input.value && !pendingImageFile) {
+          input.value = draft;
+          replyingTo = reply;
+          pendingImageFile = attachment;
+          if (attachment && !attachment.isVideo) {
+            document.getElementById('imagePreview').src = attachment.data;
+            document.getElementById('imagePreviewContainer').style.display = 'block';
           }
         }
-      });
-      
-      input.value = '';
-      remove(ref(db, `typing/${currentChannel}/${username}`));
-      cancelReply();
-      
-      // Reset textarea height
-      input.style.height = 'auto';
+        showToast('Message not sent', 'Could not send your message. Please retry.', 'error');
+        console.error(error);
+        return;
+      } finally {
+        sendingMessage = false;
+      }
+      lastSent = {channel, text, media: attachment?.data || '', at: now};
+      let aiRequested = channel === 'ai-assistance' || /@Nova AI|@NovaAI/.test(text);
+      if (channel.startsWith('dm_')) {
+        const participants = channel.slice(3).split('_');
+        const otherUser = participants[0] === username ? participants[1] : participants[0];
+        if (participants.includes('NovaAI')) aiRequested = true;
+        else set(ref(db, `unreadMessages/${otherUser}/${channel}`), increment(1)).catch(console.error);
+      }
+      if (channel.startsWith('dm_') || channel.startsWith('group_')) updateStreak(channel);
+      if (aiRequested) setTimeout(() => handleAIResponse(text, channel), 1000);
     }
-    
+
     // ═══════════════════════════════════════════════════════
     // NOVA AI BOT SYSTEM
     // ═══════════════════════════════════════════════════════
