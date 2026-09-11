@@ -726,9 +726,18 @@
     
     /* Hide dock in game/app players for clean fullscreen */
     .dock.hidden-in-game {
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0.1;
       transition: opacity 0.3s ease;
+    }
+    
+    /* Show dock on hover when hidden */
+    .dock.hidden-in-game:hover {
+      opacity: 1;
+    }
+    
+    /* Keep dock buttons clickable even when hidden */
+    .dock.hidden-in-game .dock-btn {
+      pointer-events: auto;
     }
 
     /* Apps label - hide it */
