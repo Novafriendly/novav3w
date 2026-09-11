@@ -2454,20 +2454,47 @@
     }
 
     const presenceRef = ref(db, `presence/${userId}`);
-    set(presenceRef, {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
-    onDisconnect(presenceRef).set({username, profilePic, role: userRole, timestamp: Date.now(), online: false});
+    
+    // Function to update presence
+    const updatePresence = () => {
+      set(presenceRef, {
+        username, 
+        profilePic, 
+        role: userRole, 
+        timestamp: Date.now(), 
+        online: true
+      }).then(() => {
+        console.log('✅ Presence updated - online: true for', username);
+      }).catch(err => {
+        console.error('❌ Failed to update presence:', err);
+      });
+    };
+    
+    // Set initial presence
+    updatePresence();
+    
+    // Set what happens on disconnect
+    onDisconnect(presenceRef).set({
+      username, 
+      profilePic, 
+      role: userRole, 
+      timestamp: Date.now(), 
+      online: false
+    });
+    
+    // Update user data
     set(ref(db, `users/${username}`), {username, profilePic, role: userRole, lastSeen: Date.now()});
     
-    // Update presence more frequently (every 15 seconds instead of 30)
+    // Update presence every 10 seconds
     setInterval(() => {
       set(ref(db, `users/${username}/lastSeen`), Date.now());
-      set(ref(db, `presence/${userId}`), {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
-    }, 15000);
+      updatePresence();
+    }, 10000);
     
     // Also update immediately when tab becomes visible
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        set(ref(db, `presence/${userId}`), {username, profilePic, role: userRole, timestamp: Date.now(), online: true});
+        updatePresence();
       }
     });
 
@@ -2844,32 +2871,45 @@
       const query = document.getElementById('dmSearchInput').value.toLowerCase().trim();
       const results = document.getElementById('dmSearchResults');
       
-      // Get online status with real-time updates
-      onValue(ref(db, 'presence'), presenceSnap => {
-        const presence = presenceSnap.val() || {};
-        const onlineUsers = Object.values(presence).filter(p => p.online && p.username && p.username !== username);
-        
-        get(ref(db, 'users')).then(snap => {
-          const users = snap.val() || {};
-          let displayUsers = onlineUsers.map(p => ({...users[p.username], username: p.username, online: true})).filter(u => u.username);
+      // Get online status - use get() but call it repeatedly
+      const updateOnlineUsers = () => {
+        get(ref(db, 'presence')).then(presenceSnap => {
+          const presence = presenceSnap.val() || {};
+          const onlineUsers = Object.values(presence).filter(p => p && p.online === true && p.username && p.username !== username);
           
-          if (query) {
-            displayUsers = displayUsers.filter(u => u.username.toLowerCase().includes(query));
-          }
+          console.log('Online users:', onlineUsers.map(u => u.username));
           
-          if (displayUsers.length === 0) {
-            results.innerHTML = '<p style="padding:8px;color:#80848e;font-size:12px">No online users found</p>';
-          } else {
-            results.innerHTML = displayUsers.map(u => {
-              const av = u.profilePic ? `<img src="${u.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${u.username.charAt(0).toUpperCase()}</div>`;
-              return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')">
-                ${av}
-                <div style="flex:1"><div style="color:white;font-weight:600;font-size:14px">${u.username}</div><div style="color:#3ba55d;font-size:11px;font-weight:600">● ONLINE</div></div>
-              </div>`;
-            }).join('');
-          }
+          get(ref(db, 'users')).then(snap => {
+            const users = snap.val() || {};
+            let displayUsers = onlineUsers.map(p => ({...users[p.username], username: p.username, online: true})).filter(u => u && u.username);
+            
+            if (query) {
+              displayUsers = displayUsers.filter(u => u.username.toLowerCase().includes(query));
+            }
+            
+            if (displayUsers.length === 0) {
+              results.innerHTML = '<p style="padding:8px;color:#80848e;font-size:12px">No online users found</p>';
+            } else {
+              results.innerHTML = displayUsers.map(u => {
+                const av = u.profilePic ? `<img src="${u.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-weight:700;color:white">${u.username.charAt(0).toUpperCase()}</div>`;
+                return `<div class="dm-user-result" onclick="openUserProfile('${u.username}')">
+                  ${av}
+                  <div style="flex:1"><div style="color:white;font-weight:600;font-size:14px">${u.username}</div><div style="color:#3ba55d;font-size:11px;font-weight:600">● ONLINE</div></div>
+                </div>`;
+              }).join('');
+            }
+          });
         });
-      }, { onlyOnce: false }); // Listen for changes
+      };
+      
+      // Update immediately
+      updateOnlineUsers();
+      
+      // Then update every 5 seconds while in DM view
+      if (window.onlineUsersInterval) {
+        clearInterval(window.onlineUsersInterval);
+      }
+      window.onlineUsersInterval = setInterval(updateOnlineUsers, 5000);
     };
     
     // Load DM Panel with friends, requests, and online users
