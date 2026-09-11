@@ -697,6 +697,11 @@
       flex-direction: column;
       min-width: unset;
       min-height: 400px;
+      padding: 16px 8px;
+    }
+    
+    .dock.dock-left .dock-icons {
+      flex-direction: column;
     }
     
     .dock.dock-right {
@@ -708,10 +713,22 @@
       flex-direction: column;
       min-width: unset;
       min-height: 400px;
+      padding: 16px 8px;
+    }
+    
+    .dock.dock-right .dock-icons {
+      flex-direction: column;
     }
     
     .dock.dock-bottom {
       /* default - already set above */
+    }
+    
+    /* Hide dock in game/app players for clean fullscreen */
+    .dock.hidden-in-game {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
 
     /* Apps label - hide it */
@@ -3520,13 +3537,13 @@ brRenderBmBar();
     document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active','app-open'));
     if (btn) btn.classList.add('active','app-open');
     
-    // Hide dock for settings and browser
+    // Hide dock for settings, browser, games, and apps for clean fullscreen
     const dock = document.querySelector('.dock');
     if (dock) {
-      if (name === 'settings' || name === 'browser') {
-        dock.style.display = 'none';
+      if (name === 'settings' || name === 'browser' || name === 'games' || name === 'apps') {
+        dock.classList.add('hidden-in-game');
       } else {
-        dock.style.display = 'flex';
+        dock.classList.remove('hidden-in-game');
       }
     }
     
@@ -3583,7 +3600,7 @@ brRenderBmBar();
     // Show dock when closing panel
     const dock = document.querySelector('.dock');
     if (dock) {
-      dock.style.display = 'flex';
+      dock.classList.remove('hidden-in-game');
     }
     
     if (window._dockShow) window._dockShow();
@@ -3625,7 +3642,7 @@ brRenderBmBar();
       // Show dock again
       const dock = document.querySelector('.dock');
       if (dock) {
-        dock.style.display = 'flex';
+        dock.classList.remove('hidden-in-game');
       }
     }
     
