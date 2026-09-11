@@ -4994,76 +4994,167 @@
         // Clean the message (remove @mentions)
         const cleanMessage = userMessage.replace(/@Nova AI|@NovaAI/gi, '').trim();
         
-        // Use Google Gemini API (free tier)
-        // Get your own free API key at: https://makersuite.google.com/app/apikey
-        const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+        // Check if there's an image attached to the last message
+        let imageData = null;
+        let imageType = null;
         
-        if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
-          console.warn('⚠️ No Gemini API key configured. Using fallback responses.');
-          // Use fallback responses
-          const aiMessage = {
-            username: 'Nova AI',
-            profilePic: '',
-            text: getSimpleAIResponse(cleanMessage),
-            timestamp: Date.now(),
-            role: 'Bot',
-            roles: ['Bot'],
-            isAI: true
-          };
-          remove(ref(db, `typing/${channel}/Nova AI`));
-          push(ref(db, `channels/${channel}/messages`), aiMessage);
-          return;
+        // Get the last message from the user to check for images
+        const messagesRef = ref(db, `channels/${channel}/messages`);
+        const snapshot = await get(query(messagesRef, orderByChild('timestamp'), limitToLast(5)));
+        
+        if (snapshot.exists()) {
+          const messages = [];
+          snapshot.forEach(child => {
+            messages.push(child.val());
+          });
+          
+          // Find the last message from current user with an image
+          const userMessages = messages.filter(m => m.username === currentUsername);
+          const lastUserMessage = userMessages[userMessages.length - 1];
+          
+          if (lastUserMessage && lastUserMessage.imageUrl) {
+            // Convert image URL to base64 for Gemini
+            try {
+              const imgResponse = await fetch(lastUserMessage.imageUrl);
+              const blob = await imgResponse.blob();
+              const reader = new FileReader();
+              
+              await new Promise((resolve) => {
+                reader.onloadend = () => {
+                  const base64 = reader.result.split(',')[1]; // Remove data:image/...;base64, prefix
+                  imageData = base64;
+                  imageType = blob.type;
+                  resolve();
+                };
+                reader.readAsDataURL(blob);
+              });
+              
+              console.log('🖼️ Image attached to AI request');
+            } catch (imgError) {
+              console.warn('Failed to load image:', imgError);
+            }
+          }
         }
         
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: cleanMessage
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.9,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 400,
-            }
-          })
-        });
+        // Use secure backend API (keeps your API key secret!)
+        // Option 1: Deploy to Vercel/Netlify and use that URL
+        // Option 2: For testing, use direct API (less secure but works)
+        
+        const USE_SECURE_BACKEND = false; // Set to true when you deploy the backend
+        const BACKEND_URL = 'YOUR_BACKEND_URL_HERE'; // e.g., https://your-app.vercel.app/api/gemini
+        
+        let response;
+        
+        if (USE_SECURE_BACKEND && BACKEND_URL !== 'YOUR_BACKEND_URL_HERE') {
+          // Use secure backend (recommended)
+          response = await fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: cleanMessage,
+              imageData: imageData,
+              imageType: imageType
+            })
+          });
+        } else {
+          // Direct API call (for testing only - API key visible in browser!)
+          // Get your own free API key at: https://makersuite.google.com/app/apikey
+          const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+          
+          if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
+            console.warn('⚠️ No Gemini API key configured. Using fallback responses.');
+            const aiMessage = {
+              username: 'Nova AI',
+              profilePic: '',
+              text: getSimpleAIResponse(cleanMessage),
+              timestamp: Date.now(),
+              role: 'Bot',
+              roles: ['Bot'],
+              isAI: true
+            };
+            remove(ref(db, `typing/${channel}/Nova AI`));
+            push(ref(db, `channels/${channel}/messages`), aiMessage);
+            return;
+          }
+          
+          // Choose model based on image
+          const model = imageData ? 'gemini-pro-vision' : 'gemini-pro';
+          
+          // Build request parts
+          const parts = [{ text: cleanMessage }];
+          
+          if (imageData) {
+            parts.push({
+              inline_data: {
+                mime_type: imageType,
+                data: imageData
+              }
+            });
+          }
+          
+          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: parts
+              }],
+              generationConfig: {
+                temperature: 0.9,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 500,
+              }
+            })
+          });
+        }
         
         let aiReply = '';
         
         if (response.ok) {
           const data = await response.json();
-          console.log('Gemini API Response:', data);
+          console.log('✅ Gemini API Response:', data);
           
-          // Extract Gemini response
-          if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-            aiReply = data.candidates[0].content.parts[0].text;
-            console.log('✅ Gemini response:', aiReply);
-          } else if (data.error) {
-            console.error('❌ Gemini API Error:', data.error);
-            aiReply = `I'm having trouble connecting right now. Here's what I think: ${getSimpleAIResponse(cleanMessage)}`;
+          // Handle secure backend response
+          if (USE_SECURE_BACKEND) {
+            if (data.success && data.response) {
+              aiReply = data.response;
+              if (data.hasImage) {
+                console.log('🖼️ AI analyzed image!');
+              }
+            } else if (data.fallback) {
+              aiReply = getSimpleAIResponse(cleanMessage);
+            }
           } else {
-            console.warn('⚠️ Unexpected response format:', data);
-            aiReply = getSimpleAIResponse(cleanMessage);
+            // Handle direct API response
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+              aiReply = data.candidates[0].content.parts[0].text;
+              if (imageData) {
+                console.log('🖼️ AI analyzed image!');
+              }
+            } else if (data.error) {
+              console.error('❌ Gemini API Error:', data.error);
+              aiReply = `I'm having trouble right now. Here's a simple answer: ${getSimpleAIResponse(cleanMessage)}`;
+            } else {
+              console.warn('⚠️ Unexpected response:', data);
+              aiReply = getSimpleAIResponse(cleanMessage);
+            }
           }
           
           // Clean up the response
           aiReply = aiReply.trim();
           
           // Limit response length
-          if (aiReply.length > 600) {
-            aiReply = aiReply.substring(0, 600) + '...';
+          if (aiReply.length > 700) {
+            aiReply = aiReply.substring(0, 700) + '...';
           }
         } else {
           const errorText = await response.text();
-          console.error('❌ Gemini API failed:', response.status, errorText);
-          // Fallback to simple responses if API fails
+          console.error('❌ API failed:', response.status, errorText);
           aiReply = getSimpleAIResponse(cleanMessage);
         }
         

@@ -1,0 +1,21 @@
+{
+  "name": "nova-chat",
+  "version": "3.0.0",
+  "description": "Nova Chat Platform with AI Support",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "chat",
+    "ai",
+    "gemini",
+    "discord"
+  ],
+  "author": "Novafriendly",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}

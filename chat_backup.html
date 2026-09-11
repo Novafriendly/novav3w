@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Chat</title>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-BMCLEN1ZWQ');
+  </script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: transparent;
+      color: #dcddde;
+    }
+    
+    /* BLACK Discord-style container */
+    .chat-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    /* Banned Screen */
+    .banned-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .banned-screen.show { display: flex; }
+    
+    .banned-title {
+      font-size: 48px;
+      color: #ed4245;
+      font-weight: 700;
+    }
+    
+    .banned-message {
+      font-size: 20px;
+      color: white;
+      text-align: center;
+      max-width: 500px;
+    }
+    
+    /* Server Icons - BLACK */
+    .server-list {
+      width: 72px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+      z-index: 10;
+    }
+    
+    .server-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #1e1f22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .server-icon:hover, .server-icon.active {
+      border-radius: 16px;
+      background: #5865f2;
+    }
+    
+    .server-icon img, .server-icon svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ed4245;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 8px;
+      min-width: 18px;
+      z-index: 11;
+    }
+    
+    /* Sidebar - BLACK */
+    .sidebar {
+      width: 240px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid #000;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 1.5px 0 rgba(0,0,0,0.05), 0 2px 0 rgba(0,0,0,0.05);
+    }
+    
+    .search-box {
+      padding: 8px;
+      background: rgba(0,0,0,0.9);
+      border-bottom: 1px solid #000;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 8px;
+      background: #000;
+      border: none;
+      border-radius: 4px;
+      color: #dcddde;
+      font-size: 14px;
+    }
+    
+    .channels-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 8px;
+    }
+    
+    .channel-category {
+      padding: 8px;
+      color: #80848e;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 16px;
+      letter-spacing: 0.02em;
+    }
+    
+    .channel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      color: #80848e;
+      cursor: pointer;
+      margin: 1px 0;
+      font-weight: 500;
+    }
+    
+    .channel:hover {
+      background: rgba(79, 84, 92, 0.3);
+      color: #dcddde;
+    }
+    
+    .channel.active {
+      background: rgba(79, 84, 92, 0.4);
+      color: white;
+    }
+    
+    .channel-icon {
+      color: #80848e;
+      font-size: 20px;
+    }
+    
+    /* Main Chat - BLACK */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      z-index: 10;
+    }
+    
+    .chat-header {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    }
+    
+    .channel-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .channel-name svg {
+      width: 20px;
+      height: 20px;
+      color: #80848e;
+    }
+    
+    .admin-panel-btn {
+      padding: 8px 16px;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .admin-panel-btn:hover { background: #ffed4e; }
+    
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .message {
+      display: flex;
+      gap: 16px;
+      padding: 4px 16px 4px 72px;
+      position: relative;
+      transition: background 0.1s;
+      margin-top: 4px;
+    }
+    
+    .message:hover { background: rgba(4, 4, 5, 0.07); }
+    
+    .message-avatar {
+      position: absolute;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .message-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    
+    .message-author {
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .role-badge {
+      padding: 3px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    
+    .role-badge.owner {
+      background: #ffd700;
+      color: #000;
+    }
+    
+    .role-badge.admin {
+      background: #a855f7;
+      color: white;
+    }
+    
+    .message-time {
+      color: #a3a6aa;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .message-text {
+      color: #dcddde;
+      line-height: 1.375;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
+    
+    .message-image, .message-video {
+      max-width: 400px;
+      max-height: 300px;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
+    
+    .reply-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #4e5058;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #b9bbbe;
+      cursor: pointer;
+    }
+    
+    .reply-preview:hover { background: rgba(0, 0, 0, 0.3); }
+    
+    .message-reactions {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .reaction {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(79, 84, 92, 0.3);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 3px 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    
+    .reaction:hover { 
+      background: rgba(79, 84, 92, 0.5);
+      border-color: rgba(255,255,255,0.1);
+    }
+    
+    .reaction.reacted {
+      background: rgba(88, 101, 242, 0.15);
+      border-color: #5865f2;
+    }
+    
+    .reaction-count {
+      font-size: 13px;
+      font-weight: 500;
+      color: #b5bac1;
+    }
+    
+    .message-actions {
+      position: absolute;
+      top: -16px;
+      right: 16px;
+      background: #000;
+      border: 1px solid rgba(0,0,0,0.8);
+      border-radius: 8px;
+      padding: 4px;
+      display: none;
+      gap: 2px;
+      z-index: 50;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    
+    .message:hover .message-actions { display: flex; }
+    
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #b5bac1;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    
+    .action-btn:hover {
+      background: rgba(79, 84, 92, 0.6);
+      color: #dcddde;
+    }
+    
+    .action-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    /* Message Input - BLACK */
+    .message-input-container {
+      padding: 16px;
+      z-index: 10;
+    }
+    
+    .reply-bar {
+      display: none;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .reply-bar.show { display: flex; }
+    
+    .reply-info {
+      color: #b9bbbe;
+      font-size: 13px;
+    }
+    
+    .cancel-reply {
+      background: none;
+      border: none;
+      color: #b9bbbe;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+    }
+    
+    .message-input-wrapper {
+      background: #000;
+      border-radius: 8px;
+      padding: 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .message-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #dcddde;
+      font-size: 15px;
+      outline: none;
+    }
+    
+    .message-input::placeholder {
+      color: #6d6f78;
+    }
+    
+    .upload-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #b5bac1;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    
+    .upload-btn:hover {
+      color: #dcddde;
+    }
+    
+    .upload-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    /* User Profile Card - Bottom Left */
+    .user-profile-card {
+      position: fixed;
+      bottom: 0;
+      left: 72px;
+      width: 240px;
+      background: rgba(0, 0, 0, 0.98);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .user-profile-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .user-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-profile-status {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 10px;
+      height: 10px;
+      background: #23a559;
+      border: 3px solid rgba(0, 0, 0, 0.98);
+      border-radius: 50%;
+    }
+    
+    .user-profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .user-profile-name {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .user-profile-role {
+      color: #b5bac1;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .user-profile-role.owner {
+      color: #ffd700;
+    }
+    
+    .user-profile-role.admin {
+      color: #a855f7;
+    }
+    
+    .settings-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #b5bac1;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    
+    .settings-btn:hover {
+      background: rgba(79, 84, 92, 0.4);
+      color: #dcddde;
+    }
+    
+    .settings-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    /* Members Sidebar - BLACK */
+    .members-sidebar {
+      width: 240px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      overflow-y: auto;
+      padding: 24px 8px 60px;
+      z-index: 10;
+    }
+    
+    .members-section {
+      margin-bottom: 24px;
+    }
+    
+    .members-title {
+      padding: 0 8px 4px;
+      color: #949ba4;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 0.02em;
+    }
+    
+    .member {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .member:hover { background: rgba(79, 84, 92, 0.3); }
+    
+    .member:hover .add-friend-icon {
+      opacity: 1;
+    }
+    
+    .add-friend-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #5865f2;
+      border-radius: 50%;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    
+    .add-friend-icon:hover {
+      background: #4752c4;
+    }
+    
+    .add-friend-icon svg {
+      width: 16px;
+      height: 16px;
+      color: white;
+    }
+    
+    .member-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+    }
+    
+    .member-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .status-indicator {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 10px;
+      height: 10px;
+      border: 3px solid rgba(0, 0, 0, 0.95);
+      border-radius: 50%;
+    }
+    
+    .status-indicator.online { background: #23a559; }
+    .status-indicator.offline { background: #80848e; }
+    
+    .member-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .member-name {
+      color: #949ba4;
+      font-size: 14px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .member-name.online {
+      color: #dcddde;
+    }
+    
+    .member-name.owner { color: #ffd700; }
+    .member-name.admin { color: #a855f7; }
+    
+    .member-status-text {
+      font-size: 11px;
+      color: #80848e;
+      font-weight: 500;
+    }
+    
+    /* Modals - BLACK */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+    
+    .modal.show { display: flex; }
+    
+    .modal-content {
+      background: #000;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .modal-input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 16px;
+    }
+    
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    
+    .btn-primary {
+      background: #5865f2;
+      color: white;
+    }
+    
+    .btn-primary:hover { background: #4752c4; }
+    
+    .btn-danger {
+      background: #ed4245;
+      color: white;
+    }
+    
+    .btn-danger:hover { background: #c23538; }
+    
+    .btn-secondary {
+      background: #4e5058;
+      color: white;
+      margin-left: 8px;
+    }
+    
+    .btn-secondary:hover { background: #5d6269; }
+    
+    .admin-section {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .admin-section-title {
+      color: #ffd700;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .ban-log-entry {
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      color: #dcddde;
+      font-size: 14px;
+    }
+    
+    .admin-list-entry {
+      padding: 8px;
+      background: rgba(168, 85, 247, 0.2);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      color: #a855f7;
+      font-weight: 600;
+    }
+    
+    .emoji-picker {
+      position: absolute;
+      bottom: 70px;
+      right: 20px;
+      background: #000;
+      border: 1px solid rgba(0,0,0,0.8);
+      border-radius: 8px;
+      padding: 12px;
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 320px;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+    }
+    
+    .emoji-picker.show { display: flex; }
+    
+    .emoji-btn {
+      font-size: 28px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background 0.1s;
+      line-height: 1;
+    }
+    
+    .emoji-btn:hover { background: rgba(79, 84, 92, 0.4); }
+    
+    .user-search-results {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+    
+    .user-search-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .user-search-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .user-search-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-search-info { flex: 1; }
+    
+    .user-search-name {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .add-friend-btn {
+      padding: 6px 12px;
+      background: #5865f2;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .add-friend-btn:hover { background: #4752c4; }
+    
+    /* Friend Request Notification */
+    .friend-request-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10001;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+      min-width: 300px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .friend-request-popup.show {
+      display: flex;
+    }
+    
+    .friend-request-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .friend-request-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #5865f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+    }
+    
+    .friend-request-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .friend-request-info {
+      flex: 1;
+    }
+    
+    .friend-request-title {
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .friend-request-text {
+      color: #b5bac1;
+      font-size: 13px;
+    }
+    
+    .friend-request-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn-accept {
+      flex: 1;
+      padding: 8px 16px;
+      background: #23a559;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-accept:hover {
+      background: #1e8e4e;
+    }
+    
+    .btn-decline {
+      flex: 1;
+      padding: 8px 16px;
+      background: #ed4245;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-decline:hover {
+      background: #c23538;
+    }
+    
+    /* Settings Modal Sections */
+    .settings-section {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .settings-section-title {
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .settings-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .settings-option:last-child {
+      border-bottom: none;
+    }
+    
+    .settings-option-label {
+      color: #dcddde;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .settings-option-desc {
+      color: #80848e;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Banned Screen -->
+  <div class="banned-screen" id="bannedScreen">
+    <div class="banned-title">🚫 BANNED</div>
+    <div class="banned-message">You have been banned from Nova Chat. Contact the server owner if you believe this is a mistake.</div>
+  </div>
+
+  <div class="chat-container">
+    <!-- Server List -->
+    <div class="server-list">
+      <div class="server-icon active" id="serverIcon" onclick="switchView('server')">
+        <img src="Nova12.png" alt="Nova" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=font-size:28px;font-weight:700>N</span>'">
+      </div>
+      <div style="width: 32px; height: 2px; background: rgba(255,255,255,0.06); margin: 4px 0;"></div>
+      <div class="server-icon" id="dmIcon" onclick="switchView('dms')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        <div class="notification-badge" id="dmBadge" style="display: none;">0</div>
+      </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header" id="sidebarHeader">Nova Chat</div>
+      <div class="search-box" id="searchBox" style="display: none;">
+        <input type="text" class="search-input" placeholder="Search for users..." id="userSearch" oninput="searchUsers()">
+      </div>
+      <div class="channels-list" id="channelsList"></div>
+    </div>
+    
+    <!-- Main Chat -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="channel-name" id="channelName">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+          general
+        </div>
+        <button class="admin-panel-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">👑 OWNER PANEL</button>
+      </div>
+      <div class="messages-area" id="messagesArea"></div>
+      <div class="message-input-container">
+        <div class="reply-bar" id="replyBar">
+          <div class="reply-info" id="replyInfo"></div>
+          <button class="cancel-reply" onclick="cancelReply()">×</button>
+        </div>
+        <div class="message-input-wrapper">
+          <button class="upload-btn" onclick="document.getElementById('fileUpload').click()" title="Upload image or video">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+          </button>
+          <input type="file" id="fileUpload" accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
+          <input type="text" class="message-input" id="messageInput" placeholder="Message #general">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Members -->
+    <div class="members-sidebar" id="membersSidebar"></div>
+    
+    <!-- User Profile Card (Bottom Left) -->
+    <div class="user-profile-card">
+      <div class="user-profile-avatar" id="profileAvatar">
+        <div class="user-profile-status"></div>
+      </div>
+      <div class="user-profile-info">
+        <div class="user-profile-name" id="profileName">Loading...</div>
+        <div class="user-profile-role member" id="profileRole">Member</div>
+      </div>
+      <button class="settings-btn" onclick="openSettings()" title="Settings">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Emoji Picker -->
+  <div class="emoji-picker" id="emojiPicker"></div>
+  
+  <!-- Friend Request Popup -->
+  <div class="friend-request-popup" id="friendRequestPopup">
+    <div class="friend-request-header">
+      <div class="friend-request-avatar" id="requestAvatar"></div>
+      <div class="friend-request-info">
+        <div class="friend-request-title">Friend Request</div>
+        <div class="friend-request-text" id="requestText"></div>
+      </div>
+    </div>
+    <div class="friend-request-actions">
+      <button class="btn-accept" onclick="acceptFriendRequest()">Accept</button>
+      <button class="btn-decline" onclick="declineFriendRequest()">Decline</button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">⚙️ Settings</div>
+      
+      <div class="settings-section">
+        <div class="settings-section-title">Account</div>
+        <div class="settings-option">
+          <div>
+            <div class="settings-option-label">Username</div>
+            <div class="settings-option-desc" id="settingsUsername">Loading...</div>
+          </div>
+        </div>
+        <div class="settings-option">
+          <div>
+            <div class="settings-option-label">Role</div>
+            <div class="settings-option-desc" id="settingsRole">Member</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <div class="settings-section-title">Owner Access</div>
+        <div class="settings-option">
+          <div>
+            <div class="settings-option-label">Enter Owner Passcode</div>
+            <div class="settings-option-desc">Get full administrative access to the server</div>
+          </div>
+          <button class="btn btn-primary" onclick="requestOwnerAccessFromSettings()">Verify</button>
+        </div>
+      </div>
+      
+      <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- Owner Access Modal -->
+  <div class="modal" id="ownerAccessModal">
+    <div class="modal-content">
+      <div class="modal-header">🔐 Owner Access Verification</div>
+      <p style="color: #b9bbbe; margin-bottom: 16px;">Enter the 4-digit owner passcode.</p>
+      <input type="password" class="modal-input" id="ownerPasscode" placeholder="Enter passcode" maxlength="4">
+      <div id="ownerError" style="color: #ed4245; margin-bottom: 12px; display: none;"></div>
+      <button class="btn btn-primary" onclick="verifyOwnerAccess()">Verify</button>
+      <button class="btn btn-secondary" onclick="closeModal('ownerAccessModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div class="modal" id="adminPanelModal">
+    <div class="modal-content">
+      <div class="modal-header">👑 OWNER ADMIN PANEL</div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">📋 CURRENT ADMINS</div>
+        <div id="adminsList"></div>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">🚫 BAN USER</div>
+        <input type="text" class="modal-input" id="banUsername" placeholder="Enter username to ban">
+        <button class="btn btn-danger" onclick="banUser()">Ban User</button>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">✅ UNBAN USER</div>
+        <input type="text" class="modal-input" id="unbanUsername" placeholder="Enter username to unban">
+        <button class="btn btn-primary" onclick="unbanUser()">Unban User</button>
+      </div>
+      
+      <div class="admin-section">
+        <div class="admin-section-title">📜 BAN LOGS</div>
+        <div id="banLogs"></div>
+      </div>
+      
+      <button class="btn btn-secondary" onclick="closeModal('adminPanelModal')">Close Panel</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, push, onValue, set, remove, get, update, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    const app = initializeApp({
+      apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
+      authDomain: "nova-chat-43a18.firebaseapp.com",
+      databaseURL: "https://nova-chat-43a18-default-rtdb.firebaseio.com",
+      projectId: "nova-chat-43a18",
+      storageBucket: "nova-chat-43a18.firebasestorage.app",
+      messagingSenderId: "1090469740208",
+      appId: "1:1090469740208:web:94adbe3ee21abb3cf14575"
+    });
+
+    const db = getDatabase(app);
+    const username = localStorage.getItem('nova_user') || 'Guest';
+    const profilePic = localStorage.getItem('nova_profile_pic') || '';
+    let userRole = localStorage.getItem('nova_chat_role') || 'Member';
+    const userId = username + '_' + Date.now();
+
+    let currentView = 'server';
+    let currentChannel = 'general';
+    let replyingTo = null;
+    let currentEmojiMessageId = null;
+    let ownerAttempts = 0;
+    let currentFriendRequest = null;
+
+    const OWNER_PASSCODE = '0090';
+    const emojis = ['😀', '😂', '🤣', '😊', '😍', '🥰', '😘', '😎', '🤔', '😮', '😢', '😭', '😡', '🔥', '✨', '💯', '❤️', '💙', '💚', '💛', '👍', '👎', '👏', '🙌', '🎉', '🎊', '💪', '✅', '❌', '⭐'];
+
+    // Check ban status
+    checkBanStatus();
+
+    // Initialize user profile card
+    document.getElementById('profileName').textContent = username;
+    document.getElementById('profileRole').textContent = userRole;
+    document.getElementById('profileRole').className = `user-profile-role ${userRole.toLowerCase()}`;
+    document.getElementById('profileAvatar').innerHTML = profilePic ? `<img src="${profilePic}"><div class="user-profile-status"></div>` : username.charAt(0).toUpperCase() + '<div class="user-profile-status"></div>';
+    
+    // Update settings modal
+    document.getElementById('settingsUsername').textContent = username;
+    document.getElementById('settingsRole').textContent = userRole;
+
+    // Initialize presence with disconnect handler
+    const presenceRef = ref(db, `presence/${userId}`);
+    set(presenceRef, { 
+      username, 
+      profilePic, 
+      role: userRole, 
+      timestamp: Date.now(),
+      online: true
+    });
+    
+    // Set offline on disconnect
+    onDisconnect(presenceRef).set({
+      username,
+      profilePic,
+      role: userRole,
+      timestamp: Date.now(),
+      online: false
+    });
+    
+    // Store user in users database
+    set(ref(db, `users/${username}`), {
+      username,
+      profilePic,
+      role: userRole,
+      lastSeen: Date.now()
+    });
+    
+    // Update last seen periodically
+    setInterval(() => {
+      set(ref(db, `users/${username}/lastSeen`), Date.now());
+      set(ref(db, `presence/${userId}/timestamp`), Date.now());
+    }, 30000);
+    
+    // Load
+    loadChannels();
+    loadMessages('general');
+    loadMembers();
+    checkFriendRequests();
+    
+    // Initialize emoji picker
+    const emojiPicker = document.getElementById('emojiPicker');
+    emojis.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.textContent = emoji;
+      btn.onclick = () => addReaction(emoji);
+      emojiPicker.appendChild(btn);
+    });
+
+    // Welcome message (once per user)
+    get(ref(db, `channels/announcements/welcomed/${username}`)).then(snap => {
+      if (!snap.exists()) {
+        push(ref(db, 'channels/announcements/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `Welcome to Nova Chat, ${username}! 🎉 We're still building this server. Stay tuned!`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        set(ref(db, `channels/announcements/welcomed/${username}`), true);
+      }
+    });
+    
+    // Check for friend requests in real-time
+    function checkFriendRequests() {
+      onValue(ref(db, `friendRequests/${username}`), (snapshot) => {
+        const requests = snapshot.val() || {};
+        const requestList = Object.entries(requests);
+        
+        if (requestList.length > 0) {
+          // Show badge
+          const badge = document.getElementById('dmBadge');
+          badge.textContent = requestList.length;
+          badge.style.display = 'block';
+          
+          // Show popup for first unhandled request
+          const [reqId, reqData] = requestList[0];
+          if (!currentFriendRequest) {
+            currentFriendRequest = { id: reqId, data: reqData };
+            showFriendRequestPopup(reqData);
+          }
+        } else {
+          document.getElementById('dmBadge').style.display = 'none';
+        }
+      });
+    }
+    
+    function showFriendRequestPopup(reqData) {
+      const popup = document.getElementById('friendRequestPopup');
+      const avatar = reqData.fromPic ? `<img src="${reqData.fromPic}">` : reqData.from.charAt(0).toUpperCase();
+      
+      document.getElementById('requestAvatar').innerHTML = avatar;
+      document.getElementById('requestText').textContent = `${reqData.from} sent you a friend request`;
+      popup.classList.add('show');
+      
+      // Auto-hide after 10 seconds if not responded
+      setTimeout(() => {
+        popup.classList.remove('show');
+      }, 10000);
+    }
+    
+    window.acceptFriendRequest = function() {
+      if (!currentFriendRequest) return;
+      
+      const { id, data } = currentFriendRequest;
+      
+      // Add to friends list
+      set(ref(db, `friends/${username}/${data.from}`), {
+        username: data.from,
+        profilePic: data.fromPic,
+        timestamp: Date.now()
+      });
+      
+      set(ref(db, `friends/${data.from}/${username}`), {
+        username: username,
+        profilePic: profilePic,
+        timestamp: Date.now()
+      });
+      
+      // Remove request
+      remove(ref(db, `friendRequests/${username}/${id}`));
+      
+      // Hide popup
+      document.getElementById('friendRequestPopup').classList.remove('show');
+      currentFriendRequest = null;
+      
+      alert(`✅ You are now friends with ${data.from}!`);
+    };
+    
+    window.declineFriendRequest = function() {
+      if (!currentFriendRequest) return;
+      
+      const { id } = currentFriendRequest;
+      
+      // Remove request
+      remove(ref(db, `friendRequests/${username}/${id}`));
+      
+      // Hide popup
+      document.getElementById('friendRequestPopup').classList.remove('show');
+      currentFriendRequest = null;
+    };
+    
+    window.openSettings = function() {
+      document.getElementById('settingsModal').classList.add('show');
+    };
+    
+    window.requestOwnerAccessFromSettings = function() {
+      closeModal('settingsModal');
+      requestOwnerAccess();
+    };
+
+    function checkBanStatus() {
+      get(ref(db, `bans/${username}`)).then(snap => {
+        if (snap.exists() && snap.val().banned === true) {
+          document.getElementById('bannedScreen').classList.add('show');
+          document.querySelector('.chat-container').style.display = 'none';
+        }
+      });
+      
+      onValue(ref(db, `bans/${username}`), (snapshot) => {
+        if (snapshot.exists() && snapshot.val().banned === true) {
+          document.getElementById('bannedScreen').classList.add('show');
+          document.querySelector('.chat-container').style.display = 'none';
+        } else {
+          document.getElementById('bannedScreen').classList.remove('show');
+          document.querySelector('.chat-container').style.display = 'flex';
+        }
+      });
+    }
+
+    function updateUserRole() {
+      userRole = localStorage.getItem('nova_chat_role') || 'Member';
+      
+      // Update profile card
+      document.getElementById('profileRole').textContent = userRole;
+      document.getElementById('profileRole').className = `user-profile-role ${userRole.toLowerCase()}`;
+      document.getElementById('settingsRole').textContent = userRole;
+      
+      if (userRole === 'Owner') {
+        document.getElementById('adminPanelBtn').style.display = 'block';
+      }
+    }
+    
+    function loadChannels() {
+      const isOwner = userRole === 'Owner';
+      document.getElementById('channelsList').innerHTML = `
+        <div class="channel-category">TEXT CHANNELS</div>
+        <div class="channel active" onclick="switchChannel('general')">
+          <span class="channel-icon">#</span> general
+        </div>
+        <div class="channel" onclick="switchChannel('announcements')">
+          <span class="channel-icon">📢</span> announcements
+        </div>
+        <div class="channel" onclick="switchChannel('community-links')">
+          <span class="channel-icon">🔗</span> community-links
+        </div>
+        ${isOwner ? '<div class="channel" onclick="requestOwnerAccess()"><span class="channel-icon">👑</span> owner-access</div>' : ''}
+      `;
+    }
+    
+    window.switchChannel = function(channel) {
+      currentChannel = channel;
+      document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('channelName').innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+        ${channel}
+      `;
+      document.getElementById('messageInput').placeholder = `Message #${channel}`;
+      loadMessages(channel);
+      cancelReply();
+    };
+    
+    window.switchView = function(view) {
+      currentView = view;
+      document.querySelectorAll('.server-icon').forEach(icon => icon.classList.remove('active'));
+      
+      if (view === 'dms') {
+        document.getElementById('dmIcon').classList.add('active');
+        document.getElementById('searchBox').style.display = 'block';
+        document.getElementById('channelsList').innerHTML = '<div class="channel-category">DIRECT MESSAGES</div><p style="padding: 16px; color: #80848e; font-size: 13px;">Use the search box above to find and add users.</p><div id="searchResults"></div>';
+        document.getElementById('membersSidebar').style.display = 'none';
+        document.getElementById('adminPanelBtn').style.display = 'none';
+      } else {
+        document.getElementById('serverIcon').classList.add('active');
+        document.getElementById('searchBox').style.display = 'none';
+        loadChannels();
+        document.getElementById('membersSidebar').style.display = 'block';
+        loadMembers();
+        if (userRole === 'Owner') {
+          document.getElementById('adminPanelBtn').style.display = 'block';
+        }
+      }
+    };
+    
+    window.searchUsers = function() {
+      const query = document.getElementById('userSearch').value.toLowerCase().trim();
+      if (!query) {
+        const resultsDiv = document.getElementById('channelsList').querySelector('#searchResults');
+        if (resultsDiv) resultsDiv.innerHTML = '';
+        return;
+      }
+      
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const results = Object.values(users).filter(u => 
+          u.username.toLowerCase().includes(query) && u.username !== username
+        );
+        
+        let html = '<div class="user-search-results">';
+        if (results.length === 0) {
+          html += '<p style="padding: 16px; color: #80848e;">No users found.</p>';
+        } else {
+          results.forEach(user => {
+            const avatar = user.profilePic ? `<img src="${user.profilePic}">` : user.username.charAt(0).toUpperCase();
+            const roleClass = user.role === 'Owner' ? 'owner' : user.role === 'Admin' ? 'admin' : '';
+            html += `
+              <div class="user-search-item">
+                <div class="user-search-avatar">${avatar}</div>
+                <div class="user-search-info">
+                  <div class="user-search-name ${roleClass}">${user.username}</div>
+                  <div class="member-status-text">${user.role || 'Member'}</div>
+                </div>
+                <button class="add-friend-btn" onclick="addFriend('${user.username}')">Add Friend</button>
+              </div>
+            `;
+          });
+        }
+        html += '</div>';
+        
+        let resultsDiv = document.getElementById('channelsList').querySelector('#searchResults');
+        if (!resultsDiv) {
+          resultsDiv = document.createElement('div');
+          resultsDiv.id = 'searchResults';
+          document.getElementById('channelsList').appendChild(resultsDiv);
+        }
+        resultsDiv.innerHTML = html;
+      });
+    };
+    
+    window.addFriend = function(targetUser) {
+      push(ref(db, `friendRequests/${targetUser}`), {
+        from: username,
+        fromPic: profilePic,
+        timestamp: Date.now()
+      });
+      
+      // Show notification to sender
+      alert(`✅ Friend request sent to ${targetUser}!`);
+      
+      // Update DM badge for target user
+      get(ref(db, `friendRequests/${targetUser}`)).then(snap => {
+        const requests = snap.val() || {};
+        const count = Object.keys(requests).length;
+        // Target user will see this when they reload
+      });
+    };
+    
+    function loadMessages(channel) {
+      const isReadOnly = channel === 'announcements' && userRole !== 'Owner';
+      
+      if (isReadOnly) {
+        document.getElementById('messageInput').disabled = true;
+        document.getElementById('messageInput').placeholder = 'Read-only channel';
+      } else {
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('messageInput').placeholder = `Message #${channel}`;
+      }
+      
+      onValue(ref(db, `channels/${channel}/messages`), (snapshot) => {
+        const messages = snapshot.val() || {};
+        const area = document.getElementById('messagesArea');
+        
+        area.innerHTML = Object.entries(messages).map(([id, msg]) => {
+          const time = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+          const avatar = msg.profilePic ? `<img src="${msg.profilePic}">` : (msg.username.charAt(0).toUpperCase());
+          
+          const roleClass = msg.role === 'Owner' ? 'owner' : msg.role === 'Admin' ? 'admin' : '';
+          const roleBadge = msg.role === 'Owner' ? '<span class="role-badge owner">OWNER</span>' : msg.role === 'Admin' ? '<span class="role-badge admin">ADMIN</span>' : '';
+          
+          const canDelete = username === msg.username || userRole === 'Owner';
+          
+          const replyHtml = msg.replyTo ? `
+            <div class="reply-preview">
+              <strong>↩ ${msg.replyTo.username}:</strong> ${msg.replyTo.text.substring(0, 50)}${msg.replyTo.text.length > 50 ? '...' : ''}
+            </div>
+          ` : '';
+          
+          let mediaHtml = '';
+          if (msg.imageUrl) {
+            mediaHtml = `<img src="${msg.imageUrl}" class="message-image" alt="Image">`;
+          } else if (msg.videoUrl) {
+            mediaHtml = `<video src="${msg.videoUrl}" class="message-video" controls></video>`;
+          }
+          
+          const reactions = msg.reactions ? Object.entries(msg.reactions).map(([emoji, users]) => {
+            const userList = Object.keys(users);
+            const count = userList.length;
+            const reacted = userList.includes(username);
+            return `<div class="reaction ${reacted ? 'reacted' : ''}" onclick="toggleReaction('${id}', '${emoji}')">${emoji} <span class="reaction-count">${count}</span></div>`;
+          }).join('') : '';
+          
+          return `
+            <div class="message" id="msg-${id}">
+              <div class="message-avatar">${avatar}</div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author ${roleClass}">${msg.username}</span>
+                  ${roleBadge}
+                  <span class="message-time">${time}</span>
+                </div>
+                ${replyHtml}
+                <div class="message-text">${msg.text}</div>
+                ${mediaHtml}
+                ${reactions ? `<div class="message-reactions">${reactions}</div>` : ''}
+              </div>
+              <div class="message-actions">
+                <button class="action-btn" onclick="replyToMessage('${id}', '${msg.username}', \`${msg.text.replace(/`/g, '\\`')}\`)" title="Reply">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                </button>
+                <button class="action-btn" onclick="openEmojiPicker('${id}')" title="React">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+                ${canDelete ? `<button class="action-btn" onclick="deleteMessage('${channel}', '${id}')" title="Delete">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        area.scrollTop = area.scrollHeight;
+      });
+    }
+    
+    function loadMembers() {
+      // Load online users from presence (with actual online status)
+      onValue(ref(db, 'presence'), (presenceSnap) => {
+        const presenceData = presenceSnap.val() || {};
+        const onlineUsers = {};
+        
+        // Build map of online users (only those with online: true)
+        Object.values(presenceData).forEach(user => {
+          if (user.online === true) {
+            onlineUsers[user.username] = true;
+          }
+        });
+        
+        // Load all users from users node
+        get(ref(db, 'users')).then(usersSnap => {
+          const allUsersData = usersSnap.val() || {};
+          const sidebar = document.getElementById('membersSidebar');
+          
+          const owners = [];
+          const admins = [];
+          const regular = [];
+          
+          Object.values(allUsersData).forEach(user => {
+            const isOnline = onlineUsers[user.username] === true;
+            const userData = { ...user, online: isOnline };
+            
+            if (user.role === 'Owner') owners.push(userData);
+            else if (user.role === 'Admin') admins.push(userData);
+            else regular.push(userData);
+          });
+          
+          let html = '';
+          
+          if (owners.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">OWNER — ${owners.length}</div>`;
+            owners.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              const nameClass = m.online ? 'member-name owner online' : 'member-name owner';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="${nameClass}">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          if (admins.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">ADMINS — ${admins.length}</div>`;
+            admins.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              const nameClass = m.online ? 'member-name admin online' : 'member-name admin';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="${nameClass}">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          if (regular.length > 0) {
+            html += `<div class="members-section">
+              <div class="members-title">MEMBERS — ${regular.length}</div>`;
+            regular.forEach(m => {
+              const avatar = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
+              const statusClass = m.online ? 'online' : 'offline';
+              const statusText = m.online ? 'Online' : 'Offline';
+              const nameClass = m.online ? 'member-name online' : 'member-name';
+              html += `
+                <div class="member">
+                  <div class="member-avatar">
+                    ${avatar}
+                    <div class="status-indicator ${statusClass}"></div>
+                  </div>
+                  <div class="member-info">
+                    <div class="${nameClass}">${m.username}</div>
+                    <div class="member-status-text">${statusText}</div>
+                  </div>
+                  ${m.username !== username ? `
+                  <div class="add-friend-icon" onclick="addFriend('${m.username}')" title="Add Friend">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                  </div>
+                  ` : ''}
+                </div>
+              `;
+            });
+            html += `</div>`;
+          }
+          
+          sidebar.innerHTML = html;
+        });
+      });
+    }
+    
+    window.handleFileUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const isVideo = file.type.startsWith('video/');
+        
+        const messageData = {
+          username,
+          profilePic,
+          text: isVideo ? '📹 Shared a video' : '🖼️ Shared an image',
+          timestamp: Date.now(),
+          role: userRole
+        };
+        
+        if (isVideo) {
+          messageData.videoUrl = dataUrl;
+        } else {
+          messageData.imageUrl = dataUrl;
+        }
+        
+        if (replyingTo) {
+          messageData.replyTo = replyingTo;
+        }
+        
+        push(ref(db, `channels/${currentChannel}/messages`), messageData);
+        cancelReply();
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    };
+    
+    window.sendMessage = function() {
+      if (currentChannel === 'announcements' && userRole !== 'Owner') return;
+      
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const messageData = {
+        username,
+        profilePic,
+        text,
+        timestamp: Date.now(),
+        role: userRole
+      };
+      
+      if (replyingTo) {
+        messageData.replyTo = replyingTo;
+      }
+      
+      push(ref(db, `channels/${currentChannel}/messages`), messageData);
+      
+      input.value = '';
+      cancelReply();
+    };
+    
+    window.replyToMessage = function(msgId, msgUsername, msgText) {
+      replyingTo = { username: msgUsername, text: msgText };
+      document.getElementById('replyBar').classList.add('show');
+      document.getElementById('replyInfo').innerHTML = `Replying to <strong>${msgUsername}</strong>`;
+      document.getElementById('messageInput').focus();
+    };
+    
+    window.cancelReply = function() {
+      replyingTo = null;
+      document.getElementById('replyBar').classList.remove('show');
+    };
+    
+    window.openEmojiPicker = function(msgId) {
+      currentEmojiMessageId = msgId;
+      const picker = document.getElementById('emojiPicker');
+      picker.classList.toggle('show');
+    };
+    
+    window.addReaction = function(emoji) {
+      if (!currentEmojiMessageId) return;
+      
+      const reactionPath = `channels/${currentChannel}/messages/${currentEmojiMessageId}/reactions/${emoji}/${username}`;
+      
+      get(ref(db, reactionPath)).then(snap => {
+        if (snap.exists()) {
+          remove(ref(db, reactionPath));
+        } else {
+          set(ref(db, reactionPath), true);
+        }
+      });
+      
+      document.getElementById('emojiPicker').classList.remove('show');
+      currentEmojiMessageId = null;
+    };
+    
+    window.toggleReaction = function(msgId, emoji) {
+      const reactionPath = `channels/${currentChannel}/messages/${msgId}/reactions/${emoji}/${username}`;
+      
+      get(ref(db, reactionPath)).then(snap => {
+        if (snap.exists()) {
+          remove(ref(db, reactionPath));
+        } else {
+          set(ref(db, reactionPath), true);
+        }
+      });
+    };
+    
+    window.deleteMessage = function(channel, msgId) {
+      if (confirm('Delete this message?')) {
+        remove(ref(db, `channels/${channel}/messages/${msgId}`));
+      }
+    };
+    
+    window.requestOwnerAccess = function() {
+      if (localStorage.getItem('nova_owner_verified') === 'true') {
+        switchChannel('owner-access');
+        return;
+      }
+      document.getElementById('ownerAccessModal').classList.add('show');
+      document.getElementById('ownerPasscode').value = '';
+      document.getElementById('ownerError').style.display = 'none';
+      ownerAttempts = 0;
+    };
+    
+    window.verifyOwnerAccess = function() {
+      const input = document.getElementById('ownerPasscode').value;
+      const errorDiv = document.getElementById('ownerError');
+      
+      if (input === OWNER_PASSCODE) {
+        localStorage.setItem('nova_owner_verified', 'true');
+        localStorage.setItem('nova_chat_role', 'Owner');
+        userRole = 'Owner';
+        updateUserRole();
+        closeModal('ownerAccessModal');
+        loadChannels();
+        switchChannel('owner-access');
+        
+        set(ref(db, `presence/${userId}/role`), 'Owner');
+        set(ref(db, `users/${username}/role`), 'Owner');
+      } else {
+        ownerAttempts++;
+        errorDiv.textContent = `Incorrect passcode. ${3 - ownerAttempts} attempts remaining.`;
+        errorDiv.style.display = 'block';
+        
+        if (ownerAttempts >= 3) {
+          errorDiv.textContent = 'Too many failed attempts. Refresh to try again.';
+          document.getElementById('ownerPasscode').disabled = true;
+          setTimeout(() => {
+            closeModal('ownerAccessModal');
+          }, 2000);
+        }
+      }
+    };
+    
+    window.openAdminPanel = function() {
+      document.getElementById('adminPanelModal').classList.add('show');
+      loadAdminPanel();
+    };
+    
+    function loadAdminPanel() {
+      get(ref(db, 'users')).then(snap => {
+        const users = snap.val() || {};
+        const admins = Object.values(users).filter(u => u.role === 'Admin' || u.role === 'Owner');
+        
+        const adminsList = document.getElementById('adminsList');
+        if (admins.length === 0) {
+          adminsList.innerHTML = '<p style="color: #80848e;">No admins assigned.</p>';
+        } else {
+          adminsList.innerHTML = admins.map(a => `
+            <div class="admin-list-entry">${a.username} - ${a.role}</div>
+          `).join('');
+        }
+      });
+      
+      get(ref(db, 'bans')).then(snap => {
+        const bans = snap.val() || {};
+        const banLogs = document.getElementById('banLogs');
+        
+        const activeBans = Object.entries(bans).filter(([_, data]) => data.banned === true);
+        
+        if (activeBans.length === 0) {
+          banLogs.innerHTML = '<p style="color: #80848e;">No active bans.</p>';
+        } else {
+          banLogs.innerHTML = activeBans.map(([user, data]) => {
+            const date = new Date(data.timestamp).toLocaleString();
+            return `<div class="ban-log-entry">🚫 ${user} - Banned on ${date}</div>`;
+          }).join('');
+        }
+      });
+    }
+    
+    window.banUser = function() {
+      const targetUser = document.getElementById('banUsername').value.trim();
+      if (!targetUser) {
+        alert('Please enter a username');
+        return;
+      }
+      
+      if (targetUser === username) {
+        alert('You cannot ban yourself!');
+        return;
+      }
+      
+      if (confirm(`Ban ${targetUser}?`)) {
+        set(ref(db, `bans/${targetUser}`), {
+          banned: true,
+          bannedBy: username,
+          timestamp: Date.now()
+        });
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `⚠️ ${targetUser} has been banned by ${username}.`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        
+        document.getElementById('banUsername').value = '';
+        loadAdminPanel();
+      }
+    };
+    
+    window.unbanUser = function() {
+      const targetUser = document.getElementById('unbanUsername').value.trim();
+      if (!targetUser) {
+        alert('Please enter a username');
+        return;
+      }
+      
+      if (confirm(`Unban ${targetUser}?`)) {
+        remove(ref(db, `bans/${targetUser}`));
+        
+        push(ref(db, 'channels/general/messages'), {
+          username: 'Nova Bot',
+          profilePic: '',
+          text: `✅ ${targetUser} has been unbanned by ${username}.`,
+          timestamp: Date.now(),
+          role: 'Bot',
+          isBot: true
+        });
+        
+        document.getElementById('unbanUsername').value = '';
+        loadAdminPanel();
+      }
+    };
+    
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    };
+    
+    // Click outside to close emoji picker
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('emojiPicker');
+      if (!picker.contains(e.target) && !e.target.closest('.action-btn')) {
+        picker.classList.remove('show');
+      }
+    });
+    
+    // Enter to send
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+    
+    // Enter to verify
+    document.getElementById('ownerPasscode').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyOwnerAccess();
+    });
+    
+    // Cleanup on exit
+    window.addEventListener('beforeunload', () => {
+      set(ref(db, `presence/${userId}/online`), false);
+    });
+  </script>
+</body>
+</html>
