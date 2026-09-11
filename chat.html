@@ -4994,20 +4994,44 @@
         // Clean the message (remove @mentions)
         const cleanMessage = userMessage.replace(/@Nova AI|@NovaAI/gi, '').trim();
         
-        // Use free Hugging Face Inference API with a better model (Mistral)
-        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
+        // Use Google Gemini API (free tier) - More powerful AI!
+        const GEMINI_API_KEY = 'AIzaSyDlN8O8zJ9QqFxvK2wKZiMT5Zb8dXQyN4Y'; // Free API key
+        
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            inputs: `You are Nova AI, a helpful and friendly AI assistant in a gaming/app platform chat. Be conversational, helpful, and concise. User: ${cleanMessage}\nNova AI:`,
-            parameters: {
-              max_new_tokens: 250,
-              temperature: 0.7,
-              top_p: 0.9,
-              return_full_text: false
-            }
+            contents: [{
+              parts: [{
+                text: `You are Nova AI, a helpful and friendly AI assistant in a gaming/app platform chat called Nova. Be conversational, helpful, fun, and concise. Keep responses under 200 words. Use emojis occasionally. Help with gaming, tech, coding, and general questions.\n\nUser: ${cleanMessage}\n\nNova AI:`
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.9,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 300,
+            },
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              }
+            ]
           })
         });
         
@@ -5015,11 +5039,19 @@
         
         if (response.ok) {
           const data = await response.json();
-          aiReply = data[0]?.generated_text || data.generated_text || "I'm here to help! Ask me anything.";
+          
+          // Extract Gemini response
+          if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            aiReply = data.candidates[0].content.parts[0].text;
+          } else if (data.error) {
+            console.error('Gemini API Error:', data.error);
+            aiReply = getSimpleAIResponse(cleanMessage);
+          } else {
+            aiReply = getSimpleAIResponse(cleanMessage);
+          }
           
           // Clean up the response
           aiReply = aiReply.replace(/^Nova AI:\s*/i, '').trim();
-          aiReply = aiReply.split('\n')[0]; // Get first line for cleaner responses
           
           // Limit response length
           if (aiReply.length > 500) {
@@ -5163,7 +5195,7 @@
           profilePic: '',
           role: 'Bot',
           roles: ['Bot'],
-          bio: '🤖 I\'m Nova AI, your friendly assistant! @mention me or DM me anytime.',
+          bio: '🤖 I\'m Nova AI, powered by Google Gemini! @mention me or DM me anytime for help with gaming, tech, coding, and more!',
           lastSeen: Date.now(),
           isBot: true
         });
