@@ -2298,37 +2298,54 @@
   }
   
   function applyClockCustomization() {
+    console.log('🕐 Applying clock customization...');
+    
     // Clock visibility
     const clockVisible = localStorage.getItem('nova_clock_visible') !== 'false';
     const clockWrap = document.querySelector('.clock-wrap');
     if (clockWrap) {
       clockWrap.style.display = clockVisible ? 'flex' : 'none';
+      console.log(`  Clock visible: ${clockVisible}`);
     }
     
     // Clock font
     const clockFont = localStorage.getItem('nova_clock_font') || 'Segoe UI';
     const timeEl = document.getElementById('clock-time');
-    if (timeEl) timeEl.style.fontFamily = clockFont;
+    if (timeEl) {
+      timeEl.style.fontFamily = clockFont;
+      console.log(`  Clock font: ${clockFont}`);
+    }
     
     // Date font
     const dateFont = localStorage.getItem('nova_date_font') || 'Segoe UI';
     const dateEl = document.getElementById('clock-date');
-    if (dateEl) dateEl.style.fontFamily = dateFont;
+    if (dateEl) {
+      dateEl.style.fontFamily = dateFont;
+      console.log(`  Date font: ${dateFont}`);
+    }
   }
   
   function applyDockCustomization() {
+    console.log('🎨 Applying dock customization...');
+    
     const dock = document.querySelector('.dock');
-    if (!dock) return;
+    if (!dock) {
+      console.log('  ❌ Dock not found!');
+      return;
+    }
     
     // Apply dock color
     const dockColor = localStorage.getItem('nova_dock_color') || 'default';
     const dockStyle = localStorage.getItem('nova_dock_style') || 'preset';
+    
+    console.log(`  Dock color: ${dockColor}, style: ${dockStyle}`);
     
     if (dockColor === 'default') {
       // Use original CSS styles - remove inline styles
       dock.style.background = '';
       dock.style.backdropFilter = '';
       dock.style.border = '';
+      console.log('  Using default (original CSS)');
       return; // Let CSS handle it
     }
     
@@ -2424,11 +2441,19 @@
   
   // Apply dock position
   function applyDockPosition() {
+    console.log('📍 Applying dock position...');
+    
     const position = localStorage.getItem('nova_dock_position') || 'bottom';
     const dock = document.querySelector('.dock');
+    
+    console.log(`  Position: ${position}`);
+    
     if (dock) {
       dock.classList.remove('dock-left', 'dock-right', 'dock-bottom');
       dock.classList.add(`dock-${position}`);
+      console.log(`  ✅ Applied dock-${position} class`);
+    } else {
+      console.log('  ❌ Dock not found!');
     }
   }
   
@@ -3575,6 +3600,17 @@ brRenderBmBar();
       console.log('🔴 Closing app:', d.app);
       closePanel(d.app);
       brClose && brClose();
+      
+      // If settings is closing, reapply all customizations
+      if (d.app === 'settings') {
+        console.log('⚙️ Settings closed, applying customizations...');
+        setTimeout(() => {
+          applyDockCustomization();
+          applyDockPosition();
+          applyClockCustomization();
+          console.log('✅ Customizations applied!');
+        }, 100);
+      }
     }
     if (d.novaAction === 'minimizeApp') {
       closePanel(d.app);
