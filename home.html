@@ -811,9 +811,38 @@
     .dock-divider {
       width: 1px;
       height: 32px;
-      background: rgba(255,255,255,0.1);
-      margin: 0 6px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent);
+      margin: 0 8px;
       flex-shrink: 0;
+      position: relative;
+    }
+    
+    /* Glow effect on divider */
+    .dock-divider::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .dock:hover .dock-divider::before {
+      opacity: 1;
+    }
+    
+    /* Divider in left/right sidebars - horizontal instead of vertical */
+    .dock.dock-left .dock-divider,
+    .dock.dock-right .dock-divider {
+      width: 32px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      margin: 8px 0;
+    }
+    
+    .dock.dock-left .dock-divider::before,
+    .dock.dock-right .dock-divider::before {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     }
 
     /* ── APP OVERLAY ── */
