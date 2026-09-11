@@ -2273,6 +2273,8 @@
   function goHome() {
     showScreen('s-home');
     startClock();
+    applyDockCustomization();
+    applyDockPosition();
   }
 
   /* clock */
@@ -2322,51 +2324,60 @@
     const dockColor = localStorage.getItem('nova_dock_color') || 'default';
     const dockStyle = localStorage.getItem('nova_dock_style') || 'preset';
     
-    // Reset styles
-    dock.style.background = '';
-    dock.style.backdropFilter = '';
-    dock.style.border = '';
-    
     if (dockColor === 'default') {
-      dock.style.background = 'rgba(255,255,255,0.15)';
-      dock.style.backdropFilter = 'blur(20px)';
-      dock.style.border = '1px solid rgba(255,255,255,0.2)';
-    } else if (dockColor === 'white') {
+      // Use original CSS styles - remove inline styles
+      dock.style.background = '';
+      dock.style.backdropFilter = '';
+      dock.style.border = '';
+      return; // Let CSS handle it
+    }
+    
+    // For non-default colors, override with inline styles
+    if (dockColor === 'white') {
       dock.style.background = 'rgba(255,255,255,0.95)';
       dock.style.backdropFilter = 'blur(10px)';
       dock.style.border = '1px solid rgba(0,0,0,0.1)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2)';
     } else if (dockColor === 'dark') {
-      dock.style.background = 'rgba(0,0,0,0.8)';
+      dock.style.background = 'rgba(0,0,0,0.9)';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.1)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4)';
     } else if (dockColor === 'transparent') {
       dock.style.background = 'rgba(255,255,255,0.05)';
       dock.style.backdropFilter = 'blur(40px)';
       dock.style.border = '1px solid rgba(255,255,255,0.15)';
+      dock.style.boxShadow = '0 8px 32px rgba(0,0,0,0.2)';
     } else if (dockColor === 'gradient-purple-blue') {
       dock.style.background = 'linear-gradient(135deg, rgba(139,92,246,0.9), rgba(59,130,246,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(139,92,246,0.3)';
     } else if (dockColor === 'gradient-pink-orange') {
       dock.style.background = 'linear-gradient(135deg, rgba(236,72,153,0.9), rgba(251,146,60,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(236,72,153,0.3)';
     } else if (dockColor === 'gradient-green-blue') {
       dock.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.9), rgba(59,130,246,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(16,185,129,0.3)';
     } else if (dockColor === 'gradient-red-purple') {
       dock.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.9), rgba(139,92,246,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(239,68,68,0.3)';
     } else if (dockColor === 'gradient-cyan-blue') {
       dock.style.background = 'linear-gradient(135deg, rgba(6,182,212,0.9), rgba(37,99,235,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(6,182,212,0.3)';
     } else if (dockColor === 'gradient-yellow-red') {
       dock.style.background = 'linear-gradient(135deg, rgba(250,204,21,0.9), rgba(239,68,68,0.9))';
       dock.style.backdropFilter = 'blur(20px)';
       dock.style.border = '1px solid rgba(255,255,255,0.2)';
+      dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(250,204,21,0.3)';
     } else if (dockColor === 'custom-gradient') {
       const gradientData = localStorage.getItem('nova_custom_gradient');
       if (gradientData) {
@@ -2374,6 +2385,7 @@
         dock.style.background = `linear-gradient(135deg, ${color1}dd, ${color2}dd)`;
         dock.style.backdropFilter = 'blur(20px)';
         dock.style.border = '1px solid rgba(255,255,255,0.2)';
+        dock.style.boxShadow = '0 12px 48px rgba(0,0,0,0.4)';
       }
     }
   }
@@ -2397,6 +2409,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     applyDockCustomization();
     applyClockCustomization();
+    applyDockPosition();
   });
   
   listen('dockColorChanged', (data) => {
@@ -2423,9 +2436,6 @@
   listen('dockPositionChanged', (data) => {
     applyDockPosition();
   });
-  
-  // Apply on load
-  applyDockPosition();
 
   /* dock active */
   function dockClick(btn) {
