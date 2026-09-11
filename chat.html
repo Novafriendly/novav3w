@@ -5005,33 +5005,15 @@
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `You are Nova AI, a helpful, friendly, and knowledgeable AI assistant. You can discuss ANY topic - gaming, movies, music, sports, science, history, relationships, advice, jokes, stories, current events, or anything else! Be conversational, fun, empathetic, and engaging. Keep responses under 250 words. Use emojis when appropriate. Be like a cool friend who knows a lot about everything!\n\nUser: ${cleanMessage}\n\nNova AI:`
+                text: cleanMessage
               }]
             }],
             generationConfig: {
               temperature: 0.9,
               topK: 40,
               topP: 0.95,
-              maxOutputTokens: 300,
-            },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              }
-            ]
+              maxOutputTokens: 400,
+            }
           })
         });
         
@@ -5039,25 +5021,30 @@
         
         if (response.ok) {
           const data = await response.json();
+          console.log('Gemini API Response:', data);
           
           // Extract Gemini response
-          if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+          if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
             aiReply = data.candidates[0].content.parts[0].text;
+            console.log('✅ Gemini response:', aiReply);
           } else if (data.error) {
-            console.error('Gemini API Error:', data.error);
-            aiReply = getSimpleAIResponse(cleanMessage);
+            console.error('❌ Gemini API Error:', data.error);
+            aiReply = `I'm having trouble connecting right now. Here's what I think: ${getSimpleAIResponse(cleanMessage)}`;
           } else {
+            console.warn('⚠️ Unexpected response format:', data);
             aiReply = getSimpleAIResponse(cleanMessage);
           }
           
           // Clean up the response
-          aiReply = aiReply.replace(/^Nova AI:\s*/i, '').trim();
+          aiReply = aiReply.trim();
           
           // Limit response length
-          if (aiReply.length > 500) {
-            aiReply = aiReply.substring(0, 500) + '...';
+          if (aiReply.length > 600) {
+            aiReply = aiReply.substring(0, 600) + '...';
           }
         } else {
+          const errorText = await response.text();
+          console.error('❌ Gemini API failed:', response.status, errorText);
           // Fallback to simple responses if API fails
           aiReply = getSimpleAIResponse(cleanMessage);
         }
@@ -5100,6 +5087,22 @@
     // Simple fallback responses when API is unavailable
     function getSimpleAIResponse(message) {
       const msg = message.toLowerCase();
+      
+      // Math calculations
+      if (msg.match(/what\s+is\s+[\d\s\+\-\*\/\(\)]+|calculate|solve/)) {
+        try {
+          // Extract math expression
+          const mathMatch = message.match(/([\d\s\+\-\*\/\(\)\.]+)/);
+          if (mathMatch) {
+            const expr = mathMatch[1].trim();
+            // Safely evaluate simple math
+            const result = Function('"use strict"; return (' + expr + ')')();
+            return `${expr} = **${result}** 🧮`;
+          }
+        } catch (e) {
+          return "I can help with math! Try asking like: 'what is 5+5' or 'calculate 10*3' 🧮";
+        }
+      }
       
       // Greetings
       if (msg.match(/\b(hi|hello|hey|sup|yo)\b/)) {
