@@ -5005,7 +5005,7 @@
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `You are Nova AI, a helpful and friendly AI assistant in a gaming/app platform chat called Nova. Be conversational, helpful, fun, and concise. Keep responses under 200 words. Use emojis occasionally. Help with gaming, tech, coding, and general questions.\n\nUser: ${cleanMessage}\n\nNova AI:`
+                text: `You are Nova AI, a helpful, friendly, and knowledgeable AI assistant. You can discuss ANY topic - gaming, movies, music, sports, science, history, relationships, advice, jokes, stories, current events, or anything else! Be conversational, fun, empathetic, and engaging. Keep responses under 250 words. Use emojis when appropriate. Be like a cool friend who knows a lot about everything!\n\nUser: ${cleanMessage}\n\nNova AI:`
               }]
             }],
             generationConfig: {
@@ -5124,7 +5124,7 @@
       
       // Help/What can you do
       if (msg.match(/help|what can you do|what do you do|commands/)) {
-        return "I'm Nova AI! I can:\n• Answer questions & have conversations\n• Help with coding & tech questions\n• Recommend games & apps\n• Tell jokes & share tips\n• Explain things simply\n\nIn #ai-assistance, I auto-respond to everything! In other channels, just @mention me! 🤖";
+        return "I'm Nova AI, powered by Google Gemini! I can:\n• Answer ANY question (science, history, relationships, advice, etc.)\n• Have conversations about anything\n• Help with coding, tech, gaming\n• Tell jokes, stories, fun facts\n• Give recommendations (movies, music, games, books)\n• Explain complex topics simply\n• Be your friend and chat buddy!\n\nIn #ai-assistance, I auto-respond to everything! In other channels, just @mention me! 🤖✨";
       }
       
       // Coding/Programming questions
@@ -5195,7 +5195,7 @@
           profilePic: '',
           role: 'Bot',
           roles: ['Bot'],
-          bio: '🤖 I\'m Nova AI, powered by Google Gemini! @mention me or DM me anytime for help with gaming, tech, coding, and more!',
+          bio: '🤖 I\'m Nova AI, powered by Google Gemini! Ask me ANYTHING - games, movies, advice, science, jokes, stories, or just chat! @mention me or DM me anytime! ✨',
           lastSeen: Date.now(),
           isBot: true
         });
