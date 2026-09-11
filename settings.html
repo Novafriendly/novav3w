@@ -947,6 +947,12 @@
         </div>
         Appearance
       </button>
+      <button class="sb-item" data-tab="homecustomize" onclick="switchTab(this)">
+        <div class="sb-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/><path d="M12 15v6"/></svg>
+        </div>
+        Home Customize
+      </button>
       <button class="sb-item" data-tab="tabcloak" onclick="switchTab(this)">
         <div class="sb-icon">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/><path d="M8 21v-4a2 2 0 012-2h4a2 2 0 012 2v4"/></svg>
@@ -1267,6 +1273,559 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ── HOME CUSTOMIZE ── -->
+    <div class="tab-panel" id="tab-homecustomize">
+      <div class="panel-title">Home Customize</div>
+
+      <!-- Live Preview Section -->
+      <div class="scard" style="background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(59,130,246,0.05)); border: 1px solid rgba(139,92,246,0.2);">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          Live Preview
+        </div>
+        <div style="padding: 20px;">
+          <div id="homePreview" style="
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+          ">
+            <!-- Preview Clock -->
+            <div id="previewClock" style="
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              text-align: center;
+            ">
+              <div id="previewTime" style="
+                font-size: 72px;
+                font-weight: 700;
+                color: white;
+                text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                font-family: 'Segoe UI', sans-serif;
+              ">12:00</div>
+              <div id="previewDate" style="
+                font-size: 20px;
+                color: rgba(255,255,255,0.9);
+                margin-top: 8px;
+                font-family: 'Segoe UI', sans-serif;
+              ">Friday, August 28</div>
+            </div>
+
+            <!-- Preview Dock - Bottom (default) -->
+            <div id="previewDock" style="
+              position: absolute;
+              bottom: 12px;
+              left: 50%;
+              transform: translateX(-50%);
+              display: flex;
+              gap: 8px;
+              padding: 12px 20px;
+              background: rgba(255,255,255,0.15);
+              backdrop-filter: blur(20px);
+              border-radius: 20px;
+              border: 1px solid rgba(255,255,255,0.2);
+              box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            ">
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 12px;"></div>
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
+              <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
+              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dock Position -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Dock Position
+        </div>
+        <div style="padding: 20px;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            
+            <!-- Bottom -->
+            <button onclick="setDockPosition('bottom')" class="dock-position-btn active" data-position="bottom" style="
+              padding: 24px;
+              background: rgba(255,255,255,0.05);
+              border: 2px solid rgba(255,255,255,0.1);
+              border-radius: 16px;
+              cursor: pointer;
+              transition: all 0.3s;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 12px;
+              position: relative;
+              overflow: hidden;
+            ">
+              <div style="
+                width: 80px;
+                height: 60px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 8px;
+                position: relative;
+                background: rgba(255,255,255,0.02);
+              ">
+                <!-- Bottom dock indicator -->
+                <div style="
+                  position: absolute;
+                  bottom: 4px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  width: 50px;
+                  height: 8px;
+                  background: rgba(255,255,255,0.6);
+                  border-radius: 4px;
+                "></div>
+              </div>
+              <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);">Bottom</span>
+              <div class="position-check" style="
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #10b981;
+                display: none;
+                align-items: center;
+                justify-content: center;
+              ">
+                <svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+            </button>
+
+            <!-- Left -->
+            <button onclick="setDockPosition('left')" class="dock-position-btn" data-position="left" style="
+              padding: 24px;
+              background: rgba(255,255,255,0.05);
+              border: 2px solid rgba(255,255,255,0.1);
+              border-radius: 16px;
+              cursor: pointer;
+              transition: all 0.3s;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 12px;
+              position: relative;
+              overflow: hidden;
+            ">
+              <div style="
+                width: 80px;
+                height: 60px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 8px;
+                position: relative;
+                background: rgba(255,255,255,0.02);
+              ">
+                <!-- Left dock indicator -->
+                <div style="
+                  position: absolute;
+                  left: 4px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  width: 8px;
+                  height: 50px;
+                  background: rgba(255,255,255,0.6);
+                  border-radius: 4px;
+                "></div>
+              </div>
+              <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);">Left Sidebar</span>
+              <div class="position-check" style="
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #10b981;
+                display: none;
+                align-items: center;
+                justify-content: center;
+              ">
+                <svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+            </button>
+
+            <!-- Right -->
+            <button onclick="setDockPosition('right')" class="dock-position-btn" data-position="right" style="
+              padding: 24px;
+              background: rgba(255,255,255,0.05);
+              border: 2px solid rgba(255,255,255,0.1);
+              border-radius: 16px;
+              cursor: pointer;
+              transition: all 0.3s;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 12px;
+              position: relative;
+              overflow: hidden;
+            ">
+              <div style="
+                width: 80px;
+                height: 60px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 8px;
+                position: relative;
+                background: rgba(255,255,255,0.02);
+              ">
+                <!-- Right dock indicator -->
+                <div style="
+                  position: absolute;
+                  right: 4px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  width: 8px;
+                  height: 50px;
+                  background: rgba(255,255,255,0.6);
+                  border-radius: 4px;
+                "></div>
+              </div>
+              <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);">Right Sidebar</span>
+              <div class="position-check" style="
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #10b981;
+                display: none;
+                align-items: center;
+                justify-content: center;
+              ">
+                <svg width="12" height="12" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Clock & Date Settings -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Clock & Date
+        </div>
+        <div style="padding: 20px;">
+          
+          <!-- Clock Toggle -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px;">
+            <div>
+              <div style="font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 4px;">Show Clock</div>
+              <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Display time on home screen</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 48px; height: 26px;">
+              <input type="checkbox" id="clockToggle" checked onchange="toggleClock(this.checked)" style="opacity: 0; width: 0; height: 0;">
+              <span style="
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(255,255,255,0.2);
+                transition: 0.3s;
+                border-radius: 26px;
+              "></span>
+              <span style="
+                position: absolute;
+                content: '';
+                height: 20px;
+                width: 20px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: 0.3s;
+                border-radius: 50%;
+              "></span>
+            </label>
+          </div>
+
+          <!-- Clock Font -->
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 12px;">Clock Font</label>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              <button onclick="setClockFont('Segoe UI')" class="font-btn active" data-font="Segoe UI" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: 'Segoe UI', sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Segoe UI
+              </button>
+              <button onclick="setClockFont('Arial')" class="font-btn" data-font="Arial" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Arial, sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Arial
+              </button>
+              <button onclick="setClockFont('Georgia')" class="font-btn" data-font="Georgia" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Georgia, serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Georgia
+              </button>
+              <button onclick="setClockFont('Courier New')" class="font-btn" data-font="Courier New" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Courier
+              </button>
+              <button onclick="setClockFont('Impact')" class="font-btn" data-font="Impact" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Impact, sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Impact
+              </button>
+              <button onclick="setClockFont('Trebuchet MS')" class="font-btn" data-font="Trebuchet MS" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: 'Trebuchet MS', sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.2s;">
+                Trebuchet
+              </button>
+            </div>
+          </div>
+
+          <!-- Date Font -->
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 12px;">Date Font</label>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              <button onclick="setDateFont('Segoe UI')" class="date-font-btn active" data-font="Segoe UI" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s;">
+                Segoe UI
+              </button>
+              <button onclick="setDateFont('Arial')" class="date-font-btn" data-font="Arial" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s;">
+                Arial
+              </button>
+              <button onclick="setDateFont('Georgia')" class="date-font-btn" data-font="Georgia" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Georgia, serif; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s;">
+                Georgia
+              </button>
+              <button onclick="setDateFont('Verdana')" class="date-font-btn" data-font="Verdana" style="padding: 16px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; font-family: Verdana, sans-serif; font-size: 14px; font-weight: 600; color: white; transition: all 0.2s;">
+                Verdana
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dock Color & Style -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+          Dock Color & Style
+        </div>
+        <div style="padding: 20px;">
+          
+          <!-- Preset Colors -->
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 12px;">Preset Colors</label>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+              
+              <!-- Default Blur -->
+              <button onclick="setDockColor('default')" class="dock-color-btn active" data-color="default" style="
+                height: 60px;
+                background: rgba(255,255,255,0.15);
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Default</div>
+              </button>
+
+              <!-- White -->
+              <button onclick="setDockColor('white')" class="dock-color-btn" data-color="white" style="
+                height: 60px;
+                background: rgba(255,255,255,0.95);
+                border: 2px solid rgba(0,0,0,0.1);
+                border-radius: 12px;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: #333;">White</div>
+              </button>
+
+              <!-- Dark -->
+              <button onclick="setDockColor('dark')" class="dock-color-btn" data-color="dark" style="
+                height: 60px;
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white;">Dark</div>
+              </button>
+
+              <!-- Transparent -->
+              <button onclick="setDockColor('transparent')" class="dock-color-btn" data-color="transparent" style="
+                height: 60px;
+                background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%),
+                            linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%);
+                background-size: 10px 10px;
+                background-position: 0 0, 5px 5px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 12px;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Transparent</div>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Gradient Presets -->
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 12px;">Gradient Presets</label>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+              
+              <button onclick="setDockGradient('purple-blue')" class="dock-color-btn" data-color="gradient-purple-blue" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(139,92,246,0.9), rgba(59,130,246,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Purple Blue</div>
+              </button>
+
+              <button onclick="setDockGradient('pink-orange')" class="dock-color-btn" data-color="gradient-pink-orange" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(236,72,153,0.9), rgba(251,146,60,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Pink Orange</div>
+              </button>
+
+              <button onclick="setDockGradient('green-blue')" class="dock-color-btn" data-color="gradient-green-blue" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(16,185,129,0.9), rgba(59,130,246,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Green Blue</div>
+              </button>
+
+              <button onclick="setDockGradient('red-purple')" class="dock-color-btn" data-color="gradient-red-purple" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(239,68,68,0.9), rgba(139,92,246,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Red Purple</div>
+              </button>
+
+              <button onclick="setDockGradient('cyan-blue')" class="dock-color-btn" data-color="gradient-cyan-blue" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(6,182,212,0.9), rgba(37,99,235,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Cyan Blue</div>
+              </button>
+
+              <button onclick="setDockGradient('yellow-red')" class="dock-color-btn" data-color="gradient-yellow-red" style="
+                height: 60px;
+                background: linear-gradient(135deg, rgba(250,204,21,0.9), rgba(239,68,68,0.9));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255,255,255,0.2);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+              ">
+                <div style="font-size: 11px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Yellow Red</div>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Custom Gradient Builder -->
+          <div style="padding: 20px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 16px;">Custom Gradient</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px;">Color 1</label>
+                <input type="color" id="gradientColor1" value="#8b5cf6" onchange="updateCustomGradient()" style="
+                  width: 100%;
+                  height: 48px;
+                  border-radius: 10px;
+                  border: 2px solid rgba(255,255,255,0.1);
+                  background: transparent;
+                  cursor: pointer;
+                ">
+              </div>
+              <div>
+                <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px;">Color 2</label>
+                <input type="color" id="gradientColor2" value="#3b82f6" onchange="updateCustomGradient()" style="
+                  width: 100%;
+                  height: 48px;
+                  border-radius: 10px;
+                  border: 2px solid rgba(255,255,255,0.1);
+                  background: transparent;
+                  cursor: pointer;
+                ">
+              </div>
+            </div>
+
+            <button onclick="applyCustomGradient()" style="
+              width: 100%;
+              padding: 14px;
+              background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+              border: none;
+              border-radius: 12px;
+              color: white;
+              font-weight: 600;
+              font-size: 14px;
+              cursor: pointer;
+              transition: all 0.2s;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              Apply Custom Gradient
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Reset to Defaults -->
+      <div class="scard">
+        <div class="scard-head">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Reset Home Customization
+        </div>
+        <div style="padding: 20px;">
+          <button onclick="resetHomeCustomization()" style="
+            width: 100%;
+            padding: 14px;
+            background: rgba(239,68,68,0.1);
+            border: 2px solid rgba(239,68,68,0.3);
+            border-radius: 12px;
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+          " onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+            Reset to Default Settings
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── TAB CLOAK ── -->
@@ -4186,6 +4745,339 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 })();
+
+/* ══════════════════════════════════
+   HOME CUSTOMIZE FUNCTIONS
+══════════════════════════════════ */
+
+// Initialize home customization
+function initHomeCustomization() {
+  loadHomeCustomization();
+  updatePreviewClock();
+  setInterval(updatePreviewClock, 1000);
+  
+  // Apply styles for buttons
+  applyButtonStyles();
+}
+
+function loadHomeCustomization() {
+  // Load dock position
+  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
+  document.querySelectorAll('.dock-position-btn').forEach(btn => {
+    if (btn.dataset.position === dockPosition) {
+      btn.classList.add('active');
+      btn.querySelector('.position-check').style.display = 'flex';
+    } else {
+      btn.classList.remove('active');
+      btn.querySelector('.position-check').style.display = 'none';
+    }
+  });
+  updateDockPreview(dockPosition);
+  
+  // Load clock settings
+  const clockVisible = localStorage.getItem('nova_clock_visible') !== 'false';
+  document.getElementById('clockToggle').checked = clockVisible;
+  const clockFont = localStorage.getItem('nova_clock_font') || 'Segoe UI';
+  document.querySelectorAll('.font-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.font === clockFont);
+  });
+  document.getElementById('previewTime').style.fontFamily = clockFont;
+  
+  // Load date font
+  const dateFont = localStorage.getItem('nova_date_font') || 'Segoe UI';
+  document.querySelectorAll('.date-font-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.font === dateFont);
+  });
+  document.getElementById('previewDate').style.fontFamily = dateFont;
+  
+  // Load dock color
+  const dockColor = localStorage.getItem('nova_dock_color') || 'default';
+  document.querySelectorAll('.dock-color-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.color === dockColor);
+  });
+  applyDockColorPreview(dockColor);
+  
+  // Show/hide clock in preview
+  if (!clockVisible) {
+    document.getElementById('previewClock').style.display = 'none';
+  }
+}
+
+// Update preview clock
+function updatePreviewClock() {
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  document.getElementById('previewTime').textContent = `${hours}:${minutes}`;
+  
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  document.getElementById('previewDate').textContent = dateStr;
+}
+
+// Dock Position
+function setDockPosition(position) {
+  localStorage.setItem('nova_dock_position', position);
+  
+  // Update UI
+  document.querySelectorAll('.dock-position-btn').forEach(btn => {
+    if (btn.dataset.position === position) {
+      btn.classList.add('active');
+      btn.querySelector('.position-check').style.display = 'flex';
+    } else {
+      btn.classList.remove('active');
+      btn.querySelector('.position-check').style.display = 'none';
+    }
+  });
+  
+  updateDockPreview(position);
+  emit('dockPositionChanged', { position });
+  showToast(`Dock moved to ${position}`, 'green');
+}
+
+function updateDockPreview(position) {
+  const dock = document.getElementById('previewDock');
+  
+  // Reset styles
+  dock.style.bottom = '';
+  dock.style.left = '';
+  dock.style.right = '';
+  dock.style.top = '';
+  dock.style.transform = '';
+  dock.style.flexDirection = '';
+  dock.style.width = '';
+  dock.style.height = '';
+  
+  if (position === 'bottom') {
+    dock.style.bottom = '12px';
+    dock.style.left = '50%';
+    dock.style.transform = 'translateX(-50%)';
+    dock.style.flexDirection = 'row';
+    dock.style.padding = '12px 20px';
+  } else if (position === 'left') {
+    dock.style.left = '12px';
+    dock.style.top = '50%';
+    dock.style.transform = 'translateY(-50%)';
+    dock.style.flexDirection = 'column';
+    dock.style.padding = '20px 12px';
+  } else if (position === 'right') {
+    dock.style.right = '12px';
+    dock.style.top = '50%';
+    dock.style.transform = 'translateY(-50%)';
+    dock.style.flexDirection = 'column';
+    dock.style.padding = '20px 12px';
+  }
+}
+
+// Clock Toggle
+function toggleClock(visible) {
+  localStorage.setItem('nova_clock_visible', visible);
+  document.getElementById('previewClock').style.display = visible ? 'block' : 'none';
+  emit('clockVisibilityChanged', { visible });
+  showToast(visible ? 'Clock enabled' : 'Clock disabled', 'green');
+}
+
+// Clock Font
+function setClockFont(font) {
+  localStorage.setItem('nova_clock_font', font);
+  
+  // Update UI
+  document.querySelectorAll('.font-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.font === font);
+  });
+  
+  document.getElementById('previewTime').style.fontFamily = font;
+  emit('clockFontChanged', { font });
+  showToast(`Clock font: ${font}`, 'green');
+}
+
+// Date Font
+function setDateFont(font) {
+  localStorage.setItem('nova_date_font', font);
+  
+  // Update UI
+  document.querySelectorAll('.date-font-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.font === font);
+  });
+  
+  document.getElementById('previewDate').style.fontFamily = font;
+  emit('dateFontChanged', { font });
+  showToast(`Date font: ${font}`, 'green');
+}
+
+// Dock Color
+function setDockColor(color) {
+  localStorage.setItem('nova_dock_color', color);
+  localStorage.setItem('nova_dock_style', 'preset');
+  
+  // Update UI
+  document.querySelectorAll('.dock-color-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.color === color);
+  });
+  
+  applyDockColorPreview(color);
+  emit('dockColorChanged', { color, type: 'preset' });
+  showToast(`Dock color: ${color}`, 'green');
+}
+
+function setDockGradient(gradient) {
+  localStorage.setItem('nova_dock_color', `gradient-${gradient}`);
+  localStorage.setItem('nova_dock_style', 'gradient');
+  
+  // Update UI
+  document.querySelectorAll('.dock-color-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.color === `gradient-${gradient}`);
+  });
+  
+  applyDockColorPreview(`gradient-${gradient}`);
+  emit('dockColorChanged', { color: gradient, type: 'gradient' });
+  showToast(`Gradient applied: ${gradient.replace('-', ' ')}`, 'green');
+}
+
+function applyDockColorPreview(color) {
+  const dock = document.getElementById('previewDock');
+  
+  // Remove all existing styles
+  dock.style.background = '';
+  dock.style.backdropFilter = '';
+  dock.style.border = '';
+  
+  if (color === 'default') {
+    dock.style.background = 'rgba(255,255,255,0.15)';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'white') {
+    dock.style.background = 'rgba(255,255,255,0.95)';
+    dock.style.backdropFilter = 'blur(10px)';
+    dock.style.border = '1px solid rgba(0,0,0,0.1)';
+  } else if (color === 'dark') {
+    dock.style.background = 'rgba(0,0,0,0.8)';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.1)';
+  } else if (color === 'transparent') {
+    dock.style.background = 'rgba(255,255,255,0.05)';
+    dock.style.backdropFilter = 'blur(40px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.15)';
+  } else if (color === 'gradient-purple-blue') {
+    dock.style.background = 'linear-gradient(135deg, rgba(139,92,246,0.9), rgba(59,130,246,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'gradient-pink-orange') {
+    dock.style.background = 'linear-gradient(135deg, rgba(236,72,153,0.9), rgba(251,146,60,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'gradient-green-blue') {
+    dock.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.9), rgba(59,130,246,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'gradient-red-purple') {
+    dock.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.9), rgba(139,92,246,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'gradient-cyan-blue') {
+    dock.style.background = 'linear-gradient(135deg, rgba(6,182,212,0.9), rgba(37,99,235,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color === 'gradient-yellow-red') {
+    dock.style.background = 'linear-gradient(135deg, rgba(250,204,21,0.9), rgba(239,68,68,0.9))';
+    dock.style.backdropFilter = 'blur(20px)';
+    dock.style.border = '1px solid rgba(255,255,255,0.2)';
+  } else if (color.startsWith('custom-gradient-')) {
+    const gradientData = localStorage.getItem('nova_custom_gradient');
+    if (gradientData) {
+      const { color1, color2 } = JSON.parse(gradientData);
+      dock.style.background = `linear-gradient(135deg, ${color1}dd, ${color2}dd)`;
+      dock.style.backdropFilter = 'blur(20px)';
+      dock.style.border = '1px solid rgba(255,255,255,0.2)';
+    }
+  }
+}
+
+// Custom Gradient
+function updateCustomGradient() {
+  const color1 = document.getElementById('gradientColor1').value;
+  const color2 = document.getElementById('gradientColor2').value;
+  
+  // Update preview immediately
+  const dock = document.getElementById('previewDock');
+  dock.style.background = `linear-gradient(135deg, ${color1}dd, ${color2}dd)`;
+  dock.style.backdropFilter = 'blur(20px)';
+  dock.style.border = '1px solid rgba(255,255,255,0.2)';
+}
+
+function applyCustomGradient() {
+  const color1 = document.getElementById('gradientColor1').value;
+  const color2 = document.getElementById('gradientColor2').value;
+  
+  localStorage.setItem('nova_dock_color', 'custom-gradient');
+  localStorage.setItem('nova_dock_style', 'custom-gradient');
+  localStorage.setItem('nova_custom_gradient', JSON.stringify({ color1, color2 }));
+  
+  // Update UI
+  document.querySelectorAll('.dock-color-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  applyDockColorPreview('custom-gradient-preview');
+  emit('dockColorChanged', { color: { color1, color2 }, type: 'custom-gradient' });
+  showToast('Custom gradient applied!', 'green');
+}
+
+// Reset Home Customization
+function resetHomeCustomization() {
+  if (!confirm('Reset all home customization to defaults?')) return;
+  
+  localStorage.removeItem('nova_dock_position');
+  localStorage.removeItem('nova_clock_visible');
+  localStorage.removeItem('nova_clock_font');
+  localStorage.removeItem('nova_date_font');
+  localStorage.removeItem('nova_dock_color');
+  localStorage.removeItem('nova_dock_style');
+  localStorage.removeItem('nova_custom_gradient');
+  
+  loadHomeCustomization();
+  emit('homeCustomizationReset', {});
+  showToast('Home customization reset to defaults!', 'green');
+}
+
+// Apply button hover styles
+function applyButtonStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .dock-position-btn:hover,
+    .font-btn:hover,
+    .date-font-btn:hover,
+    .dock-color-btn:hover {
+      border-color: rgba(139,92,246,0.6) !important;
+      transform: scale(1.02);
+    }
+    
+    .dock-position-btn.active,
+    .font-btn.active,
+    .date-font-btn.active,
+    .dock-color-btn.active {
+      border-color: #8b5cf6 !important;
+      background: rgba(139,92,246,0.15) !important;
+    }
+    
+    input[type="checkbox"]:checked + span {
+      background-color: #8b5cf6 !important;
+    }
+    
+    input[type="checkbox"]:checked + span + span {
+      transform: translateX(22px) !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHomeCustomization);
+} else {
+  initHomeCustomization();
+}
 
 </script>
 
