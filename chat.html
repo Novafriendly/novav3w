@@ -5009,7 +5009,7 @@
           });
           
           // Find the last message from current user with an image
-          const userMessages = messages.filter(m => m.username === currentUsername);
+          const userMessages = messages.filter(m => m.username === username);
           const lastUserMessage = userMessages[userMessages.length - 1];
           
           if (lastUserMessage && lastUserMessage.imageUrl) {
