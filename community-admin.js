@@ -1,5 +1,7 @@
+import {attachAppealReview} from './community-appeals.js';
 export function mountCommunityAdmin({username, toast}) {
   const originalSwitch = window.switchAdminPageCompact;
+  let stopAppealReview = null;
   let busy = false, view = '', generation = 0;
   const root = () => document.getElementById('adminPageContentCompact');
   const service = () => { if (!window.NovaCommunity) throw Error('Still connecting. Please try again.'); return window.NovaCommunity; };
@@ -88,19 +90,27 @@ export function mountCommunityAdmin({username, toast}) {
     document.getElementById('nova-mod-target').onchange = () => showRestrictions().catch(error => status(error.message));
     document.getElementById('nova-mod-apply').onclick = () => applyRestriction(false);
     document.getElementById('nova-mod-remove').onclick = () => applyRestriction(true);
+    const reviews = document.createElement('div'); reviews.className = 'admin-card-new'; root().appendChild(reviews);
+    stopAppealReview = attachAppealReview(reviews, service(), actor);
     loadTargets(token);
   }
   async function announcements() {
     view = 'announcements'; const token = ++generation;
-    root().innerHTML = header('Announcement to website','Reach everyone on Nova with a live, 15-second announcement.')+`<div class="admin-card-new"><label class="nova-admin-field">YOUR MESSAGE<textarea id="nova-ann-text" class="admin-input-new" maxlength="1000" rows="5" placeholder="What would you like everyone to know?"></textarea></label><p class="nova-admin-hint">Appears at the top center of every open Nova page. Users can close it at any time.</p><div class="nova-admin-actions"><button class="admin-btn-new primary" data-mutate id="nova-ann-publish">Send announcement</button></div><p class="nova-admin-status" role="status" data-status></p></div><div class="nova-eyebrow">PREVIEW</div><div class="nova-ann-preview"><div id="nova-ann-preview-avatar"></div><div><strong id="nova-ann-preview-name"></strong><p id="nova-ann-preview-text">Your announcement will appear here.</p></div></div>`;
+    root().innerHTML = header('Announcement to website','Send a live message or let everyone vote in a poll.')+`<div class="admin-card-new"><label class="nova-admin-field">ANNOUNCEMENT TYPE<select id="nova-ann-type" class="admin-select-new"><option value="message">Message · 15 seconds</option><option value="poll">Poll · 60 seconds</option></select></label><label class="nova-admin-field">MESSAGE OR POLL QUESTION<textarea id="nova-ann-text" class="admin-input-new" maxlength="1000" rows="5" placeholder="What would you like everyone to know?"></textarea></label><div id="nova-poll-fields" hidden><label class="nova-admin-field">POLL OPTIONS · ONE PER LINE<textarea id="nova-poll-options" class="admin-input-new" rows="4" maxlength="500" placeholder="Yes&#10;No"></textarea></label><p class="nova-admin-hint">Add 2–4 unique choices, up to 80 characters each. One vote per account; results update live.</p></div><p class="nova-admin-hint">Appears at the top center of every open Nova page. Users can close it at any time.</p><div class="nova-admin-actions"><button class="admin-btn-new primary" data-mutate id="nova-ann-publish">Send announcement</button></div><p class="nova-admin-status" role="status" data-status></p></div><div class="nova-eyebrow">PREVIEW</div><div class="nova-ann-preview"><div id="nova-ann-preview-avatar"></div><div><strong id="nova-ann-preview-name"></strong><p id="nova-ann-preview-text">Your announcement will appear here.</p></div></div>`;
     const input = document.getElementById('nova-ann-text');
+    const kind = document.getElementById('nova-ann-type'), optionsInput = document.getElementById('nova-poll-options');
+    const previewOptions = document.createElement('div'); previewOptions.className = 'nova-poll-options'; document.getElementById('nova-ann-preview-text').after(previewOptions);
+    function preview() { document.getElementById('nova-poll-fields').hidden = kind.value !== 'poll'; document.getElementById('nova-ann-publish').textContent = kind.value === 'poll' ? 'Send poll' : 'Send announcement'; previewOptions.replaceChildren(); if (kind.value === 'poll') optionsInput.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,4).forEach(text=>{const item=document.createElement('div');item.className='nova-poll-preview-option';item.textContent=text;previewOptions.appendChild(item)}); }
+    kind.onchange = optionsInput.oninput = preview;
     document.getElementById('nova-ann-preview-name').textContent = username;
     input.oninput = () => { document.getElementById('nova-ann-preview-text').textContent = input.value || 'Your announcement will appear here.'; };
     document.getElementById('nova-ann-publish').onclick = () => mutate(async () => {
       const text = input.value.trim(); if (!text || text.length > 1000) throw Error('Enter a message of 1–1,000 characters.');
       const owner = await actor(true), api = service();
-      await api.backend.write('novaAnnouncements/latest', {id:crypto.randomUUID(),author:username,profilePic:api.safeImage(owner.profilePic || ''),text,createdAt:api.backend.timestamp()});
-      status('Announcement sent. It will disappear after 15 seconds.');
+      const type = kind.value, options = optionsInput.value.split('\n').map(s=>s.trim()).filter(Boolean);
+      if (type === 'poll' && (options.length < 2 || options.length > 4 || options.some(s=>s.length>80) || new Set(options.map(s=>s.toLowerCase())).size !== options.length)) throw Error('Add 2–4 different options, each 80 characters or fewer.');
+      await api.backend.write('novaAnnouncements/latest', {id:crypto.randomUUID(),author:username,profilePic:api.safeImage(owner.profilePic || ''),text,type,...(type === 'poll' ? {options} : {}),createdAt:api.backend.timestamp()});
+      status(type === 'poll' ? 'Poll sent. Voting stays open for 60 seconds.' : 'Announcement sent. It will disappear after 15 seconds.');
     });
     try {
       const owner = await actor(true); if (token !== generation) return;
@@ -110,11 +120,14 @@ export function mountCommunityAdmin({username, toast}) {
   }
   window.switchAdminPageCompact = function(page) {
     if (busy) { status('Please wait for the current action to finish.'); return; }
+    stopAppealReview?.(); stopAppealReview = null;
     generation++; view = page;
     if (page !== 'moderation' && page !== 'announcements') return originalSwitch(page);
     document.querySelectorAll('.admin-nav-item-new').forEach(item => item.classList.toggle('active',item.dataset.page === page));
     if (page === 'moderation') moderation(); else announcements();
   };
+  const originalClose = window.closeAdminPanelCompact;
+  window.closeAdminPanelCompact = () => { stopAppealReview?.(); stopAppealReview = null; originalClose(); };
   const openModeration = targetName => {
     window.openAdminPanel(); window.switchAdminPageCompact('moderation');
     if (typeof targetName === 'string') { document.getElementById('nova-mod-target').value = targetName; showRestrictions().catch(() => {}); }
