@@ -2354,6 +2354,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script type="module">
+    import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
     import { mountCommunityAdmin } from './community-admin.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -2453,6 +2454,7 @@
     });
 
     function resetChat() {
+      delete document.getElementById('channelName').dataset.dmAccount;
       chatGeneration++;
       if (stopMessages) stopMessages();
       if (stopTyping) stopTyping();
@@ -3109,26 +3111,7 @@
             
             const time = new Date(m.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
             
-            // For avatars, fetch user profile pic if not in message (important for groups)
-            let av;
-            if (m.profilePic) {
-              av = `<img src="${m.profilePic}">`;
-            } else {
-              // Fetch from users database
-              getAvatarUser(m.username).then(userSnap => {
-                if (generation !== chatGeneration || ch !== currentChannel) return;
-                const userData = userSnap.val();
-                if (userData && userData.profilePic) {
-                  // Update avatar dynamically
-                  const avatarEl = document.querySelector(`#msg-${id} .message-avatar`);
-                  if (avatarEl) {
-                    avatarEl.innerHTML = `<img src="${userData.profilePic}">`;
-                  }
-                }
-              });
-              av = m.username.charAt(0).toUpperCase();
-            }
-            
+            const av = m.profilePic ? `<img src="${m.profilePic}">` : m.username.charAt(0).toUpperCase();
             // Support multiple roles
             const userRoles = Array.isArray(m.roles) ? m.roles : (m.role ? [m.role] : []);
             const highestRole = userRoles.includes('Owner') ? 'owner' :
@@ -3210,8 +3193,8 @@
                 const replyAv = reply.profilePic ? `<img src="${reply.profilePic}">` : (reply.username ? reply.username.charAt(0).toUpperCase() : 'U');
                 const replyText = (reply.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 replyHtml = `<div class="message-reply" onclick="scrollToMessage('${m.replyTo}')">
-                  <div class="message-reply-avatar">${replyAv}</div>
-                  <span class="message-reply-user">${reply.username || 'Unknown'}</span>
+                  <div class="message-reply-avatar" data-profile-avatar="${encodeURIComponent(reply.username || '')}">${replyAv}</div>
+                  <span class="message-reply-user" data-profile-name="${encodeURIComponent(reply.username || '')}">${reply.username || 'Unknown'}</span>
                   <span class="message-reply-text">${replyText}</span>
                 </div>`;
                 console.log('Reply HTML generated successfully, length:', replyHtml.length, 'content:', replyHtml.substring(0, 100));
@@ -4188,6 +4171,7 @@
     function createDMChannel(dmId, otherUser) {
       resetChat();
       dmChannels[dmId] = otherUser;
+      document.getElementById('channelName').dataset.dmAccount = encodeURIComponent(otherUser);
       currentChannel = `dm_${dmId}`;
       switchView('dms');
       loadDMChannels();
@@ -4278,7 +4262,7 @@
               const streak = streakSnap.val();
               const streakBadge = (streak && streak.count > 0) ? `<span class="channel-streak" title="${streak.count} day streak"><span class="channel-streak-fire">🔥</span>${streak.count}</span>` : '';
               
-              html += `<div class="channel ${active}" onclick="switchToDM('${dmId}', '${f.username}')"><div class="channel-icon">${avatar}</div>${f.username}${streakBadge}${unreadBadge}</div>`;
+              html += `<div class="channel ${active}" onclick="switchToDM('${dmId}', '${f.username}')"><div class="channel-icon" data-profile-avatar="${encodeURIComponent(f.username)}">${avatar}</div><span data-profile-name="${encodeURIComponent(f.username)}">${f.username}</span>${streakBadge}${unreadBadge}</div>`;
               
               processed++;
               if (processed === friendsList.length) {
@@ -4292,7 +4276,10 @@
     }
     
     window.switchToDM = function(dmId, otherUser) {
+      if (!otherUser) { otherUser = dmId; dmId = [username, otherUser].sort().join('_'); }
+      closeModal('userProfileModal');
       resetChat();
+      document.getElementById('channelName').dataset.dmAccount = encodeURIComponent(otherUser);
       currentChannel = `dm_${dmId}`;
       
       // Clear unread messages for this DM
@@ -7653,6 +7640,7 @@
       showToast('Request Rejected', `Unban request from ${currentChatUser} rejected`, 'success');
       closeLobby();
     };
+      syncChatProfiles({subscribe:callback=>onValue(ref(db,'users'),snap=>callback(snap.val()||{})),currentAccount:username});
       mountCommunityAdmin({username, toast: showToast});
   </script>
   
