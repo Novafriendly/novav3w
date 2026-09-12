@@ -21,8 +21,10 @@ export function syncChatProfiles({subscribe,currentAccount,onSelf}) {
       if(node.classList.contains('message-avatar')||node.hasAttribute('data-profile-avatar')){
         const url=window.NovaCommunity?.safeImage(user.profilePic)||'';
         if(node.dataset.currentPhoto===url && node.dataset.currentName===name)return;
+        const presenceDot=node.querySelector('.status-indicator');
         node.dataset.currentPhoto=url;node.dataset.currentName=name;node.replaceChildren();
         if(url){const img=document.createElement('img');img.src=url;img.alt='';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';node.appendChild(img)}else node.textContent=name.charAt(0).toUpperCase();
+        if(presenceDot)node.appendChild(presenceDot);
       }else if(node.textContent!==name)node.textContent=name;
     });
     const heading=document.getElementById('channelName');

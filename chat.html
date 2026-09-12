@@ -3919,9 +3919,9 @@
                 }
                 
                 html += `<div class="member" onclick="openUserProfile('${m.username}')">
-                  <div class="member-avatar">${av}<div class="status-indicator ${st}"></div></div>
+                  <div class="member-avatar" data-profile-avatar="${encodeURIComponent(m.username)}">${av}<div class="status-indicator ${st}"></div></div>
                   <div class="member-info">
-                    <div class="${nc}">${m.username}</div>
+                    <div class="${nc}" data-profile-name="${encodeURIComponent(m.username)}">${m.username}</div>
                     <div class="nova-member-status ${st}"><span aria-hidden="true"></span>${m.online ? 'Online' : 'Offline'}</div>
                     ${activityHTML}
                   </div>
