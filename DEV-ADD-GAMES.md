@@ -62,7 +62,7 @@ Users can click the **"+ Add Custom Game"** button in the games page to add thei
 When a game has `"isProxied": true`:
 1. User clicks the game
 2. Nova opens `game-player.html?url=GAME_URL&proxy=true`
-3. Game-player.html routes it through: `https://scracmjetfornovatesters.onrender.com/?url=ENCODED_URL&transport=libcurl`
+3. Game-player.html routes it through: `https://scracmjetfornovatesters-n5gj.onrender.com/?url=ENCODED_URL&transport=libcurl`
 4. Game loads through Scramjet proxy
 
 ## Testing Your Games

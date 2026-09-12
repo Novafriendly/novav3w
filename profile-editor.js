@@ -31,6 +31,13 @@ export async function mountProfileEditor(root,{username,backend,onSaved}) {
   form.onsubmit=async event=>{event.preventDefault();if(busy)return;const displayName=field('displayName').value.trim(),type=field('bannerType').value;if(!displayName){status.textContent='Enter a display name.';return}if(type==='image'&&!banner){status.textContent='Choose a banner image.';return}
     const patch={displayName,bio:field('bio').value.trim(),profilePic:photo,banner:type,bannerImage:type==='image'?banner:null,bannerColor1:type==='gradient'?field('color1').value:null,bannerColor2:type==='gradient'?field('color2').value:null};
     busy=true;form.querySelectorAll('button,input,select,textarea').forEach(n=>n.disabled=true);status.textContent='Saving…';
-    try{await backend.update(Object.fromEntries(Object.entries(patch).map(([key,value])=>[`users/${username}/${key}`,value])));onSaved?.(patch);status.textContent='Profile saved. Your changes are ready.'}catch{status.textContent='Could not save. Your edits are still here—please try again.'}finally{busy=false;form.querySelectorAll('button,input,select,textarea').forEach(n=>n.disabled=false)}
+    try{await saveProfileFields(backend,username,patch);onSaved?.(patch);status.textContent='Profile saved. Your changes are ready.'}catch{status.textContent='Could not save. Your edits are still here—please try again.'}finally{busy=false;form.querySelectorAll('button,input,select,textarea').forEach(n=>n.disabled=false)}
   };preview();
+}
+
+export async function saveProfileFields(backend,username,patch) {
+  await backend.update(Object.fromEntries(Object.entries(patch).map(([key,value])=>[`users/${username}/${key}`,value])));
+  const saved=await backend.read(`users/${username}`);
+  if(!saved || Object.entries(patch).some(([key,value])=>(saved[key]??null)!==(value??null))) throw Error('Profile save could not be verified');
+  return saved;
 }

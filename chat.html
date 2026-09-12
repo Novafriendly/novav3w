@@ -2525,7 +2525,7 @@
     });
     
     // Update user data
-    set(ref(db, `users/${username}`), {username, profilePic, role: userRole, lastSeen: Date.now()});
+    update(ref(db, `users/${username}`), {username, lastSeen: Date.now()});
     
     // Update presence every 10 seconds
     setInterval(() => {
@@ -7640,7 +7640,7 @@
       showToast('Request Rejected', `Unban request from ${currentChatUser} rejected`, 'success');
       closeLobby();
     };
-      syncChatProfiles({subscribe:callback=>onValue(ref(db,'users'),snap=>callback(snap.val()||{})),currentAccount:username});
+      syncChatProfiles({subscribe:callback=>onValue(ref(db,'users'),snap=>callback(snap.val()||{})),currentAccount:username,onSelf:user=>{profilePic=user.profilePic||'';userBio=user.bio||'';}});
       mountCommunityAdmin({username, toast: showToast});
   </script>
   
