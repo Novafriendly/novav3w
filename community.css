@@ -94,3 +94,22 @@
 #nova-owner-announcement .nova-ann-progress{background:linear-gradient(90deg,#ffffff40,#ffffffe0);box-shadow:0 0 8px #ffffff30}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#nova-owner-announcement{background:rgba(30,33,38,.94)}}
 @media(prefers-reduced-transparency:reduce){#nova-owner-announcement{background:#22262b;backdrop-filter:none;-webkit-backdrop-filter:none}}
+/* Frosted glass admin panel */
+#adminPanelCompact{background:linear-gradient(125deg,#ffffff13,#ffffff03 50%,#ffffff08),rgba(20,23,27,.55);border:1px solid #ffffff28;border-top-color:#ffffff48;backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);box-shadow:0 28px 90px #0007,inset 0 1px 0 #ffffff20}
+#adminPanelCompact .admin-panel-sidebar-new{background:linear-gradient(160deg,#ffffff09,#ffffff02);border-color:#ffffff18}
+#adminPanelCompact .admin-panel-content-new{background:transparent}
+#adminPanelCompact .admin-card-new,#adminPanelCompact .admin-stat-card-new,#adminPanelCompact .admin-user-card-new{background:#ffffff05;border-color:#ffffff19;box-shadow:inset 0 1px 0 #ffffff08}
+#adminPanelCompact .admin-input-new,#adminPanelCompact .admin-select-new{background:#00000026;border-color:#ffffff20;color:#f1f3f5}
+#adminPanelCompact select option{background:#25292e;color:#f1f3f5}
+#adminPanelCompact .admin-input-new:focus,#adminPanelCompact .admin-select-new:focus{border-color:#ffffff60;outline:2px solid #ffffff12}
+#adminPanelCompact .admin-nav-item-new.active{background:#ffffff10;color:#f2f4f7;box-shadow:inset 0 1px 0 #ffffff12}
+#adminPanelCompact .admin-nav-item-new.active::before{background:#e7edf2}
+#adminPanelCompact .admin-nav-item-new:hover{background:#ffffff0b}
+#adminPanelCompact .nova-eyebrow{color:#c5cdd5}
+#adminPanelCompact .admin-btn-new.primary{background:#ffffffde;border-color:#ffffff80;color:#1d2227}
+#adminPanelCompact .nova-admin-status{color:#d8e1e8}
+#adminPanelCompact .nova-ann-preview{background:linear-gradient(130deg,#ffffff0d,#ffffff03);border-color:#ffffff25;box-shadow:inset 0 1px 0 #ffffff12}
+#adminPanelCompact .nova-ann-preview p{color:#e1e6eb}
+#adminPanelCompact .nova-scope-info{background:#ffffff06;border-color:#ffffff16;color:#cdd5dc}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#adminPanelCompact{background:#22262b}}
+@media(prefers-reduced-transparency:reduce){#adminPanelCompact{background:#22262b;backdrop-filter:none;-webkit-backdrop-filter:none}}
