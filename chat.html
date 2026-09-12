@@ -1895,7 +1895,7 @@
   <div class="modal" id="userProfileModal">
     <div class="modal-content discord-profile-modal">
       <!-- Close Button -->
-      <button class="discord-profile-close" onclick="closeModal('userProfileModal')">×</button>
+      <button class="discord-profile-close" aria-label="Close profile" onclick="closeModal('userProfileModal')">×</button>
       
       <!-- Banner Section - Full Width -->
       <div class="discord-profile-banner"></div>
@@ -5505,7 +5505,7 @@
       currentProfileUser = user;
       get(ref(db, `users/${user}`)).then(snap => {
         const u = snap.val();
-        if (!u) return;
+        if (!u || currentProfileUser !== user) return;
         
         // Update Banner
         const bannerEl = document.querySelector('.discord-profile-banner');
@@ -5521,8 +5521,8 @@
             bannerEl.style.backgroundSize = 'cover';
             bannerEl.style.backgroundPosition = 'center';
           } else {
-            const color1 = u.bannerColor1 || '#5865f2';
-            const color2 = u.bannerColor2 || '#7289da';
+            const color1 = u.bannerColor1 || '#ffffff12';
+            const color2 = u.bannerColor2 || '#ffffff03';
             bannerEl.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
           }
         }
@@ -5553,61 +5553,7 @@
           bioContainer.classList.add('discord-bio-empty');
         }
         
-        // Check online status and activity
-        get(ref(db, 'presence')).then(pSnap => {
-          const presence = pSnap.val() || {};
-          const userPresence = Object.values(presence).find(p => p.username === user);
-          const isOnline = userPresence && userPresence.online;
-          
-          // Update status indicator
-          const statusEl = document.getElementById('profileStatusIndicator');
-          if (statusEl) {
-            statusEl.className = `discord-status-indicator ${isOnline ? 'online' : 'offline'}`;
-          }
-          
-          // Show "Now Playing" section if user has activity
-          const nowPlayingSection = document.getElementById('nowPlayingSection');
-          if (userPresence && userPresence.activity && userPresence.activity.game) {
-            const activity = userPresence.activity;
-            
-            // Update game/app/browser icon
-            const gameIconEl = document.getElementById('activityGameIcon');
-            if (activity.icon) {
-              gameIconEl.src = activity.icon;
-              gameIconEl.style.display = 'block';
-            } else {
-              gameIconEl.style.display = 'none';
-            }
-            
-            // Update name and state based on activity type
-            document.getElementById('activityGameName').textContent = activity.game;
-            
-            const activityTypes = {
-              'game': 'Playing a game',
-              'app': 'Using an app',
-              'browser': 'Browsing the web'
-            };
-            
-            document.getElementById('activityGameState').textContent = activityTypes[activity.type] || 'Active';
-            
-            // Calculate time (if timestamp available)
-            if (activity.startTime) {
-              const elapsed = Math.floor((Date.now() - activity.startTime) / 60000);
-              const timeText = elapsed < 1 ? 'Just started' : 
-                             elapsed < 60 ? `${elapsed} minute${elapsed !== 1 ? 's' : ''} ago` :
-                             `${Math.floor(elapsed/60)} hour${Math.floor(elapsed/60) !== 1 ? 's' : ''} ago`;
-              document.getElementById('activityGameTime').textContent = `Started ${timeText}`;
-            } else {
-              document.getElementById('activityGameTime').textContent = 'Active now';
-            }
-            
-            // Show the section
-            nowPlayingSection.style.display = 'block';
-          } else {
-            // Hide the section if not playing
-            nowPlayingSection.style.display = 'none';
-          }
-        });
+        window.NovaCommunity?.watchProfileActivity(user);
         
         get(ref(db, `friends/${user}`)).then(fSnap => {
           const theirFriends = fSnap.val() || {};

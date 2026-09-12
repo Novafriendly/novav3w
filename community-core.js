@@ -1,3 +1,4 @@
+import {startActivity} from './community-activity.js';
 import {attachPoll} from './community-polls.js';
 import {attachBanAppeal, banIdentity} from './community-appeals.js';
 export function startCommunity(backend) {
@@ -103,6 +104,7 @@ export function startCommunity(backend) {
     }, () => { if (version === subscriptionVersion) { banLoaded = false; ready = false; emit(); } }));
     emit();
   }
+  startActivity(api);
   subscribeUser();
   if (isTop()) backend.subscribe('novaAnnouncements/latest', showAnnouncement, error => console.warn('Announcements unavailable', error));
   let signature = '';

@@ -20,3 +20,49 @@
 #nova-owner-announcement .nova-poll-option.is-selected{border-color:#b4a2ff;background:#a79bff12}
 .nova-poll-option>span:not(.nova-poll-fill){position:relative;z-index:1;overflow-wrap:anywhere}.nova-poll-fill{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#a79bff28,#a79bff48);transition:width .55s cubic-bezier(.16,1,.3,1)}.nova-poll-percent{font-size:12px;color:#d7ccff}.nova-poll-note{font-size:11px!important;color:#b7abc9!important}#nova-poll-fields[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#nova-owner-announcement,#nova-owner-announcement.nova-ann-leaving{animation:none}.nova-poll-fill,#nova-owner-announcement .nova-poll-option{transition:none}}
+/* Nova chat profile */
+#userProfileModal .discord-profile-modal{padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 32px);border:1px solid #c7b5ff26;border-radius:24px;background:#17151f;box-shadow:0 30px 100px #000a;overflow-y:auto;display:block;scrollbar-width:thin;scrollbar-color:#6e628a55 transparent}
+#userProfileModal .discord-profile-banner{height:142px;border-radius:0;overflow:hidden}
+#userProfileModal .discord-profile-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#17151f55,transparent)}
+#userProfileModal .discord-profile-content{overflow:visible;padding:0 28px 28px;background:radial-gradient(ellipse at top right,#a79bff0c,transparent 65%),#17151f}
+#userProfileModal .discord-avatar-section{margin-top:-42px;padding-left:0;margin-bottom:14px;z-index:1}
+#userProfileModal .discord-avatar-large{width:88px;height:88px;border:6px solid #17151f;border-radius:26px;overflow:visible;box-shadow:0 8px 25px #0005;animation:none}
+#userProfileModal .discord-avatar-large img{border-radius:20px}#userProfileModal .discord-status-indicator{border-color:#17151f;right:-3px;bottom:-3px}
+#userProfileModal .discord-display-name{font-size:27px;letter-spacing:-.7px;color:#f3efff;overflow-wrap:anywhere}
+#userProfileModal .discord-user-tag{color:#a99ebd;font-size:13px;margin-top:4px}#userProfileModal .discord-user-card{padding:0;background:none}
+#userProfileModal .discord-action-buttons{gap:10px;margin-top:20px}#userProfileModal .discord-btn{border-radius:11px;min-height:42px;font-size:13px;transition:background .2s,transform .2s}
+#userProfileModal .discord-btn-primary{background:#aa9af4;color:#201831}#userProfileModal .discord-btn-secondary{background:#ffffff09;border:1px solid #ffffff15;color:#e6dff6}
+#userProfileModal .discord-divider{background:#ffffff0c;margin:22px 0 16px}#userProfileModal .discord-tabs{border-bottom:1px solid #ffffff10;gap:8px;margin-bottom:22px}
+#userProfileModal .discord-tab{color:#a99ebd;border-radius:9px 9px 0 0;font-size:12px;padding:12px 16px}#userProfileModal .discord-tab.active{background:#a79bff12;color:#d3c7ff;border-color:#b4a2ff}
+#userProfileModal .discord-section{margin-bottom:20px}#userProfileModal .discord-section-title{color:#a99cbe;font-size:10px;letter-spacing:1.6px;font-weight:700;margin-bottom:10px}
+#userProfileModal .discord-bio,#userProfileModal .discord-note-input{background:#ffffff04;border:1px solid #ffffff0b;border-radius:12px;color:#c8bfd6;font-size:13px;line-height:1.6;padding:13px;overflow-wrap:anywhere}
+#userProfileModal .discord-role-badge{font-size:10px;letter-spacing:.6px;padding:7px 12px;border-radius:8px}#userProfileModal .discord-member-item{font-size:13px;color:#d0c8de}
+#userProfileModal .discord-activity-card{position:relative;display:flex;gap:14px;align-items:center;padding:18px;border:1px solid #ffffff10;border-radius:15px;background:#ffffff04;overflow:hidden}
+#userProfileModal .nova-activity-live .discord-activity-card{border-color:#b4a2ff35;background:linear-gradient(120deg,#a79bff19,#7c64c708)}
+#userProfileModal .nova-activity-live .discord-section-title::after{content:'LIVE';display:inline-block;margin-left:10px;font-size:8px;letter-spacing:1px;color:#80e3be;background:#80e3be12;border-radius:4px;padding:3px 6px}
+#userProfileModal .discord-activity-icon{width:54px;height:54px;border-radius:13px;object-fit:cover;flex-shrink:0}#userProfileModal .discord-activity-name{font-size:15px;font-weight:700;color:#ede5ff;overflow-wrap:anywhere}
+#userProfileModal .discord-activity-state{color:#b8accd;font-size:12px;margin-top:4px}#userProfileModal .discord-activity-time{color:#bba9fb;font-size:11px;font-variant-numeric:tabular-nums;margin-top:9px}
+#userProfileModal .discord-profile-close{border:1px solid #ffffff20;background:#15121dbb;backdrop-filter:blur(12px)}
+@media(max-width:480px){#userProfileModal .discord-profile-content{padding:0 18px 20px}#userProfileModal .discord-profile-banner{height:112px}}
+@media(prefers-reduced-motion:reduce){#userProfileModal *{animation:none!important;transition:none!important}}
+#userProfileModal .discord-activity-time::before{content:""}
+/* Neutral glass profile */
+#userProfileModal .discord-profile-modal{background:rgba(18,20,23,.66);border-color:#ffffff24;backdrop-filter:blur(24px) saturate(.8);-webkit-backdrop-filter:blur(24px) saturate(.8)}
+#userProfileModal .discord-profile-content{background:transparent}
+#userProfileModal .discord-profile-banner{background:linear-gradient(130deg,#ffffff12,#ffffff03)}
+#userProfileModal .discord-profile-banner::before{background:radial-gradient(ellipse at top left,#ffffff10,transparent 70%);animation:none}
+#userProfileModal .discord-profile-banner::after{background:linear-gradient(0deg,#00000014,transparent)}
+#userProfileModal .discord-avatar-large{background:#ffffff16;border-color:#292b2e;box-shadow:0 8px 25px #0004}
+#userProfileModal .discord-display-name{color:#f5f5f5}#userProfileModal .discord-user-tag,#userProfileModal .discord-section-title{color:#b4b8bd}
+#userProfileModal .discord-btn-primary{background:#ffffffdf;color:#16181a}#userProfileModal .discord-btn-secondary{background:#ffffff08;color:#eee}
+#userProfileModal .discord-tab{color:#b5b9bf}#userProfileModal .discord-tab.active{background:#ffffff0a;border-color:#e2e5e8;color:#fff}
+#userProfileModal .discord-bio,#userProfileModal .discord-note-input{background:#ffffff05;color:#cbd0d4}
+#userProfileModal .discord-member-item{color:#cbd0d4}
+#userProfileModal .nova-activity-live .discord-activity-card{border-color:#ffffff20;background:linear-gradient(120deg,#ffffff0b,#ffffff03)}
+#userProfileModal .discord-activity-name{color:#f2f3f4}#userProfileModal .discord-activity-state{color:#b2b8be}#userProfileModal .discord-activity-time{color:#c1c8cd}
+#userProfileModal .discord-status-indicator{width:18px;height:18px;border:3px solid #292b2e;z-index:2}
+#userProfileModal .discord-status-indicator.online{background:#35d887;box-shadow:0 0 0 2px #35d88720,0 0 12px #35d88755;animation:none}
+#userProfileModal .discord-status-indicator.offline{background:#747b83;box-shadow:none}
+#nova-profile-online{display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:4px 8px;border-radius:20px;font:600 11px/1.3 Arial,sans-serif;color:#b3b9bf;background:#ffffff08}
+#nova-profile-online::before{content:'';width:7px;height:7px;border-radius:50%;background:#818891}
+#nova-profile-online.is-online{color:#72e6a9;background:#35d88712}#nova-profile-online.is-online::before{background:#35d887;box-shadow:0 0 8px #35d88750}
