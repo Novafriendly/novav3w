@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="./community.css">
+  <script type="module" src="./community.js"></script>
+  <script src="./panic-smart.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Prevent aggressive caching -->
@@ -852,6 +855,54 @@
     .dock.dock-left .dock-divider::before,
     .dock.dock-right .dock-divider::before {
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    /* Keep vertical docks inside the viewport, including laptop browser chrome. */
+    .dock.dock-left,
+    .dock.dock-right {
+      --side-button-height: clamp(32px, calc((100vh - 108px) / 13), 48px);
+      --side-button-height: clamp(32px, calc((100dvh - 108px) / 13), 48px);
+      box-sizing: border-box;
+      min-height: 0;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      padding: 8px;
+    }
+
+    .dock.dock-left .dock-icons,
+    .dock.dock-right .dock-icons {
+      min-height: 0;
+      max-width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      scrollbar-width: thin;
+      gap: 3px;
+      padding: 2px;
+    }
+
+    .dock.dock-left .dock-btn,
+    .dock.dock-right .dock-btn {
+      flex: 0 0 var(--side-button-height);
+      height: var(--side-button-height);
+    }
+
+    .dock.dock-left .dock-btn img,
+    .dock.dock-right .dock-btn img {
+      width: clamp(24px, calc(var(--side-button-height) - 10px), 34px);
+      height: clamp(24px, calc(var(--side-button-height) - 10px), 34px);
+    }
+
+    .dock.dock-left .dock-divider,
+    .dock.dock-right .dock-divider {
+      margin: 4px 0;
+    }
+
+    .dock.dock-left .dock-btn:hover,
+    .dock.dock-right .dock-btn:hover,
+    .dock.dock-left .dock-btn:active,
+    .dock.dock-right .dock-btn:active {
+      transform: none;
     }
 
     /* ── APP OVERLAY ── */

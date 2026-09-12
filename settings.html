@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="./community.css">
+  <script type="module" src="./community.js"></script>
+  <script src="./panic-smart.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Prevent aggressive caching -->
@@ -2117,6 +2120,21 @@
               Save
             </button>
           </div>
+        </div>
+      </div>
+
+      <div class="panel-title" style="margin-top:28px;">Panic Button Smart</div>
+      <div class="scard">
+        <div class="scard-head">Quick website overlay</div>
+        <div style="padding:18px;">
+          <p style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:16px;">Press your Smart Panic key to cover Nova with your chosen website. Click “Go back to Nova” in the top-left corner to return to the page you left.</p>
+          <label style="display:flex;gap:10px;align-items:center;margin-bottom:16px;font-size:13px;"><input type="checkbox" id="panicSmartEnabled"> Enable Panic Button Smart</label>
+          <button type="button" id="panicSmartKeyBtn" style="display:flex;justify-content:space-between;width:100%;padding:12px 16px;border:1px solid #ffffff24;border-radius:8px;background:#ffffff0d;color:white;cursor:pointer;">Smart Panic key <strong id="panicSmartKeyDisplay">F8</strong></button>
+          <label for="panicSmartUrl" style="display:block;font-size:11px;margin:16px 0 8px;color:rgba(255,255,255,.65);">WEBSITE URL</label>
+          <input type="url" id="panicSmartUrl" value="https://classroom.google.com/" style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #ffffff24;border-radius:8px;background:#ffffff0d;color:white;">
+          <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" id="panicSmartSave" style="flex:1;padding:10px;border:0;border-radius:8px;background:#6366f1;color:white;cursor:pointer;">Save website</button></div>
+          <p style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.6;margin-top:14px;">Choose a key you do not use for typing or games. Some sites, including Google Classroom, may block embedded viewing; use “Open website” in the overlay. External games may not pass keyboard shortcuts to Nova. Click outside the game before pressing your key. Exit full-screen mode if needed.</p>
+          <p id="panicSmartStatus" role="status" style="font-size:12px;color:#a5b4fc;min-height:18px;margin-top:10px;"></p>
         </div>
       </div>
     </div>
@@ -4238,7 +4256,7 @@ function resetAll() {
     'nova_wallpaper_is_gif', 'nova_using_import', 'nova_active_import_label',
     'nova_custom_bgs', 'nova_proxy_engine', 'nova_proxy_transport', 'nova_search_engine',
     'nova_tab_cloak_title', 'nova_tab_cloak_icon', 'nova_tab_cloak_preset',
-    'nova_panic_key', 'nova_warn_before_closing'
+    'nova_panic_key', 'nova_warn_before_closing', 'nova_panic_smart_key', 'nova_panic_smart_url', 'nova_panic_smart_enabled'
   ];
   
   // Remove all Nova data
@@ -4421,6 +4439,8 @@ let isSettingPanicKey = false;
 function setPanicKey() {
   if (isSettingPanicKey) return;
   
+  window.NovaPanicSmart?.cancelRecording();
+  document.documentElement.dataset.novaPanicRecording = 'legacy';
   isSettingPanicKey = true;
   const display = document.getElementById('panicKeyDisplay');
   const btn = document.getElementById('panicKeyBtn');
@@ -4431,12 +4451,18 @@ function setPanicKey() {
   
   const handler = (e) => {
     e.preventDefault();
+    e.stopImmediatePropagation();
     const key = e.key.toUpperCase();
+    if (key === (localStorage.getItem('nova_panic_smart_key') || 'F8').toUpperCase()) {
+      showToast('That key is used by Panic Button Smart. Choose another.', 'orange');
+      return;
+    }
     localStorage.setItem('nova_panic_key', key);
     display.textContent = key;
     display.style.background = 'rgba(255,60,60,0.15)';
     btn.style.borderColor = 'rgba(255,255,255,0.12)';
     isSettingPanicKey = false;
+    delete document.documentElement.dataset.novaPanicRecording;
     document.removeEventListener('keydown', handler);
     document.removeEventListener('click', cancel);
     emit('panicKeyChanged', { key });
@@ -4454,6 +4480,7 @@ function setPanicKey() {
       display.style.background = 'rgba(255,60,60,0.15)';
       btn.style.borderColor = 'rgba(255,255,255,0.12)';
       isSettingPanicKey = false;
+    delete document.documentElement.dataset.novaPanicRecording;
       document.removeEventListener('keydown', handler);
       document.removeEventListener('click', cancel);
       showToast('Panic key setup cancelled', 'orange');
@@ -4706,6 +4733,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add new listener
   window._panicKeyHandler = (e) => {
+    if (document.documentElement.dataset.novaPanicRecording) return;
     if (e.key.toUpperCase() === savedKey.toUpperCase()) {
       e.preventDefault();
       

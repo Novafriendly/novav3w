@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module" src="./community.js"></script>
+  <script src="./panic-smart.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Chat</title>
@@ -1644,6 +1646,7 @@
       border-color: #5865f2;
     }
   </style>
+  <link rel="stylesheet" href="./community.css">
 </head>
 <body>
   <!-- ══════════════════════════════════════════════════
@@ -1666,8 +1669,8 @@
     
     <!-- Main Ban Content -->
     <div id="banMainContent">
-      <div class="banned-badge">⚠️ ACCOUNT BANNED</div>
-      <div class="banned-title">Access Denied</div>
+      <div class="banned-badge">CHAT RESTRICTION</div>
+      <div class="banned-title">Chat access is paused.</div>
       <div class="banned-message">Your account has been banned from Nova Chat. You cannot access chat channels until this restriction is resolved.</div>
       
       <div class="banned-info-card" id="banInfoCard">
@@ -1687,6 +1690,7 @@
           <span class="banned-info-label">Banned By</span>
           <span class="banned-info-value" id="bannedBy">Admin</span>
         </div>
+        <div class="banned-info-row"><span class="banned-info-label">Access returns</span><span class="banned-info-value" id="bannedUntil">When removed</span></div>
       </div>
       
       <div class="banned-actions">
@@ -2203,7 +2207,7 @@
   <div class="admin-panel-compact" id="adminPanelCompact">
     <div class="admin-panel-sidebar-new">
       <div class="admin-sidebar-header-new">
-        <div class="admin-logo-new">ADMIN</div>
+        <div class="admin-logo-new">NOVA ADMIN</div>
         <button class="admin-panel-close-new" onclick="closeAdminPanelCompact()">×</button>
       </div>
       <nav class="admin-sidebar-nav-new">
@@ -2219,6 +2223,7 @@
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
           <span>Moderation</span>
         </div>
+        <div class="admin-nav-item-new" onclick="switchAdminPageCompact('announcements')" data-page="announcements"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9v6h4l11 5V4L7 9H3zM7 15l2 6M21 8v8"/></svg><span>Announcement to website</span></div>
         <div class="admin-nav-item-new" onclick="switchAdminPageCompact('logs')" data-page="logs">
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
           <span>Chat Logs</span>
@@ -2349,6 +2354,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script type="module">
+    import { mountCommunityAdmin } from './community-admin.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
     import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update, query, orderByChild, limitToLast, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
@@ -4721,6 +4727,7 @@
     };
 
     window.handleTyping = function() {
+      if (!window.NovaCommunity?.canSend()) return;
       const channel = currentChannel;
       if (Date.now() - lastTypingAt >= 2000) {
         lastTypingAt = Date.now();
@@ -4733,6 +4740,7 @@
     let pendingImageFile = null;
     
     window.handleFileUpload = function(e) {
+      if (!window.NovaCommunity?.canSend()) { showToast('Chat restricted', window.NovaCommunity?.blockedMessage() || 'Connecting to moderation. Please try again.', 'info'); return; }
       const file = e.target.files[0];
       if (!file) return;
       
@@ -4958,6 +4966,7 @@
     }
 
     async function sendMessage() {
+      if (!window.NovaCommunity?.canSend()) { showToast('Chat restricted', window.NovaCommunity?.blockedMessage() || 'Connecting to moderation. Please try again.', 'info'); return; }
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       const channel = currentChannel;
@@ -5404,6 +5413,7 @@
     }
 
     window.toggleReaction = function(id, e) {
+      if (!window.NovaCommunity?.canSend()) { showToast('Chat restricted', window.NovaCommunity?.blockedMessage() || 'Connecting to moderation. Please try again.', 'info'); return; }
       const path = `channels/${currentChannel}/messages/${id}/reactions/${e}/${username}`;
       get(ref(db, path)).then(s => s.exists() ? remove(ref(db, path)) : set(ref(db, path), true));
     };
@@ -5461,6 +5471,7 @@
     };
     
     window.saveEdit = function(msgId, channel) {
+      if (!window.NovaCommunity?.canSend()) { showToast('Chat restricted', window.NovaCommunity?.blockedMessage() || 'Connecting to moderation. Please try again.', 'info'); return; }
       const textarea = document.getElementById(`edit-input-${msgId}`);
       if (!textarea) return;
       
@@ -6667,6 +6678,7 @@
             }
           });
           
+          if (!document.getElementById('compactDashOnline')) return;
           document.getElementById('compactDashOnline').textContent = onlineUsers.length;
           
           document.getElementById('onlineUsersList').innerHTML = onlineUsers.length === 0 ? '<p style="color:#666;padding:12px">No users online</p>' : onlineUsers.map(u => {
@@ -7432,39 +7444,24 @@
     
     // Enhanced ban status check with info
     function checkBanStatus() {
-      onValue(ref(db, `bans/${username}`), snap => {
-        if (snap.exists() && snap.val().banned === true) {
-          const banData = snap.val();
-          document.getElementById('bannedScreen').classList.add('show');
-          document.querySelector('.chat-container').style.display = 'none';
-          
-          // Populate ban info
-          document.getElementById('bannedUsername').textContent = username;
-          document.getElementById('bannedReason').textContent = banData.reason || 'Violation of Terms';
-          document.getElementById('bannedBy').textContent = banData.bannedBy || 'Admin';
-          
-          if (banData.timestamp) {
-            const date = new Date(banData.timestamp);
-            document.getElementById('bannedDate').textContent = date.toLocaleString();
-          }
-          
-          // Check if request already exists
-          get(ref(db, `unbanRequests/${username}`)).then(reqSnap => {
-            if (reqSnap.exists()) {
-              const reqData = reqSnap.val();
-              if (reqData.status === 'pending' || reqData.status === 'ai-handling') {
-                document.getElementById('banMainContent').style.display = 'none';
-                document.getElementById('requestPendingMsg').style.display = 'block';
-              }
-            }
-          });
-        } else {
-          document.getElementById('bannedScreen').classList.remove('show');
-          document.querySelector('.chat-container').style.display = 'flex';
-        }
-      });
+      if (window.__novaBanStatusBound) return;
+      window.__novaBanStatusBound = true;
+      function renderChatRestriction() {
+        const state = window.NovaCommunity?.state();
+        const ban = state?.chatBan;
+        document.getElementById('bannedScreen').classList.toggle('show', !!ban);
+        document.querySelector('.chat-container').style.display = ban ? 'none' : 'flex';
+        if (!ban) return;
+        document.getElementById('bannedUsername').textContent = username;
+        document.getElementById('bannedReason').textContent = ban.reason || 'No reason provided';
+        document.getElementById('bannedBy').textContent = ban.bannedBy || 'Administrator';
+        document.getElementById('bannedDate').textContent = ban.timestamp ? new Date(ban.timestamp).toLocaleString() : '—';
+        document.getElementById('bannedUntil').textContent = ban.expiresAt ? new Date(ban.expiresAt).toLocaleString() : 'When an administrator removes it';
+      }
+      window.addEventListener('nova-moderation', renderChatRestriction);
+      renderChatRestriction();
     }
-    
+
     /* ═══════════════════════════════════════════════════
        BANNED LOGS PANEL
     ═══════════════════════════════════════════════════ */
@@ -7822,6 +7819,7 @@
       showToast('Request Rejected', `Unban request from ${currentChatUser} rejected`, 'success');
       closeLobby();
     };
+      mountCommunityAdmin({username, toast: showToast});
   </script>
   
   <!-- ══════════════════════════════════════════════════
