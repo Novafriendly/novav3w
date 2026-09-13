@@ -2356,6 +2356,8 @@
   <script type="module">
     import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
+    import {basicReply} from './nova-ai-basic.js';
+    import {askNova} from './nova-ai-client.js';
     import {mountWelcome,isWelcome} from './welcome-channel.js';
     import {mountStaffControls} from './staff-controls.js';
     import { mountCommunityAdmin } from './community-admin.js';
@@ -2380,14 +2382,13 @@
     // Save username to localStorage for game/app/browser activity tracking
     localStorage.setItem('nova_username', username);
     
-    // Aggressive navigation function that WILL work
+    // Close the existing panel without navigating its iframe into another home page.
     window.goBackHome = function() {
-      // Remove all event listeners that might block
-      window.onbeforeunload = null;
-      // Force navigation
-      setTimeout(() => {
-        window.location = 'home.html';
-      }, 0);
+      if (window.parent !== window) {
+        window.parent.postMessage({ novaAction: 'closeApp', app: 'chat' }, window.location.origin === 'null' ? '*' : window.location.origin);
+        return;
+      }
+      window.location.assign('home.html');
     };
     
     // Sync role from Firebase on load and listen for changes
@@ -5044,318 +5045,18 @@
     // ═══════════════════════════════════════════════════════
     
     async function handleAIResponse(userMessage, channel) {
-      // Show typing indicator
-      set(ref(db, `typing/${channel}/Nova AI`), Date.now());
-      
+      const typingPath=ref(db,`typing/${channel}/Nova AI`);
       try {
-        // Clean the message (remove @mentions)
-        const cleanMessage = userMessage.replace(/@Nova AI|@NovaAI/gi, '').trim();
-        
-        // Check if there's an image attached to the last message
-        let imageData = null;
-        let imageType = null;
-        
-        // Get the last message from the user to check for images
-        const messagesRef = ref(db, `channels/${channel}/messages`);
-        const snapshot = await get(query(messagesRef, orderByChild('timestamp'), limitToLast(5)));
-        
-        if (snapshot.exists()) {
-          const messages = [];
-          snapshot.forEach(child => {
-            messages.push(child.val());
-          });
-          
-          // Find the last message from current user with an image
-          const userMessages = messages.filter(m => m.username === username);
-          const lastUserMessage = userMessages[userMessages.length - 1];
-          
-          if (lastUserMessage && lastUserMessage.imageUrl) {
-            // Convert image URL to base64 for Gemini
-            try {
-              const imgResponse = await fetch(lastUserMessage.imageUrl);
-              const blob = await imgResponse.blob();
-              const reader = new FileReader();
-              
-              await new Promise((resolve) => {
-                reader.onloadend = () => {
-                  const base64 = reader.result.split(',')[1]; // Remove data:image/...;base64, prefix
-                  imageData = base64;
-                  imageType = blob.type;
-                  resolve();
-                };
-                reader.readAsDataURL(blob);
-              });
-              
-              console.log('🖼️ Image attached to AI request');
-            } catch (imgError) {
-              console.warn('Failed to load image:', imgError);
-            }
-          }
-        }
-        
-        // Use secure backend API (keeps your API key secret!)
-        // Option 1: Deploy to Vercel/Netlify and use that URL
-        // Option 2: For testing, use direct API (less secure but works)
-        
-        const USE_SECURE_BACKEND = false; // Set to true when you deploy the backend
-        const BACKEND_URL = 'YOUR_BACKEND_URL_HERE'; // e.g., https://your-app.vercel.app/api/gemini
-        
-        let response;
-        
-        if (USE_SECURE_BACKEND && BACKEND_URL !== 'YOUR_BACKEND_URL_HERE') {
-          // Use secure backend (recommended)
-          response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              message: cleanMessage,
-              imageData: imageData,
-              imageType: imageType
-            })
-          });
-        } else {
-          // Direct API call (for testing only - API key visible in browser!)
-          // Get your own free API key at: https://makersuite.google.com/app/apikey
-          const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
-          
-          if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
-            console.warn('⚠️ No Gemini API key configured. Using fallback responses.');
-            const aiMessage = {
-              username: 'Nova AI',
-              profilePic: '',
-              text: getSimpleAIResponse(cleanMessage),
-              timestamp: Date.now(),
-              role: 'Bot',
-              roles: ['Bot'],
-              isAI: true
-            };
-            remove(ref(db, `typing/${channel}/Nova AI`));
-            push(ref(db, `channels/${channel}/messages`), aiMessage);
-            return;
-          }
-          
-          // Choose model based on image
-          const model = imageData ? 'gemini-pro-vision' : 'gemini-pro';
-          
-          // Build request parts
-          const parts = [{ text: cleanMessage }];
-          
-          if (imageData) {
-            parts.push({
-              inline_data: {
-                mime_type: imageType,
-                data: imageData
-              }
-            });
-          }
-          
-          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: parts
-              }],
-              generationConfig: {
-                temperature: 0.9,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 500,
-              }
-            })
-          });
-        }
-        
-        let aiReply = '';
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Gemini API Response:', data);
-          
-          // Handle secure backend response
-          if (USE_SECURE_BACKEND) {
-            if (data.success && data.response) {
-              aiReply = data.response;
-              if (data.hasImage) {
-                console.log('🖼️ AI analyzed image!');
-              }
-            } else if (data.fallback) {
-              aiReply = getSimpleAIResponse(cleanMessage);
-            }
-          } else {
-            // Handle direct API response
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-              aiReply = data.candidates[0].content.parts[0].text;
-              if (imageData) {
-                console.log('🖼️ AI analyzed image!');
-              }
-            } else if (data.error) {
-              console.error('❌ Gemini API Error:', data.error);
-              aiReply = `I'm having trouble right now. Here's a simple answer: ${getSimpleAIResponse(cleanMessage)}`;
-            } else {
-              console.warn('⚠️ Unexpected response:', data);
-              aiReply = getSimpleAIResponse(cleanMessage);
-            }
-          }
-          
-          // Clean up the response
-          aiReply = aiReply.trim();
-          
-          // Limit response length
-          if (aiReply.length > 700) {
-            aiReply = aiReply.substring(0, 700) + '...';
-          }
-        } else {
-          const errorText = await response.text();
-          console.error('❌ API failed:', response.status, errorText);
-          aiReply = getSimpleAIResponse(cleanMessage);
-        }
-        
-        // Remove typing indicator
-        remove(ref(db, `typing/${channel}/Nova AI`));
-        
-        // Send AI response
-        const aiMessage = {
-          username: 'Nova AI',
-          profilePic: '', // We'll add a special AI avatar
-          text: aiReply,
-          timestamp: Date.now(),
-          role: 'Bot',
-          roles: ['Bot'],
-          isAI: true
-        };
-        
-        push(ref(db, `channels/${channel}/messages`), aiMessage);
-        
-      } catch (error) {
-        console.error('AI Error:', error);
-        remove(ref(db, `typing/${channel}/Nova AI`));
-        
-        // Send fallback response
-        const fallbackMessage = {
-          username: 'Nova AI',
-          profilePic: '',
-          text: getSimpleAIResponse(userMessage),
-          timestamp: Date.now(),
-          role: 'Bot',
-          roles: ['Bot'],
-          isAI: true
-        };
-        
-        push(ref(db, `channels/${channel}/messages`), fallbackMessage);
-      }
+        await set(typingPath,Date.now());
+        const text=await askNova(userMessage,username+':'+channel);
+        await push(ref(db,`channels/${channel}/messages`),{username:'Nova AI',profilePic:'',text,timestamp:Date.now(),role:'Bot',roles:['Bot'],isAI:true});
+      } catch(error) { showToast('Nova AI','Could not send the AI reply. Please try again.','error'); }
+      finally { remove(typingPath).catch(()=>{}); }
     }
-    
+
     // Simple fallback responses when API is unavailable
-    function getSimpleAIResponse(message) {
-      const msg = message.toLowerCase();
-      
-      // Math calculations
-      if (msg.match(/what\s+is\s+[\d\s\+\-\*\/\(\)]+|calculate|solve/)) {
-        try {
-          // Extract math expression
-          const mathMatch = message.match(/([\d\s\+\-\*\/\(\)\.]+)/);
-          if (mathMatch) {
-            const expr = mathMatch[1].trim();
-            // Safely evaluate simple math
-            const result = Function('"use strict"; return (' + expr + ')')();
-            return `${expr} = **${result}** 🧮`;
-          }
-        } catch (e) {
-          return "I can help with math! Try asking like: 'what is 5+5' or 'calculate 10*3' 🧮";
-        }
-      }
-      
-      // Greetings
-      if (msg.match(/\b(hi|hello|hey|sup|yo)\b/)) {
-        const greetings = [
-          "Hey there! How can I help you today? 👋",
-          "Hello! I'm Nova AI, your friendly assistant. What can I do for you?",
-          "Hi! Ready to chat or help with anything you need!",
-          "Hey! What's on your mind?"
-        ];
-        return greetings[Math.floor(Math.random() * greetings.length)];
-      }
-      
-      // How are you
-      if (msg.match(/how are you|how r u|hows it going/)) {
-        const responses = [
-          "I'm doing great! Thanks for asking. How can I assist you?",
-          "I'm fantastic! Just here to help. What do you need?",
-          "All good! Ready to help with whatever you need! 🚀"
-        ];
-        return responses[Math.floor(Math.random() * responses.length)];
-      }
-      
-      // Help/What can you do
-      if (msg.match(/help|what can you do|what do you do|commands/)) {
-        return "I'm Nova AI, powered by Google Gemini! I can:\n• Answer ANY question (science, history, relationships, advice, etc.)\n• Have conversations about anything\n• Help with coding, tech, gaming\n• Tell jokes, stories, fun facts\n• Give recommendations (movies, music, games, books)\n• Explain complex topics simply\n• Be your friend and chat buddy!\n\nIn #ai-assistance, I auto-respond to everything! In other channels, just @mention me! 🤖✨";
-      }
-      
-      // Coding/Programming questions
-      if (msg.match(/how to|how do i|can you|explain|what is|tell me about/)) {
-        const helpfulResponses = [
-          "That's a great question! While I'm running in a simpler mode right now, I can try to help. Could you be more specific about what you need?",
-          "I'd love to help with that! Can you give me a bit more detail so I can provide a better answer?",
-          "Interesting topic! I can explain the basics - ask me something specific and I'll do my best!",
-          "Good question! I'm here to help. Try being more specific and I can give you better guidance!"
-        ];
-        return helpfulResponses[Math.floor(Math.random() * helpfulResponses.length)];
-      }
-      
-      // Game recommendations
-      if (msg.match(/game|play|recommend.*game|best game/)) {
-        return "Looking for games? Check out the Games section! We have tons of awesome games like:\n• Retro Bowl 🏈\n• 1v1.LOL 🎮\n• Slope 🎿\n• And many more!\n\nJust click the Games tab to explore! 🎮";
-      }
-      
-      // App recommendations  
-      if (msg.match(/app|tool|recommend.*app|best app/)) {
-        return "Need apps? Browse the Apps section! We've got:\n• YouTube 📺\n• Discord 💬\n• Spotify 🎵\n• And more!\n\nCheck the Apps tab for the full collection! 📱";
-      }
-      
-      // Jokes
-      if (msg.match(/joke|funny|laugh/)) {
-        const jokes = [
-          "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
-          "Why don't scientists trust atoms? Because they make up everything!",
-          "What's a computer's favorite snack? Microchips! 🍟",
-          "Why did the developer go broke? Because he used up all his cache! 💰"
-        ];
-        return jokes[Math.floor(Math.random() * jokes.length)];
-      }
-      
-      // Coding tips
-      if (msg.match(/tip|code|programming|dev/)) {
-        const tips = [
-          "💡 Tip: Always comment your code. Your future self will thank you!",
-          "💡 Tip: Use meaningful variable names. 'x' is not descriptive!",
-          "💡 Tip: Test your code frequently. Catch bugs early!",
-          "💡 Tip: Take breaks! Your brain needs rest to code better."
-        ];
-        return tips[Math.floor(Math.random() * tips.length)];
-      }
-      
-      // Thanks
-      if (msg.match(/thank|thanks|thx/)) {
-        return "You're welcome! Happy to help anytime! 😊";
-      }
-      
-      // Default response
-      const defaults = [
-        "That's interesting! Tell me more about it.",
-        "I'm here to help! What else would you like to know?",
-        "Got it! Anything else I can assist with?",
-        "Interesting question! I'm still learning, but I'm here to help however I can!",
-        "I appreciate you chatting with me! What else is on your mind?"
-      ];
-      
-      return defaults[Math.floor(Math.random() * defaults.length)];
-    }
-    
+    function getSimpleAIResponse(message) { return basicReply(message); }
+
     // Create Nova AI user in Firebase if it doesn't exist
     get(ref(db, 'users/NovaAI')).then(snap => {
       if (!snap.exists()) {
