@@ -1,104 +1,90 @@
-$ErrorActionPreference = 'Stop'
-$projectRoot = [IO.Path]::GetFullPath($PSScriptRoot)
-$repository = 'https://github.com/Novafriendly/novav3w.git'
-$branch = 'main'
-$uploadRoot = Join-Path ([IO.Path]::GetTempPath()) ('Nova-GitHub-' + [guid]::NewGuid().ToString('N'))
-$gitCommand = (Get-Command git -ErrorAction SilentlyContinue).Source
-
-function Run-Git {
-    param([string[]]$Arguments)
-    & $gitCommand @Arguments | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw 'Git could not complete that step. Nothing in your Nova folder was changed.' }
+$ErrorActionPreference='Stop'
+$projectRoot=[IO.Path]::GetFullPath($PSScriptRoot)
+$repository='https://github.com/Novafriendly/novav3w.git'
+$cacheBase=Join-Path $env:LOCALAPPDATA 'NovaUploader'
+$uploadRoot=Join-Path $cacheBase 'novav3w.git'
+$indexPath=Join-Path ([IO.Path]::GetTempPath()) ('Nova-index-'+[guid]::NewGuid().ToString('N'))
+$oldIndex=$env:GIT_INDEX_FILE
+$gitCommand=(Get-Command git -ErrorAction SilentlyContinue).Source
+$lock=$null
+function Git-Result {
+ param([string[]]$Arguments)
+ $result=@(& $gitCommand @Arguments)
+ if($LASTEXITCODE -ne 0){throw 'Git could not finish. Check the message above; your Nova files are unchanged.'}
+ return ,$result
 }
-
+function Run-Git {param([string[]]$Arguments) (Git-Result -Arguments $Arguments) | Out-Host}
 try {
-    Write-Host "`n  NOVA / UPDATE GITHUB`n" -ForegroundColor Cyan
-    Write-Host "Destination: Novafriendly/novav3w ($branch)"
-    Write-Host 'Only files you select will be uploaded. This does not delete files on GitHub.'
-    if (!$gitCommand) { throw 'Install Git for Windows from https://git-scm.com/downloads/win, then run this file again.' }
-    Write-Host "`nGetting the latest GitHub files..."
-    Write-Host 'If Git asks you to sign in, use the account with access to Novafriendly/novav3w.'
-    Run-Git -Arguments @('clone', '--depth', '1', '--branch', $branch, '--', $repository, $uploadRoot)
-
-    $candidates = @(& $gitCommand -C $projectRoot -c core.quotepath=false ls-files --cached --others --exclude-standard)
-    if ($LASTEXITCODE -ne 0) { throw 'Could not list your project files.' }
-    $changes = @()
-    foreach ($relative in ($candidates | Sort-Object -Unique)) {
-        # Never offer credentials, Git internals or dependency folders.
-        if ($relative -match '(^|/)(\.git|node_modules|\.env(?:\..*)?|credentials[^/]*|[^/]*\.(pem|key|pfx|p12))($|/)') { continue }
-        $source = [IO.Path]::GetFullPath((Join-Path $projectRoot $relative))
-        if (!$source.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { continue }
-        if (!(Test-Path -LiteralPath $source -PathType Leaf)) { continue }
-        $file = Get-Item -LiteralPath $source
-        if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
-        $destination = Join-Path $uploadRoot $relative
-        $state = 'New'
-        if (Test-Path -LiteralPath $destination -PathType Leaf) {
-            if ((Get-FileHash -LiteralPath $source).Hash -eq (Get-FileHash -LiteralPath $destination).Hash) { continue }
-            $state = 'Changed'
-        }
-        $changes += [pscustomobject]@{ Number = $changes.Count + 1; Status = $state; File = $relative; Source = $source }
-    }
-    if (!$changes.Count) { Write-Host "`nEverything already matches GitHub." -ForegroundColor Green; return }
-    Write-Host "`nFiles different from GitHub:`n"
-    $changes | Select-Object Number, Status, File | Format-Table -AutoSize | Out-Host
-    Write-Host 'Enter file numbers separated by commas (example: 1,3,5).'
-    Write-Host 'You can also enter ALL, or Q to cancel.'
-    $answer = (Read-Host 'Select files').Trim()
-    if (!$answer -or $answer -eq 'Q') { Write-Host 'Cancelled.'; return }
-    if ($answer -eq 'ALL') { $selected = @($changes) }
-    else {
-        $numbers = @($answer -split '[,\s]+' | Where-Object { $_ })
-        $selected = @()
-        foreach ($value in $numbers) {
-            $number = 0
-            if (![int]::TryParse($value, [ref]$number) -or $number -lt 1 -or $number -gt $changes.Count) { throw "Invalid selection: $value. Run the uploader again and select listed numbers." }
-            $selected += $changes[$number - 1]
-        }
-        $selected = @($selected | Sort-Object Number -Unique)
-    }
-    if (!$selected.Count) { return }
-    Write-Host "`nSelected for upload:" -ForegroundColor Cyan
-    $selected | ForEach-Object { Write-Host ('  ' + $_.File) }
-    if ($selected.Source | Where-Object { (Get-Item -LiteralPath $_).Length -gt 95MB }) { throw 'A selected file is too large for a normal GitHub upload (over 95 MB). Select smaller files.' }
-    $message = (Read-Host "`nDescribe this update (commit message)").Trim()
-    if (!$message) { $message = 'Update selected Nova files' }
-    if ((Read-Host 'Upload these files to main? Type YES to continue') -cne 'YES') { Write-Host 'Cancelled.'; return }
-
-    foreach ($item in $selected) {
-        $destination = [IO.Path]::GetFullPath((Join-Path $uploadRoot $item.File))
-        if (!$destination.StartsWith($uploadRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid destination path.' }
-        [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($destination)) | Out-Null
-        Copy-Item -LiteralPath $item.Source -Destination $destination -Force
-        Run-Git -Arguments @('-C', $uploadRoot, 'add', '--', $item.File)
-    }
-    & $gitCommand -C $uploadRoot diff --cached --quiet
-    if ($LASTEXITCODE -eq 0) { Write-Host 'No content changes to commit (only local line endings differed).'; return }
-    if ($LASTEXITCODE -ne 1) { throw 'Could not check selected changes.' }
-    foreach ($field in @('name','email')) {
-        $existing = & $gitCommand -C $uploadRoot config ('user.' + $field)
-        if (!$existing) {
-            $identityValue = (Read-Host "Git commit author $field (use your GitHub no-reply email if preferred)").Trim()
-            if (!$identityValue) { throw 'A commit author name and email are required.' }
-            Run-Git -Arguments @('-C', $uploadRoot, 'config', '--local', ('user.' + $field), $identityValue)
-        }
-    }
-    Run-Git -Arguments @('-C', $uploadRoot, 'commit', '-m', $message)
-    # A normal push safely refuses if main changed since the initial download.
-    # Do not force-push or overwrite concurrent updates.
-    Run-Git -Arguments @('-C', $uploadRoot, 'push', 'origin', 'HEAD:main')
-    $commit = & $gitCommand -C $uploadRoot rev-parse HEAD
-    Write-Host "`nUploaded successfully!" -ForegroundColor Green
-    Write-Host "https://github.com/Novafriendly/novav3w/commit/$commit"
-    Write-Host 'Your hosting provider may need time to deploy the update.'
-} catch {
-    Write-Host "`nUpload stopped: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host 'For sign-in errors, finish Git authentication and run again. If main changed, run again to get its latest version.'
-    exit 1
-} finally {
-    # Delete only this run's verified, uniquely named temporary checkout.
-    $tempBase = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
-    if ($uploadRoot.StartsWith($tempBase, [StringComparison]::OrdinalIgnoreCase) -and [IO.Path]::GetFileName($uploadRoot) -match '^Nova-GitHub-[a-f0-9]{32}$' -and (Test-Path -LiteralPath $uploadRoot)) {
-        Remove-Item -LiteralPath $uploadRoot -Recurse -Force -ErrorAction SilentlyContinue
-    }
-}
+ Write-Host "`n  NOVA / QUICK UPLOAD`n" -ForegroundColor Cyan
+ Write-Host 'Destination: Novafriendly/novav3w - main'
+ Write-Host 'Choose files first. No full game-library download.'
+ if(!$gitCommand){throw 'Install Git for Windows from https://git-scm.com/downloads/win first.'}
+ $paths=Git-Result -Arguments @('-C',$projectRoot,'-c','core.quotepath=false','ls-files','--cached','--others','--exclude-standard')
+ $files=@($paths | Sort-Object -Unique | Where-Object {$_ -notmatch '(^|/)(\.git|node_modules|\.env(?:\..*)?|credentials[^/]*|[^/]*\.(pem|key|pfx|p12))($|/)' -and (Test-Path -LiteralPath (Join-Path $projectRoot $_) -PathType Leaf)})
+ $visible=@($files | Where-Object {$_ -notmatch '/'})
+ while($true){
+  Write-Host "`nProject files (not a changed-files scan):" -ForegroundColor Cyan
+  for($i=0;$i -lt $visible.Count;$i++){Write-Host ('{0,4}  {1}' -f ($i+1),$visible[$i])}
+  Write-Host 'Numbers: 1,3,5 | ALL = all listed | Q = cancel'
+  Write-Host 'FIND logo = search subfolders; FIND . = show all files containing a dot'
+  $answer=(Read-Host 'Selection').Trim()
+  if(!$answer -or $answer -eq 'Q'){return}
+  if($answer -match '^FIND\s+(.+)$'){$search=$Matches[1];$visible=@($files|Where-Object {$_.IndexOf($search,[StringComparison]::OrdinalIgnoreCase) -ge 0});continue}
+  if($answer -eq 'ALL'){$selected=@($visible);break}
+  $selected=@();$valid=$true
+  foreach($value in ($answer -split '[,\s]+')){$n=0;if(![int]::TryParse($value,[ref]$n) -or $n -lt 1 -or $n -gt $visible.Count){$valid=$false;break};$selected+=$visible[$n-1]}
+  if($valid){$selected=@($selected|Sort-Object -Unique);break}
+  Write-Host 'Use numbers from the list.' -ForegroundColor Yellow
+ }
+ if(!$selected.Count){return}
+ Write-Host "`nSelected:" -ForegroundColor Cyan
+ $selected|ForEach-Object {Write-Host ('  '+$_)}
+ $message=(Read-Host 'Update description').Trim();if(!$message){$message='Update selected Nova files'}
+ if((Read-Host 'Type YES to upload, or Enter to cancel') -cne 'YES'){return}
+ [IO.Directory]::CreateDirectory($cacheBase)|Out-Null
+ try{$lock=[IO.File]::Open((Join-Path $cacheBase 'upload.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)}catch{throw 'Another uploader is running. Close it first.'}
+ Write-Host "`nConnecting to GitHub..." -ForegroundColor Cyan
+ # Bare partial clone: no checkout and no Git LFS asset downloads.
+ if(!(Test-Path -LiteralPath $uploadRoot)){Run-Git -Arguments @('clone','--bare','--filter=blob:none','--depth','1','--single-branch','--branch','main','--',$repository,$uploadRoot)}
+ $remote=Git-Result -Arguments @('-C',$uploadRoot,'remote','get-url','origin')
+ if($remote[0] -ne $repository){throw 'Cache repository does not match. Stopped.'}
+ Run-Git -Arguments @('-C',$uploadRoot,'fetch','--depth','1','--filter=blob:none','origin','+refs/heads/main:refs/remotes/origin/main')
+ $base=(Git-Result -Arguments @('-C',$uploadRoot,'rev-parse','refs/remotes/origin/main'))[0]
+ $env:GIT_INDEX_FILE=$indexPath
+ Run-Git -Arguments @('-C',$uploadRoot,'read-tree',$base)
+ $changed=0
+ foreach($relative in $selected){
+  $source=[IO.Path]::GetFullPath((Join-Path $projectRoot $relative))
+  if(!$source.StartsWith($projectRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Invalid file path.'}
+  $item=Get-Item -LiteralPath $source
+  # OneDrive files use ReparsePoint too; only real links are rejected.
+  $check=$item
+  while($check -and $check.FullName -ne $projectRoot){
+   if($check.LinkType -in @('SymbolicLink','Junction')){throw "Linked path is not supported: $relative"}
+   if($check -is [IO.FileInfo]){$check=$check.Directory}else{$check=$check.Parent}
+  }
+  try{$stream=[IO.File]::Open($source,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::ReadWrite);try{[void]$stream.ReadByte()}finally{$stream.Dispose()}}
+  catch{throw "Cannot read $relative. If it is online-only, connect OneDrive or choose 'Always keep on this device', then retry."}
+  if($item.Length -gt 95MB){throw "File exceeds 95 MB: $relative. Large assets require a separate Git LFS upload."}
+  Write-Host "Preparing $relative"
+  $oid=(Git-Result -Arguments @('-C',$uploadRoot,'hash-object','-w','--no-filters','--',$source))[0]
+  $entry=Git-Result -Arguments @('-C',$uploadRoot,'ls-tree',$base,'--',$relative)
+  $mode='100644'
+  if($entry.Count -and $entry[0] -match '^(\d+) blob ([a-f0-9]+)\t'){$mode=$Matches[1];if($mode -eq '120000'){throw "Linked repository file requires manual handling: $relative"};if($Matches[2] -eq $oid){continue}}
+  Run-Git -Arguments @('-C',$uploadRoot,'update-index','--add','--cacheinfo',$mode,$oid,$relative)
+  $changed++
+ }
+ if(!$changed){Write-Host 'Selected files already match GitHub.' -ForegroundColor Green;return}
+ foreach($field in @('name','email')){
+  $value=& $gitCommand -C $uploadRoot config ('user.'+$field)
+  if(!$value){$value=(Read-Host "Commit author $field (GitHub no-reply email is OK)").Trim();if(!$value){throw 'Author name and email are required.'};Run-Git -Arguments @('-C',$uploadRoot,'config','--local',('user.'+$field),$value)}
+ }
+ $tree=(Git-Result -Arguments @('-C',$uploadRoot,'write-tree'))[0]
+ $commit=(Git-Result -Arguments @('-C',$uploadRoot,'commit-tree',$tree,'-p',$base,'-m',$message))[0]
+ Write-Host "Uploading $changed file(s)..." -ForegroundColor Cyan
+ # Normal push refuses concurrent updates. Never force push.
+ Run-Git -Arguments @('-C',$uploadRoot,'push','origin',($commit+':refs/heads/main'))
+ Write-Host "`nUploaded! https://github.com/Novafriendly/novav3w/commit/$commit" -ForegroundColor Green
+ Write-Host 'Hosting deployment may take a little longer.'
+}catch{Write-Host "`nUpload stopped: $($_.Exception.Message)" -ForegroundColor Red;Write-Host 'Sign in if Git asks. If main changed, run again.';exit 1}
+finally{$env:GIT_INDEX_FILE=$oldIndex;if(Test-Path -LiteralPath $indexPath){Remove-Item -LiteralPath $indexPath -Force -ErrorAction SilentlyContinue};if($lock){$lock.Dispose()}}

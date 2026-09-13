@@ -2356,6 +2356,7 @@
   <script type="module">
     import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
+    import {mountWelcome,isWelcome} from './welcome-channel.js';
     import {mountStaffControls} from './staff-controls.js';
     import { mountCommunityAdmin } from './community-admin.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -2692,8 +2693,8 @@
 
     get(ref(db, `channels/announcements/welcomed/${username}`)).then(snap => {
       if (!snap.exists()) {
-        push(ref(db, 'channels/announcements/messages'), {
-          username: 'Nova Bot', profilePic: '', text: `Welcome ${username}! 🎉`, timestamp: Date.now(), role: 'Bot'
+        push(ref(db, 'channels/welcome/messages'), {
+          type:'welcome',welcomeUser:username,username: 'Nova Bot', profilePic: '', text: `Welcome ${username}! 🎉`, timestamp: Date.now(), role: 'Bot'
         });
         set(ref(db, `channels/announcements/welcomed/${username}`), true);
       }
@@ -2751,6 +2752,7 @@
       const suggestionBadge = pendingSuggestions > 0 ? `<span class="unread-badge" style="margin-left:auto;background:#faa61a;color:white;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">${pendingSuggestions}</span>` : '';
       
       return `
+        <div class="channel-category">WELCOME</div><div class="channel ${currentChannel==='welcome'?'active':''}" onclick="switchChannel('welcome')"><span class="channel-icon" aria-hidden="true">✦</span>welcome</div>
         <!-- NOVA Category (Read-only for non-staff) -->
         <div class="channel-category">NOVA</div>
         <div class="channel ${currentChannel === 'announcements' ? 'active' : ''}" onclick="switchChannel('announcements')">
@@ -2803,7 +2805,6 @@
         <!-- STAFF Category (bottom) -->
         ${isStaff ? `
         <div class="channel-category" style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);margin-top:16px">${isOwner ? 'OWNER' : 'STAFF'}</div>
-        ${isOwner ? '<button class="channel" onclick="openOwnerUpdateLogs()">▤ Update Log editor</button>' : ''}
         <div class="channel ${currentChannel === 'owner-general' ? 'active' : ''}" onclick="switchChannel('owner-general')">
           <svg class="channel-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
           owner-general
@@ -2839,6 +2840,11 @@
       currentChannel = ch;
       loadChannels();
       
+      if(ch==='welcome'){
+        document.getElementById('channelName').textContent='✦ welcome';
+        document.getElementById('messageInput').style.display='none';document.getElementById('typingIndicator').style.display='none';
+        stopMessages=mountWelcome(document.getElementById('messagesArea'),(path,callback,error)=>onValue(ref(db,path),snap=>callback(snap.val()),error));return;
+      }
       // Special handling for report and answer-reports channels
       if (ch === 'report') {
         showReportForm();
@@ -3079,7 +3085,7 @@
           const msgs = snap.val() || {};
           const area = document.getElementById('messagesArea');
           const followLatest = !area.children.length || area.scrollHeight - area.scrollTop - area.clientHeight < 100;
-          area.innerHTML = Object.entries(msgs).map(([id, m]) => {
+          area.innerHTML = Object.entries(msgs).filter(([,m])=>ch!=='announcements'||!isWelcome(m)).map(([id, m]) => {
             // Handle group welcome messages
             if (m.isSystem && m.groupWelcome && m.members) {
               return `
@@ -3213,7 +3219,7 @@
             // Show edited label if message was edited
             const editedLabel = m.edited ? '<span style="color:#72767d;font-size:10px;margin-left:4px">(edited)</span>' : '';
             
-            return `${replyHtml}<div class="message" id="msg-${id}"><div class="message-avatar" role="button" tabindex="0" aria-label="View profile" data-chat-profile="${encodeURIComponent(m.username)}">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}" role="button" tabindex="0" title="View profile" data-chat-profile="${encodeURIComponent(m.username)}">${m.username}</span>${roleBadges}<span class="message-time">${time}${editedLabel}</span></div><div class="message-text" id="text-${id}">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions"><button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button>${canDel?`<button class="action-btn" onclick="startEdit('${id}', '${ch}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>`:''}<button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
+            return `${replyHtml}<div class="message" id="msg-${id}"><div class="message-avatar" role="button" tabindex="0" aria-label="View profile" data-chat-profile="${encodeURIComponent(m.username)}">${av}</div><div class="message-content"><div class="message-header"><span class="${authorClass}" role="button" tabindex="0" title="View profile" data-chat-profile="${encodeURIComponent(m.username)}">${m.username}</span>${roleBadges}<span class="message-time">${time}${editedLabel}</span></div><div class="message-text" id="text-${id}">${text}</div>${media}${reactions?`<div class="message-reactions">${reactions}</div>`:''}</div><div class="message-actions">${m.username!==username?`<button type="button" class="action-btn nova-message-mute" data-nova-moderate="mute" data-account="${encodeURIComponent(m.username)}" title="Mute user" aria-label="Mute user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5zM16 9l6 6m0-6l-6 6"/></svg></button><button type="button" class="action-btn nova-message-ban" data-nova-moderate="ban" data-account="${encodeURIComponent(m.username)}" title="Ban user" aria-label="Ban user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg></button>` : ''}<button class="action-btn" onclick="startReply('${id}', '${m.username}', '${m.text.replace(/'/g, "\\'")}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg></button>${canDel?`<button class="action-btn" onclick="startEdit('${id}', '${ch}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>`:''}<button class="action-btn" onclick="openEmojiPicker('${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>${canDel?`<button class="action-btn" onclick="deleteMessage('${ch}','${id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`:''}</div></div>`;
           }).join('');
           if (followLatest) area.scrollTop = area.scrollHeight;
           
@@ -4731,6 +4737,7 @@
     window.handleTyping = function() {
       if (!window.NovaCommunity?.canSend()) return;
       const channel = currentChannel;
+      if(channel==='welcome')return;
       if (Date.now() - lastTypingAt >= 2000) {
         lastTypingAt = Date.now();
         set(ref(db, `typing/${channel}/${username}`), lastTypingAt).catch(console.error);
