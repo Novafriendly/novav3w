@@ -1,4 +1,5 @@
 import {startActivity} from './community-activity.js';
+import {startPersonal} from './nova-personal.js';
 import {attachPoll} from './community-polls.js';
 import {attachBanAppeal, banIdentity} from './community-appeals.js';
 export function startCommunity(backend) {
@@ -105,6 +106,7 @@ export function startCommunity(backend) {
     emit();
   }
   startActivity(api);
+  if (isTop()) startPersonal(api);
   subscribeUser();
   if (isTop()) backend.subscribe('novaAnnouncements/latest', showAnnouncement, error => console.warn('Announcements unavailable', error));
   let signature = '';

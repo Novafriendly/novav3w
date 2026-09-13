@@ -1,5 +1,5 @@
 import {initializeApp, getApps, getApp} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import {getDatabase, ref, onValue, get, update, set, serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import {getDatabase, ref, onValue, get, update, set, serverTimestamp, runTransaction} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 import {startCommunity} from './community-core.js';
 const app = getApps().some(app => app.name === '[DEFAULT]') ? getApp() : initializeApp({
   apiKey: 'AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8',
@@ -17,5 +17,6 @@ startCommunity({
   subscribe: (path, callback, error) => onValue(ref(db, path), snap => callback(snap.val()), error),
   read: async path => (await get(ref(db, path))).val(),
   write: (path, value) => set(ref(db, path), value),
+  transaction: (path, transform) => runTransaction(ref(db, path), transform),
   update: values => update(ref(db), values)
 });

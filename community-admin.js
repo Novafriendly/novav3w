@@ -1,7 +1,15 @@
 import {attachAppealReview} from './community-appeals.js';
+import {mountUpdateLogEditor} from './nova-personal.js';
 export function mountCommunityAdmin({username, toast}) {
   const originalSwitch = window.switchAdminPageCompact;
   let stopAppealReview = null;
+  let stopUpdateEditor = null;
+  const announcementNav = document.querySelector('[data-page="announcements"]');
+  if (announcementNav && !document.querySelector('[data-page="update-log"]')) {
+    const nav = document.createElement('button'); nav.type = 'button'; nav.className = 'admin-nav-item-new'; nav.dataset.page = 'update-log'; nav.textContent = '↻  Update Log'; nav.style.cssText = 'width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;';
+    nav.onclick = () => window.switchAdminPageCompact('update-log'); announcementNav.after(nav);
+    Promise.resolve().then(() => actor(true)).catch(() => { nav.hidden = true; nav.style.display = 'none'; });
+  }
   let busy = false, view = '', generation = 0;
   const root = () => document.getElementById('adminPageContentCompact');
   const service = () => { if (!window.NovaCommunity) throw Error('Still connecting. Please try again.'); return window.NovaCommunity; };
@@ -121,13 +129,15 @@ export function mountCommunityAdmin({username, toast}) {
   window.switchAdminPageCompact = function(page) {
     if (busy) { status('Please wait for the current action to finish.'); return; }
     stopAppealReview?.(); stopAppealReview = null;
+    stopUpdateEditor?.(); stopUpdateEditor = null;
     generation++; view = page;
-    if (page !== 'moderation' && page !== 'announcements') return originalSwitch(page);
+    if (page !== 'moderation' && page !== 'announcements' && page !== 'update-log') return originalSwitch(page);
     document.querySelectorAll('.admin-nav-item-new').forEach(item => item.classList.toggle('active',item.dataset.page === page));
-    if (page === 'moderation') moderation(); else announcements();
+    if (page === 'update-log') stopUpdateEditor = mountUpdateLogEditor(root(), service(), actor);
+    else if (page === 'moderation') moderation(); else announcements();
   };
   const originalClose = window.closeAdminPanelCompact;
-  window.closeAdminPanelCompact = () => { stopAppealReview?.(); stopAppealReview = null; originalClose(); };
+  window.closeAdminPanelCompact = () => { stopAppealReview?.(); stopAppealReview = null; stopUpdateEditor?.(); stopUpdateEditor = null; originalClose(); };
   const openModeration = targetName => {
     window.openAdminPanel(); window.switchAdminPageCompact('moderation');
     if (typeof targetName === 'string') { document.getElementById('nova-mod-target').value = targetName; showRestrictions().catch(() => {}); }
