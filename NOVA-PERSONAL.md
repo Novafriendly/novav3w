@@ -15,3 +15,12 @@ This project uses local-storage account names and client-side role checks, witho
 ## Checks
 
 JavaScript syntax checks and an isolated local database preview cover online activity, current profile updates, visit totals, release creation/editing, and non-owner editor denial. Production Firebase records were not changed by the tests.
+
+## Personal and staff follow-up
+
+- Personal hides on the loading/account screens as well as open panels. Bottom geometry uses the visible dock rectangle and a 12px gap.
+- The update icon has an unread dot until the release list loads. Read state is remembered per account in this browser; clearing browser storage or using another browser resets it. Edits also count as new revisions.
+- Friends have a “Have added” label in the online list.
+- Owner channels include a direct Update Log editor shortcut. Only owners open the admin panel and use ban/unban controls. Admins and moderators can mute from another user's profile, post in staff channels, and answer reports/suggestions. Admins can additionally view ban logs and unban requests; those views hide owner actions.
+- Deploy the updated chat.html, community-admin.js, community.css, nova-personal.js, nova-personal.css and new staff-controls.js together.
+- Existing authentication limitations still apply: these UI/function checks are not Firebase security rules.

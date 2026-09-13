@@ -59,7 +59,7 @@ export function mountCommunityAdmin({username, toast}) {
   }
   async function applyRestriction(remove = false) {
     await mutate(async () => {
-      await actor(); const api = service(), name = target();
+      await actor(true); const api = service(), name = target();
       const user = await api.backend.read(`users/${name}`);
       if (!user) throw Error('That user was not found. Choose an existing account.');
       if (!remove && (name === username || roles(user).includes('Owner'))) throw Error('You cannot restrict yourself or an owner.');

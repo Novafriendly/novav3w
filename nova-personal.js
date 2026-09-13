@@ -14,6 +14,8 @@ export function validateLog(data){
   if(!items.length||items.length>30||items.some(x=>x.length>300))throw Error('Add 1–30 update details, up to 300 characters each.');
   return {title,description,items};
 }
+const readKey=()=> 'nova_updates_read_'+(identity()||'guest');
+const revision=records=>Math.max(0,...Object.values(records||{}).map(x=>Number(x?.updatedAt||x?.createdAt)||0));
 export function openUpdateLogs(api){
   styles();if(document.getElementById('np-logs'))return;
   const dialog=el('dialog','np-dialog');dialog.id='np-logs';dialog.setAttribute('aria-label','Nova update log');
@@ -22,6 +24,7 @@ export function openUpdateLogs(api){
   const list=el('div','np-log-list','Loading updates…');dialog.append(head,list);document.body.append(dialog);
   let stop=()=>{};const cleanup=()=>{stop();dialog.remove();};dialog.addEventListener('close',cleanup,{once:true});close.onclick=()=>dialog.close();dialog.showModal();
   stop=api.backend.subscribe('novaUpdateLogs',records=>{
+    try{localStorage.setItem(readKey(),String(revision(records)));window.dispatchEvent(new Event('nova-updates-read'));}catch{}
     list.replaceChildren();const logs=Object.values(records||{}).filter(x=>x&&typeof x.title==='string').sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
     if(!logs.length)list.append(el('p','np-empty','A new chapter is coming. Updates will appear here.'));
     logs.forEach(log=>{const card=el('article','np-log');const image=api.safeImage(log.banner);if(image){const img=el('img','np-log-banner');img.src=image;img.alt='';img.onerror=()=>img.remove();card.append(img);}
@@ -34,7 +37,7 @@ export function openUpdateLogs(api){
 export function startPersonal(api){
   const dock=document.querySelector('.dock');if(!dock||document.getElementById('nova-personal'))return;
   styles();const bar=el('aside','np-bar');bar.id='nova-personal';bar.setAttribute('aria-label','Nova Personal');
-  let users={},activity={},online=[],profileVersion=0,activityReady=false,visits=null,signature='',selfSignature='';
+  let friends={},friendAccount=null,stopFriends=()=>{},users={},activity={},online=[],profileVersion=0,activityReady=false,visits=null,signature='',selfSignature='';
   const cards=[];
   function group(name){const group=el('div','np-group'),button=el('button','np-trigger'),card=el('section','np-card');card.id=`np-card-${name}`;card.hidden=true;button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',card.id);group.append(button,card);bar.append(group);let timeout;
     const show=()=>{clearTimeout(timeout);cards.forEach(x=>{if(x.card!==card)x.hide();});card.hidden=false;button.setAttribute('aria-expanded','true');};
@@ -45,10 +48,12 @@ export function startPersonal(api){
   const self=group('self'),people=group('people'),views=group('visits');
   self.button.setAttribute('aria-label','Your Nova profile and stats');people.button.setAttribute('aria-label','Users online now');views.button.setAttribute('aria-label','Home page visits');
   const logs=el('button','np-update');logs.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>';logs.setAttribute('aria-label','Open update log');logs.title='Update log';logs.onclick=()=>openUpdateLogs(api);bar.append(logs);document.body.append(bar);
+  let releases={};const badge=()=>{let seen=0;try{seen=Number(localStorage.getItem(readKey()))||0;}catch{}const unread=revision(releases)>seen;logs.classList.toggle('np-unread',unread);logs.setAttribute('aria-label',unread?'New update — open update log':'Open update log');logs.title=unread?'New update — open to read':'Update log';};api.backend.subscribe('novaUpdateLogs',value=>{releases=value||{};badge();},()=>{});window.addEventListener('nova-updates-read',badge);window.addEventListener('storage',badge);
   document.addEventListener('pointerdown',event=>{if(!bar.contains(event.target))cards.forEach(x=>x.hide());});bar.addEventListener('keydown',event=>{if(event.key==='Escape'){cards.forEach(x=>x.hide());event.target.closest('.np-group')?.querySelector('button')?.focus();}});
   const setStyle=(node,key,value)=>{if(node.style.getPropertyValue(key)!==value)node.style.setProperty(key,value);};
   function position(){
-    const away=!!document.querySelector('.panel-overlay.open,.app-overlay.open,#browser-overlay.open')||!!document.fullscreenElement;
+    const home=document.getElementById('s-home');
+    const away=(home && (home.classList.contains('hidden')||getComputedStyle(home).display==='none'))||!!document.querySelector('.panel-overlay.open,.app-overlay.open,#browser-overlay.open')||!!document.fullscreenElement;
     bar.hidden=away;
     if(away){cards.forEach(x=>x.hide());dock.classList.toggle('np-personal-paired',false);dock.classList.toggle('np-has-personal-side',false);return;}
     const vertical=dock.classList.contains('dock-left')||dock.classList.contains('dock-right'),right=dock.classList.contains('dock-right');
@@ -67,20 +72,20 @@ export function startPersonal(api){
       const fits=dock.offsetWidth+bar.offsetWidth+32<=innerWidth;
       dock.classList.toggle('np-personal-paired',fits);
       // Keep navigation centered unless the companion needs more space on its left.
-      setStyle(dock,'--np-offset',`${Math.max(0,bar.offsetWidth+16-(innerWidth-dock.offsetWidth)/2)}px`);
-      setStyle(bar,'--np-height',`${dock.offsetHeight}px`);
-      const rect=dock.getBoundingClientRect();setStyle(bar,'top','auto');
-      setStyle(bar,'left',`${fits?rect.left-bar.offsetWidth-8:Math.max(8,rect.left)}px`);
-      setStyle(bar,'bottom',`${fits?Math.max(8,innerHeight-rect.bottom):Math.max(8,innerHeight-rect.top+8)}px`);
+      setStyle(dock,'--np-offset',`${Math.max(0,bar.offsetWidth+24-(innerWidth-dock.offsetWidth)/2)}px`);
+      
+      const rect=dock.getBoundingClientRect();setStyle(bar,'--np-height',`${rect.height}px`);setStyle(bar,'top',fits?`${rect.top}px`:'auto');
+      setStyle(bar,'left',`${fits?rect.left-bar.offsetWidth-12:Math.max(8,rect.left)}px`);
+      setStyle(bar,'bottom',fits?'auto':`${Math.max(8,innerHeight-rect.top+8)}px`);
     }
   }
   let layoutFrame=0;const layout=()=>{if(!layoutFrame)layoutFrame=requestAnimationFrame(()=>{layoutFrame=0;position();});};
   const sizeObserver=new ResizeObserver(layout);sizeObserver.observe(dock);sizeObserver.observe(bar);
   new MutationObserver(layout).observe(dock,{attributes:true,attributeFilter:['class','style']});window.addEventListener('resize',layout);dock.addEventListener('transitionend',layout);position();
-  new MutationObserver(changes=>{if(changes.some(change=>change.target.matches?.('.panel-overlay,.app-overlay,#browser-overlay')||[...change.addedNodes].some(node=>node.matches?.('.panel-overlay,.app-overlay,#browser-overlay'))))layout();}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  new MutationObserver(changes=>{if(changes.some(change=>change.target.matches?.('.panel-overlay,.app-overlay,#browser-overlay,#s-home')||[...change.addedNodes].some(node=>node.matches?.('.panel-overlay,.app-overlay,#browser-overlay'))))layout();}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   document.addEventListener('fullscreenchange',layout);
   function render(){
-    const now=api.now(),me=identity(),user=users[me],current=selectActivity(activity[me],now);
+    const now=api.now(),me=identity();if(friendAccount!==me){friendAccount=me;stopFriends();friends={};if(me&&!/[.#$\[\]/]/.test(me))stopFriends=api.backend.subscribe(`friends/${me}`,value=>{friends=value||{};signature='';},()=>{friends={};signature='';});}const user=users[me],current=selectActivity(activity[me],now);
     online=Object.entries(activity).map(([key,records])=>({key,current:selectActivity(records,now)})).filter(x=>x.current).sort((a,b)=>label(users[a.key],a.key).localeCompare(label(users[b.key],b.key)));
     const own=JSON.stringify([me,profileVersion,current?.title,current?.startedAt]);
     if(own!==selfSignature){selfSignature=own;self.button.replaceChildren(avatar(api,user,me),el('span','np-self-name',label(user,me)));self.card.replaceChildren(el('div','np-kicker','YOUR NOVA'),avatar(api,user,me),el('h2','',label(user,me)),el('p','',user?.bio||'Your space. Your people. Your Nova.'));
@@ -89,7 +94,7 @@ export function startPersonal(api){
     if(next!==signature){signature=next;const stack=el('span','np-stack');online.slice(0,4).forEach(x=>stack.append(avatar(api,users[x.key],x.key)));people.button.replaceChildren(stack,el('span','np-online-label',!activityReady?'Connecting…':online.length>4?`+${online.length-4} more`:`${online.length} online`));
       people.card.replaceChildren(el('div','np-kicker','TOGETHER ON NOVA'),el('h2','',`${online.length} online now`));const list=el('div','np-people');list.tabIndex=0;list.setAttribute('aria-label','Online users and activity');
       if(!online.length)list.append(el('p','np-empty',activityReady?'It’s quiet here. Say hello when someone arrives.':'Connecting to live activity…'));
-      online.forEach(({key,current})=>{const row=el('div','np-person');row.append(avatar(api,users[key],key));const body=el('div');body.append(el('strong','',label(users[key],key)),el('span','',current.title));const time=el('small','np-time');time.dataset.since=current.startedAt;body.append(time);row.append(body);const icon=api.safeImage(current.icon);if(icon){const img=el('img','np-game-icon');img.src=icon;img.alt=current.type==='game'?'Game icon':'App icon';img.onerror=()=>img.remove();row.append(img);}list.append(row);});people.card.append(list);
+      online.forEach(({key,current})=>{const row=el('div','np-person');row.append(avatar(api,users[key],key));const body=el('div');const name=el('strong','',label(users[key],key));if(friends[key])name.append(el('small','np-friend','Have added'));body.append(name,el('span','',current.title));const time=el('small','np-time');time.dataset.since=current.startedAt;body.append(time);row.append(body);const icon=api.safeImage(current.icon);if(icon){const img=el('img','np-game-icon');img.src=icon;img.alt=current.type==='game'?'Game icon':'App icon';img.onerror=()=>img.remove();row.append(img);}list.append(row);});people.card.append(list);
     }
     bar.querySelectorAll('[data-since]').forEach(n=>n.textContent=elapsedLabel(Number(n.dataset.since),now));
   }

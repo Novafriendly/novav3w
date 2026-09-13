@@ -22,3 +22,5 @@
 .np-bar:not(.np-side-dock)>.np-group,.np-bar:not(.np-side-dock)>.np-update{height:100%}
 .np-bar:not(.np-side-dock) .np-trigger{height:100%;align-items:center}
 .np-update svg{flex:none;display:block}
+.np-update{position:relative}.np-update.np-unread:after{content:'';position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ffb45c;box-shadow:0 0 0 3px #18191c}
+.np-person strong .np-friend{display:inline-block;margin-left:7px;font-size:9px;color:#9fe2bc;font-weight:500}

@@ -1283,7 +1283,7 @@
       <div class="panel-title">Home Customize</div>
 
       <!-- Live Preview Section -->
-      <div class="scard" style="background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(59,130,246,0.05)); border: 1px solid rgba(139,92,246,0.2);">
+      <div class="scard" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
         <div class="scard-head">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           Live Preview
@@ -1291,12 +1291,15 @@
         <div style="padding: 20px;">
           <div id="homePreview" style="
             width: 100%;
-            height: 280px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(30,30,35,0.95) 0%, rgba(20,20,25,0.98) 100%);
+            border-radius: 24px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-shadow: 
+              0 30px 90px rgba(0,0,0,0.5),
+              inset 0 1px 0 rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
           ">
             <!-- Preview Clock -->
             <div id="previewClock" style="
@@ -1307,41 +1310,45 @@
               text-align: center;
             ">
               <div id="previewTime" style="
-                font-size: 72px;
-                font-weight: 700;
+                font-size: 96px;
+                font-weight: 300;
                 color: white;
-                text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                text-shadow: 0 8px 32px rgba(0,0,0,0.4);
                 font-family: 'Segoe UI', sans-serif;
+                letter-spacing: -2px;
               ">12:00</div>
               <div id="previewDate" style="
-                font-size: 20px;
-                color: rgba(255,255,255,0.9);
-                margin-top: 8px;
+                font-size: 22px;
+                color: rgba(255,255,255,0.7);
+                margin-top: 12px;
                 font-family: 'Segoe UI', sans-serif;
+                font-weight: 500;
               ">Friday, August 28</div>
             </div>
 
             <!-- Preview Dock - Bottom (default) -->
             <div id="previewDock" style="
               position: absolute;
-              bottom: 12px;
+              bottom: 16px;
               left: 50%;
               transform: translateX(-50%);
               display: flex;
-              gap: 8px;
-              padding: 12px 20px;
-              background: rgba(255,255,255,0.15);
-              backdrop-filter: blur(20px);
-              border-radius: 20px;
-              border: 1px solid rgba(255,255,255,0.2);
-              box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+              gap: 10px;
+              padding: 14px 24px;
+              background: rgba(20,20,25,0.85);
+              backdrop-filter: blur(30px);
+              border-radius: 22px;
+              border: 1px solid rgba(255,255,255,0.1);
+              box-shadow: 
+                0 12px 48px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.08);
             ">
-              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 12px;"></div>
-              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
-              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
-              <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
-              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
-              <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px;"></div>
+              <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.12); border-radius: 14px;"></div>
+              <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 14px;"></div>
+              <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 14px;"></div>
+              <div style="width: 1px; height: 44px; background: linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent); margin: 0 6px;"></div>
+              <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 14px;"></div>
+              <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.08); border-radius: 14px;"></div>
             </div>
           </div>
         </div>

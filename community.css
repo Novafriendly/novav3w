@@ -113,3 +113,10 @@
 #adminPanelCompact .nova-scope-info{background:#ffffff06;border-color:#ffffff16;color:#cdd5dc}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#adminPanelCompact{background:#22262b}}
 @media(prefers-reduced-transparency:reduce){#adminPanelCompact{background:#22262b;backdrop-filter:none;-webkit-backdrop-filter:none}}
+/* Keep every channel reachable on short laptop viewports. */
+.sidebar{height:100dvh!important;max-height:100%;min-height:0;overflow:hidden;flex-shrink:0}
+.channels-list{min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:24px!important}
+.channels-list>*{flex-shrink:0}.admin-sidebar-nav-new{min-height:0;overflow-y:auto}.admin-panel-sidebar-new{min-height:0}
+body:not(.nova-owner) .ban-log-actions,body:not(.nova-owner) .unban-request-actions{display:none!important}
+.nova-staff-mute[hidden]{display:none!important}.nova-staff-mute{padding:10px 14px;border:1px solid #ffffff24;border-radius:10px;background:#ffffff0c;color:white;cursor:pointer}
+.nova-mute-dialog{width:min(400px,90vw);border:1px solid #ffffff2b;border-radius:20px;padding:24px;background:#17191ef2;color:white;backdrop-filter:blur(20px)}.nova-mute-dialog::backdrop{background:#0009}.nova-mute-dialog label{display:grid;gap:8px;margin:16px 0}.nova-mute-dialog textarea,.nova-mute-dialog select{padding:10px;background:#262930;color:white;border:1px solid #ffffff24;border-radius:8px}.nova-mute-dialog button{padding:10px 16px;border:0;border-radius:8px;margin-right:8px;cursor:pointer}.nova-mute-dialog [role=status]{color:#ffb7b7}
