@@ -8,7 +8,11 @@ export function mountCommunityAdmin({username, toast}) {
   if (announcementNav && !document.querySelector('[data-page="update-log"]')) {
     const nav = document.createElement('button'); nav.type = 'button'; nav.className = 'admin-nav-item-new'; nav.dataset.page = 'update-log'; nav.textContent = '↻  Update Log'; nav.style.cssText = 'width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;';
     nav.onclick = () => window.switchAdminPageCompact('update-log'); announcementNav.after(nav);
-    Promise.resolve().then(() => actor(true)).catch(() => { nav.hidden = true; nav.style.display = 'none'; });
+    // Keep the entry discoverable if the initial connection fails; the editor
+    // verifies owner permissions when opened and again before every save.
+    Promise.resolve().then(() => service().backend.read(`users/${username}`)).then(user => {
+      if (user && !roles(user).includes('Owner')) { nav.hidden = true; nav.style.display = 'none'; }
+    }).catch(() => {});
   }
   let busy = false, view = '', generation = 0;
   const root = () => document.getElementById('adminPageContentCompact');

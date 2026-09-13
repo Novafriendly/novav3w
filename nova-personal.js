@@ -44,10 +44,13 @@ export function startPersonal(api){
   }
   const self=group('self'),people=group('people'),views=group('visits');
   self.button.setAttribute('aria-label','Your Nova profile and stats');people.button.setAttribute('aria-label','Users online now');views.button.setAttribute('aria-label','Home page visits');
-  const logs=el('button','np-update','↻');logs.setAttribute('aria-label','Open update log');logs.title='Update log';logs.onclick=()=>openUpdateLogs(api);bar.append(logs);document.body.append(bar);
+  const logs=el('button','np-update');logs.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>';logs.setAttribute('aria-label','Open update log');logs.title='Update log';logs.onclick=()=>openUpdateLogs(api);bar.append(logs);document.body.append(bar);
   document.addEventListener('pointerdown',event=>{if(!bar.contains(event.target))cards.forEach(x=>x.hide());});bar.addEventListener('keydown',event=>{if(event.key==='Escape'){cards.forEach(x=>x.hide());event.target.closest('.np-group')?.querySelector('button')?.focus();}});
   const setStyle=(node,key,value)=>{if(node.style.getPropertyValue(key)!==value)node.style.setProperty(key,value);};
   function position(){
+    const away=!!document.querySelector('.panel-overlay.open,.app-overlay.open,#browser-overlay.open')||!!document.fullscreenElement;
+    bar.hidden=away;
+    if(away){cards.forEach(x=>x.hide());dock.classList.toggle('np-personal-paired',false);dock.classList.toggle('np-has-personal-side',false);return;}
     const vertical=dock.classList.contains('dock-left')||dock.classList.contains('dock-right'),right=dock.classList.contains('dock-right');
     bar.classList.toggle('np-side-dock',vertical);bar.classList.toggle('np-right-dock',right);dock.classList.toggle('np-has-personal-side',vertical);
     const theme=getComputedStyle(dock);
@@ -62,7 +65,10 @@ export function startPersonal(api){
       setStyle(bar,'width','max-content');bar.classList.remove('np-tight');
       if(dock.offsetWidth+bar.offsetWidth+32>innerWidth)bar.classList.add('np-tight');
       const fits=dock.offsetWidth+bar.offsetWidth+32<=innerWidth;
-      dock.classList.toggle('np-personal-paired',fits);setStyle(dock,'--np-offset',`${(bar.offsetWidth+8)/2}px`);
+      dock.classList.toggle('np-personal-paired',fits);
+      // Keep navigation centered unless the companion needs more space on its left.
+      setStyle(dock,'--np-offset',`${Math.max(0,bar.offsetWidth+16-(innerWidth-dock.offsetWidth)/2)}px`);
+      setStyle(bar,'--np-height',`${dock.offsetHeight}px`);
       const rect=dock.getBoundingClientRect();setStyle(bar,'top','auto');
       setStyle(bar,'left',`${fits?rect.left-bar.offsetWidth-8:Math.max(8,rect.left)}px`);
       setStyle(bar,'bottom',`${fits?Math.max(8,innerHeight-rect.bottom):Math.max(8,innerHeight-rect.top+8)}px`);
@@ -71,6 +77,8 @@ export function startPersonal(api){
   let layoutFrame=0;const layout=()=>{if(!layoutFrame)layoutFrame=requestAnimationFrame(()=>{layoutFrame=0;position();});};
   const sizeObserver=new ResizeObserver(layout);sizeObserver.observe(dock);sizeObserver.observe(bar);
   new MutationObserver(layout).observe(dock,{attributes:true,attributeFilter:['class','style']});window.addEventListener('resize',layout);dock.addEventListener('transitionend',layout);position();
+  new MutationObserver(changes=>{if(changes.some(change=>change.target.matches?.('.panel-overlay,.app-overlay,#browser-overlay')||[...change.addedNodes].some(node=>node.matches?.('.panel-overlay,.app-overlay,#browser-overlay'))))layout();}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  document.addEventListener('fullscreenchange',layout);
   function render(){
     const now=api.now(),me=identity(),user=users[me],current=selectActivity(activity[me],now);
     online=Object.entries(activity).map(([key,records])=>({key,current:selectActivity(records,now)})).filter(x=>x.current).sort((a,b)=>label(users[a.key],a.key).localeCompare(label(users[b.key],b.key)));

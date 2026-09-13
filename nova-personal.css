@@ -17,3 +17,8 @@
 .np-side-dock .np-group,.np-side-dock .np-trigger{width:100%;box-sizing:border-box}.np-side-dock .np-trigger{justify-content:center;padding:5px 2px;min-height:34px}.np-side-dock .np-self-name{display:none}.np-side-dock .np-stack{padding-left:5px}.np-side-dock .np-stack .np-avatar{width:18px;height:18px;margin-left:-5px}.np-side-dock .np-group:nth-child(2) .np-trigger{flex-direction:column;gap:3px}.np-side-dock .np-update{width:100%;justify-content:center;border-left:0!important;border-top:1px solid #ffffff17!important}
 .np-side-dock .np-card{left:calc(100% + 8px);bottom:0;max-height:calc(100dvh - 24px)}.np-side-dock.np-right-dock .np-card{left:auto;right:calc(100% + 8px)}
 .np-bar.np-light,.np-light .np-card{color:#202124}.np-light .np-online-label,.np-light .np-card p,.np-light .np-card small,.np-light .np-card dt,.np-light .np-person div>span,.np-light .np-kicker{color:#50565c}.np-light .np-trigger:hover,.np-light .np-trigger[aria-expanded=true]{background:#0000000c}
+.np-bar[hidden]{display:none!important}
+.np-bar:not(.np-side-dock){height:var(--np-height,60px);align-items:center}
+.np-bar:not(.np-side-dock)>.np-group,.np-bar:not(.np-side-dock)>.np-update{height:100%}
+.np-bar:not(.np-side-dock) .np-trigger{height:100%;align-items:center}
+.np-update svg{flex:none;display:block}
