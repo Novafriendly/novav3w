@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="game-social.css">
+  <script type="module" src="game-social.js"></script>
   <link rel="stylesheet" href="./community.css">
   <script type="module" src="./community.js"></script>
   <script src="./panic-smart.js"></script>
@@ -857,6 +859,8 @@
       
       // Setup Intersection Observer for lazy loading
       setupLazyLoading();
+      window.NovaGameLibrary = {games:allGames,createCard:createGameCard};
+      window.dispatchEvent(new Event("nova-games-rendered"));
     }
     
     // Update game counter
@@ -876,6 +880,7 @@
     function createGameCard(game) {
       const card = document.createElement('div');
       card.className = 'game-card';
+      card.dataset.gameId = String(game.id ?? game.url);
       card.onclick = () => openGame(game.url, game.name, game.cover, game.isProxied, game.gameLink);
       
       card.innerHTML = `
