@@ -8627,5 +8627,14 @@
                         "psx"
                     ],
         "gameLink":  "https://genizymath.github.io/iframe/859.html"
+    },
+     {
+        "id":  860,
+        "name":  "Jack Smith",
+        "cover":  "Img/game/Jacksmith_OG-logo.jpg",
+        "url":  "https://www.gameflare.com/embed/jacksmith/",
+        "author":  "Jack Smith Io",
+        "authorLink":  "https://jacksmithgame.io/",
+        "gameLink":  "https://www.gameflare.com/embed/jacksmith/"
     }
 ]
