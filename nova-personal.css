@@ -24,3 +24,17 @@
 .np-update svg{flex:none;display:block}
 .np-update{position:relative}.np-update.np-unread:after{content:'';position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ffb45c;box-shadow:0 0 0 3px #18191c}
 .np-person strong .np-friend{display:inline-block;margin-left:7px;font-size:9px;color:#9fe2bc;font-weight:500}
+
+/* Fit navigation and Personal together within shorter laptop viewports. */
+.dock.np-has-personal-side {
+  --side-button-height: clamp(28px, calc((100dvh - var(--np-reserve, 190px) - 108px) / 13), 48px);
+}
+.dock.np-has-personal-side .dock-icons { flex: 1 1 auto; min-height: 0; }
+.dock.np-has-personal-side .dock-btn { min-height: 0; padding-top: 0; padding-bottom: 0; }
+.dock.np-has-personal-side .dock-btn svg { max-height: calc(var(--side-button-height) - 8px); }
+@media (max-height: 740px) {
+  .np-bar.np-side-dock { padding-top: 4px; padding-bottom: 4px; gap: 0; }
+  .np-side-dock .np-trigger { min-height: 28px; padding: 3px 2px; }
+  .np-side-dock .np-avatar { width: 24px; height: 24px; }
+  .np-side-dock .np-update { min-height: 28px; padding: 4px 2px; }
+}
