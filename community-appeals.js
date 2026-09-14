@@ -1,3 +1,4 @@
+import {mountAppealConversation} from './support-chat.js';
 export const banIdentity = ban => JSON.stringify([ban?.timestamp, ban?.bannedBy, ban?.reason, ban?.expiresAt]);
 
 export function attachBanAppeal(dialog, api) {
@@ -8,12 +9,13 @@ export function attachBanAppeal(dialog, api) {
   section.innerHTML = `<button type="button" class="nova-appeal-button" data-open>Request unban</button><form hidden><label>Why should your access be restored?<textarea required maxlength="1000" rows="4" placeholder="Explain what happened and why you’re requesting another chance."></textarea></label><div class="nova-appeal-actions"><button class="nova-appeal-button" type="submit">Send request</button><button class="nova-appeal-cancel" type="button">Cancel</button></div></form><p role="status" aria-live="polite"></p>`;
   dialog.querySelector('.nova-ban-card').appendChild(section);
   const open = section.querySelector('[data-open]'), form = section.querySelector('form'), input = section.querySelector('textarea'), status = section.querySelector('[role=status]'), submit = section.querySelector('[type=submit]');
-  let loaded = false, request = null, sending = false, disposed = false;
+  let loaded = false, request = null, sending = false, disposed = false, stopChat=null;
   function render() {
     const current = request?.banKey === banKey ? request : null;
     open.disabled = !loaded || sending;
     open.hidden = !!current;
     if (current) {
+      if(!stopChat)stopChat=mountAppealConversation(section,api,path,account);
       form.hidden = true;
       status.textContent = current.status === 'rejected' ? 'Your request was reviewed and declined. Your restriction remains in place.' : current.status === 'approved' ? 'Your request was approved. Access is being restored.' : 'Request sent. A Nova administrator will review it. You can leave this page; your request is saved.';
     }
@@ -36,15 +38,19 @@ export function attachBanAppeal(dialog, api) {
   };
   open.disabled = true;
   const stop = api.backend.subscribe(path, value => { request = value; loaded = true; render(); }, () => { status.textContent = 'Unban requests are unavailable right now. Reload to try again.'; });
-  return () => { disposed = true; stop(); };
+  return () => { disposed = true; stopChat?.(); stop(); };
 }
 
 export function attachAppealReview(container, api, requireStaff) {
   let disposed = false;
+  let chats=[], signature="";
   const heading = document.createElement('h3'); heading.textContent = 'Nova unban requests';
   const list = document.createElement('div'), notice = document.createElement('p'); notice.setAttribute('role','status'); notice.className = 'nova-admin-status';
   container.append(heading,list,notice);
   const stop = api.backend.subscribe('novaUnbanRequests', requests => {
+    const next=JSON.stringify(Object.entries(requests||{}).map(([key,r])=>[key,r?.status,r?.banKey,r?.reason]));
+    if(next===signature)return;signature=next;
+    chats.forEach(stop=>stop());chats=[];
     list.replaceChildren();
     const pending = Object.entries(requests || {}).filter(([,r]) => r?.scope === 'site' && r.status === 'pending');
     if (!pending.length) { list.textContent = 'No pending Nova-wide unban requests.'; return; }
@@ -74,7 +80,8 @@ export function attachAppealReview(container, api, requireStaff) {
         actions.appendChild(button);
       }
       row.append(user,reason,actions); list.appendChild(row);
+      const chat=document.createElement("button");chat.className="admin-btn-new";chat.textContent="Open conversation";actions.append(chat);chat.onclick=()=>{chat.disabled=true;chats.push(mountAppealConversation(row,api,`novaUnbanRequests/${name}`,name));};
     }
   }, () => { notice.textContent = 'Could not load unban requests.'; });
-  return () => { disposed = true; stop(); };
+  return () => { disposed = true; chats.forEach(stop=>stop()); stop(); };
 }

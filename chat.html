@@ -2363,6 +2363,7 @@
   <script type="module">
     import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
+    import {mountLegacyAppealChat} from './support-chat.js';
     import {basicReply} from './nova-ai-basic.js';
     import {askNova} from './nova-ai-client.js';
     import {mountWelcome,isWelcome} from './welcome-channel.js';
@@ -6945,55 +6946,9 @@
         // Update unban request badge
         updateUnbanRequestBadge();
         
-        // Start 5-minute AI timer
-        setTimeout(() => {
-          checkIfAdminResponded(username);
-        }, 300000); // 5 minutes
+        // AI conversations are opened from the appeal reply box.
       });
     };
-    
-    // Check if admin responded after 5 minutes
-    function checkIfAdminResponded(bannedUser) {
-      get(ref(db, `unbanRequests/${bannedUser}`)).then(snap => {
-        if (!snap.exists()) return;
-        const data = snap.val();
-        
-        // If still pending and no admin messages, activate AI
-        if (data.status === 'pending' && (!data.messages || Object.keys(data.messages).length === 0)) {
-          initiateAIAssistant(bannedUser);
-        }
-      });
-    }
-    
-    // Initiate AI Assistant for unban request
-    function initiateAIAssistant(bannedUser) {
-      get(ref(db, `unbanRequests/${bannedUser}`)).then(snap => {
-        if (!snap.exists()) return;
-        const data = snap.val();
-        
-        // AI sends initial message
-        const aiMessage = {
-          from: 'AI Assistant',
-          text: `Hello ${bannedUser}, I'm the AI Assistant. I've reviewed your unban request. Can you tell me more about what happened and why you believe the ban was unfair?`,
-          timestamp: Date.now(),
-          isAI: true
-        };
-        
-        push(ref(db, `unbanRequests/${bannedUser}/messages`), aiMessage);
-        
-        // Update status
-        set(ref(db, `unbanRequests/${bannedUser}/status`), 'ai-handling');
-        
-        // Notify in owner channel
-        push(ref(db, 'channels/owner-general/messages'), {
-          username: 'Nova Bot',
-          profilePic: '',
-          text: `🤖 AI Assistant is now handling unban request for ${bannedUser}`,
-          timestamp: Date.now(),
-          role: 'Bot'
-        });
-      });
-    }
     
     // Enhanced ban status check with info
     function checkBanStatus() {
@@ -7181,6 +7136,7 @@
         const requests = snap.val() || {};
         const container = document.getElementById('unbanRequestsContainer');
         
+        if (!container) return;
         if (Object.keys(requests).length === 0) {
           container.innerHTML = '<div style="text-align:center;padding:40px;color:#80848e">No unban requests</div>';
           return;
@@ -7194,7 +7150,7 @@
           
           html += `
             <div class="unban-request-card ${isAI ? 'ai-active' : ''}">
-              ${isAI ? '<div class="unban-request-ai-badge">🤖 AI ACTIVE</div>' : ''}
+              
               <div class="unban-request-header">
                 <div class="unban-request-user">
                   <div class="unban-request-avatar">${initial}</div>
@@ -7203,7 +7159,7 @@
                     <div class="unban-request-timestamp">${date}</div>
                   </div>
                 </div>
-                <div class="unban-request-status ${data.status}">${data.status.toUpperCase()}</div>
+                <div class="unban-request-status ${data.status}">${isAI ? "PENDING" : data.status.toUpperCase()}</div>
               </div>
               <div class="unban-request-reason">
                 <div class="unban-request-reason-label">Reason for Unban</div>
@@ -7216,9 +7172,6 @@
                 <button class="unban-request-btn unban-request-btn-dismiss" onclick="dismissUnbanRequest('${user}')">
                   ✖ Dismiss
                 </button>
-                ${!isAI ? `<button class="unban-request-btn unban-request-btn-ai" onclick="requestAIAssist('${user}')">
-                  🤖 Request AI
-                </button>` : ''}
               </div>
             </div>
           `;
@@ -7262,11 +7215,7 @@
       });
     };
     
-    window.requestAIAssist = function(user) {
-      if (!confirm(`Activate AI Assistant for ${user}'s request?`)) return;
-      initiateAIAssistant(user);
-      showToast('AI Activated', 'AI Assistant will respond in a moment', 'success');
-    };
+
     
     /* ═══════════════════════════════════════════════════
        UNBAN CHAT LOBBY
@@ -7377,6 +7326,7 @@
       syncChatProfiles({subscribe:callback=>onValue(ref(db,'users'),snap=>callback(snap.val()||{})),currentAccount:username,onSelf:user=>{profilePic=user.profilePic||'';userBio=user.bio||'';}});
       mountCommunityAdmin({username, toast: showToast});
       mountStaffControls({username,toast:showToast});
+      mountLegacyAppealChat();
   </script>
   
   <!-- ══════════════════════════════════════════════════
