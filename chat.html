@@ -330,6 +330,13 @@
       border-color: rgba(237,66,69,0.5);
     }
     .typing-indicator { color: #80848e; font-size: 13px; font-weight: 500; margin-left: 16px; }
+    .chat-loading{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;text-align:center;box-sizing:border-box;padding:32px;animation:chat-loading-in .25s ease-out}
+    .chat-loading strong{font-size:18px;letter-spacing:.2px}
+    .chat-loading>span:last-child{font-size:13px;color:#b9bbc4}
+    .chat-loading-spinner{width:32px;height:32px;border:3px solid #ffffff25;border-top-color:#fff;border-radius:50%;animation:chat-loading-spin .85s linear infinite}
+    @keyframes chat-loading-spin{to{transform:rotate(360deg)}}
+    @keyframes chat-loading-in{from{opacity:0}to{opacity:1}}
+    @media(prefers-reduced-motion:reduce){.chat-loading,.chat-loading-spinner{animation:none}}
     .messages-area { flex: 1; overflow-y: auto; padding: 16px; }
     .message { display: flex; gap: 16px; padding: 4px 16px 4px 72px; position: relative; margin-top: 4px; }
     .message:hover { background: rgba(4,4,5,0.07); }
@@ -1792,7 +1799,7 @@
           </div>
         </div>
       </div>
-      <div class="messages-area" id="messagesArea"></div>
+      <div class="messages-area" id="messagesArea"><div class="chat-loading" role="status" aria-live="polite"><span class="chat-loading-spinner" aria-hidden="true"></span><strong>Loading Chat</strong><span>Getting your conversations ready…</span></div></div>
       
       <div class="mention-autocomplete" id="mentionAutocomplete"></div>
       
@@ -3071,7 +3078,7 @@
       if (stopMessages) stopMessages();
       if (stopTyping) stopTyping();
       const generation = ++chatGeneration;
-      document.getElementById('messagesArea').innerHTML = '';
+      document.getElementById('messagesArea').innerHTML = '<div class="chat-loading" role="status" aria-live="polite"><span class="chat-loading-spinner" aria-hidden="true"></span><strong>Loading Chat</strong><span>Getting your conversations ready…</span></div>';
       // Get blocked users list first
       get(ref(db, `blocked/${username}`)).then(blockSnap => {
         if (generation !== chatGeneration || ch !== currentChannel) return;
@@ -3085,7 +3092,7 @@
           if (generation !== chatGeneration || ch !== currentChannel) return;
           const msgs = snap.val() || {};
           const area = document.getElementById('messagesArea');
-          const followLatest = !area.children.length || area.scrollHeight - area.scrollTop - area.clientHeight < 100;
+          const followLatest = !!area.querySelector('.chat-loading') || !area.children.length || area.scrollHeight - area.scrollTop - area.clientHeight < 100;
           area.innerHTML = Object.entries(msgs).filter(([,m])=>ch!=='announcements'||!isWelcome(m)).map(([id, m]) => {
             // Handle group welcome messages
             if (m.isSystem && m.groupWelcome && m.members) {
@@ -3225,9 +3232,13 @@
           if (followLatest) area.scrollTop = area.scrollHeight;
           
           });
+        }, error => {
+          if (generation !== chatGeneration || ch !== currentChannel) return;
+          document.getElementById('messagesArea').innerHTML = '<div class="chat-loading" role="alert"><strong>Could not load chat</strong><span>Close and reopen chat to try again.</span></div>';
+          console.error(error);
         });
       }).catch(error => {
-        if (generation === chatGeneration) showToast('Chat unavailable', 'Could not load messages. Try opening this chat again.', 'error');
+        if (generation === chatGeneration) { document.getElementById('messagesArea').innerHTML = '<div class="chat-loading" role="alert"><strong>Could not load chat</strong><span>Close and reopen chat to try again.</span></div>'; showToast('Chat unavailable', 'Could not load messages. Try opening this chat again.', 'error'); }
         console.error(error);
       });
       
