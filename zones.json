@@ -300,7 +300,7 @@
         "url":  "{HTML_URL}/33-ff.html",
         "author":  "New Star Games",
         "authorLink":  "https://www.newstargames.com/",
-        "gameLink":  "https://serphanovasessionprivate1231.vercel.app/games/retrobowl/index.html"
+        "gameLink":  "https://kdata1.com/2023/06/american-football-bowl/main.html"
     },
     {
         "id":  34,
@@ -8636,5 +8636,50 @@
         "author":  "Jack Smith Io",
         "authorLink":  "https://jacksmithgame.io/",
         "gameLink":  "https://www.gameflare.com/embed/jacksmith/"
+    },
+    {
+        "id":  861,
+        "name":  "Supermarket Sim ",
+        "cover":  "Img/game/Supermarket SIM.webp",
+        "url":  "https://games.cdn.famobi.com/html5games/s/supermarket-simulator-store-manager/v020/?fg_domain=play.famobi.com&fg_aid=A-IOCJF&fg_uid=3018d892-2f53-45e2-bd5e-457f92ad768c&fg_pid=725ca73f-aa33-4436-bdac-df8e93e343ae&fg_beat=286&original_ref=https%3A%2F%2Fkbhgames.com%2F",
+        "author":  "SuperMarket Sim",
+        "authorLink":  "",
+        "gameLink":  "https://games.cdn.famobi.com/html5games/s/supermarket-simulator-store-manager/v020/?fg_domain=play.famobi.com&fg_aid=A-IOCJF&fg_uid=3018d892-2f53-45e2-bd5e-457f92ad768c&fg_pid=725ca73f-aa33-4436-bdac-df8e93e343ae&fg_beat=286&original_ref=https%3A%2F%2Fkbhgames.com%2F"
+    },
+     {
+        "id":  862,
+        "name":  "AutoShop Simulator",
+        "cover":  "Img/game/autoshop sim.jpg",
+        "url":  "https://yandex.com/games/app/autoshop-simulator-supermarket-2026-489114?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D",
+        "author":  "AutoShop Simulator ",
+        "authorLink":  "",
+        "gameLink":  "https://yandex.com/games/app/autoshop-simulator-supermarket-2026-489114?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D"
+    },
+    {
+        "id":  863,
+        "name":  "simulator sellers life",
+        "cover":  "Img/game/supermarketsllerlife.jpg",
+        "url":  "https://yandex.com/games/app/simulator-sellers-life-311469?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D#goog_game_inter",
+        "author":  "simulator sellers life ",
+        "authorLink":  "",
+        "gameLink":  "https://yandex.com/games/app/simulator-sellers-life-311469?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D#goog_game_inter"
+    },
+    {
+        "id":  864,
+        "name":  "Nose Hospital",
+        "cover":  "Img/game/Nosehospital.jpg",
+        "url":  "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Fhtml5.gamedistribution.com%2F867b8b1d8dbb494fb0f056328bbe792f%2F%3Fgd_sdk_referrer_url%3Dhttps%3A%2F%2Fkbhgames.com%2Fgame%2Fnose-hospital&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fnose-hospital&w=800&h=600&noad=1&pid=165633",
+        "author":  "Nose Hospital",
+        "authorLink":  "",
+        "gameLink":  "https://kbhgames.com/wp-content/themes/v1/embed.php?url=https%3A%2F%2Fhtml5.gamedistribution.com%2F867b8b1d8dbb494fb0f056328bbe792f%2F%3Fgd_sdk_referrer_url%3Dhttps%3A%2F%2Fkbhgames.com%2Fgame%2Fnose-hospital&canonical=https%3A%2F%2Fkbhgames.com%2Fgame%2Fnose-hospital&w=800&h=600&noad=1&pid=165633"
+    },
+    {
+        "id":  865,
+        "name":  "Steal an Egg",
+        "cover":  "Img/game/StealanEgg.jpg",
+        "url":  "https://yandex.com/games/app/steal-an-egg-580426?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D#goog_game_inter",
+        "author":  "Steal an Egg",
+        "authorLink":  "",
+        "gameLink":  "https://yandex.com/games/app/steal-an-egg-580426?skip-guard=1&header=no&hide_payments_and_currency=1&utm_source=distrib&utm_medium=kbhgames.com&flags=%7B%22adv_sticky_banner_disabled%22%3Atrue%7D#goog_game_inter"
     }
 ]
