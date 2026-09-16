@@ -1,3 +1,4 @@
+import {createMiniCall} from './voice-mini.js';
 import {callNotifications} from './voice-notifications.js';
 import {mountVoiceAccount,voiceIdentity} from './voice-account.js';
 import {createVoiceView,paintMembers,paintSpeaking,icon} from './voice-ui.js';
@@ -12,21 +13,23 @@ export function mountVoice(){
  const dm=document.createElement('button');dm.className='header-btn nova-dm-call';dm.title='Call this friend privately';dm.innerHTML=icon('phone')+'<span>Call friend</span>';document.querySelector('.header-actions')?.prepend(dm);
  const resume=document.createElement('button');resume.className='header-btn nova-dm-call';resume.hidden=true;resume.innerHTML=icon('phone')+'<span>Open call</span>';resume.onclick=()=>{if(call?.room==='server-general')openTab();else showPrivate();};document.querySelector('.header-actions')?.prepend(resume);
  let call=null,busy=false,muted=false,deaf=false,generation=0,pendingView=null,lobbyBusy=false,checking=false,audioContext=null,meterTimer=null;const peers=new Map(),meters=new Map();
- const status=(view,text)=>{view.querySelector('[role=status]').textContent=text;};
+ const status=(view,text)=>{view.querySelector('[role=status]').textContent=text;updateMini();};
+ const mini=createMiniCall({mute:()=>call?.view.querySelector('[data-mute]').click(),deafen:()=>call?.view.querySelector('[data-deafen]').click(),leave,open:()=>{revealChat();if(call?.room==='server-general')openTab();else showPrivate();}});
+ function updateMini(){const view=call?.view||pendingView;mini.update(view&&(call||busy)?{name:call?.room==='server-general'?'General Voice':view.querySelector('h1').textContent,status:view.querySelector('[role=status]').textContent,muted,deaf,pending:!call}:null);}
  async function request(body){const user=await voiceIdentity();const r=await fetch('/api/voice',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await user.getIdToken()},body:JSON.stringify(body),signal:AbortSignal.timeout(12000)});const data=await r.json();if(!r.ok)throw Error(data.error||'Voice connection failed.');return data;}
  function showPrivate(){if(!dialog.open)dialog.showModal();}
  function controls(){for(const view of [general,privateView]){const active=call?.view===view,waiting=busy&&pendingView===view;view.querySelector('[data-mute]').disabled=!active;view.querySelector('[data-deafen]').disabled=!active;view.querySelector('[data-leave]').disabled=!active&&!waiting;for(const [key,on,yes,no] of [['mute',muted,'Unmute','Mute'],['deafen',deaf,'Undeafen','Deafen']]){const button=view.querySelector('[data-'+key+']');button.querySelector('span').textContent=active&&on?yes:no;button.classList.toggle('is-selected',active&&on);button.setAttribute('aria-pressed',String(active&&on));}}
-  general.querySelector('[data-join-general]').disabled=busy||!!call;resume.hidden=!call;
+  general.querySelector('[data-join-general]').disabled=busy||!!call;resume.hidden=!call;updateMini();
  }
  function removeMeter(id){const meter=meters.get(id);if(meter){meter.source.disconnect();meter.analyser.disconnect();meters.delete(id);}}
  function watchAudio(id,stream){removeMeter(id);if(!audioContext||!stream)return;try{const source=audioContext.createMediaStreamSource(stream),analyser=audioContext.createAnalyser();analyser.fftSize=512;source.connect(analyser);meters.set(id,{source,analyser,data:new Float32Array(analyser.fftSize),last:0});}catch{}}
  function startMeters(){const Context=window.AudioContext||window.webkitAudioContext;if(!Context)return;try{audioContext=new Context();audioContext.resume().catch(()=>{});meterTimer=setInterval(()=>{if(!call)return;for(const [id,m] of meters){m.analyser.getFloatTimeDomainData(m.data);const rms=Math.sqrt(m.data.reduce((sum,n)=>sum+n*n,0)/m.data.length);if(rms>.025&&!(id===call.session&&muted))m.last=Date.now();paintSpeaking(call.view,id,Date.now()-m.last<250&&!(id===call.session&&muted));}},100);}catch{}}
  function removePeer(id){const p=peers.get(id);if(!p)return;removeMeter(id);p.pc.close();p.audio.srcObject=null;p.audio.remove();peers.delete(id);}
  function leave(){generation++;const old=call;call=null;for(const id of [...peers.keys()])removePeer(id);for(const id of [...meters.keys()])removeMeter(id);clearInterval(meterTimer);meterTimer=null;if(audioContext){audioContext.close().catch(()=>{});audioContext=null;}old?.stream.getTracks().forEach(t=>t.stop());if(old){request({action:'leave',room:old.room,session:old.session}).catch(()=>{});old.view.querySelector('[data-state]').textContent='Call ended';status(old.view,'You left the call.');paintMembers(old.view,{},'');}muted=deaf=false;controls();refreshLobby();}
- async function join(room,target=null,friend=''){
+ async function join(room,target=null,friend='',background=false){
   const view=room==='server-general'?general:privateView;
   if(call||busy){status(view,'Leave your current call before starting another.');return;}
-  if(view===general)openTab();else{showPrivate();privateView.querySelector('h1').textContent=friend?'Call with '+friend:'Private call';}
+  if(view===general)openTab();else{if(!background)showPrivate();privateView.querySelector('h1').textContent=friend?'Call with '+friend:'Private call';}
   busy=true;pendingView=view;const version=++generation;controls();status(view,'Connecting your microphone…');view.querySelector('[data-state]').textContent='Connecting';startMeters();let stream,joined;
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw Error('Voice requires microphone support and HTTPS.');
@@ -60,8 +63,8 @@ export function mountVoice(){
  dm.onclick=async()=>{if(call){resume.onclick();return;}showPrivate();const name=dmTarget();privateView.querySelector('h1').textContent='Call '+name;const area=privateView.querySelector('[data-direct]');area.replaceChildren();paintMembers(privateView,{},'');status(privateView,'Finding your friend…');try{const data=await request({action:'peers',target:name});status(privateView,data.peers.length?'Choose your friend’s device. Their ID is shown so you can confirm it’s them.':'Your friend is offline. Ask them to open Nova Chat.');for(const item of data.peers){const b=document.createElement('button');b.className='voice-peer-choice';const label=document.createElement('strong'),id=document.createElement('small');label.textContent='Call '+item.name;id.textContent=item.id;b.append(label,id);b.onclick=()=>join(null,item.id,item.name);area.append(b);}}catch(e){status(privateView,e.message);}};
  window.novaJoinServerVoice=()=>join('server-general');general.querySelector('[data-join-general]').onclick=window.novaJoinServerVoice;
  function revealChat(){try{if(window.frameElement?.closest('.panel-overlay')&&!window.frameElement.closest('.panel-overlay').classList.contains('open'))window.parent.openPanel?.('chat');}catch{}}
- const notices=callNotifications({reveal:revealChat,accept:async invite=>{if(call||busy)throw Error('Leave your current call first.');await join(invite.room,null,invite.from);},decline:invite=>request({action:'decline',room:invite.room})});
- const timer=setInterval(async()=>{if(checking)return;try{const hidden=window.frameElement?.closest('.panel-overlay')&&!window.frameElement.closest('.panel-overlay').classList.contains('open');if(hidden&&(call||busy))leave();if((call||busy)&&window.NovaCommunity&&!window.NovaCommunity.canSend())leave();checking=true;const data=await request({action:'invites'});notices.sync(data.invites);dm.classList.toggle('has-incoming-call',data.invites.length>0);if(!general.hidden&&!hidden)refreshLobby();}catch(e){if(!general.hidden)status(general,e.message);}finally{checking=false;}},3000);
- window.addEventListener('pagehide',()=>{clearInterval(timer);notices.destroy();leave();});paintMembers(general,{},'');controls();
+ const notices=callNotifications({reveal:()=>{},accept:async invite=>{if(call||busy)throw Error('Leave your current call first.');await join(invite.room,null,invite.from,true);if(!call)throw Error(privateView.querySelector('[role=status]').textContent||'Call could not connect.');},decline:invite=>request({action:'decline',room:invite.room})});
+ const timer=setInterval(async()=>{if(checking)return;try{const hidden=window.frameElement?.closest('.panel-overlay')&&!window.frameElement.closest('.panel-overlay').classList.contains('open');if((call||busy)&&window.NovaCommunity&&!window.NovaCommunity.canSend())leave();checking=true;const data=await request({action:'invites'});notices.sync(data.invites);dm.classList.toggle('has-incoming-call',data.invites.length>0);if(!general.hidden&&!hidden)refreshLobby();}catch(e){if(!general.hidden)status(general,e.message);}finally{checking=false;}},3000);
+ window.addEventListener('pagehide',()=>{clearInterval(timer);notices.destroy();leave();mini.destroy();});paintMembers(general,{},'');controls();
 }
 
