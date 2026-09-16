@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="voice-chat.css">
   <script type="module" src="./community.js"></script>
   <script src="./panic-smart.js"></script>
   <meta charset="UTF-8">
@@ -2361,6 +2362,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script type="module">
+    import {mountVoice} from './voice-chat.js';
     import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
     import {mountLegacyAppealChat} from './support-chat.js';
@@ -7327,6 +7329,7 @@
       mountCommunityAdmin({username, toast: showToast});
       mountStaffControls({username,toast:showToast});
       mountLegacyAppealChat();
+      mountVoice();
   </script>
   
   <!-- ══════════════════════════════════════════════════

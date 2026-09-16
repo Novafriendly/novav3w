@@ -1,0 +1,146 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "banLogs": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "bans": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "blocked": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "channels": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "customRoles": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "directMessages": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "dms": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "friendRequests": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "friends": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "groups": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "messages": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "mutes": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "nicknames": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "notifications": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaActivity": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaAnnouncements": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaGameVotes": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaModeration": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaPollVotes": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaStats": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaUnbanRequests": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaUpdateLogs": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "presence": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "reports": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "streaks": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "suggestions": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "system": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "typing": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "unbanRequests": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "unreadMessages": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "users": {
+      ".read": "now < 1791345600000",
+      ".write": "now < 1791345600000"
+    },
+    "novaSecureAccounts": {
+      ".read": false,
+      ".write": false
+    },
+    "novaSecureAppeals": {
+      ".read": false,
+      ".write": false
+    },
+    "novaVoice": {
+      ".read": false,
+      ".write": false
+    },
+    "novaVoiceInvites": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
