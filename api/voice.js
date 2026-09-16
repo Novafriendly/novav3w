@@ -1,5 +1,12 @@
 import {randomUUID} from 'node:crypto';
 import {services,validAccount} from '../server/voice-service.js';
+const profiles=new Map();
+async function visibleMembers(db,members,now){
+ return Object.fromEntries(await Promise.all(Object.entries(members||{}).filter(([,m])=>m.expires>now).map(async([session,m])=>{
+  let cached=profiles.get(m.account);if(!cached||cached.until<now){const profile=(await db.ref('users/'+m.account).get()).val()||{};cached={until:now+15000,name:String(profile.displayName||profile.name||m.account).slice(0,100),picture:typeof profile.profilePic==='string'?profile.profilePic:''};if(profiles.size>256)profiles.clear();profiles.set(m.account,cached);}
+  return [session,{account:m.account,id:m.uid,name:cached.name,picture:cached.picture,muted:!!m.muted,deafened:!!m.deafened}];
+ })));
+}
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');if(req.method!=='POST')return res.status(405).json({error:'Use POST.'});
  try{
@@ -8,6 +15,7 @@ export default async function handler(req,res){
   const device=(await db.ref('novaVoice/devices/'+user.uid).get()).val();
   const account=device?.account;if(!validAccount(account))return res.status(403).json({error:'Reconnect your Nova voice ID.'});
   const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{},now=Date.now();
+  if(body.action==='lobby'){const room=(await db.ref('novaVoice/rooms/server-general').get()).val();return res.json({members:await visibleMembers(db,room?.members,now),capacity:10});}
   if(body.action==='peers'){
    if(!validAccount(body.target))return res.status(400).json({error:'Invalid Nova name.'});
    const devices=(await db.ref('novaVoice/devices').orderByChild('account').equalTo(body.target).limitToFirst(100).get()).val()||{};
@@ -39,7 +47,7 @@ export default async function handler(req,res){
   if(body.action==='join'){
    const result=await ref.transaction(value=>{
     const r=value||{label:'General Voice',created:now};const members=Object.fromEntries(Object.entries(r.members||{}).filter(([,m])=>m.expires>now));
-    if(Object.hasOwn(members,session)||Object.values(members).some(m=>m.uid===user.uid)||Object.keys(members).length>=(room==='server-general'?6:2))return;
+    if(Object.hasOwn(members,session)||Object.values(members).some(m=>m.uid===user.uid)||Object.keys(members).length>=(room==='server-general'?10:2))return;
     return {...r,members:{...members,[session]:{uid:user.uid,account,expires:now+45000}}};
    });if(!result.committed)return res.status(409).json({error:'Room is full or you are already connected in another tab.'});
    await db.ref('novaVoiceInvites/'+user.uid+'/'+room).remove();
@@ -51,10 +59,13 @@ export default async function handler(req,res){
   if(record.members[session].expires<now)return res.status(409).json({error:'Your voice session expired. Join again.'});
   if(body.action==='poll'){
    await ref.child('members/'+session+'/expires').set(now+45000);
+   await ref.child('members/'+session+'/muted').set(body.muted===true);
+   await ref.child('members/'+session+'/deafened').set(body.deafened===true);
+   record.members[session].muted=body.muted===true;record.members[session].deafened=body.deafened===true;
    const signals=Object.entries(record.signals?.[session]||{}).filter(([,v])=>v.at>now-60000);
    // Explicit acknowledgement prevents dropping signals when a response is lost.
    for(const id of (Array.isArray(body.ack)?body.ack:[]).slice(0,100))if(/^[\w-]{1,80}$/.test(id))await ref.child('signals/'+session+'/'+id).remove();
-   return res.json({members:Object.fromEntries(Object.entries(record.members||{}).filter(([,m])=>m.expires>now).map(([id,m])=>[id,{account:m.account,id:m.uid}])),signals:signals.map(([id,v])=>({id,...v}))});
+   return res.json({members:await visibleMembers(db,record.members,now),signals:signals.map(([id,v])=>({id,...v}))});
   }
   if(body.action==='signal'){
    if(typeof body.to!=='string'||!Object.hasOwn(record.members,body.to)||body.to===session||record.members[body.to].expires<now)return res.status(409).json({error:'The other user left.'});

@@ -12,7 +12,7 @@ Firebase anonymous authentication stores a signed-in device identity in browser 
 Existing Nova usernames are display labels, not verified ownership. Device identities do not acquire Owner/Admin permissions or ownership of legacy chat accounts. Two people can use the same display name. Calls show full voice IDs; compare the ID with your friend, then select their device explicitly. Private rooms authorize only the caller and selected recipient's signed IDs. Incoming calls require acceptance before microphone access. This does not migrate legacy text chat authentication or provide recovery after clearing data. Existing name-based moderation is honored but is not durable identity enforcement against someone clearing data or changing their label.
 
 ## Interface
-Voice Chat is a tab in the chat sidebar, not a floating corner panel. It contains the saved ID, General Voice, incoming calls and Mute/Deafen/Leave controls. Switching to text channels preserves an active call; closing Nova Chat stops the microphone. General Voice supports six people and DM calls support two. No recording is added.
+Voice Chat is a tab in the chat sidebar, not a floating corner panel. It contains the saved ID, General Voice, incoming calls and Mute/Deafen/Leave controls. Switching to text channels preserves an active call; closing Nova Chat stops the microphone. General Voice supports ten people and DM calls support two. No recording is added.
 
 ## Rules and network limitations
 The rules preserve existing feature paths and their original test-mode deadline: October 7, 2026. Those legacy paths remain public until that deadline, so complete an authenticated migration before then. Voice data stays in server-only novaVoice and novaVoiceInvites paths. The API rejects inherited public grants. The new identity uses novaVoice/devices; no new public database grants are needed.
@@ -20,3 +20,6 @@ The rules preserve existing feature paths and their original test-mode deadline:
 STUN is included. Some networks require a TURN relay: set NOVA_TURN_URL, NOVA_TURN_USERNAME and NOVA_TURN_CREDENTIAL in Vercel Production and redeploy. Use dedicated limited relay credentials (they are supplied to participants), and short-lived credentials for larger deployments.
 
 Before relying on voice, test with two devices: persistent IDs on refresh, DM selection/accept/decline, General Voice, mute/deafen, leaving, closing chat, microphone denial and TURN on restrictive networks. Local syntax and mocked authorization checks do not prove live audio works. Membership expires after 45 seconds without a heartbeat; expired invitations and abandoned rooms require retention cleanup for high-volume use.
+
+Voice redesign: General Voice previews its live roster before joining. Profile pictures and display names refresh from Nova profiles. Speaking rings use local audio analysis while connected; no audio is recorded. Friend calls open a separate private dialog over the DM; Back to chat minimizes it and Open call restores it. Device IDs are tucked into expandable details. Ten-person mesh calls still need a real multi-device network/load test.
+

@@ -1,0 +1,25 @@
+const paths={mic:'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3ZM5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8',headphones:'M3 14v-3a9 9 0 0 1 18 0v3M3 13h4v8H3zM17 13h4v8h-4z',phone:'M5 4h4l2 5-3 2a14 14 0 0 0 5 5l2-3 5 2v4c-8 3-18-7-15-15Z',close:'m6 6 12 12M6 18 18 6',people:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 21v-2a4 4 0 0 0-3-3.87M16 3a4 4 0 0 1 0 8',wave:'M4 10v4M8 6v12M12 3v18M16 6v12M20 10v4'};
+export const icon=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]?'<path d="'+paths[name]+'"/>':'')+'</svg>';
+export function createVoiceView(privateCall=false){
+ const el=document.createElement('section');el.className='nova-voice'+(privateCall?' voice-private':'');el.hidden=!privateCall;
+ el.innerHTML=`<header class="voice-heading"><div><span class="voice-eyebrow">${privateCall?'JUST YOU TWO':'NOVA / TOGETHER'}</span><h1>${privateCall?'Private call':'Voice lounge'}</h1><p>${privateCall?'Your own space to catch up.':'Good company. One room. Make yourself heard.'}</p></div><span data-state class="voice-state">${privateCall?'Ready to call':'Live room'}</span></header>
+ ${privateCall?'':'<div class="voice-room-summary"><div class="voice-room-symbol">'+icon('wave')+'</div><div><h2>General Voice</h2><p><span data-count>0</span> / 10 in the room <span class="voice-live-dot"></span></p></div><button data-join-general class="voice-join">'+icon('mic')+'<span>Join voice</span></button></div>'}
+ <div data-direct class="voice-direct"></div><div class="voice-section-label">${privateCall?'IN THIS CALL':'IN THE ROOM'}<span data-room-note>${privateCall?'Only invited devices can join':'Drop in whenever you like'}</span></div><div data-members class="voice-members"></div>
+ <div class="voice-controls" data-controls><button data-mute disabled>${icon('mic')}<span>Mute</span></button><button data-deafen disabled>${icon('headphones')}<span>Deafen</span></button><button data-leave class="voice-end" disabled>${icon('phone')}<span>${privateCall?'End call':'Leave room'}</span></button><button data-audio hidden>${icon('headphones')}<span>Enable audio</span></button></div><p role="status" aria-live="polite" class="voice-status"></p><div data-incoming class="voice-incoming"></div>`;
+ return el;
+}
+export function paintMembers(view,members,self){
+ const list=view.querySelector('[data-members]');const ids=Object.keys(members);const existing=new Map([...list.querySelectorAll('[data-session]')].map(el=>[el.dataset.session,el]));
+ if(!ids.length){const count=view.querySelector('[data-count]');if(count)count.textContent='0';list.innerHTML='<div class="voice-empty">'+icon('people')+'<strong>'+(view.classList.contains('voice-private')?'Ready when you are':'A little quiet in here')+'</strong><span>'+(view.classList.contains('voice-private')?'Your friend will appear here when connected.':'Be the first to join the conversation.')+'</span></div>';return;}
+ list.querySelector('.voice-empty')?.remove();
+ for(const [session,member] of Object.entries(members)){
+  let card=existing.get(session);existing.delete(session);if(!card){card=document.createElement('article');card.className='voice-member';card.dataset.session=session;card.innerHTML='<div class="voice-avatar"><span data-initial></span><img alt="" hidden><span class="voice-speaking-icon">'+icon('wave')+'</span></div><strong data-name></strong><span data-member-state>Listening</span><details><summary>Voice ID</summary><code></code></details>';list.append(card);}
+  card.querySelector('[data-name]').textContent=(member.name||member.account)+(session===self?' · You':'');card.querySelector('[data-initial]').textContent=(member.name||member.account||'?').slice(0,1).toUpperCase();card.querySelector('code').textContent=member.id||'';
+  const img=card.querySelector('img');let src='';try{const url=new URL(member.picture,location.href);if(member.picture&&(['https:','http:'].includes(url.protocol)||/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(member.picture)))src=url.href;}catch{}
+  if(img.dataset.source!==src){img.dataset.source=src;img.hidden=!src;img.onerror=()=>{img.hidden=true;};if(src)img.src=src;else img.removeAttribute('src');}
+  card.dataset.muted=String(member.muted);card.classList.toggle('is-muted',member.muted);card.querySelector('[data-member-state]').textContent=member.muted?'Mic muted':member.deafened?'Deafened':card.classList.contains('is-speaking')?'Speaking':'Listening';
+ }
+ for(const card of existing.values())card.remove();
+ const count=view.querySelector('[data-count]');if(count)count.textContent=String(ids.length);
+}
+export function paintSpeaking(view,session,speaking){const card=[...view.querySelectorAll('[data-session]')].find(el=>el.dataset.session===session);if(!card)return;const on=speaking&&card.dataset.muted!=='true';card.classList.toggle('is-speaking',on);if(card.dataset.muted!=='true')card.querySelector('[data-member-state]').textContent=on?'Speaking':'Listening';}

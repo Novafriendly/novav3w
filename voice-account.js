@@ -17,7 +17,8 @@ export async function voiceIdentity(){
  })().catch(e=>{lastError=e.code==='auth/operation-not-allowed'||e.code==='auth/admin-restricted-operation'?Error('The owner needs to enable Anonymous in Firebase Authentication → Sign-in method.'):e;retryAt=Date.now()+30000;throw lastError;}).finally(()=>{pending=null;});return pending;
 }
 export function mountVoiceAccount(panel){
- const identity=document.createElement('div');identity.className='voice-device-id';identity.innerHTML='<strong>Your Nova voice ID</strong><code></code><p>Saved on this browser. Clearing site data creates a new ID. Names are display names, not verified accounts.</p><button>Reconnect voice</button>';panel.querySelector('header').after(identity);
- const show=async()=>{try{const user=await voiceIdentity();identity.querySelector('code').textContent=user.uid;identity.querySelector('button').hidden=true;}catch(e){identity.querySelector('code').textContent=e.message;identity.querySelector('button').hidden=false;}};
+ const identity=document.createElement('details');identity.className='voice-device-id';identity.innerHTML='<summary>Device &amp; connection details</summary><code></code><p>Saved on this browser. Clearing site data creates a new ID. Names are display names, not verified accounts.</p><button>Reconnect voice</button>';panel.querySelector('header').after(identity);
+ const show=async()=>{try{const user=await voiceIdentity();identity.querySelector('code').textContent=user.uid;identity.querySelector('button').hidden=true;}catch(e){identity.open=true;identity.dataset.error='true';identity.querySelector('code').textContent=e.message;identity.querySelector('button').hidden=false;}};
  identity.querySelector('button').onclick=()=>{retryAt=0;show();};show();
 }
+
