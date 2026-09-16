@@ -335,11 +335,11 @@
         "cover":  "{COVER_URL}/38.png",
         "url":  "{HTML_URL}/38-f.html",
         "author":  "Scott Cawthon",
-        "authorLink":  "https://scottgames.com",
+        "authorLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys/",
         "special":  [
                         "port"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/38-f.html"
+        "gameLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys/"
     },
     {
         "id":  39,
@@ -347,11 +347,11 @@
         "cover":  "{COVER_URL}/39.png",
         "url":  "{HTML_URL}/39-f.html",
         "author":  "Scott Cawthon",
-        "authorLink":  "https://scottgames.com",
+        "authorLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-2/",
         "special":  [
                         "port"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/39-f.html"
+        "gameLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-2/"
     },
     {
         "id":  40,
@@ -359,11 +359,11 @@
         "cover":  "{COVER_URL}/40.png",
         "url":  "{HTML_URL}/40-f.html",
         "author":  "Scott Cawthon",
-        "authorLink":  "https://scottgames.com",
+        "authorLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-3/",
         "special":  [
                         "port"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/40-f.html"
+        "gameLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-3/"
     },
     {
         "id":  41,
@@ -371,11 +371,11 @@
         "cover":  "{COVER_URL}/41.png",
         "url":  "{HTML_URL}/41-f.html",
         "author":  "Scott Cawthon",
-        "authorLink":  "https://scottgames.com",
+        "authorLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-4/",
         "special":  [
                         "port"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/41-f.html"
+        "gameLink":  "https://fivenightsatfreddysgame.io/play/five-nights-at-freddys-4/"
     },
     {
         "id":  42,
@@ -599,8 +599,8 @@
         "cover":  "{COVER_URL}/65.png",
         "url":  "{HTML_URL}/65-fixed.html",
         "author":  "Basically Games",
-        "authorLink":  "https://basically-games.itch.io/baldis-basics",
-        "gameLink":  "https://genizymath.github.io/iframe/65-fixed.html"
+        "authorLink":  "https://baldis-basics-online.github.io/file/",
+        "gameLink":  "https://baldis-basics-online.github.io/file/"
     },
     {
         "id":  66,
@@ -609,7 +609,7 @@
         "url":  "{HTML_URL}/66.html",
         "author":  "RHM Interactive OÃœ",
         "authorLink":  "https://play.google.com/store/apps/dev?id=9182049342574405049\u0026hl=en_US",
-        "gameLink":  "https://genizymath.github.io/iframe/66.html"
+        "gameLink":  "https://basketrandom.io/embed/basket-random?gd_sdk_referrer_url=https://basketrandom.io/basket-random&pub_id=&preroll=0"
     },
     {
         "id":  67,
@@ -735,7 +735,7 @@
         "special":  [
                         "flash"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/78.html"
+        "gameLink":  "https://www.burrito-bison.com/wp-content/uploads/games/burrito-bison.html"
     },
     {
         "id":  79,
@@ -768,7 +768,7 @@
         "url":  "{HTML_URL}/81.html",
         "author":  "Landfall",
         "authorLink":  "https://landfall.se",
-        "gameLink":  "https://genizymath.github.io/iframe/81.html"
+        "gameLink":  "https://clusterrush.io/embed/cluster-rush?pub_id=&preroll=0"
     },
     {
         "id":  82,
@@ -777,7 +777,7 @@
         "url":  "{HTML_URL}/82-a.html",
         "author":  "Orteil",
         "authorLink":  "https://orteil.dashnet.org",
-        "gameLink":  "https://genizymath.github.io/iframe/82-a.html"
+        "gameLink":  "https://cookieclickers.io/the-game/"
     },
     {
         "id":  83,
@@ -816,7 +816,7 @@
         "url":  "{HTML_URL}/86.html",
         "author":  "VOODOO",
         "authorLink":  "https://voodoo.io",
-        "gameLink":  "https://genizymath.github.io/iframe/86.html"
+        "gameLink":  "https://drawclimber.h5games.usercontent.goog/v/35ef0b5e-be32-42f2-bc8f-5dbf352a4f4b/"
     },
     {
         "id":  87,
@@ -864,7 +864,7 @@
         "special":  [
                         "port"
                     ],
-        "gameLink":  "https://genizymath.github.io/iframe/90-fix2.html"
+        "gameLink":  "https://granny1.io/granny.embed"
     },
     {
         "id":  91,
