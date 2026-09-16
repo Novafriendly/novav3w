@@ -1,14 +1,20 @@
 import {randomUUID} from 'node:crypto';
-import {services} from '../server/voice-service.js';
+import {services,validAccount} from '../server/voice-service.js';
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');if(req.method!=='POST')return res.status(405).json({error:'Use POST.'});
  try{
   const {db,auth}=await services();
-  let user;try{user=await auth.verifyIdToken((req.headers.authorization||'').replace(/^Bearer /,''),true);if(user.firebase?.sign_in_provider!=='google.com')throw Error();}catch{return res.status(401).json({error:'Sign in with Google to use voice chat.'});}
-  const accounts=(await db.ref('novaSecureAccounts').get()).val()||{};
-  const account=Object.keys(accounts).find(key=>accounts[key]?.uid===user.uid);if(!account)return res.status(403).json({error:'Ask the owner to link your Google account to your Nova username first.'});
+  let user;try{user=await auth.verifyIdToken((req.headers.authorization||'').replace(/^Bearer /,''),true);if(user.firebase?.sign_in_provider!=='anonymous')throw Error();}catch{return res.status(401).json({error:'Reconnect your Nova voice ID.'});}
+  const device=(await db.ref('novaVoice/devices/'+user.uid).get()).val();
+  const account=device?.account;if(!validAccount(account))return res.status(403).json({error:'Reconnect your Nova voice ID.'});
   const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{},now=Date.now();
+  if(body.action==='peers'){
+   if(!validAccount(body.target))return res.status(400).json({error:'Invalid Nova name.'});
+   const devices=(await db.ref('novaVoice/devices').orderByChild('account').equalTo(body.target).limitToFirst(100).get()).val()||{};
+   return res.json({peers:Object.entries(devices).filter(([id,d])=>id!==user.uid&&d.lastSeen>now-60000).map(([id,d])=>({id,name:d.account}))});
+  }
   if(body.action==='invites'){
+   await db.ref('novaVoice/devices/'+user.uid+'/lastSeen').set(now);
    const invites=(await db.ref('novaVoiceInvites/'+user.uid).get()).val()||{};return res.json({invites:Object.entries(invites).filter(([,v])=>v.expires>now).map(([id,v])=>({id,...v})).slice(-5)});
   }
   if(body.action==='decline'){if(!/^[\w-]{1,80}$/.test(body.room||''))return res.status(400).json({error:'Invalid call.'});await db.ref('novaVoiceInvites/'+user.uid+'/'+body.room).remove();return res.json({ok:true});}
@@ -18,11 +24,12 @@ export default async function handler(req,res){
   }
   let room=body.room;
   if(body.action==='call'){
-   const target=body.target;if(typeof target!=='string'||!accounts[target]?.uid||target===account)return res.status(400).json({error:'This user needs to link their Google account before receiving calls.'});
+   const targetId=body.target;if(typeof targetId!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(targetId)||targetId===user.uid)return res.status(400).json({error:'Choose a different Nova voice ID.'});
+   const targetDevice=(await db.ref('novaVoice/devices/'+targetId).get()).val();if(!validAccount(targetDevice?.account)||targetDevice.lastSeen<now-60000)return res.status(409).json({error:'That voice user is offline.'});const target=targetDevice.account;
    const blocks=await Promise.all([db.ref('blocked/'+account+'/'+target).get(),db.ref('blocked/'+target+'/'+account).get()]);if(blocks.some(b=>b.exists()))return res.status(403).json({error:'This call is unavailable.'});
    const rate=await db.ref('novaVoice/rates/'+user.uid).transaction(last=>last&&now-last<30000?undefined:now);if(!rate.committed)return res.status(429).json({error:'Wait 30 seconds before calling again.'});
-   room=randomUUID();await db.ref('novaVoice/rooms/'+room).set({allowed:[user.uid,accounts[target].uid],label:'Direct call',created:now});
-   await db.ref('novaVoiceInvites/'+accounts[target].uid+'/'+room).set({from:account,room,expires:now+60000});return res.json({room});
+   room=randomUUID();await db.ref('novaVoice/rooms/'+room).set({allowed:[user.uid,targetId],label:'Direct call',created:now});
+   await db.ref('novaVoiceInvites/'+targetId+'/'+room).set({from:account,fromId:user.uid,room,expires:now+60000});return res.json({room});
   }
   if(!/^[\w-]{1,80}$/.test(room||''))return res.status(400).json({error:'Invalid room.'});
   const ref=db.ref('novaVoice/rooms/'+room),session=body.session;
@@ -47,7 +54,7 @@ export default async function handler(req,res){
    const signals=Object.entries(record.signals?.[session]||{}).filter(([,v])=>v.at>now-60000);
    // Explicit acknowledgement prevents dropping signals when a response is lost.
    for(const id of (Array.isArray(body.ack)?body.ack:[]).slice(0,100))if(/^[\w-]{1,80}$/.test(id))await ref.child('signals/'+session+'/'+id).remove();
-   return res.json({members:Object.fromEntries(Object.entries(record.members||{}).filter(([,m])=>m.expires>now).map(([id,m])=>[id,{account:m.account}])),signals:signals.map(([id,v])=>({id,...v}))});
+   return res.json({members:Object.fromEntries(Object.entries(record.members||{}).filter(([,m])=>m.expires>now).map(([id,m])=>[id,{account:m.account,id:m.uid}])),signals:signals.map(([id,v])=>({id,...v}))});
   }
   if(body.action==='signal'){
    if(typeof body.to!=='string'||!Object.hasOwn(record.members,body.to)||body.to===session||record.members[body.to].expires<now)return res.status(409).json({error:'The other user left.'});
