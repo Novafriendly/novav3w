@@ -4,7 +4,7 @@ import {getDatabase} from 'firebase-admin/database';
 export const owner=uid=>(process.env.NOVA_OWNER_UIDS||'').split(',').map(s=>s.trim()).includes(uid);
 export const validAccount=s=>typeof s==='string'&&s.length>0&&s.length<=100&&!/[.#$\[\]/]/.test(s);
 export async function protectedRules(db){
- const rules=JSON.parse((await db.getRules()).source).rules;
+ const {rules} = await db.getRulesJSON();
  const denied=node=>Object.entries(node||{}).every(([key,value])=>['.read','.write'].includes(key)?value===false:!value||typeof value!=='object'||denied(value));
  const privateRoots=['novaSecureAccounts','novaSecureAppeals','novaVoice','novaVoiceInvites'];
  if(rules['.read']!==false||rules['.write']!==false||Object.entries(rules).some(([key,value])=>key.startsWith('$')&&!denied(value))||privateRoots.some(key=>rules[key]?.['.read']!==false||rules[key]?.['.write']!==false||!denied(rules[key])))throw Error('Publish the supplied firebase-voice.rules.json in Firebase Realtime Database → Rules first.');
