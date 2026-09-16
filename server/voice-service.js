@@ -1,6 +1,8 @@
 import {getApps,initializeApp,cert} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getDatabase} from 'firebase-admin/database';
+import {createHash} from 'node:crypto';
+export const voiceNameKey=name=>createHash('sha256').update(name).digest('hex');
 export const owner=uid=>(process.env.NOVA_OWNER_UIDS||'').split(',').map(s=>s.trim()).includes(uid);
 export const validAccount=s=>typeof s==='string'&&s.length>0&&s.length<=100&&!/[.#$\[\]/]/.test(s);
 export async function protectedRules(db){

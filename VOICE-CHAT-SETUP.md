@@ -23,3 +23,6 @@ Before relying on voice, test with two devices: persistent IDs on refresh, DM se
 
 Voice redesign: General Voice previews its live roster before joining. Profile pictures and display names refresh from Nova profiles. Speaking rings use local audio analysis while connected; no audio is recorded. Friend calls open a separate private dialog over the DM; Back to chat minimizes it and Open call restores it. Device IDs are tucked into expandable details. Ten-person mesh calls still need a real multi-device network/load test.
 
+
+Private-call fix: online devices are discovered through a server-maintained per-name directory, without requiring an orderByChild database index. Refresh both callers after deployment to register the directory entry. Incoming calls display an in-app Accept/Decline notification on Nova's main page when its chat iframe has been loaded, including while minimized. This is not an operating-system push notification and cannot arrive after closing Nova. Decline, caller hangup, and the 60-second ringing deadline end pending calls. No extra Firebase rules are needed for this directory because it is under the existing server-only novaVoice path.
+
