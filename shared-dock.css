@@ -1,0 +1,5 @@
+/* Keep the normal home dock; share it only with the two catalog pages. */
+.nova-embedded-page .dock{display:none!important}
+.nova-catalog-dock .dock{opacity:1!important;pointer-events:auto!important}
+.nova-dock-away .dock{display:none!important}
+.nova-catalog-dock #overlay-games,.nova-catalog-dock #overlay-apps{left:var(--shell-left,0px)!important;right:var(--shell-right,0px)!important;bottom:var(--shell-bottom,0px)!important}

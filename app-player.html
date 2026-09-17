@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-nova-page="player">
 <head>
-  <link rel="stylesheet" href="shared-dock.css">
-  <script defer src="shared-dock.js"></script>
+  <script defer src="player-navigation.js"></script>
   <link rel="stylesheet" href="./community.css">
   <script type="module" src="./community.js"></script>
   <script src="./panic-smart.js"></script>
@@ -397,6 +396,7 @@
     </div>
   </div>
   
+  <button id="restoreAppControls" hidden onclick="controlBar.classList.remove('hidden');this.hidden=true" style="position:fixed;top:12px;left:12px;z-index:1100;padding:10px 16px;border:1px solid #ffffff40;border-radius:12px;background:#181b20e6;color:white;cursor:pointer">Show app controls</button>
   <!-- NOTIFICATION -->
   <div class="notification" id="notification">
     <div class="notification-content">
@@ -522,15 +522,28 @@
     // Minimize control bar
     function minimizeBar() {
       controlBar.classList.add('hidden');
-      showNotification('Control bar hidden. Refresh page to restore.', 'hide');
+      document.getElementById('restoreAppControls').hidden = false;
     }
     
     // Close app
     function closeApp() {
-      // Navigate back to apps page
-      window.location.href = 'apps.html';
+      const fromDock = new URLSearchParams(location.search).get('from') === 'dock';
+      if (window.parent !== window) {
+        try {
+          if (typeof window.parent.novaCloseAppPlayer === 'function') {
+            window.parent.novaCloseAppPlayer(fromDock);
+            return;
+          }
+          if (fromDock && typeof window.parent.closePanel === 'function') {
+            window.parent.closePanel('apps');
+            location.replace('apps.html');
+            return;
+          }
+        } catch (_) {}
+      }
+      location.assign(fromDock ? 'home.html' : 'apps.html');
     }
-    
+
     // Show notification
     function showNotification(text, iconType = 'info') {
       notificationText.textContent = text;

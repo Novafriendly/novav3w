@@ -3663,7 +3663,7 @@ brRenderBmBar();
     if (!overlay || !frame) return;
     
     // Load app in the apps iframe
-    const appUrl = `app-player.html?name=${encodeURIComponent(name)}&url=${encodeURIComponent(url)}&icon=${encodeURIComponent(icon)}`;
+    const appUrl = `app-player.html?name=${encodeURIComponent(name)}&url=${encodeURIComponent(url)}&icon=${encodeURIComponent(icon)}&from=dock`;
     frame.src = appUrl;
     
     overlay.classList.add('open');
@@ -3677,6 +3677,8 @@ brRenderBmBar();
     const overlay = document.getElementById('overlay-' + name);
     if (!overlay) return;
     overlay.classList.remove('open');
+    const frame = document.getElementById('frame-' + name);
+    if (name === 'apps' && frame && new URL(frame.src, location.href).searchParams.get('from') === 'dock') frame.src = 'apps.html';
     
     // If a specific button was passed, just remove its active state
     if (btn) {
