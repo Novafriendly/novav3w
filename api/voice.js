@@ -4,7 +4,7 @@ const profiles=new Map();
 async function visibleMembers(db,members,now){
  return Object.fromEntries(await Promise.all(Object.entries(members||{}).filter(([,m])=>m.expires>now).map(async([session,m])=>{
   let cached=profiles.get(m.account);if(!cached||cached.until<now){const profile=(await db.ref('users/'+m.account).get()).val()||{};cached={until:now+15000,name:String(profile.displayName||profile.name||m.account).slice(0,100),picture:typeof profile.profilePic==='string'?profile.profilePic:''};if(profiles.size>256)profiles.clear();profiles.set(m.account,cached);}
-  return [session,{account:m.account,id:m.uid,name:cached.name,picture:cached.picture,muted:!!m.muted,deafened:!!m.deafened}];
+  return [session,{account:m.account,id:m.uid,name:cached.name,picture:cached.picture,muted:!!m.muted,deafened:!!m.deafened,camera:!!m.camera}];
  })));
 }
 export default async function handler(req,res){
@@ -21,7 +21,8 @@ export default async function handler(req,res){
    const directory=(await db.ref('novaVoice/directory/'+voiceNameKey(body.target)).get()).val()||{};
    const activeIds=Object.entries(directory).filter(([,seen])=>seen>now-60000).slice(0,100).map(([id])=>id);
    const devices=Object.fromEntries(await Promise.all(activeIds.map(async id=>[id,(await db.ref('novaVoice/devices/'+id).get()).val()])));
-   return res.json({peers:Object.entries(devices).filter(([id,d])=>id!==user.uid&&d?.account===body.target&&d.lastSeen>now-60000).map(([id,d])=>({id,name:d.account}))});
+   const profile=(await db.ref('users/'+body.target).get()).val()||{};
+   return res.json({peers:Object.entries(devices).filter(([id,d])=>id!==user.uid&&d?.account===body.target&&d.lastSeen>now-60000).map(([id,d])=>({id,name:String(profile.displayName||profile.name||d.account).slice(0,100),picture:typeof profile.profilePic==='string'?profile.profilePic:''}))});
   }
   if(body.action==='invites'){
    await db.ref('novaVoice/devices/'+user.uid+'/lastSeen').set(now);
@@ -56,7 +57,7 @@ export default async function handler(req,res){
     return {...r,...(r.recipient===user.uid?{answered:true}:{}),members:{...members,[session]:{uid:user.uid,account,expires:now+45000}}};
    });if(!result.committed)return res.status(409).json({error:'Room is full or you are already connected in another tab.'});
    await db.ref('novaVoiceInvites/'+user.uid+'/'+room).remove();
-   const iceServers=[{urls:'stun:stun.l.google.com:19302'}];if(process.env.NOVA_TURN_URL&&process.env.NOVA_TURN_USERNAME&&process.env.NOVA_TURN_CREDENTIAL)iceServers.push({urls:process.env.NOVA_TURN_URL,username:process.env.NOVA_TURN_USERNAME,credential:process.env.NOVA_TURN_CREDENTIAL});
+   const iceServers=[{urls:'stun:stun.l.google.com:19302'}];if(process.env.NOVA_TURN_URL&&process.env.NOVA_TURN_USERNAME&&process.env.NOVA_TURN_CREDENTIAL)iceServers.push({urls:process.env.NOVA_TURN_URL.split(',').map(url=>url.trim()).filter(Boolean),username:process.env.NOVA_TURN_USERNAME,credential:process.env.NOVA_TURN_CREDENTIAL});
    return res.json({room,iceServers,relayConfigured:iceServers.length>1});
   }
   if(record?.members?.[session]?.uid!==user.uid)return res.status(403).json({error:'You are not connected to this room.'});
@@ -66,7 +67,7 @@ export default async function handler(req,res){
    await ref.child('members/'+session+'/expires').set(now+45000);
    await ref.child('members/'+session+'/muted').set(body.muted===true);
    await ref.child('members/'+session+'/deafened').set(body.deafened===true);
-   record.members[session].muted=body.muted===true;record.members[session].deafened=body.deafened===true;
+   await ref.child('members/'+session+'/camera').set(body.camera===true);record.members[session].camera=body.camera===true;record.members[session].muted=body.muted===true;record.members[session].deafened=body.deafened===true;
    const signals=Object.entries(record.signals?.[session]||{}).filter(([,v])=>v.at>now-60000);
    // Explicit acknowledgement prevents dropping signals when a response is lost.
    for(const id of (Array.isArray(body.ack)?body.ack:[]).slice(0,100))if(/^[\w-]{1,80}$/.test(id))await ref.child('signals/'+session+'/'+id).remove();

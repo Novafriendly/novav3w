@@ -28,3 +28,17 @@ Private-call fix: online devices are discovered through a server-maintained per-
 
 
 Home notifications: the shell preloads its same-origin chat frame after a Nova username exists. Incoming friend DMs produce up to four newest-first glass notifications at the upper right; clicking opens the correct DM. Initial history and blocked senders are suppressed. Calls notify at the upper left. Answer keeps the current page visible and displays the bottom-right Mute/Deafen/Open/End panel. In-app navigation and minimized chat preserve the call. Reloading or closing the Nova browser tab still ends it. On narrow screens an incoming-call alert temporarily hides message cards to avoid overlapping controls.
+
+## Audio connectivity and cameras
+Room membership is signaling only; it does not prove audio is connected. Nova now reports media connection failures after 20 seconds and offers Enable audio when browser sound is suspended. Speaking indicators run through a silent output graph and never play the local microphone back.
+For networks requiring a relay, configure NOVA_TURN_URL (one URL or comma-separated provider URLs), NOVA_TURN_USERNAME, and NOVA_TURN_CREDENTIAL in each Vercel Production project, then redeploy. Include the provider's supported TURN-over-TLS/TCP endpoint, commonly port 443; do not invent a hostname or assume changing a port enables TLS. A relay cannot guarantee access on a network that blocks calls. No paid service is provisioned automatically.
+Camera on requests camera permission only when clicked. Camera off or leaving stops the camera track. Local preview and remote videos appear in the call window; the compact panel also has a camera toggle and Open to view video. Video defaults to 360p/15fps to limit mesh bandwidth. Refresh both clients for this video negotiation update. Test two real devices, camera denial/off/re-enable, audio activation, and an allowed restrictive network with your configured relay before considering media verified.
+
+## Simple relay setup (example provider)
+1. Open https://www.metered.ca/docs/turn-server-service/creating-turn-credentials/ and follow the dashboard steps to create a TURN credential. Review the provider's plan before signing up. Select Show ICE Servers Array.
+2. In Vercel, open the Nova project, Settings, Environment Variables. Add these to Production using your own generated values:
+   - NOVA_TURN_URL: the provider's turns: URL with TCP, plus any other TURN URLs separated by commas.
+   - NOVA_TURN_USERNAME: the username from that TURN entry.
+   - NOVA_TURN_CREDENTIAL: the credential from that TURN entry, not the account's secret API key.
+3. Repeat for the other Nova Vercel project if both sites are used. Redeploy each project after saving. Wait for newly generated provider credentials to become usable, then refresh Nova on both devices and join a call.
+Keep credentials in Vercel, not in chat messages or GitHub. The relay service is separate from Firebase. No changes to Firebase database rules are needed for this update.
