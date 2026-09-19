@@ -2364,7 +2364,7 @@
 
   <script type="module">
     import {mountVoice} from './voice-chat.js';
-    import { mountChatSidebar } from './chat-sidebar.js';
+    import { mountChatSidebar, freshPresence, liveNames } from './chat-sidebar.js';
     import { syncChatProfiles } from './chat-profiles.js';
     import { mountProfileEditor } from './profile-editor.js';
     import {mountLegacyAppealChat} from './support-chat.js';
@@ -2374,7 +2374,7 @@
     import {mountStaffControls} from './staff-controls.js';
     import { mountCommunityAdmin } from './community-admin.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update, query, orderByChild, limitToLast, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getDatabase, ref, push, onValue, set, remove, get, onDisconnect, update, query, orderByChild, limitToLast, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
     const app = initializeApp({
       apiKey: "AIzaSyDV9MRbv7IDXjowddQoXAN1hJPlCGMyxR8",
@@ -2446,7 +2446,7 @@
     
     const userId = uniqueUserId;
 
-    let sidebarUI = null, stopMembers = null;
+    let sidebarUI = null, stopMembers = null, presenceClockOffset = 0;
     let currentView = 'server';
     let currentChannel = 'general';
     let currentEmojiMessageId = null;
@@ -2512,50 +2512,21 @@
       document.getElementById('adminBtnTop').style.display = 'flex';
     }
 
-    const presenceRef = ref(db, `presence/${userId}`);
-    
-    // Function to update presence
-    const updatePresence = () => {
-      set(presenceRef, {
-        username, 
-        profilePic, 
-        role: userRole, 
-        timestamp: Date.now(), 
-        online: true
-      }).then(() => {
-        console.log('✅ Presence updated - online: true for', username);
-      }).catch(err => {
-        console.error('❌ Failed to update presence:', err);
-      });
-    };
-    
-    // Set initial presence
-    updatePresence();
-    
-    // Set what happens on disconnect
-    onDisconnect(presenceRef).set({
-      username, 
-      profilePic, 
-      role: userRole, 
-      timestamp: Date.now(), 
-      online: false
+    const presenceId = userId+'_'+crypto.randomUUID();
+    const presenceRef = ref(db, 'presence/'+presenceId);
+    let presenceConnected=false,presenceClosed=false,presenceEpoch=0;
+    const stopClock=onValue(ref(db,'.info/serverTimeOffset'),snap=>{presenceClockOffset=Number(snap.val())||0;});
+    const updatePresence=()=>{if(!presenceConnected||presenceClosed)return;return set(presenceRef,{username,profilePic,role:userRole,timestamp:serverTimestamp(),online:true}).catch(err=>console.error('Presence update failed',err));};
+    const stopConnection=onValue(ref(db,'.info/connected'),async snap=>{
+      const epoch=++presenceEpoch;presenceConnected=false;if(snap.val()!==true||presenceClosed)return;
+      try{await onDisconnect(presenceRef).remove();if(presenceClosed||epoch!==presenceEpoch)return;presenceConnected=true;await updatePresence();}catch(err){console.error('Could not register presence',err);}
     });
-    
-    // Update user data
-    update(ref(db, `users/${username}`), {username, lastSeen: Date.now()});
-    
-    // Update presence every 10 seconds
-    setInterval(() => {
-      set(ref(db, `users/${username}/lastSeen`), Date.now());
-      updatePresence();
-    }, 10000);
-    
-    // Also update immediately when tab becomes visible
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        updatePresence();
-      }
-    });
+    update(ref(db,'users/'+username),{username,lastSeen:serverTimestamp()});
+    const presenceHeartbeat=setInterval(()=>{if(presenceConnected&&!presenceClosed){updatePresence();set(ref(db,'users/'+username+'/lastSeen'),serverTimestamp()).catch(()=>{});}},10000);
+    const resumePresence=()=>{if(document.visibilityState==='visible')updatePresence();};
+    document.addEventListener('visibilitychange',resumePresence);
+    window.addEventListener('pagehide',()=>{presenceClosed=true;presenceConnected=false;presenceEpoch++;clearInterval(presenceHeartbeat);stopConnection();stopClock();document.removeEventListener('visibilitychange',resumePresence);remove(presenceRef).catch(()=>{});},{once:true});
+
 
     loadChannels();
     loadMessages('general');
@@ -2722,7 +2693,7 @@
       
       // Update Firebase with new role
       set(ref(db, `users/${username}/role`), userRole);
-      set(ref(db, `presence/${userId}/role`), userRole);
+      set(ref(db, `presence/${presenceId}/role`), userRole);
       
       // Show/hide admin buttons for owners
       const adminBtn = document.getElementById('adminBtn');
@@ -3779,14 +3750,15 @@
 
     function loadMembers() {
       if (stopMembers) return;
-      stopMembers = onValue(ref(db, 'presence'), pSnap => {
+      let cached={},signature='';
+      const renderPresence=pSnap => {
         const pData = pSnap.val() || {};
         const online = {};
         const activities = {};
         
         Object.values(pData).forEach(u => { 
           if (u && u.username) {
-            if (u.online) online[u.username] = true;
+            if (freshPresence(u,Date.now()+presenceClockOffset)) online[u.username] = true;
             if (u.activity && u.activity.game) activities[u.username] = u.activity;
           }
         });
@@ -3841,7 +3813,10 @@
           
           document.getElementById('membersSidebar').innerHTML = html;
         });
-      });
+      };
+      const repaint=()=>{const next=JSON.stringify([...liveNames(cached,Date.now()+presenceClockOffset)].sort());if(next!==signature){signature=next;renderPresence({val:()=>cached});}};
+      const unsubscribe=onValue(ref(db,'presence'),snap=>{cached=snap.val()||{};signature=JSON.stringify([...liveNames(cached,Date.now()+presenceClockOffset)].sort());renderPresence(snap);});
+      const expiry=setInterval(repaint,10000);stopMembers=()=>{clearInterval(expiry);unsubscribe();};
     }
 
     function checkFriendRequests() {
@@ -5623,7 +5598,7 @@
         localStorage.setItem('nova_chat_role', 'Owner');
         userRole = 'Owner';
         updateUserRole();
-        set(ref(db, `presence/${userId}/role`), 'Owner');
+        set(ref(db, `presence/${presenceId}/role`), 'Owner');
         set(ref(db, `users/${username}/role`), 'Owner');
         switchSettingsTab('owner-access');
         showToast('Owner Access Granted', 'You now have full admin privileges', 'success');
@@ -5655,7 +5630,7 @@
         userRole = 'Owner';
         updateUserRole();
         closeModal('ownerAccessModal');
-        set(ref(db, `presence/${userId}/role`), 'Owner');
+        set(ref(db, `presence/${presenceId}/role`), 'Owner');
         set(ref(db, `users/${username}/role`), 'Owner');
         alert('✅ Owner access granted!');
       } else {
@@ -5685,7 +5660,7 @@
           const all = Object.values(users);
           get(ref(db, 'presence')).then(pSnap => {
             const presence = pSnap.val() || {};
-            const online = Object.values(presence).filter(p => p.online).length;
+            const online = liveNames(presence,Date.now()+presenceClockOffset).size;
             const messages = Object.keys(JSON.parse(localStorage.getItem('totalMessages') || '{}')).length;
             
             content.innerHTML = `
@@ -5809,7 +5784,7 @@
           const presence = pSnap.val() || {};
           const onlineUsers = new Set();
           Object.values(presence).forEach(p => {
-            if (p.online && p.username) onlineUsers.add(p.username);
+            if (freshPresence(p,Date.now()+presenceClockOffset)) onlineUsers.add(p.username);
           });
           
           const matches = Object.values(users)
@@ -6017,7 +5992,7 @@
           const offlineUsers = [];
           
           validUsers.forEach(user => {
-            const isOnline = Object.values(presence).some(p => p && p.username === user.username && p.online);
+            const isOnline = Object.values(presence).some(p => p && p.username === user.username && freshPresence(p,Date.now()+presenceClockOffset));
             if (isOnline) {
               onlineUsers.push(user);
             } else {
@@ -6068,7 +6043,7 @@
             
             const userCards = validUsers.map(u => {
               const av = u.profilePic ? `<img src="${u.profilePic}">` : u.username.charAt(0).toUpperCase();
-              const isOnline = Object.values(presence).some(p => p && p.username === u.username && p.online);
+              const isOnline = Object.values(presence).some(p => p && p.username === u.username && freshPresence(p,Date.now()+presenceClockOffset));
               const statusClass = isOnline ? 'online' : 'offline';
               const statusText = isOnline ? 'Online' : 'Offline';
               
@@ -6402,7 +6377,7 @@
         
         get(ref(db, 'presence')).then(pSnap => {
           const presence = pSnap.val() || {};
-          const online = Object.values(presence).filter(p => p.online).length;
+          const online = liveNames(presence,Date.now()+presenceClockOffset).size;
           document.getElementById('dashOnlineUsers').textContent = online;
         });
       });
@@ -6687,7 +6662,7 @@
     // Set offline on page close/navigation - using visibilitychange instead of beforeunload
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        set(ref(db, `presence/${userId}/online`), false);
+        set(ref(db, `presence/${presenceId}/online`), false);
       }
     });
 
@@ -7116,7 +7091,7 @@
       showToast('Request Rejected', `Unban request from ${currentChatUser} rejected`, 'success');
       closeLobby();
     };
-      sidebarUI=mountChatSidebar({self:username,subscribe:(path,callback,error)=>onValue(ref(db,path),snap=>callback(snap.val()),error),getView:()=>currentView,getChannel:()=>currentChannel,
+      sidebarUI=mountChatSidebar({self:username,now:()=>Date.now()+presenceClockOffset,subscribe:(path,callback,error)=>onValue(ref(db,path),snap=>callback(snap.val()),error),getView:()=>currentView,getChannel:()=>currentChannel,
         openDM:name=>window.switchToDM(name),profile:name=>window.openUserProfile(name),
         sendRequest:async target=>{const existing=await get(ref(db,'friendRequests/'+target));if(Object.values(existing.val()||{}).some(r=>r.from===username))return;await push(ref(db,'friendRequests/'+target),{from:username,fromPic:profilePic,timestamp:Date.now()});},
         acceptRequest:(...args)=>window.acceptDirectRequest(...args),ignoreRequest:(...args)=>window.declineDirectRequest(...args),

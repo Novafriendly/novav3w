@@ -1,6 +1,7 @@
 // One set of live subscriptions serves the rail, discovery, and conversations.
 export const dmKey=(self,other)=>'dm_'+[self,other].sort().join('_');
-export function liveNames(presence){return new Set(Object.values(presence||{}).filter(p=>p?.online===true&&p.username).map(p=>p.username));}
+export function freshPresence(p,now=Date.now()){return p?.online===true&&typeof p.username==='string'&&typeof p.timestamp==='number'&&Number.isFinite(p.timestamp)&&p.timestamp<=now+15000&&now-p.timestamp<90000;}
+export function liveNames(presence,now=Date.now()){return new Set(Object.values(presence||{}).filter(p=>freshPresence(p,now)).map(p=>p.username));}
 export function activeStreak(value,now=new Date()){
  const today=now.toDateString(),yesterday=new Date(now.getTime()-86400000).toDateString();
  return value&&(value.lastDate===today||value.lastDate===yesterday)?Math.max(0,Number(value.count)||0):0;
@@ -11,10 +12,13 @@ export function selectPeople({users,friends,blocked,online,self,query='',onlyOnl
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 const button=(text,fn,cls='ns-action')=>{const n=el('button',cls,text);n.type='button';n.onclick=fn;return n;};
 const photo=value=>{try{const u=new URL(value,location.href);return value&&(['https:','http:'].includes(u.protocol)||/^data:image\/(png|jpeg|webp|gif);base64,/i.test(value))?u.href:'';}catch{return '';}};
-export function mountChatSidebar({self,subscribe,getView,getChannel,openDM,sendRequest,acceptRequest,ignoreRequest,openGroup,manageGroup,leaveGroup,createGroup,profile,nickname,mute,block,removeFriend}){
+export function mountChatSidebar({self,subscribe,now=()=>Date.now(),getView,getChannel,openDM,sendRequest,acceptRequest,ignoreRequest,openGroup,manageGroup,leaveGroup,createGroup,profile,nickname,mute,block,removeFriend}){
  let users={},friends={},presence={},blocked={},nicknames={},unread={},requests={},groups={},query='',filter='all',queued=false,disposed=false,onlineNames=new Set();
- const stops=[],streaks={},streakStops=new Map(),pending=new Set(),railCards=new Map(),friendCards=new Map();
+ const stops=[],streaks={},streakStops=new Map(),pending=new Set(),railCards=new Map(),friendCards=new Map(),groupCards=new Map();
  const sidebar=document.querySelector('.sidebar'),rail=el('nav','ns-friend-rail');rail.setAttribute('aria-label','Friends');document.querySelector('.server-list').append(rail);
+ const groupRail=el('nav','ns-group-rail');groupRail.setAttribute('aria-label','Your groups');
+ const create=button('+',createGroup,'ns-rail-create');create.title='Create a group';create.setAttribute('aria-label','Create a group');
+ document.querySelector('.server-list').append(groupRail,create);
  const tip=el('div','ns-tooltip');tip.hidden=true;document.body.append(tip);
  const pane=el('section','ns-directory');pane.hidden=true;sidebar.append(pane);
  const heading=el('div','ns-heading');heading.append(el('small','','YOUR PEOPLE'),el('h2','','Messages'));const add=button('+',()=>{search.focus();search.select();},'ns-add');add.title='Find people to add';add.setAttribute('aria-label',add.title);heading.append(add);
@@ -37,13 +41,18 @@ export function mountChatSidebar({self,subscribe,getView,getChannel,openDM,sendR
  function observe(path,fn){return subscribe(path,value=>{fn(value||{});schedule();},()=>{message.textContent='Could not update people. Check your connection.';});}
  function trackStreaks(){const wanted=new Set([...Object.keys(friends).filter(n=>!blocked[n]).map(n=>dmKey(self,n)),...Object.keys(groups).filter(id=>groups[id]?.members?.[self])]);for(const [key,stop]of streakStops)if(!wanted.has(key)){stop();streakStops.delete(key);delete streaks[key];}for(const key of wanted)if(!streakStops.has(key))streakStops.set(key,observe('streaks/'+key,v=>streaks[key]=v));}
  let requestsSignature='',discoverySignature='',groupsSignature='',actionSignature='';
- function render(){queued=false;if(disposed)return;const online=onlineNames=liveNames(presence),isDM=getView()==='dms';document.body.classList.toggle('nova-dm-view',isDM);pane.hidden=!isDM;document.getElementById('sidebarHeader').textContent=isDM?'Direct messages':'Nova Chat';
+ function render(){queued=false;if(disposed)return;const online=onlineNames=liveNames(presence,now()),isDM=getView()==='dms';document.body.classList.toggle('nova-dm-view',isDM);pane.hidden=!isDM;document.getElementById('sidebarHeader').textContent=isDM?'Direct messages':'Nova Chat';
  const names=Object.keys(friends).filter(n=>!blocked[n]).sort((a,b)=>Number(online.has(b))-Number(online.has(a))||label(a).localeCompare(label(b)));
  reconcile(rail,railCards,names,true,online);all.setAttribute('aria-pressed',String(filter==='all'));onlineButton.setAttribute('aria-pressed',String(filter==='online'));onlineButton.textContent='Online · '+names.filter(n=>online.has(n)).length;
  const visible=names.filter(n=>(filter!=='online'||online.has(n))&&(!query||(n+' '+label(n)).toLowerCase().includes(query.toLowerCase())));reconcile(friendList,friendCards,visible,false,online);
  message.textContent=visible.length?'':query?'No matching friends. Find someone below.':filter==='online'?'Your friends are offline right now.':'Your people will appear here. Search to add a friend.';
  const modalCount=activeStreak(streaks[dmKey(self,modal?.dataset.account||'')]);modalStreak.hidden=!modalCount;modalStreak.textContent='🔥 '+modalCount+' day streak together';
  const currentStreak=activeStreak(streaks[getChannel()]);profileStreak.hidden=!currentStreak;profileStreak.textContent='🔥 '+currentStreak+' day chat streak';profileStreak.title='Streak for this conversation';
+ const ownGroups=Object.entries(groups).filter(([,g])=>g?.members?.[self]).sort((a,b)=>String(a[1].name||'').localeCompare(String(b[1].name||'')));
+ for(const [id,node]of groupCards)if(!groups[id]?.members?.[self]){node.remove();groupCards.delete(id);}
+ for(const [id,g]of ownGroups){let n=groupCards.get(id);if(!n){n=button('',()=>openGroup(id,groups[id]?.name||'Group'),'ns-rail-person ns-rail-group');const a=el('span','ns-avatar'),initial=el('span'),img=el('img'),badge=el('span','ns-unread');img.alt='';img.hidden=true;img.onerror=()=>img.hidden=true;a.append(initial,img);n.append(a,badge);n.parts={a,initial,img,badge};n.onmouseenter=n.onfocus=()=>{showTip(n,'');tip.textContent=groups[id]?.name||'Group';};n.onmouseleave=n.onblur=()=>tip.hidden=true;groupCards.set(id,n);groupRail.append(n);}
+ const {a,initial,img,badge}=n.parts;initial.textContent=g.iconEmoji||String(g.name||'Group').slice(0,2).toUpperCase();const src=photo(g.iconUrl);if(a.dataset.photo!==src){a.dataset.photo=src;img.hidden=!src;if(src)img.src=src;else img.removeAttribute('src');}const count=Number(unread[id])||0;badge.hidden=!count;badge.textContent=count>99?'99+':String(count);n.classList.toggle('active',getChannel()===id);n.setAttribute('aria-current',String(getChannel()===id));n.setAttribute('aria-label',(g.name||'Group')+', group'+(count?', '+count+' unread':''));n.title=g.name||'Group';}
+ groupRail.hidden=!ownGroups.length;
  if(!isDM)return;
  const selected=Object.keys(friends).find(n=>getChannel()===dmKey(self,n));const actionKey=JSON.stringify([selected,!!blocked[selected]]);if(actionKey!==actionSignature){actionSignature=actionKey;friendActions.replaceChildren();friendActions.hidden=!selected;if(selected)for(const [title,action]of [['Profile',profile],['Nickname',nickname],['Mute / unmute',mute],[blocked[selected]?'Unblock':'Block',block],['Remove friend',removeFriend]])friendActions.append(button(title,()=>action(selected)));}
  const requestEntries=Object.entries(requests).filter(([,r])=>r?.from&&!blocked[r.from]);const sig=JSON.stringify(requestEntries);if(sig!==requestsSignature){requestsSignature=sig;requestList.replaceChildren();if(requestEntries.length)requestList.append(el('h3','','FRIEND REQUESTS'));for(const [id,r]of requestEntries){const row=el('div','ns-request');row.append(el('strong','',label(r.from)));for(const [title,action]of [['Accept',()=>acceptRequest(id,r.from,r.fromPic||'')],['Ignore',()=>ignoreRequest(id,r.from)]])row.append(button(title,action));requestList.append(row);}}
@@ -54,6 +63,7 @@ export function mountChatSidebar({self,subscribe,getView,getChannel,openDM,sendR
  // Existing profile actions remain available through a small explicit menu.
  friendList.addEventListener('dblclick',e=>{const n=e.target.closest('.ns-person'),name=[...friendCards].find(([,v])=>v===n)?.[0];if(name)profile(name);});
  stops.push(observe('friends/'+self,v=>{friends=Object.fromEntries(Object.entries(v).map(([k,f])=>[f.username||k,f]));trackStreaks();}),observe('presence',v=>presence=v),observe('blocked/'+self,v=>{blocked=v;trackStreaks();}),observe('nicknames/'+self,v=>nicknames=v),observe('unreadMessages/'+self,v=>unread=v),observe('friendRequests/'+self,v=>requests=v),observe('groups',v=>{groups=v;trackStreaks();}));
- function destroy(){disposed=true;modalObserver?.disconnect();stops.forEach(stop=>stop());streakStops.forEach(stop=>stop());rail.remove();pane.remove();tip.remove();}
+ const expiryTimer=setInterval(schedule,10000);
+ function destroy(){disposed=true;clearInterval(expiryTimer);modalObserver?.disconnect();stops.forEach(stop=>stop());streakStops.forEach(stop=>stop());rail.remove();groupRail.remove();create.remove();pane.remove();tip.remove();}
  window.addEventListener('pagehide',destroy,{once:true});schedule();return {refresh:schedule,setUsers(value){users=value||{};schedule();},destroy};
 }
