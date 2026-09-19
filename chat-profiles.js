@@ -1,3 +1,17 @@
+const failedPictures=new Set();
+export function paintProfileAvatar(node,name,picture,dotSelector){
+ const initial=Array.from(String(name||'?').trim())[0]?.toUpperCase()||'?';
+ const photo=window.NovaCommunity?.safeImage(picture)||'';
+ const key=JSON.stringify([photo,initial]);
+ if(node.dataset.avatarKey===key&&node.querySelector('[data-nova-initial]'))return;
+ const dot=node.querySelector(dotSelector);node.replaceChildren();node.dataset.avatarKey=key;
+ const fallback=document.createElement('span');fallback.dataset.novaInitial='true';fallback.textContent=initial;node.appendChild(fallback);
+ if(photo&&!failedPictures.has(photo)){
+  const img=document.createElement('img');img.alt='';img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit';
+  img.onerror=()=>{if(failedPictures.size>256)failedPictures.clear();failedPictures.add(photo);img.remove();};img.src=photo;node.appendChild(img);
+ }
+ if(dot){dot.style.zIndex='1';node.appendChild(dot);}
+}
 export function syncChatProfiles({subscribe,currentAccount,onSelf}) {
   let users={},queued=false;
   const decode=value=>{try{return decodeURIComponent(value)}catch{return ''}};
@@ -8,23 +22,16 @@ export function syncChatProfiles({subscribe,currentAccount,onSelf}) {
       const name=self.displayName||self.username||currentAccount;
       for(const id of ['profileName','settingsSidebarName']){const node=document.getElementById(id);if(node && node.textContent!==name)node.textContent=name;}
       for(const [id,statusClass] of [['profileAvatar','user-profile-status'],['settingsSidebarAvatar','settings-user-status']]){
-        const node=document.getElementById(id),photo=window.NovaCommunity?.safeImage(self.profilePic)||'';if(!node)continue;
-        const key=JSON.stringify([photo,name]);if(node.dataset.liveProfile===key && (photo ? node.querySelector('img')?.getAttribute('src')===photo : node.textContent===name.charAt(0).toUpperCase()))continue;
-        node.dataset.liveProfile=key;node.replaceChildren();
-        if(photo){const img=document.createElement('img');img.src=photo;img.alt='';node.appendChild(img)}else node.appendChild(document.createTextNode(name.charAt(0).toUpperCase()));
-        const dot=document.createElement('div');dot.className=statusClass;node.appendChild(dot);
+        const node=document.getElementById(id);if(!node)continue;
+        if(!node.querySelector('.'+statusClass)){const dot=document.createElement('div');dot.className=statusClass;node.appendChild(dot);}
+        paintProfileAvatar(node,name,self.profilePic,'.'+statusClass);
       }
     }
     document.querySelectorAll('[data-chat-profile],[data-profile-name],[data-profile-avatar]').forEach(node=>{
-      const account=decode(node.dataset.chatProfile||node.dataset.profileName||node.dataset.profileAvatar),user=users[account];if(!user)return;
+      const account=decode(node.dataset.chatProfile||node.dataset.profileName||node.dataset.profileAvatar),user=users[account]||{username:account};
       const name=user.displayName||user.username||account;
       if(node.classList.contains('message-avatar')||node.hasAttribute('data-profile-avatar')){
-        const url=window.NovaCommunity?.safeImage(user.profilePic)||'';
-        if(node.dataset.currentPhoto===url && node.dataset.currentName===name)return;
-        const presenceDot=node.querySelector('.status-indicator');
-        node.dataset.currentPhoto=url;node.dataset.currentName=name;node.replaceChildren();
-        if(url){const img=document.createElement('img');img.src=url;img.alt='';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';node.appendChild(img)}else node.textContent=name.charAt(0).toUpperCase();
-        if(presenceDot)node.appendChild(presenceDot);
+        paintProfileAvatar(node,name,user.profilePic,'.status-indicator');
       }else if(node.textContent!==name)node.textContent=name;
     });
     const heading=document.getElementById('channelName');
