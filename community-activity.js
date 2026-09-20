@@ -1,7 +1,7 @@
 const validKey = value => typeof value === 'string' && value && !/[.#$\[\]/]/.test(value);
 export function activityForURL(href) {
   const url = new URL(href), page = url.pathname.split('/').pop().replace(/\.html$/, '');
-  if (page === 'game-player' || page === 'app-player') return {type:page === 'game-player'?'game':'app',title:(url.searchParams.get('name') || (page === 'game-player'?'Game':'App')).slice(0,100),icon:url.searchParams.get('icon') || ''};
+  if (page === 'game-player' || page === 'app-player') return {type:page === 'game-player'?'game':'app',title:(url.searchParams.get('name') || (page === 'game-player'?'Game':'App')).slice(0,100),icon:url.searchParams.get('icon') || '',gameUrl:page==='game-player'?(url.searchParams.get('url')||''):''};
   const pages={settings:'Settings',chat:'Chat',games:'Game library',apps:'App library',browser:'Nova Browser',proxy:'Nova Browser',home:'Home',second:'Home','':'Home'};
   return {type:page==='browser'||page==='proxy'?'browser':'page',title:pages[page] || 'Nova',icon:''};
 }
@@ -63,7 +63,7 @@ export function startActivity(api) {
     const nextPath=validKey(user)?`novaActivity/${user}/${tab}`:'';
     if(path && path!==nextPath)api.backend.write(path,null).catch(()=>{});
     path=nextPath;if(!path)return;
-    const activity=detect(window),key=JSON.stringify([user,activity.type,activity.title]);
+    const activity=detect(window),key=JSON.stringify([user,activity.type,activity.title,activity.gameUrl]);
     if(key!==currentKey){currentKey=key;startedAt=api.now();force=true;}
     if(!force && api.now()-lastWrite<20000)return;
     writing=true;const destination=path;

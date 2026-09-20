@@ -442,82 +442,7 @@
     </div>
   </div>
 
-  <script type="module">
-    // Firebase imports
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, set, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0ѝ�_JODQVXMի8AqGSuJմއXW88WJ7Iت",
-      authDomain: "nova-24bd2.firebaseapp.com",
-      databaseURL: "https://nova-24bd2-default-rtdb.firebaseio.com",
-      projectId: "nova-24bd2",
-      storageBucket: "nova-24bd2.firebasestorage.app",
-      messagingSenderId: "592531893134",
-      appId: "1:592531893134:web:35ec4a2f8f2e957abb5a4f",
-      measurementId: "G-6Y9TNE2HFK"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    
-    // Get user info from localStorage
-    const username = localStorage.getItem('nova_user');
-    const userId = localStorage.getItem('nova_unique_id');
-    
-    // Track activity
-    let activityStartTime = null;
-    
-    function updateActivity(gameName, gameIcon) {
-      if (!username || !userId) return;
-      
-      if (!activityStartTime) {
-        activityStartTime = Date.now(); // Store start time only once
-      }
-      
-      const activityRef = ref(db, `presence/${userId}/activity`);
-      set(activityRef, {
-        type: 'game',
-        game: gameName,
-        icon: gameIcon,
-        startTime: activityStartTime,
-        timestamp: Date.now()
-      });
-      
-      // Update timestamp every 30 seconds to keep activity fresh
-      const activityInterval = setInterval(() => {
-        set(activityRef, {
-          type: 'game',
-          game: gameName,
-          icon: gameIcon,
-          startTime: activityStartTime, // Preserve original start time
-          timestamp: Date.now()
-        });
-      }, 30000);
-      
-      // Clear activity on disconnect
-      onDisconnect(activityRef).remove();
-      
-      // Clear interval on disconnect
-      window.addEventListener('beforeunload', () => {
-        clearInterval(activityInterval);
-        set(activityRef, null);
-        activityStartTime = null;
-      }, { once: true });
-    }
-    
-    // Expose to global scope
-    window.updateGameActivity = updateActivity;
-    
-    // Clear activity when leaving
-    window.addEventListener('beforeunload', () => {
-      if (username && userId) {
-        const activityRef = ref(db, `presence/${userId}/activity`);
-        set(activityRef, null);
-      }
-    });
-  </script>
 
   <script>
     // ═══════════════════════════════════════════════════════
@@ -762,20 +687,22 @@
     
     // Request game
     function requestGame() {
-      window.open('https://forms.gle/wFp7Rwx9jVnxh3nv5', '_blank');
-      showNotification('Opening request form', 'request');
+      window.openPlayerFeedback?.('suggestions');
+
     }
     
     // Report bug
     function reportBug() {
-      window.open('https://forms.gle/mq8WfiKo2VuYeRJN7', '_blank');
-      showNotification('Opening bug report form', 'bug');
+      window.openPlayerFeedback?.('reports');
+
     }
     
     // Minimize control bar
     function minimizeBar() {
       controlBar.classList.add('hidden');
-      showNotification('Control bar hidden. Refresh page to restore.', 'hide');
+      controlBar.inert = true;
+      document.getElementById('restoreControls').hidden = false;
+      document.getElementById('restoreControls').focus();
     }
     
     // Activate Retro Bowl cheat (unlimited credits)
@@ -951,5 +878,7 @@
       console.log(`🎮 Game settings applied - FOV: ${fov}%, Performance: ${performanceMode ? 'ON' : 'OFF'}`);
     }
   </script>
+<link rel="stylesheet" href="player-controls.css">
+<script type="module" src="player-controls.js"></script>
 </body>
 </html>
