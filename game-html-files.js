@@ -1,4 +1,4 @@
-// Generated from local HTML filenames.
+// Generated from math-tutors-main HTML filenames.
 window.NovaGameHtmlFiles={
   "0": "0.html",
   "1": "1-fde.html",
@@ -161,7 +161,7 @@ window.NovaGameHtmlFiles={
   "176": "176.html",
   "177": "177.html",
   "178": "178.html",
-  "179": "179-a2.html",
+  "179": "179-a3.html",
   "180": "180.html",
   "181": "181-f.html",
   "182": "182-f.html",
@@ -252,7 +252,7 @@ window.NovaGameHtmlFiles={
   "269": "269-f.html",
   "270": "270-f.html",
   "271": "271-f.html",
-  "272": "272-f.html",
+  "272": "272-ff.html",
   "273": "273.html",
   "274": "274-f.html",
   "275": "275.html",
@@ -761,7 +761,7 @@ window.NovaGameHtmlFiles={
   "782": "782ff.html",
   "783": "783.html",
   "784": "784.html",
-  "785": "785-upd2.html",
+  "785": "785-upd3.html",
   "786": "786.html",
   "787": "787.html",
   "788": "788-f.html",
@@ -835,5 +835,10 @@ window.NovaGameHtmlFiles={
   "856": "856.html",
   "857": "857.html",
   "858": "858.html",
-  "859": "859.html"
+  "859": "859-f.html",
+  "860": "860.html",
+  "861": "861.html",
+  "862": "862.html",
+  "863": "863.html",
+  "864": "864.html"
 };

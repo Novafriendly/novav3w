@@ -23,7 +23,7 @@ await writeFile(filterPath,filter.replace(brokenLoop,fixedLoop));
 // Keep game launch paths tied to files on disk, not catalog links.
 const {readdir}=await import('node:fs/promises');
 try {
- const names=await readdir(new URL('../html-main/html-main/',import.meta.url));
+ const names=await readdir(new URL('../math-tutors-main/',import.meta.url));
  const games={};
  for(const name of names.sort()) { const match=name.match(/^(\d+).*\.html(?:-[a-z]+)?$/i); if(match&&(!games[match[1]]||name===match[1]+'.html'))games[match[1]]=name; }
  await writeFile(new URL('../game-html-files.js',import.meta.url),'// Generated from local HTML filenames.\nwindow.NovaGameHtmlFiles='+JSON.stringify(games,null,2)+';\n');
