@@ -1,4 +1,4 @@
-importScripts('/nova-search/scram/scramjet.all.js');
+importScripts('/nova-search/scram/scramjet.all.js','/nova-search/game-asset-sources.js');
 const {ScramjetServiceWorker}=$scramjetLoadWorker();
 const scramjet=new ScramjetServiceWorker();
 // Read packaged game files locally, then let Scramjet rewrite their HTML and assets.
@@ -12,7 +12,14 @@ scramjet.addEventListener('request', event => {
     if (/^\/html-main\/html-main\/[^/]+\.html(?:-[a-z]+)?$/i.test(event.url.pathname)) {
       const htmlHeaders = new Headers(response.headers);
       htmlHeaders.set('Content-Type','text/html; charset=utf-8');
-      response = new Response(response.body,{status:response.status,statusText:response.statusText,headers:htmlHeaders});
+      let html = await response.text();
+      html = html.replace(/(<base\s+href=["'])([^"']+)(["'])/i,(match,before,base,after)=>{
+        const original=self.NovaGameAssetSources[base];
+        return original ? before+original.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+after : match;
+      });
+      htmlHeaders.delete('Content-Length');
+      htmlHeaders.delete('Content-Encoding');
+      response = new Response(html,{status:response.status,statusText:response.statusText,headers:htmlHeaders});
     }
     const headers = Object.fromEntries(response.headers);
     response.rawHeaders = headers;
