@@ -1,6 +1,6 @@
 import {selectActivity} from './community-activity.js';
 const bar=document.getElementById('controlBar'),params=new URLSearchParams(location.search),game=params.get('name')||'Game',gameUrl=params.get('url')||'';
-const restore=document.createElement('button');restore.id='restoreControls';restore.type='button';restore.hidden=true;restore.textContent='⌃ Controls';restore.setAttribute('aria-label','Show game controls');restore.onclick=()=>{bar.classList.remove('hidden');bar.inert=false;restore.hidden=true;bar.querySelector('button')?.focus()};document.body.append(restore);
+const restore=document.createElement('button');restore.id='restoreControls';restore.type='button';restore.hidden=true;restore.innerHTML='<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg>';restore.title='Show controls';restore.setAttribute('aria-label','Show game controls');restore.onclick=()=>{bar.classList.remove('hidden');bar.inert=false;restore.hidden=true;bar.querySelector('button')?.focus()};document.body.append(restore);
 bar.querySelectorAll('[data-tooltip]').forEach(b=>b.setAttribute('aria-label',b.dataset.tooltip));
 function dialog(title){const d=document.createElement('dialog');d.className='player-dialog';d.setAttribute('aria-label',title);const h=document.createElement('h2');h.textContent=title;d.append(h);d.addEventListener('close',()=>d.remove());document.body.append(d);return d}
 window.openPlayerFeedback=kind=>{
