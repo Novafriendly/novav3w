@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+		<title>Nova Search</title>
+		
+		<script src="/nova-search/scram/scramjet.all.js"></script>
+		<script src="/nova-search/baremux/index.js"></script>
+		<link rel="stylesheet" href="index.css" />
+		
+		
+		<script src="search.js" defer></script>
+		<script src="index.js" defer></script>
+	<style>html.nova-embedded .container,html.nova-embedded #reconnect{display:none}html.nova-embedded #sj-frame{position:fixed;inset:0;width:100%;height:100%;border:0}html.nova-embedded.search-error .container{display:block}</style>
+<script>if(new URLSearchParams(location.search).get('embedded')==='1')document.documentElement.classList.add('nova-embedded');</script>
+</head>
+	<body>
+		<div class="container">
+			<h1 class="title">Nova</h1>
+			<p class="subtitle">Search System</p>
+			
+			<form id="sj-form">
+				<input id="sj-search-engine" value="https://search.brave.com/search?q=%s" type="hidden" />
+				<input id="sj-address" type="text" placeholder="Enter URL or search..." />
+			</form>
+			
+			<p id="sj-error"></p>
+			<pre id="sj-error-code"></pre>
+		</div>
+	<button id="reconnect" type="button" style="position:fixed;bottom:8px;right:8px;z-index:10000;border:1px solid #ffffff40;background:#182026cc;color:white;border-radius:10px;padding:7px 12px">Reconnect search</button></body>
+</html>
+
