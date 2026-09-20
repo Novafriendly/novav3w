@@ -1,0 +1,44 @@
+{
+  "buildCommand": "npm run build:search",
+  "functions": {
+    "api/wisp.js": {
+      "maxDuration": 300
+    }
+  },
+  "headers": [
+    {
+      "source": "/nova-search/:path*",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/nova-search/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ],
+  "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/api/wisp/",
+      "destination": "/api/wisp"
+    }
+  ],
+  "installCommand": "npm ci --ignore-scripts"
+}

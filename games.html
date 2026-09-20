@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-nova-page="games">
 <head>
+  <script src="game-html-files.js"></script>
   <link rel="stylesheet" href="shared-dock.css">
   <script defer src="shared-dock.js"></script>
   <link rel="stylesheet" href="game-social.css">
@@ -798,8 +799,8 @@
           .map(game => ({
             ...game,
             cover: game.cover.replace('{COVER_URL}', COVER_URL),
-            url: game.url.replace('{HTML_URL}', HTML_URL),
-            gameLink: game.gameLink, // Preserve gameLink for external URLs
+            url: window.NovaGameHtmlFiles[String(game.id)] ? HTML_URL + '/' + window.NovaGameHtmlFiles[String(game.id)] : '',
+            gameLink: null, // Launch paths come from the packaged HTML index.
             genre: classifyGenre(game.name)
           }));
         
@@ -1001,9 +1002,9 @@
         console.error('❌ Failed to send tracking message:', e);
       }
       
-      // If gameLink exists, use it through proxy (like apps)
-      // Otherwise use local HTML file
-      const targetUrl = gameLink || url;
+      // Launch the packaged HTML selected from the file index.
+      const targetUrl = url;
+      if (!targetUrl) { alert('This game does not have a local HTML file yet.'); return; }
       const useProxy = gameLink ? true : true; // Always use proxy for now
       
       const playerUrl = `game-player.html?url=${encodeURIComponent(targetUrl)}&name=${encodeURIComponent(name)}&icon=${encodeURIComponent(coverImage || '')}&proxy=${useProxy}`;

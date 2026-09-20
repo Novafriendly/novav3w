@@ -479,26 +479,9 @@
       currentGameUrl = params.get('url') || '';
       currentGameName = params.get('name') || 'Game';
       currentGameIcon = params.get('icon') || '';
-      const useProxy = params.get('proxy') === 'true';
-      
-      // If proxy is requested, try multiple methods
-      if (useProxy && currentGameUrl) {
-        console.log('🔒 Proxy requested for:', currentGameUrl);
-        
-        // For external URLs (gameLinks), ALWAYS use proxy immediately
-        // Check if it's an external URL (not our local HTML files)
-        if (currentGameUrl.includes('http://') || currentGameUrl.includes('https://')) {
-          console.log('🌐 External URL detected - using proxy immediately');
-          tryProxyLoad();
-        } else {
-          // For local files, try direct load first
-          tryDirectLoad();
-        }
-      } else {
-        // Normal load without proxy
-        loadGame(currentGameUrl);
-      }
-      
+      if (currentGameUrl) tryProxyLoad();
+      else showNotification('This game does not have a local HTML file yet.', 'info');
+
       // Detect Retro Bowl games
       const nameLower = currentGameName.toLowerCase();
       const urlLower = currentGameUrl.toLowerCase();
@@ -558,35 +541,13 @@
     
     // Try loading through proxy
     function tryProxyLoad() {
-      console.log('🔄 Attempting proxy load...');
-      
-      // Show proxy loading notification
-      showProxyNotification();
-      
-      // Try Scramjet proxy
-      if (!currentGameUrl.includes('https://teteersbanscracmjetfornova.onrender.com/')) {
-        const proxyUrl = 'https://teteersbanscracmjetfornova.onrender.com/?url=' + encodeURIComponent(currentGameUrl);
-        console.log('🌐 Using Scramjet proxy:', proxyUrl);
-        
-        gameFrame.src = proxyUrl;
-        
-        // Check if proxy loads successfully
-        let proxyTimeout = setTimeout(() => {
-          console.log('❌ Proxy failed, trying alternative method...');
-          tryAlternativeMethod();
-        }, 8000);
-        
-        gameFrame.onload = function() {
-          clearTimeout(proxyTimeout);
-          console.log('✅ Proxy load successful!');
-          hideProxyNotification();
-          applyAdBlocker();
-        };
-      } else {
-        tryAlternativeMethod();
-      }
+      const target = new URL(currentGameUrl, location.href);
+      if (!/^https?:$/.test(target.protocol)) { showNotification('Unsupported game address.', 'info'); return; }
+      if (target.origin === location.origin && target.pathname.startsWith('/html-main/html-main/')) { target.host = 'nova-games.invalid'; target.port = ''; target.protocol = 'https:'; }
+      gameFrame.src = location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(target.href);
+      gameFrame.onload = () => hideProxyNotification();
     }
-    
+
     // Alternative method: Use blob URL or data URL
     function tryAlternativeMethod() {
       console.log('🔧 Trying alternative embedding method...');

@@ -1,0 +1,14 @@
+Nova Search Vercel test
+
+Preview deployed successfully:
+https://novaoffical-b06lb1caa-areon1.vercel.app/nova-search/index.html?url=weather
+
+Vercel preview protection requires a website login. End-to-end Vercel browser testing is pending.
+Local embedded Brave results verified. Stream limits and private-address protection tested.
+Production has NOT been changed.
+After deployment to a full Nova preview, opt in on home.html?nova-search=vercel.
+The normal Search route remains on its existing host until this test is verified.
+
+Build: npm ci --ignore-scripts, then npm run build:search.
+The build patches two pinned dependency bugs: libcurl WASM readiness and Wisp object iteration for per-host stream limits.
+Do not promote the isolated search-only deployment to production: it excludes the rest of Nova.

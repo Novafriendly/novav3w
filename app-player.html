@@ -432,26 +432,9 @@
       currentAppIcon = params.get('icon') || '';
       
       if (currentAppUrl) {
-        // Build proxy URL
-        const proxyHost = localStorage.getItem('nova_proxy_host') || 'https://teteersbanscracmjetfornova.onrender.com';
-        const engine = localStorage.getItem('nova_proxy_engine') || 'scramjet';
-        const transport = localStorage.getItem('nova_proxy_transport') || 'libcurl';
-        
-        const enginePaths = {
-          scramjet: '/',
-          ultraviolet: '/uv/'
-        };
-        
-        const transportParams = {
-          epoxy: 'epoxy',
-          libcurl: 'libcurl'
-        };
-        
-        const path = enginePaths[engine] || '/';
-        const tParam = transportParams[transport] || 'libcurl';
-        
-        currentProxyUrl = `${proxyHost}${path}?url=${encodeURIComponent(currentAppUrl)}&transport=${tParam}`;
-        
+        // Use the same built-in proxy as Nova Search.
+        currentProxyUrl = location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(currentAppUrl);
+
         appFrame.src = currentProxyUrl;
         appTitle.textContent = currentAppName;
         if (currentAppIcon) {

@@ -2737,7 +2737,6 @@
 ═══════════════════════════════════════ */
 /* ── Proxy / search engine config ── */
 // Scramjet proxy deployed on Render
-const BR_PROXY_HOST = 'https://teteersbanscracmjetfornova.onrender.com';
 
 const BR_SEARCH_ENGINES = {
   brave:  { name:'Brave',      url:'https://search.brave.com/search?q=',  suffix:'&source=web' },
@@ -2785,36 +2784,15 @@ let brHistory    = JSON.parse(localStorage.getItem('nova_br_history') || '[]');
 if (!brUserApps) brUserApps = BR_PRESET_APPS.slice(0, 6).map(a => ({...a}));
 
 /* ── Proxy URL builder ── */
-// Engine → path on the Scramjet App server
-const BR_ENGINE_PATHS = {
-  scramjet:    '/',
-  ultraviolet: '/uv/',
-};
-// Transport query param passed to the proxy page
-const BR_TRANSPORT_PARAMS = {
-  epoxy:   'epoxy',
-  libcurl: 'libcurl',
-};
-
 function brProxyUrl(input) {
   const s = input.trim();
   if (!s) return '';
-  const se        = brGetSearchEngine();
-  const engine    = localStorage.getItem('nova_proxy_engine')    || 'scramjet';
-  const transport = localStorage.getItem('nova_proxy_transport') || 'libcurl';
-  const path      = BR_ENGINE_PATHS[engine]         || '/';
-  const tParam    = BR_TRANSPORT_PARAMS[transport]  || 'libcurl';
-
+  const se = brGetSearchEngine();
   let targetUrl;
-  if (s.startsWith('http://') || s.startsWith('https://')) {
-    targetUrl = s;
-  } else if (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(s) && !s.includes(' ')) {
-    targetUrl = 'https://' + s;
-  } else {
-    targetUrl = se.url + encodeURIComponent(s) + se.suffix;
-  }
-
-  return BR_PROXY_HOST + path + '?url=' + encodeURIComponent(targetUrl) + '&transport=' + tParam;
+  if (/^https?:\/\//i.test(s)) targetUrl = s;
+  else if (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(s) && !s.includes(' ')) targetUrl = 'https://' + s;
+  else targetUrl = se.url + encodeURIComponent(s) + se.suffix;
+  return location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(targetUrl);
 }
 
 /* ── Open / close ── */
