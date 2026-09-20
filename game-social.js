@@ -2,7 +2,7 @@ const encode=value=>Array.from(new TextEncoder().encode(String(value)),b=>b.toSt
 const gameKey=game=>encode(game.id??game.url);
 let votes={},favorites=new Set(),account='',api=null,stop=null;
 const pending=new Set();
-const section=document.createElement('section');section.className='game-favorites';section.innerHTML='<header><div><span>MADE FOR YOU</span><h2>Your Favorites</h2></div><small>Keep your next game close.</small></header><div class="favorites-games"></div><p class="favorites-empty">Tap the star on a game to save it here.</p>';
+const section=document.createElement('section');section.className='game-favorites';section.innerHTML='<header><div><span>MADE FOR YOU</span><h2>Your Favorites</h2></div><small>Keep your next game close.</small></header><div class="favorites-games"></div><p class="favorites-empty">Tap the heart on a game to save it here.</p>';
 const notice=document.createElement('p');notice.className='game-social-notice';notice.setAttribute('role','status');
 const storageKey=()=> 'nova_game_favorites_'+encode(account||'guest');
 function loadFavorites(){try{const value=JSON.parse(localStorage.getItem(storageKey())||'[]');favorites=new Set(Array.isArray(value)?value:[]);}catch{favorites=new Set();}}
@@ -13,6 +13,7 @@ function decorate(card){
  for(const [action,icon,label] of [['like','♡','Like'],['dislike','−','Dislike'],['favorite','☆','Favorite']]){
   const button=document.createElement('button');button.type='button';button.dataset.action=action;button.title=label;button.setAttribute('aria-label',label);button.innerHTML='<span aria-hidden="true">'+icon+'</span><span data-count></span>';
   if(action!=='favorite')button.firstElementChild.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"'+(action==='dislike'?' style="transform:rotate(180deg)"':'')+'><path d="M7 10v10H3V10h4zm0 0 5-7c3 0 2 4 1 7h5a2 2 0 0 1 2 2l-2 8H7"/></svg>';
+  if(action==='favorite')button.firstElementChild.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
   button.onclick=async event=>{event.stopPropagation();if(pending.has(key))return;
    if(action==='favorite'){
     const next=new Set(favorites);if(next.has(key))next.delete(key);else next.add(key);
@@ -29,7 +30,7 @@ function decorate(card){
 }
 function paint(){document.querySelectorAll('.game-card[data-game-id]').forEach(card=>{
  decorate(card);const key=encode(card.dataset.gameId),value=rating(key);
- for(const button of card.querySelectorAll('.game-social button')){const action=button.dataset.action,selected=action==='favorite'?favorites.has(key):value.mine===(action==='like'?1:-1);button.setAttribute('aria-pressed',String(selected));button.disabled=pending.has(key);button.querySelector('[data-count]').textContent=action==='favorite'?'':String(action==='like'?value.likes:value.dislikes);if(action==='favorite')button.firstElementChild.textContent=selected?'★':'☆';}
+ for(const button of card.querySelectorAll('.game-social button')){const action=button.dataset.action,selected=action==='favorite'?favorites.has(key):value.mine===(action==='like'?1:-1);button.setAttribute('aria-pressed',String(selected));button.disabled=pending.has(key);button.querySelector('[data-count]').textContent=action==='favorite'?'':String(action==='like'?value.likes:value.dislikes);if(action==='favorite'){button.title=selected?'Remove from favorites':'Add to favorites';button.setAttribute('aria-label',button.title);}}
 });}
 function renderFavorites(){const library=window.NovaGameLibrary;if(!library)return;const grid=section.querySelector('.favorites-games');grid.replaceChildren();for(const game of library.games.filter(game=>favorites.has(gameKey(game)))){const card=library.createCard(game);const image=card.querySelector('img');if(image){image.onload=()=>image.classList.add('loaded');image.src=image.dataset.src;}grid.append(card);}section.querySelector('.favorites-empty').hidden=!!grid.children.length;paint();}
 function libraryChanged(){const grid=document.getElementById('gameGrid');if(!grid)return;if(!section.isConnected){grid.before(section);section.after(notice);}paint();renderFavorites();}

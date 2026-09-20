@@ -55,7 +55,7 @@
       z-index: 2;
       /* Optimize 4K image rendering */
       image-rendering: auto;
-      image-rendering: -webkit-optimize-contrast;
+      /* Use the same smooth scaling as the wallpaper preview. */
       -ms-interpolation-mode: bicubic;
       /* Hardware acceleration for large images */
       transform: translateZ(0);
@@ -82,7 +82,7 @@
       z-index: 2;
       /* Optimize 4K video rendering */
       image-rendering: auto;
-      image-rendering: -webkit-optimize-contrast;
+      /* Use the same smooth scaling as the wallpaper preview. */
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
       will-change: auto;
@@ -98,7 +98,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.05);
+      background: transparent;
       z-index: 3;
       pointer-events: none;
     }
@@ -3834,23 +3834,10 @@ brRenderBmBar();
         bgVideo.src = src;
         bgVideo.style.display = 'block';
         
-        // Optimize 4K playback based on screen resolution
-        const is4K = window.innerWidth >= 3840 || window.innerHeight >= 2160;
-        const isHighRes = window.innerWidth >= 2560 || window.innerHeight >= 1440;
-        
-        if (is4K) {
-          // 4K display - use highest quality
-          bgVideo.setAttribute('preload', 'auto');
-          console.log('🎬 4K display detected - using full quality');
-        } else if (isHighRes) {
-          // 1440p+ - balance quality and performance
-          bgVideo.setAttribute('preload', 'metadata');
-          console.log('🎬 High-res display detected');
-        } else {
-          // 1080p or lower - optimize for performance
-          bgVideo.setAttribute('preload', 'metadata');
-        }
-        
+        // Preloading changes startup behavior, not video resolution.
+        // Keep the selected source intact at its original quality.
+        bgVideo.preload = 'auto';
+
         bgVideo.load();
         bgVideo.play().catch(() => {});
       } else {
