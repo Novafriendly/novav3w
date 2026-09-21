@@ -26,8 +26,8 @@
     {
         "id":  865,
         "name":  "Stardew Valley",
-        "cover":  "{COVER_URL}/865.jpg",
-        "url":  "{HTML_URL}865.html",
+        "cover":  "covers-main/covers-main/865.jpg",
+        "url":  "math-tutors-main/865.html",
         "author":  "Stardew Valley",
         "authorLink":  "Stardew Valley",
         "gameLink":  ""
