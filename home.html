@@ -1925,6 +1925,8 @@
         </svg>
         <span>Browser</span>
       </button>
+<button class="dock-btn" id="dock-music" title="Nova Music" aria-label="Nova Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13M9 9l12-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="18" cy="16" rx="3" ry="3"/></svg></button>
+<button class="dock-btn" id="dock-ai" aria-label="Nova AI" title="Nova AI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></button>
 
       <button class="dock-btn" onclick="openProxiedApp('Discord', 'https://discord.com', 'https://www.google.com/s2/favicons?domain=discord.com&sz=128')">
         <img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord">
@@ -1956,7 +1958,7 @@
 
       <div class="dock-divider"></div>
 
-      <button class="dock-btn" id="dock-music" title="Nova Music" aria-label="Nova Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13M9 9l12-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="18" cy="16" rx="3" ry="3"/></svg></button>
+      
 <button class="dock-btn" id="dock-settings" onclick="openPanel('settings', this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="3"/>
@@ -4535,5 +4537,6 @@ brRenderBmBar();
 <link rel="stylesheet" href="nova-onboarding.css">
 <script type="module" src="nova-onboarding.js"></script>
 <link rel="stylesheet" href="nova-music-shell.css"><script src="nova-music-shell.js"></script>
+<div class="panel-overlay" id="overlay-ai"><iframe id="frame-ai" src="" title="Nova AI"></iframe></div><script src="nova-ai-shell.js"></script>
 </body>
 </html>>
