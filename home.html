@@ -1956,7 +1956,8 @@
 
       <div class="dock-divider"></div>
 
-      <button class="dock-btn" id="dock-settings" onclick="openPanel('settings', this)">
+      <button class="dock-btn" id="dock-music" title="Nova Music" aria-label="Nova Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13M9 9l12-2"/><ellipse cx="6" cy="18" rx="3" ry="3"/><ellipse cx="18" cy="16" rx="3" ry="3"/></svg></button>
+<button class="dock-btn" id="dock-settings" onclick="openPanel('settings', this)">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
@@ -3571,6 +3572,7 @@ brRenderBmBar();
 <div class="panel-overlay" id="overlay-chat">
   <iframe id="frame-chat" src="" allow="microphone; camera; autoplay"></iframe>
 </div>
+<div class="panel-overlay" id="overlay-music"><iframe id="frame-music" src="" title="Nova Music" allow="autoplay"></iframe></div>
 <div class="panel-overlay" id="overlay-settings">
   <iframe id="frame-settings" src=""></iframe>
 </div>
@@ -4532,5 +4534,6 @@ brRenderBmBar();
 <script type="module" src="home-chat-notifications.js"></script>
 <link rel="stylesheet" href="nova-onboarding.css">
 <script type="module" src="nova-onboarding.js"></script>
+<link rel="stylesheet" href="nova-music-shell.css"><script src="nova-music-shell.js"></script>
 </body>
 </html>>

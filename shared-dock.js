@@ -9,6 +9,7 @@
   if(pages[page])location.replace('home.html?nova-page='+encodeURIComponent(page+location.search));
   return;
  }
+ window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==document.getElementById('frame-music')?.contentWindow||event.data?.novaAction!=='closeMusic')return;document.getElementById('overlay-music')?.classList.remove('open');document.getElementById('dock-music')?.classList.remove('active','app-open');});
  function start(){
   const dock=document.querySelector('.dock');if(!dock)return;
   document.documentElement.classList.add('nova-shared-shell');
@@ -38,7 +39,7 @@
   dock.addEventListener('click',event=>{
    const button=event.target.closest('.dock-btn');if(!button)return;
    const name=button===dock.querySelector('.dock-btn')?'home':button.id.replace('dock-','');
-   if(['home','games','apps','chat','settings','browser'].includes(name)){event.preventDefault();event.stopImmediatePropagation();navigate(name,button);}
+   if(['home','games','apps','chat','settings','browser','music'].includes(name)){event.preventDefault();event.stopImmediatePropagation();navigate(name,button);}
    else closeAll();
   },true);
   const panelFrames=[...document.querySelectorAll('.panel-overlay iframe')];
