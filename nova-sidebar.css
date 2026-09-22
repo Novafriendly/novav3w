@@ -50,3 +50,5 @@
 
 .nova-sidebar .dock-icons{scrollbar-width:none!important;overflow-x:hidden!important}
 .nova-sidebar .dock-icons::-webkit-scrollbar{display:none!important;width:0!important}
+
+.nova-sidebar .dock-btn[onclick*="Minecraft"]{display:none!important}
