@@ -503,7 +503,7 @@
       
       // Track game activity in Firebase (with delay to ensure Firebase is ready)
       setTimeout(() => {
-        if (currentGameName && username && userId) {
+        if (currentGameName && typeof username !== 'undefined' && username && typeof userId !== 'undefined' && userId) {
           updateActivity(currentGameName, currentGameIcon);
         }
       }, 500);
