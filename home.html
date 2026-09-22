@@ -2743,15 +2743,14 @@
 // Scramjet proxy deployed on Render
 
 const BR_SEARCH_ENGINES = {
-  brave:  { name:'Brave',      url:'https://search.brave.com/search?q=',  suffix:'&source=web' },
   google: { name:'Google',     url:'https://www.google.com/search?q=',    suffix:'' },
   bing:   { name:'Bing',       url:'https://www.bing.com/search?q=',      suffix:'' },
   ddg:    { name:'DuckDuckGo', url:'https://duckduckgo.com/?q=',          suffix:'' },
 };
 
 function brGetSearchEngine() {
-  const key = localStorage.getItem('nova_search_engine') || 'brave';
-  return BR_SEARCH_ENGINES[key] || BR_SEARCH_ENGINES.brave;
+  const key = localStorage.getItem('nova_search_engine') || 'google';
+  return BR_SEARCH_ENGINES[key] || BR_SEARCH_ENGINES.google;
 }
 
 
@@ -3424,7 +3423,7 @@ function brOpenSettings(e) {
   brHistory = JSON.parse(localStorage.getItem('nova_br_history') || '[]');
   
   // Update active search engine
-  const currentEngine = localStorage.getItem('nova_search_engine') || 'brave';
+  const currentEngine = localStorage.getItem('nova_search_engine') || 'google';
   document.querySelectorAll('.br-search-engine-option').forEach(opt => {
     opt.classList.toggle('active', opt.dataset.engine === currentEngine);
   });

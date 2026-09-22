@@ -759,7 +759,7 @@
    CONFIG
 ═══════════════════════ */
 const PROXY_BASE = location.origin + '/nova-proxy/index.html?embedded=1&url=';
-const SEARCH_BASE = location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent('https://search.brave.com/search?q=');
+const SEARCH_BASE = location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent('https://www.google.com/search?q=');
 // Add connection optimization params
 const SEARCH_SUFFIX = ''; 
 
@@ -978,7 +978,7 @@ function navigate(raw) {
     proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input) + '&transport=libcurl';
   } else {
     // search query — brave search proxy
-    proxyUrl = PROXY_BASE + encodeURIComponent('https://search.brave.com/search?q=' + encodeURIComponent(input));
+    proxyUrl = PROXY_BASE + encodeURIComponent('https://www.google.com/search?q=' + encodeURIComponent(input));
   }
 
   tab.url = proxyUrl;
