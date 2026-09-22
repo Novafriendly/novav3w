@@ -4798,7 +4798,7 @@ function initHomeCustomization() {
 
 function loadHomeCustomization() {
   // Load dock position
-  const dockPosition = localStorage.getItem('nova_dock_position') || 'bottom';
+  const dockPosition = localStorage.getItem('nova_dock_position') || 'left';
   document.querySelectorAll('.dock-position-btn').forEach(btn => {
     if (btn.dataset.position === dockPosition) {
       btn.classList.add('active');

@@ -2,7 +2,7 @@
 <html lang="en" data-nova-page="apps">
 <head>
   <link rel="stylesheet" href="shared-dock.css">
-  <script defer src="shared-dock.js"></script>
+  <script defer src="shared-dock.js?v=sidebar2"></script>
   <link rel="stylesheet" href="./community.css">
   <script type="module" src="./community.js"></script>
   <script src="./panic-smart.js"></script>
@@ -591,6 +591,7 @@
       margin: 0 6px;
     }
   </style>
+<link rel="stylesheet" href="nova-catalog.css?v=sidebar2">
 </head>
 <body>
 <button type="button" onclick="closeappsPage()" aria-label="Back to Home" style="position:fixed;left:12px;top:12px;z-index:1100;padding:9px 12px;border:1px solid #ffffff30;border-radius:12px;background:#17191dcc;color:white;cursor:pointer;backdrop-filter:blur(16px)">← Home</button>
@@ -880,7 +881,7 @@
     // Create app card
     function createappCard(app) {
       const card = document.createElement('div');
-      card.className = 'app-card';
+      card.className = 'app-card';card.dataset.appId=String(app.id??app.url);
       card.onclick = () => openapp(app.url, app.name, app.cover, app.isProxied);
       
       card.innerHTML = `
@@ -1422,6 +1423,6 @@
       </svg>
     </button>
   </div>
-</body>
+<script src="nova-catalog.js?v=sidebar2"></script></body>
 </html>
 

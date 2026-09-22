@@ -544,7 +544,7 @@
       const target = new URL(currentGameUrl, location.href);
       if (!/^https?:$/.test(target.protocol)) { showNotification('Unsupported game address.', 'info'); return; }
       if (target.origin === location.origin && (target.pathname.startsWith('/math-tutors-main/') || target.pathname.startsWith('/html-main/html-main/'))) { target.host = 'nova-games.invalid'; target.port = ''; target.protocol = 'https:'; }
-      gameFrame.src = location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(target.href);
+      gameFrame.src = location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent(target.href);
       gameFrame.onload = () => hideProxyNotification();
     }
 

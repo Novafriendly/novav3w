@@ -1,0 +1,52 @@
+.nova-sidebar{--nova-rail:64px}
+.nova-sidebar .dock{position:fixed!important;left:0!important;right:auto!important;top:0!important;bottom:0!important;width:64px!important;height:100dvh!important;max-height:none!important;transform:none!important;translate:none!important;border-radius:0!important;padding:16px 8px 180px!important;background:rgba(15,18,23,.62)!important;backdrop-filter:blur(24px)!important;border:0!important;border-right:1px solid #ffffff16!important;box-shadow:none!important;z-index:100!important;display:flex!important;opacity:1!important;pointer-events:auto!important}
+.nova-sidebar .dock-icons{display:flex!important;flex-direction:column!important;gap:8px!important;width:100%;height:100%;overflow-y:auto;scrollbar-width:none;justify-content:flex-start!important}
+.nova-sidebar .dock-btn{width:44px!important;height:44px!important;min-height:44px!important;margin:0!important;border-radius:14px!important;background:transparent!important;color:#a7adb8!important;transition:background .18s,color .18s!important;flex-shrink:0}
+.nova-sidebar .dock-btn svg{width:21px!important;height:21px!important}
+.nova-sidebar .dock-btn:hover{background:#ffffff12!important;color:white!important;transform:none!important}
+.nova-sidebar .dock-btn.active,.nova-sidebar .dock-btn.app-open{background:rgba(255,255,255,.13)!important;color:#fff!important;box-shadow:inset 0 0 0 1px #ffffff26,0 4px 16px #0002!important}
+.nova-sidebar .dock-btn.active:after,.nova-sidebar .dock-label,.nova-sidebar .dock-plus,.nova-sidebar .dock-divider{display:none!important}
+.nova-sidebar #dock-settings{position:fixed;left:10px;bottom:66px}
+.nova-sidebar .panel-overlay,.nova-sidebar #browser-overlay,.nova-sidebar .app-overlay{left:64px!important;right:0!important;top:0!important;bottom:0!important;width:auto!important;height:auto!important;border-radius:0!important;transform:none!important}
+.nova-sidebar.nova-player-open .dock,.nova-sidebar.nova-player-open #nova-personal{display:none!important}
+.nova-sidebar.nova-player-open .panel-overlay{left:0!important}
+#nova-personal.nova-personal-sidebar{display:flex;position:fixed!important;left:8px!important;top:auto!important;bottom:12px!important;width:48px!important;height:150px!important;min-height:0!important;padding:0!important;flex-direction:column-reverse!important;justify-content:space-between!important;gap:0!important;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;transform:none!important;z-index:110!important}
+#nova-personal[hidden],#nova-home-footer[hidden]{display:none!important}
+.nova-personal-sidebar .np-trigger{width:44px!important;height:44px!important;padding:4px!important;justify-content:center!important}
+.nova-personal-sidebar .np-self-name,.nova-personal-sidebar .np-online-label{display:none!important}
+.nova-personal-sidebar .np-stack .np-avatar:not(:first-child){display:inline-grid}
+.nova-personal-sidebar .np-avatar{width:32px!important;height:32px!important;margin:0!important}
+.nova-personal-sidebar .np-card{position:fixed!important;left:74px!important;bottom:14px!important;top:auto!important;width:min(310px,calc(100vw - 90px))!important;transform:none!important;background:rgba(22,26,33,.9)!important;backdrop-filter:blur(28px)!important;border:1px solid #ffffff20!important;box-shadow:0 16px 60px #0005!important}
+.nova-home-footer{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:8px 12px;border:1px solid #ffffff24;border-radius:18px;background:#151a2266;backdrop-filter:blur(22px);z-index:20;color:white;font:13px system-ui}
+.nova-home-footer button{color:inherit;background:transparent;border:0;border-radius:10px;padding:8px;cursor:pointer}.nova-home-footer button:hover{background:#ffffff12}.nova-home-footer .np-update:after{content:'What’s new';font-size:12px;margin-left:8px}.nova-home-footer .np-update{display:flex;align-items:center}.nova-home-footer .np-card{bottom:70px;left:50%;transform:translateX(-50%);background:#171c24ed;backdrop-filter:blur(24px)}
+.nova-sidebar-right .dock{left:auto!important;right:0!important;border-left:1px solid #ffffff16!important;border-right:0!important}.nova-sidebar-right #dock-settings{left:auto;right:10px}.nova-sidebar-right #nova-personal.nova-personal-sidebar{left:auto!important;right:8px!important}.nova-sidebar-right .panel-overlay,.nova-sidebar-right #browser-overlay,.nova-sidebar-right .app-overlay{left:0!important;right:64px!important}.nova-sidebar-right .np-card{left:auto!important;right:74px!important}
+@media(prefers-reduced-motion:reduce){.nova-sidebar *{transition:none!important}}
+.nova-home-footer .np-update{width:auto!important;min-width:126px;white-space:nowrap;height:40px;justify-content:center}.nova-home-footer .np-trigger{white-space:nowrap;display:flex;align-items:center;gap:8px}.nova-home-footer .np-update:after{white-space:nowrap}.nova-personal-sidebar .np-group{position:fixed!important;left:10px!important;bottom:12px!important;padding:0!important;border:0!important}.nova-personal-sidebar .np-group:nth-child(2){bottom:124px!important}.nova-sidebar #dock-settings{bottom:68px!important}.nova-personal-sidebar .np-group .np-trigger{height:44px!important;min-height:44px!important}.nova-sidebar-right .nova-personal-sidebar .np-group{left:auto!important;right:10px!important}
+.nova-personal-sidebar.np-bar>.np-group{height:44px!important;width:44px!important;top:auto!important}.nova-sidebar:not(.nova-home-only) .clock-wrap{visibility:hidden!important}.nova-sidebar.nova-player-open .panel-overlay{right:0!important}
+.nova-home-footer{bottom:24px}.nova-shared-shell:not(.nova-sidebar) .nova-home-footer{bottom:95px}
+.nova-sidebar .br-ntp{background:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px),#0d111533;background-size:38px 38px;gap:22px}.nova-sidebar .br-nova-title{font:700 32px system-ui;letter-spacing:-1px;text-shadow:none;margin-bottom:0}.br-new-hint{font:14px system-ui;color:#b3bac6;margin:0 0 12px}.nova-sidebar .br-apps-section{padding:24px;border:1px solid #ffffff22;border-radius:24px;background:#ffffff09;backdrop-filter:blur(20px)}.nova-sidebar .br-nts-bar{border-radius:28px;background:#171d2580;border:1px solid #ffffff30}.nova-sidebar .br-nav-bar{background:#171b226e}.nova-sidebar .br-tab.active{border-top:2px solid #23c69b}
+.nova-sidebar #browser-overlay .br-nova-title{font:700 34px system-ui!important;letter-spacing:-1px!important;margin:0!important;text-shadow:none!important}.nova-sidebar #browser-overlay .br-ntp{padding-top:clamp(30px,10vh,100px)!important}.nova-sidebar #browser-overlay .br-apps-section{max-width:640px}.nova-sidebar #browser-overlay .br-apps-grid{grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}
+.nova-personal-sidebar .np-stack:empty:after{content:'●';color:#55dbac;font-size:18px}
+/* Let Settings receive clicks through the gap between Personal controls. */
+#nova-personal.nova-personal-sidebar{pointer-events:none!important}
+.nova-personal-sidebar .np-group,.nova-personal-sidebar .np-card{pointer-events:auto!important}
+.nova-sidebar #dock-settings{display:grid!important;place-items:center!important;padding:0!important;z-index:111}
+.nova-sidebar #dock-settings svg{display:block;width:22px!important;height:22px!important}
+.nova-sidebar .dock-btn:focus-visible{outline:2px solid #ffffff90;outline-offset:2px}
+/* Stack online avatars vertically so the stack stays within the rail. */
+.nova-personal-sidebar .np-stack{display:flex!important;flex-direction:column;align-items:center;padding:0!important}
+.nova-personal-sidebar .np-stack .np-avatar{width:27px!important;height:27px!important;border:2px solid #41474f;flex-shrink:0;box-shadow:0 2px 5px #0004}
+.nova-personal-sidebar .np-stack .np-avatar+.np-avatar{margin-top:-13px!important}
+.nova-personal-sidebar.np-bar>.np-group:nth-child(2){height:auto!important}
+.nova-personal-sidebar .np-group:nth-child(2) .np-trigger{height:auto!important;min-height:44px!important;padding:5px!important}
+.nova-sidebar .panel-overlay,.nova-sidebar #browser-overlay,.nova-sidebar .app-overlay{transition:opacity 180ms ease!important}
+.nova-sidebar .panel-overlay.open>iframe,.nova-sidebar #browser-overlay.open>.br-tab-bar,.nova-sidebar #browser-overlay.open>.br-content-wrapper{animation:nova-page-enter 220ms cubic-bezier(.2,.7,.2,1) both}
+@keyframes nova-page-enter{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.nova-sidebar .panel-overlay.open>iframe,.nova-sidebar #browser-overlay.open>*{animation:none!important}.nova-sidebar .panel-overlay,.nova-sidebar #browser-overlay,.nova-sidebar .app-overlay{transition:none!important}}
+/* Keep the original app shortcuts available in the scrollable sidebar. */
+.nova-sidebar .dock-btn[onclick^='openProxiedApp']{display:grid!important;place-items:center;padding:0!important}
+.nova-sidebar .dock-btn[onclick^='openProxiedApp'] img{width:24px!important;height:24px!important;object-fit:contain;border-radius:6px}
+.nova-sidebar .dock-icons{min-height:0;overscroll-behavior:contain}
+
+.nova-sidebar .dock-icons{scrollbar-width:none!important;overflow-x:hidden!important}
+.nova-sidebar .dock-icons::-webkit-scrollbar{display:none!important;width:0!important}

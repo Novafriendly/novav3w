@@ -1,4 +1,4 @@
-// Generated from math-tutors-main HTML filenames.
+// Generated from local HTML filenames.
 window.NovaGameHtmlFiles={
   "0": "0.html",
   "1": "1-fde.html",
@@ -840,5 +840,10 @@ window.NovaGameHtmlFiles={
   "861": "861.html",
   "862": "862.html",
   "863": "863.html",
-  "864": "864.html"
+  "864": "864.html",
+  "865": "865.html",
+  "866": "866.html",
+  "867": "867.html",
+  "868": "868.html",
+  "869": "869.html"
 };

@@ -433,7 +433,7 @@
       
       if (currentAppUrl) {
         // Use the same built-in proxy as Nova Search.
-        currentProxyUrl = location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(currentAppUrl);
+        currentProxyUrl = location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent(currentAppUrl);
 
         appFrame.src = currentProxyUrl;
         appTitle.textContent = currentAppName;

@@ -9,8 +9,6 @@
   <title>Nova Browser</title>
   
   <!-- Preconnect to proxy for faster loading -->
-  <link rel="preconnect" href="https://teteersbanscracmjetfornova.onrender.com" crossorigin>
-  <link rel="dns-prefetch" href="https://teteersbanscracmjetfornova.onrender.com">
   
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMCLEN1ZWQ"></script>
@@ -760,14 +758,14 @@
 /* ═══════════════════════
    CONFIG
 ═══════════════════════ */
-const PROXY_BASE = 'https://teteersbanscracmjetfornova.onrender.com/?url=';
-const SEARCH_BASE = 'https://teteersbanscracmjetfornova.onrender.com/?url=' + encodeURIComponent('https://search.brave.com/search?q=');
+const PROXY_BASE = location.origin + '/nova-proxy/index.html?embedded=1&url=';
+const SEARCH_BASE = location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent('https://search.brave.com/search?q=');
 // Add connection optimization params
-const SEARCH_SUFFIX = '&source=web&transport=libcurl&codec=xor';
+const SEARCH_SUFFIX = ''; 
 
 const ERROR_URLS = [
-  'https://teteersbanscracmjetfornova.onrender.com/',
-  'https://teteersbanscracmjetfornova.onrender.com/?url=',
+  location.origin + '/nova-proxy/',
+  location.origin + '/nova-proxy/index.html?embedded=1&url=',
   PROXY_BASE + encodeURIComponent('https://www.google.com') + '&transport=libcurl',
 ];
 
@@ -980,7 +978,7 @@ function navigate(raw) {
     proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input) + '&transport=libcurl';
   } else {
     // search query — brave search proxy
-    proxyUrl = SEARCH_BASE + encodeURIComponent(input) + SEARCH_SUFFIX;
+    proxyUrl = PROXY_BASE + encodeURIComponent('https://search.brave.com/search?q=' + encodeURIComponent(input));
   }
 
   tab.url = proxyUrl;

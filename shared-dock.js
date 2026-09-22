@@ -13,6 +13,7 @@
  function start(){
   const dock=document.querySelector('.dock');if(!dock)return;
   document.documentElement.classList.add('nova-shared-shell');
+  dock.querySelectorAll('.dock-btn').forEach((b,i)=>{const label=i===0?'Home':({games:'Games',apps:'Apps',chat:'Chat',browser:'Search',music:'Music',ai:'Nova AI',settings:'Settings'})[b.id.replace('dock-','')];if(label){b.setAttribute('aria-label',label);b.title=label;}});
   const pageKinds=new Map();
   window.novaSetPanelPage=(source,kind)=>{const frame=[...document.querySelectorAll('.panel-overlay iframe')].find(f=>f.contentWindow===source);if(frame){pageKinds.set(frame,kind);layout();}};
   window.addEventListener('message',event=>{if(event.data?.novaAction==='panelPage'&&['catalog','player'].includes(event.data.kind))window.novaSetPanelPage(event.source,event.data.kind);});
@@ -24,7 +25,7 @@
    const frame=document.getElementById('frame-'+name),panel=document.getElementById('overlay-'+name);
    if(!frame||!panel)return;
    let current='';try{current=frame.contentWindow.location.pathname.split('/').pop();}catch{}
-   if(!frame.getAttribute('src') || frame.getAttribute('src')==='about:blank' || (['games','apps'].includes(name) && current!==name+'.html'))frame.src=name+'.html';
+   if(!frame.getAttribute('src') || frame.getAttribute('src')==='about:blank' || (['games','apps'].includes(name) && current!==name+'.html'))frame.src=name+'.html?v=sidebar2';
    if(['games','apps'].includes(name))pageKinds.set(frame,'catalog');
    panel.classList.add('open');button?.classList.add('active','app-open');
    dock.classList.remove('hidden-in-game','dock-hidden');
@@ -32,7 +33,7 @@
   window.novaClosePlayer=function(name,fromDock){
    const frame=document.getElementById('frame-'+name);
    if(fromDock){closeAll();dock.classList.remove('hidden-in-game','dock-hidden');dock.querySelector('.dock-btn')?.classList.add('active');if(frame)frame.src='about:blank';}
-   else {if(frame)frame.src=name+'.html';navigate(name,document.getElementById('dock-'+name));}
+   else {if(frame)frame.src=name+'.html?v=sidebar2';navigate(name,document.getElementById('dock-'+name));}
    layout();
   };
   window.novaCloseAppPlayer=fromDock=>window.novaClosePlayer('apps',fromDock);
@@ -63,6 +64,12 @@
   function layout(){
    const state=catalogIsOpen();
    document.documentElement.classList.toggle('nova-catalog-dock',state.catalog);
+   const side=dock.classList.contains('dock-left')||dock.classList.contains('dock-right');
+   document.documentElement.classList.toggle('nova-sidebar',side);
+   document.documentElement.classList.toggle('nova-sidebar-right',dock.classList.contains('dock-right'));
+   const player=[...document.querySelectorAll('.panel-overlay.open iframe')].some(f=>{try{return f.contentDocument?.documentElement.dataset.novaPage==='player'}catch{return pageKinds.get(f)==='player'}});
+   document.documentElement.classList.toggle('nova-player-open',player);
+   document.documentElement.classList.toggle('nova-home-only',state.home);
    document.documentElement.classList.toggle('nova-dock-away',!state.home&&!state.catalog);
    if(!state.catalog)return;
 

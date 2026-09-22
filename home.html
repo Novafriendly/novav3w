@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" href="shared-dock.css">
-  <script defer src="shared-dock.js"></script>
+  <script defer src="shared-dock.js?v=sidebar2"></script>
   <link rel="stylesheet" href="./community.css">
   <script type="module" src="./community.js"></script>
   <script src="./panic-smart.js"></script>
@@ -2554,7 +2554,7 @@
   function applyDockPosition() {
     console.log('📍 Applying dock position...');
     
-    const position = localStorage.getItem('nova_dock_position') || 'bottom';
+    const position = localStorage.getItem('nova_dock_position') || 'left';
     const dock = document.querySelector('.dock');
     
     console.log(`  Position: ${position}`);
@@ -2795,7 +2795,7 @@ function brProxyUrl(input) {
   if (/^https?:\/\//i.test(s)) targetUrl = s;
   else if (/^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/.*)?$/.test(s) && !s.includes(' ')) targetUrl = 'https://' + s;
   else targetUrl = se.url + encodeURIComponent(s) + se.suffix;
-  return location.origin + '/nova-search/index.html?embedded=1&url=' + encodeURIComponent(targetUrl);
+  return location.origin + '/nova-proxy/index.html?embedded=1&url=' + encodeURIComponent(targetUrl);
 }
 
 /* ── Open / close ── */
@@ -2903,7 +2903,7 @@ function brRenderViews() {
 /* ── New Tab Page ── */
 function brBuildNTP(tabId) {
   return `
-    <div class="br-nova-title">Nova</div>
+    <div class="br-nova-title">Nova</div><p class="br-new-hint">Search the web, or save somewhere you love.</p>
 
     <div class="br-nts-wrap">
       <div class="br-nts-bar">
@@ -4538,5 +4538,6 @@ brRenderBmBar();
 <script type="module" src="nova-onboarding.js"></script>
 <link rel="stylesheet" href="nova-music-shell.css"><script src="nova-music-shell.js"></script>
 <div class="panel-overlay" id="overlay-ai"><iframe id="frame-ai" src="" title="Nova AI"></iframe></div><script src="nova-ai-shell.js"></script>
+<link rel="stylesheet" href="nova-sidebar.css?v=sidebar2">
 </body>
 </html>>

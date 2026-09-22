@@ -3,7 +3,7 @@
 <head>
   <script src="game-html-files.js"></script>
   <link rel="stylesheet" href="shared-dock.css">
-  <script defer src="shared-dock.js"></script>
+  <script defer src="shared-dock.js?v=sidebar2"></script>
   <link rel="stylesheet" href="game-social.css">
   <script type="module" src="game-social.js"></script>
   <link rel="stylesheet" href="./community.css">
@@ -594,6 +594,7 @@
       margin: 0 6px;
     }
   </style>
+<link rel="stylesheet" href="nova-catalog.css?v=sidebar2">
 </head>
 <body>
   <div class="library">
@@ -798,9 +799,9 @@
           .filter(game => game.id >= 0)
           .map(game => ({
             ...game,
-            cover: game.cover.replace('{COVER_URL}', COVER_URL),
-            url: window.NovaGameHtmlFiles[String(game.id)] ? HTML_URL + '/' + window.NovaGameHtmlFiles[String(game.id)] : '',
-            gameLink: null, // Launch paths come from the packaged HTML index.
+            cover: String(game.cover || '').replace('{COVER_URL}', COVER_URL),
+            url: typeof game.Newgame === 'string' && /^https?:\/\//i.test(game.Newgame.trim()) ? game.Newgame.trim() : (window.NovaGameHtmlFiles[String(game.id)] ? HTML_URL + '/' + window.NovaGameHtmlFiles[String(game.id)] : ''),
+            gameLink: null, // Newgame overrides the packaged HTML path above.
             genre: classifyGenre(game.name)
           }));
         
@@ -1425,6 +1426,6 @@
       </svg>
     </button>
   </div>
-</body>
+<script src="nova-catalog.js?v=sidebar2"></script></body>
 </html>
 

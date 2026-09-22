@@ -1,0 +1,30 @@
+.library{padding-bottom:0!important;background:rgba(10,14,20,.2)}
+.topbar{padding:28px 24px 20px!important;background:transparent!important;backdrop-filter:none!important;border:0!important;flex-wrap:wrap;gap:12px!important}
+.search-wrap,.search-wrap.expanded{order:-1;width:min(600px,55vw)!important;flex:0 1 600px}
+.search-inp{height:48px!important;border-radius:26px!important;background:#14181f8c!important;border:1px solid #ffffff24!important;font-size:14px!important}
+.search-ico{top:50%!important;transform:translateY(-50%)}
+.btn-rand,.genre-btn{background:#171c246b!important;border:1px solid #ffffff20!important;border-radius:24px!important;padding:12px 16px!important}
+.grid-scroll{padding:10px 20px 24px!important}.game-grid,.app-grid{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:18px!important}
+.game-card,.app-card{border-radius:14px!important;overflow:hidden;border:1px solid #ffffff20!important;aspect-ratio:234 / 146!important;background:#ffffff06!important;transition:transform .18s,border-color .18s!important}
+.game-card:hover,.app-card:hover{transform:translateY(-3px)!important;border-color:#ffffff60!important}.game-card-img,.app-card-img{width:100%;height:100%;object-fit:cover}.game-card-author,.app-card-author{display:none!important}.game-card-title,.app-card-title{font-size:13px!important}.game-card-overlay,.app-card-overlay{background:linear-gradient(to top,rgba(0,0,0,.48) 0,rgba(0,0,0,.12) 24px,transparent 52px)!important}
+@media(max-width:650px){.topbar{padding:18px 12px!important}.search-wrap,.search-wrap.expanded{flex-basis:100%;width:100%!important}.grid-scroll{padding:10px 12px!important}.game-grid,.app-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}}
+@media(prefers-reduced-motion:reduce){.game-card,.app-card{transition:none!important}}
+.catalog-tabs{display:flex;justify-content:center;gap:24px;padding:0 12px 20px;flex-shrink:0}.catalog-tabs button{font:600 13px system-ui;background:transparent;border:0;color:#a3adbb;padding:8px 10px;cursor:pointer;border-bottom:2px solid transparent}.catalog-tabs button[aria-pressed=true]{color:#23c69b;border-color:#23c69b}.game-favorites{display:none!important}.game-card[hidden],.app-card[hidden]{display:none!important}.catalog-empty{text-align:center;padding:40px;color:#b5bdc8}.catalog-heart{position:absolute;right:10px;top:10px;border:1px solid #ffffff30;border-radius:50%;background:#15182066;backdrop-filter:blur(12px);color:white;width:32px;height:32px;opacity:0;cursor:pointer}.app-card:hover .catalog-heart,.catalog-heart:focus-visible,.catalog-heart[aria-pressed=true]{opacity:1}.catalog-heart:hover,.catalog-heart[aria-pressed=true]{color:#ff77a9}.game-card-placeholder,.app-card-placeholder{background:#181e2680!important}.nova-personal-sidebar .np-stack:empty:after{content:'●';color:#55dbac;font-size:18px}
+.game-card-overlay,.app-card-overlay{opacity:1!important;transform:none!important;padding:30px 12px 12px!important}.game-card:hover .game-card-overlay{padding-bottom:44px!important}.game-card-title,.app-card-title{text-shadow:0 2px 5px #0009}
+.nova-embedded-page button[aria-label="Back to Home"]{display:none!important}
+/* Six desktop cards per row, with smaller-screen fallbacks. */
+.game-card,.app-card{min-width:0;position:relative;isolation:isolate}
+.game-card::after,.app-card::after{content:'';position:absolute;left:50%;top:45%;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 5v14l11-7z'/%3E%3C/svg%3E") center/16px no-repeat;border:1px solid #ffffff60;backdrop-filter:blur(12px);box-shadow:0 5px 20px #0003;transform:translate(-50%,-40%) scale(.9);opacity:0;pointer-events:none;z-index:2;transition:opacity .18s,transform .18s}
+.game-card:hover::after,.app-card:hover::after,.game-card:focus-within::after,.app-card:focus-within::after{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.game-card-title,.app-card-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
+@media(max-width:1050px){.game-grid,.app-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important}}
+@media(max-width:760px){.game-grid,.app-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}}
+@media(max-width:540px){.game-grid,.app-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}}
+@media(prefers-reduced-motion:reduce){.game-card::after,.app-card::after{transition:none}}/* Match the reference at full width, and shrink evenly to retain six columns. */
+.game-grid,.app-grid{width:100%;max-width:1504px;margin-inline:auto}
+.game-card,.app-card{border:1px solid rgba(255,255,255,.22)!important;box-shadow:0 2px 8px #0002;transition:transform .18s,border-color .18s,box-shadow .18s!important}
+.game-card:hover,.app-card:hover,.game-card:focus-within,.app-card:focus-within{border-color:rgba(199,236,227,.75)!important;box-shadow:0 0 0 1px #c7ece326,0 5px 16px #0003;transform:translateY(-2px)!important}
+@media(prefers-reduced-motion:reduce){.game-card,.app-card{transition:none!important;transform:none!important}}
+/* Loading placeholders must not cover finished artwork. */
+.game-card:has(> .game-card-img.loaded) > .game-card-placeholder,
+.app-card:has(> .app-card-img.loaded) > .app-card-placeholder{display:none!important}

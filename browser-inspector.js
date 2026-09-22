@@ -9,14 +9,14 @@
   function refresh(){stopPick?.();stopPick=null;doc=null;nodes=[];list.replaceChildren();output.textContent='';
     const frame=shell.querySelector('.br-view.active .br-frame.show,.tab-view.active .tab-frame.visible');lastFrame=frame;
     if(!frame){status.textContent='Open a website in this tab to inspect it.';pick.disabled=true;return;}
-    try{doc=frame.contentDocument;if(!doc?.documentElement)throw Error();void doc.documentElement.tagName;}catch{status.textContent='Opening the proxy inspector… If it does not appear, the proxy needs its inspector update deployed.';pick.disabled=true;
+    try{doc=frame.contentDocument;for(let depth=0;depth<3;depth++){const nested=doc?.querySelector('iframe');if(!nested?.contentDocument)break;doc=nested.contentDocument;}if(!doc?.documentElement)throw Error();void doc.documentElement.tagName;}catch{status.textContent='Opening the proxy inspector… If it does not appear, the proxy needs its inspector update deployed.';pick.disabled=true;
       const origin=new URL(frame.src).origin;
-      if(origin==='https://teteersbanscracmjetfornova.onrender.com')frame.contentWindow.postMessage({type:'nova-inspector-open'},origin);
+      if(origin===location.origin)frame.contentWindow.postMessage({type:'nova-inspector-open'},origin);
       return;}
     status.textContent='Live page elements. Select an element to view its HTML and computed styles.';pick.disabled=false;
     nodes=[...doc.querySelectorAll('*')].slice(0,1500);nodes.forEach((node,i)=>{const option=document.createElement('option');option.value=i;option.textContent=node.tagName.toLowerCase()+(node.id?'#'+node.id:'')+(typeof node.className==='string'&&node.className?'.'+node.className.trim().split(/\s+/).join('.'):'');list.appendChild(option)});details(nodes[0]);
   }
-  window.addEventListener('message',event=>{if(event.data?.type==='nova-inspector-ready' && event.origin==='https://teteersbanscracmjetfornova.onrender.com' && event.source===lastFrame?.contentWindow){panel.hidden=true;}});
+  window.addEventListener('message',event=>{if(event.data?.type==='nova-inspector-ready' && event.origin===location.origin && event.source===lastFrame?.contentWindow){panel.hidden=true;}});
   list.onchange=()=>details(nodes[Number(list.value)]);
   pick.onclick=()=>{if(!doc)return;stopPick?.();status.textContent='Click an element on the page to inspect it.';const click=event=>{event.preventDefault();event.stopPropagation();details(event.target);status.textContent='Selected element';stopPick();stopPick=null};doc.addEventListener('click',click,true);stopPick=()=>doc?.removeEventListener('click',click,true)};
   launch.onclick=()=>{panel.hidden=!panel.hidden;if(!panel.hidden)refresh();else stopPick?.()};panel.querySelector('[data-close]').onclick=()=>{panel.hidden=true;stopPick?.();launch.focus()};panel.querySelector('[data-refresh]').onclick=refresh;

@@ -49,10 +49,16 @@ export function startPersonal(api){
   self.button.setAttribute('aria-label','Your Nova profile and stats');people.button.setAttribute('aria-label','Users online now');views.button.setAttribute('aria-label','Home page visits');
   const logs=el('button','np-update');logs.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>';logs.setAttribute('aria-label','Open update log');logs.title='Update log';logs.onclick=()=>openUpdateLogs(api);bar.append(logs);document.body.append(bar);
   let releases={};const badge=()=>{let seen=0;try{seen=Number(localStorage.getItem(readKey()))||0;}catch{}const unread=revision(releases)>seen;logs.classList.toggle('np-unread',unread);logs.setAttribute('aria-label',unread?'New update — open update log':'Open update log');logs.title=unread?'New update — open to read':'Update log';};api.backend.subscribe('novaUpdateLogs',value=>{releases=value||{};badge();},()=>{});window.addEventListener('nova-updates-read',badge);window.addEventListener('storage',badge);
-  document.addEventListener('pointerdown',event=>{if(!bar.contains(event.target))cards.forEach(x=>x.hide());});bar.addEventListener('keydown',event=>{if(event.key==='Escape'){cards.forEach(x=>x.hide());event.target.closest('.np-group')?.querySelector('button')?.focus();}});
+  document.addEventListener('pointerdown',event=>{if(!bar.contains(event.target)&&!document.getElementById('nova-home-footer')?.contains(event.target))cards.forEach(x=>x.hide());});bar.addEventListener('keydown',event=>{if(event.key==='Escape'){cards.forEach(x=>x.hide());event.target.closest('.np-group')?.querySelector('button')?.focus();}});
   const setStyle=(node,key,value)=>{if(node.style.getPropertyValue(key)!==value)node.style.setProperty(key,value);};
   function position(){
     const home=document.getElementById('s-home');
+    const side=dock.classList.contains('dock-left')||dock.classList.contains('dock-right');
+    let footer=document.getElementById('nova-home-footer');if(!footer){footer=el('aside','nova-home-footer');footer.id='nova-home-footer';document.body.append(footer);}
+    footer.append(views.button.parentElement,logs);
+    footer.hidden=!!document.querySelector('.panel-overlay.open,.app-overlay.open,#browser-overlay.open')||home?.classList.contains('hidden');
+    if(side){bar.classList.add('nova-personal-sidebar');bar.hidden=home?.classList.contains('hidden')||document.documentElement.classList.contains('nova-player-open');return;}
+    bar.classList.remove('nova-personal-sidebar');
     const away=(home && (home.classList.contains('hidden')||getComputedStyle(home).display==='none'))||!!document.querySelector('.panel-overlay.open,.app-overlay.open,#browser-overlay.open')||!!document.fullscreenElement;
     bar.hidden=away;
     if(away){cards.forEach(x=>x.hide());dock.classList.toggle('np-personal-paired',false);dock.classList.toggle('np-has-personal-side',false);return;}
