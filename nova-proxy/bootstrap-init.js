@@ -24,9 +24,8 @@ async function initBootstrap() {
   config.injectPath = '/nova-proxy/controller/controller.inject.js';
   config.wasmPath = '/nova-proxy/scram/scramjet.wasm';
   config.scramjetPath = '/nova-proxy/scram/scramjet.js';
-  // Address the function directly: deployment fallback routes can swallow /wisp/.
-  const wisp = new URL('/api/wisp/', location.href);
-  wisp.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  // Vercel serves HTTP functions but cannot keep the Wisp WebSocket open.
+  const wisp = new URL(window.NOVA_WISP_URL || 'wss://wisp.mercurywork.shop/');
   const transport = new window.LibcurlTransport.LibcurlClient({ wisp: wisp.href });
   const controller = new Controller({ serviceworker, transport: novaGameTransport(transport) });
   await controller.wait();
