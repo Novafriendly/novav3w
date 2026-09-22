@@ -3,9 +3,6 @@
   "functions": {
     "api/wisp.js": {
       "maxDuration": 300
-    },
-    "api/ai-chat.js": {
-      "maxDuration": 30
     }
   },
   "headers": [
