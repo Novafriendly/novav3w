@@ -60,16 +60,8 @@
       "source": "/nova-proxy/:path*",
       "headers": [
         {
-          "key": "Cross-Origin-Opener-Policy",
-          "value": "same-origin"
-        },
-        {
-          "key": "Cross-Origin-Embedder-Policy",
-          "value": "require-corp"
-        },
-        {
-          "key": "Cross-Origin-Resource-Policy",
-          "value": "same-origin"
+          "key": "Cache-Control",
+          "value": "no-cache"
         },
         {
           "key": "Cache-Control",
@@ -80,6 +72,10 @@
   ],
   "outputDirectory": ".",
   "rewrites": [
+    {
+      "source": "/nova-proxy/proxy/:path*",
+      "destination": "/nova-proxy/index.html"
+    },
     {
       "source": "/api/wisp/",
       "destination": "/api/wisp"
