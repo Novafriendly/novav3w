@@ -1230,6 +1230,9 @@
       gap: 32px; padding: 0 24px 60px; overflow-y: auto;
     }
     .br-ntp.hide { display: none; }
+    .nova-search-home { display: block; }
+    #browser-overlay:not(.open) .nova-search-home,
+    .br-ntp.hide .nova-search-home { display: none; }
 
     .br-nova-title {
       font-size: clamp(56px, 10vw, 88px); font-weight: 900;
@@ -2905,7 +2908,7 @@ function brBuildNTP(tabId) {
   return `
     <div class="br-nova-title">Nova</div><p class="br-new-hint">Search the web, or save somewhere you love.</p>
 
-    <div class="br-nts-wrap">
+    <div class="br-nts-wrap nova-search-home">
       <div class="br-nts-bar">
         <span class="br-nts-ico" id="br-nts-ico-${tabId}">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
