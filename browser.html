@@ -977,7 +977,7 @@ function navigate(raw) {
     // domain like youtube.com — add https then proxy
     proxyUrl = PROXY_BASE + encodeURIComponent('https://' + input) + '&transport=libcurl';
   } else {
-    // search query — brave search proxy
+    // search query — Google proxy
     proxyUrl = PROXY_BASE + encodeURIComponent('https://www.google.com/search?q=' + encodeURIComponent(input));
   }
 
